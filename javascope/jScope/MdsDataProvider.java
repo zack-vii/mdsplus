@@ -475,7 +475,7 @@ public class MdsDataProvider implements DataProvider
                         if (DEBUG.ON){System.out.println(">> x done: ("+v_x+"="+in_x+")");}
                     }
 
-                } catch(Exception exc){System.err.println(exc);}
+                } catch(Exception exc){System.err.println("MdsDataProvider.SimpleWaveData: "+exc);}
                 this.in_y = in_y;
                 this.in_x = in_x;
             }
@@ -498,7 +498,7 @@ public class MdsDataProvider implements DataProvider
                         segmentMode = SEGMENTED_NO;
                 }catch(Exception exc)
                 {// numSegments==null should not get here anymore
-                    if (DEBUG.ON){System.err.println("SegmentMode:\n"+exc);}
+                    if (DEBUG.ON){System.err.println("MdsDataProvider.SimpleWaveData.SegmentMode: "+exc);}
                     error = null;
                     segmentMode = SEGMENTED_UNKNOWN;
                 }
@@ -638,7 +638,7 @@ public class MdsDataProvider implements DataProvider
                 return getXYSignal(xmin, xmax, numPoints, isLong, setTimeContext);
             }catch(Exception exc)
             {
-               if (DEBUG.ON){System.err.println("MdsMisc->GetXYSignal() is not available on the server\n:"+exc);}
+               if (DEBUG.ON){System.err.println("MdsMisc->GetXYSignal() is not available on the server: "+exc);}
             }
             if (DEBUG.ON){System.out.println("traditional method");}
             float y[] = GetFloatArray(setTimeContext+"("+v_y+")");
@@ -685,7 +685,7 @@ public class MdsDataProvider implements DataProvider
             }
             catch(Exception exc)
             {
-                if (DEBUG.ON){System.err.println("setTimeContext:\n:"+exc);}
+                if (DEBUG.ON){System.err.println("MdsDataProvider.SimpleWaveData.setTimeContext: "+exc);}
                 res = "";
             }
             return res;
@@ -820,7 +820,7 @@ public class MdsDataProvider implements DataProvider
 /*          }
             catch(Exception exc)
             {
-            if (DEBUG.ON){System.err.println("Error Reading data:\n"+exc);}
+            if (DEBUG.ON){System.err.println("Error Reading data: "+exc);}
                 nSamples = 0;
             }
 */          //Got resampled signal, if it is segmented and jScope.refreshPeriod > 0, enqueue a new request
@@ -1048,7 +1048,7 @@ public class MdsDataProvider implements DataProvider
                         }catch(Exception exc)
                         {
                             Date d = new Date();
-                            if (DEBUG.ON){System.err.println(d+" Error in asynchUpdate:\n"+exc);}
+                            if (DEBUG.ON){System.err.println(d+" Error in asynchUpdate: "+exc);}
                         }
                     }
                     else
@@ -1442,7 +1442,19 @@ public class MdsDataProvider implements DataProvider
     {
         updateWorker.enableAsyncUpdate(enable);
     }
-
+    double GetDate(String in) throws Exception
+    {
+        if (DEBUG.ON){System.out.println("MdsDataProvider.GetDate(\""+in+"\")");}
+        Calendar cal = Calendar.getInstance();
+        //cal.setTimeZone(TimeZone.getTimeZone("GMT+00"));
+        DateFormat df = new SimpleDateFormat("d-MMM-yyyy HH:mm Z");
+        //DateFormat df = new SimpleDateFormat("d-MMM-yyyy HH:mm");-
+        Date date = df.parse(in + " GMT");
+        //Date date = df.parse(in);
+        cal.setTime(date);
+        long javaTime = cal.getTime().getTime();
+        return javaTime;
+    }
     double GetNow(String in) throws Exception
     {
         if (DEBUG.ON){System.out.println("MdsDataProvider.GetNow(\""+in+"\")");}
@@ -1508,23 +1520,8 @@ public class MdsDataProvider implements DataProvider
         if (DEBUG.ON){System.out.println("MdsDataProvider.GetFloat(\""+in+"\")");}
         error = null;
         //First check Whether this is a date
-        try {
-            Calendar cal = Calendar.getInstance();
-            //cal.setTimeZone(TimeZone.getTimeZone("GMT+00"));
-            DateFormat df = new SimpleDateFormat("d-MMM-yyyy HH:mm Z");
-            //DateFormat df = new SimpleDateFormat("d-MMM-yyyy HH:mm");-
-            Date date = df.parse(in + " GMT");
-            //Date date = df.parse(in);
-            cal.setTime(date);
-            long javaTime = cal.getTime().getTime();
-            return javaTime;
-        }catch(Exception exc1) //If exception occurs this is not a date, try NOW condtruction
-        {
-            try {
-                return GetNow(in);
-            }catch(Exception exc2){if (DEBUG.ON){System.err.println("MdsDataProvider.GetFloat:\n"+exc2);}}
-        }
-
+        try {return GetDate(in);}catch(Exception excD){}
+        try {return GetNow(in); }catch(Exception excN){}
         if (NotYetNumber(in))
         {
             if (!CheckOpen())
@@ -1888,7 +1885,7 @@ public class MdsDataProvider implements DataProvider
 
     public synchronized void AddUpdateEventListener(UpdateEventListener l, String event_name) throws IOException
     {
-        if (DEBUG.ON){System.out.println("MdsDataProvider.AddUpdateEventListener(l,"+event_name+")");}
+        if (DEBUG.ON){System.out.println("MdsDataProvider.AddUpdateEventListener("+l+","+event_name+")");}
         int eventid;
         String error;
 
@@ -1900,7 +1897,7 @@ public class MdsDataProvider implements DataProvider
 
     public synchronized void RemoveUpdateEventListener(UpdateEventListener l, String event_name) throws IOException
     {
-        if (DEBUG.ON){System.out.println("MdsDataProvider.RemoveUpdateEventListener(l,"+event_name+")");}
+        if (DEBUG.ON){System.out.println("MdsDataProvider.RemoveUpdateEventListener("+l+","+event_name+")");}
         int eventid;
         String error;
 
@@ -1912,7 +1909,7 @@ public class MdsDataProvider implements DataProvider
 
     public synchronized void AddConnectionListener(ConnectionListener l)
     {
-        if (DEBUG.ON){System.out.println("MdsDataProvider.AddConnectionListener(l)");}
+        if (DEBUG.ON){System.out.println("MdsDataProvider.AddConnectionListener("+l+")");}
         if (mds == null)
         {
             return;
@@ -1922,7 +1919,7 @@ public class MdsDataProvider implements DataProvider
 
     public synchronized void RemoveConnectionListener(ConnectionListener l)
     {
-        if (DEBUG.ON){System.out.println("MdsDataProvider.RemoveConnectionListener(l)");}
+        if (DEBUG.ON){System.out.println("MdsDataProvider.RemoveConnectionListener("+l+")");}
         if (mds == null)
         {
             return;
@@ -1932,7 +1929,7 @@ public class MdsDataProvider implements DataProvider
 
     protected void DispatchConnectionEvent(ConnectionEvent e)
     {
-        if (DEBUG.ON){System.out.println("MdsDataProvider.DispatchConnectionEvent(e)");}
+        if (DEBUG.ON){System.out.println("MdsDataProvider.DispatchConnectionEvent("+e+")");}
         if (mds == null)
         {
             return;
@@ -1948,7 +1945,7 @@ public class MdsDataProvider implements DataProvider
 
     public int InquireCredentials(JFrame f, DataServerItem server_item)
     {
-        if (DEBUG.ON){System.out.println("MdsDataProvider.InquireCredentials(f,server_item)");}
+        if (DEBUG.ON){System.out.println("MdsDataProvider.InquireCredentials("+f+", "+server_item+")");}
         mds.setUser(server_item.user);
         is_tunneling = false;
         if (server_item.tunnel_port != null &&
