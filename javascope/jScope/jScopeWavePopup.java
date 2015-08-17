@@ -20,6 +20,7 @@ import javax.swing.*;
 class jScopeWavePopup
     extends MultiWavePopup
 {
+    static final long serialVersionUID = 8641687468351L;
     private SetupDataDialog setup_dialog;
     protected JMenuItem refresh;
     protected JMenuItem selectWave;
@@ -264,7 +265,7 @@ class jScopeWavePopup
         int sigIdx = w.GetSelectedSignal();
         if (sigIdx != -1 && w.wi.colors_idx[sigIdx] != idx)
         {
-            w.wi.colors_idx[w.GetSelectedSignal()] = idx % w.colors.length;
+            w.wi.colors_idx[w.GetSelectedSignal()] = idx % Waveform.colors.length;
             w.SetCrosshairColor(idx);
         }
     }

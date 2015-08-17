@@ -11,6 +11,7 @@ import java.util.*;
 public class Grid
     implements Serializable
 {
+    static final long serialVersionUID = 231274264578461L;
     static final long dayMilliSeconds = 86400000; // 24 * 60 * 60 * 1000;
     WaveformMetrics wm;
     boolean reversed = false;

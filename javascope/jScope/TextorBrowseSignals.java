@@ -9,6 +9,7 @@ import javax.swing.JEditorPane;
 
 public class TextorBrowseSignals extends jScopeBrowseSignals
 {   
+    static final long serialVersionUID = 2434234236534654L;
     String path;
     String shot=null;
     String tree=null;

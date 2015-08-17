@@ -93,6 +93,7 @@ public class MdsDataClient extends MdsConnection
      * @return bidimensional float array returned by expression evaluation
      * @exception MdsIOException if an I/0 or an expression evaluation error occurs
      */
+    @SuppressWarnings("fallthrough")
     public float[][] getFloatMatrix(String expr) throws MdsIOException
     {
 
@@ -128,7 +129,7 @@ public class MdsDataClient extends MdsConnection
 	            out = new float[row][col];
 	            for(int i = 0, k = 0; i < row; i++)
 	                for(int j = 0; j < col; j++)
-		                out[i][j] = (float)desc.float_data[k++];
+		                out[i][j] = desc.float_data[k++];
 		        return out;
 	        case Descriptor.DTYPE_LONG:
 	            out = new float[row][col];
@@ -160,6 +161,7 @@ public class MdsDataClient extends MdsConnection
      * @return bidimensional float array returned by expression evaluation
      * @exception MdsIOException if an I/0 or an expression evaluation error occurs
      */
+    @SuppressWarnings("fallthrough")
     public double[][] getDoubleMatrix(String expr) throws MdsIOException
     {
 
@@ -227,6 +229,7 @@ public class MdsDataClient extends MdsConnection
      * @return float array value returned by the expression evaluation
      * @exception MdsIOException if an I/0 or an expression evaluation error occurs
      */
+    @SuppressWarnings("fallthrough")
     public float[] getFloatArray(String expr) throws MdsIOException
     {
         Descriptor desc = MdsValue(expr);
@@ -269,6 +272,7 @@ public class MdsDataClient extends MdsConnection
      * @return float array value returned by the expression evaluation
      * @exception MdsIOException if an I/0 or an expression evaluation error occurs
      */
+    @SuppressWarnings("fallthrough")
     public byte[] getByteArray(String expr) throws MdsIOException
     {
         Descriptor desc = MdsValue(expr);
@@ -287,7 +291,7 @@ public class MdsDataClient extends MdsConnection
 	        case Descriptor.DTYPE_UBYTE:
 	            out_data = new byte[desc.byte_data.length];
 	            for(int i = 0; i < desc.byte_data.length; i++)
-		            out_data[i] = (byte)desc.byte_data[i];
+		            out_data[i] = desc.byte_data[i];
 		        out = out_data;
                 break;
 	        case Descriptor.DTYPE_CSTRING:
@@ -308,6 +312,7 @@ public class MdsDataClient extends MdsConnection
      * @return float array value returned by the expression evaluation
      * @exception MdsIOException if an I/0 or an expression evaluation error occurs
      */
+    @SuppressWarnings("fallthrough")
     public int[] getIntArray(String expr) throws MdsIOException
     {
         Descriptor desc = MdsValue(expr);
@@ -344,6 +349,7 @@ public class MdsDataClient extends MdsConnection
      * @return float array value returned by the expression evaluation
      * @exception MdsIOException if an I/0 or an expression evaluation error occurs
      */
+    @SuppressWarnings("fallthrough")
     public double[] getDoubleArray(String expr) throws MdsIOException
     {
         Descriptor desc = MdsValue(expr);
@@ -387,6 +393,7 @@ public class MdsDataClient extends MdsConnection
      * @return float value returned by the expression evaluation
      * @exception MdsIOException if an I/0 or an expression evaluation error occurs
      */
+    @SuppressWarnings("fallthrough")
     public float getFloat(String expr) throws MdsIOException
     {
 
@@ -416,6 +423,7 @@ public class MdsDataClient extends MdsConnection
      * @return float value returned by the expression evaluation
      * @exception MdsIOException if an I/0 or an expression evaluation error occurs
      */
+    @SuppressWarnings("fallthrough")
     public double getDouble(String expr) throws MdsIOException
     {
 
@@ -446,6 +454,7 @@ public class MdsDataClient extends MdsConnection
      * @return integer value returned by the expression evaluation
      * @exception MdsIOException if an I/0 or an expression evaluation error occurs
      */
+    @SuppressWarnings("fallthrough")
     public int getInt(String expr) throws MdsIOException
     {
 
@@ -478,6 +487,7 @@ public class MdsDataClient extends MdsConnection
      * @return integer value returned by the expression evaluation
      * @exception MdsIOException if an I/0 or an expression evaluation error occurs
      */
+    @SuppressWarnings("fallthrough")
     public short getShort(String expr) throws MdsIOException {
 
       Descriptor desc = MdsValue(expr);
@@ -486,7 +496,7 @@ public class MdsDataClient extends MdsConnection
         case Descriptor.DTYPE_BYTE:
           return (short) desc.byte_data[0];
         case Descriptor.DTYPE_SHORT:
-          return (short) desc.short_data[0];
+          return desc.short_data[0];
         case Descriptor.DTYPE_FLOAT:
           throw new MdsIOException("Cannot convert a float to short");
         case Descriptor.DTYPE_LONG:
@@ -495,8 +505,7 @@ public class MdsDataClient extends MdsConnection
           if ( (desc.status & 1) == 0)
             throw new MdsIOException(desc.error);
         default:
-          throw new MdsIOException("Data type code " + desc.dtype +
-                                   " unsupported");
+          throw new MdsIOException("Data type code " + desc.dtype + " unsupported");
       }
     }
 
@@ -507,6 +516,7 @@ public class MdsDataClient extends MdsConnection
      * @return float array value returned by the expression evaluation
      * @exception MdsIOException if an I/0 or an expression evaluation error occurs
      */
+    @SuppressWarnings("fallthrough")
     public short[] getShortArray(String expr) throws MdsIOException
     {
         Descriptor desc = MdsValue(expr);
@@ -547,18 +557,19 @@ public class MdsDataClient extends MdsConnection
      * @return integer value returned by the expression evaluation
      * @exception MdsIOException if an I/0 or an expression evaluation error occurs
      */
+
+    @SuppressWarnings("fallthrough")
     public long getLong(String expr) throws MdsIOException
     {
-
 	    Descriptor desc = MdsValue(expr);
-	    switch (desc.dtype)
+        switch (desc.dtype)
 	    {
 		    case Descriptor.DTYPE_FLOAT:
 		        return (long)desc.float_data[0];
 		    case Descriptor.DTYPE_LONG:
 		        return (long)desc.int_data[0];
 		    case Descriptor.DTYPE_ULONG:
-		        return (long)desc.long_data[0];
+		        return desc.long_data[0];
 		    case Descriptor.DTYPE_BYTE:
 		        throw new MdsIOException("Cannot convert a string to float");
 		    case Descriptor.DTYPE_CSTRING:
@@ -600,7 +611,7 @@ public class MdsDataClient extends MdsConnection
 	    }
     }
 
-    public Object evaluate(String expr, Vector args) throws MdsIOException
+    public Object evaluate(String expr, Vector<Descriptor> args) throws MdsIOException
     {
 	    Descriptor desc = MdsValue(expr, args);
             //return desc;
@@ -614,7 +625,7 @@ public class MdsDataClient extends MdsConnection
 	            case Descriptor.DTYPE_DOUBLE:
 	                return new Double(desc.double_data[0]);
 		    case Descriptor.DTYPE_ULONG:
-		        return new Long((long)desc.long_data[0]);
+		        return new Long(desc.long_data[0]);
 		    case Descriptor.DTYPE_BYTE:
 		        return new Character((char)desc.byte_data[0]);
 		    case Descriptor.DTYPE_CSTRING:

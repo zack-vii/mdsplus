@@ -5,6 +5,7 @@ import java.io.Serializable;
 
 class DataCacheObject implements Serializable
 {
+    static final long serialVersionUID = 35346874385634L;
     float data[];
     float x[];
     double x_double[];

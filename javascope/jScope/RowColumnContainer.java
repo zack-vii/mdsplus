@@ -28,7 +28,7 @@ import java.lang.reflect.InvocationTargetException;
 
 public class RowColumnContainer extends JComponent
 {
-
+    static final long serialVersionUID = 476237732565462L;
    /**
     * RowColumnLayout
     *
@@ -55,7 +55,7 @@ public class RowColumnContainer extends JComponent
     */
    protected float pw[];
 
-   private Vector real_position = new Vector();
+   private Vector<Point> real_position = new Vector<Point>();
 
    private Point split_pos = null;
 
@@ -64,6 +64,7 @@ public class RowColumnContainer extends JComponent
 
    class Btm extends Component
    {
+    static final long serialVersionUID = 84352451232653L;
 
 	    Btm()
 	    {
@@ -231,7 +232,7 @@ public class RowColumnContainer extends JComponent
     {
         for(int i = 1; i < real_position.size(); i+=2)
         {
-            Point real_pos = (Point)real_position.elementAt(i);
+            Point real_pos = real_position.elementAt(i);
             if(pos.x == real_pos.x && pos.y == real_pos.y)
             {
                // real_pos.y++;
@@ -262,9 +263,9 @@ public class RowColumnContainer extends JComponent
     {
         for(int i = 0; i < real_position.size(); i+=2)
         {
-            Point p = (Point)real_position.elementAt(i);
+            Point p = real_position.elementAt(i);
             if(in_pos.x == p.x && in_pos.y == p.y)
-                return (Point)real_position.elementAt(i+1);
+                return real_position.elementAt(i+1);
         }
         return null;
     }
@@ -310,7 +311,7 @@ public class RowColumnContainer extends JComponent
 
             for(i = 0; i < real_position.size(); i+=2)
             {
-                Point in_pos = (Point)real_position.elementAt(i);
+                Point in_pos = real_position.elementAt(i);
                 if(row < in_pos.y && col == in_pos.x)
                 {
                     cmp_idx--;
@@ -320,10 +321,10 @@ public class RowColumnContainer extends JComponent
 
             for(int j = 0; j < real_position.size(); j+=2)
             {
-                Point in_p = (Point)real_position.elementAt(j);
+                Point in_p = real_position.elementAt(j);
                 if(row < in_p.y && col == in_p.x)
                 {
-                    Point real_p = (Point)real_position.elementAt(j+1);
+                    Point real_p = real_position.elementAt(j+1);
                     real_p.y++;
                     if(in_p.x == real_p.x && in_p.y == real_p.y)
                     {
@@ -705,7 +706,7 @@ public class RowColumnContainer extends JComponent
 
         for(int j = 0; j < size; j+=2)
         {
-            Point real_p = (Point)real_position.elementAt(j+1);
+            Point real_p = real_position.elementAt(j+1);
             if(row == real_p.y && col == real_p.x)
             {
                 real_position.removeElementAt(j);
@@ -722,7 +723,7 @@ public class RowColumnContainer extends JComponent
             found = false;
             for(int j = 0; j < size; j+=2)
             {
-                Point real_p = (Point)real_position.elementAt(j+1);
+                Point real_p = real_position.elementAt(j+1);
                 if(i == real_p.y && col == real_p.x)
                 {
                     found = true;

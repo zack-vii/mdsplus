@@ -11,12 +11,15 @@ import java.io.*;
 
 public class FontSelection extends JDialog implements ActionListener, ItemListener
 {
+    static final long serialVersionUID = 4762373484632L;
     JLabel fontLabel, sizeLabel, styleLabel, testLabel;
     JRadioButton  application_i, waveform_i;
 
     JButton ok, cancel, apply;
     FontPanel fontC;
-    JComboBox fonts, sizes, styles;
+    JComboBox fonts;
+    JComboBox styles;
+    JComboBox sizes;
     int index = 0;
     String fontchoice = "fontchoice";
     int stChoice = 0;
@@ -156,14 +159,14 @@ public class FontSelection extends JDialog implements ActionListener, ItemListen
 
         if(js_prop == null) return;
 
-        if((prop = (String)js_prop.getProperty("jScope.font.application")) != null)
+        if((prop = js_prop.getProperty("jScope.font.application")) != null)
 	    {
 	         main_scope.SetApplicationFonts(StringToFont(prop));
 	    }
 
 
 
-        prop = (String)js_prop.getProperty("jScope.font");
+        prop = js_prop.getProperty("jScope.font");
 
         if(prop == null)
             font = StringToFont(getFont().toString());
@@ -298,8 +301,9 @@ public class FontSelection extends JDialog implements ActionListener, ItemListen
 }
 
 
-class FontPanel extends JPanel {
-
+class FontPanel extends JPanel
+{
+    static final long serialVersionUID = 47623773223236L;
     Font thisFont;
 
     public FontPanel(){

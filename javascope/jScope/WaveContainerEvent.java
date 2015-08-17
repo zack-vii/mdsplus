@@ -6,6 +6,7 @@ import java.awt.Event;
 
 public class WaveContainerEvent extends AWTEvent 
 {
+    static final long serialVersionUID = 5348434867648L;
     static final int START_UPDATE   = AWTEvent.RESERVED_ID_MAX + 4;
     static final int END_UPDATE     = AWTEvent.RESERVED_ID_MAX + 5;
     static final int KILL_UPDATE    = AWTEvent.RESERVED_ID_MAX + 6;

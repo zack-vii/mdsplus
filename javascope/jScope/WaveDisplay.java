@@ -19,8 +19,10 @@ import java.security.*;
 
 public class WaveDisplay
     extends JApplet
-    implements WaveformListener {
-    MultiWaveform w;
+    implements WaveformListener
+{
+     static final long serialVersionUID = 476443678461L;
+  MultiWaveform w;
   WavePopup wave_popup;
   JTextField shot_txt;
   ProfileDialog profDialog;
@@ -106,7 +108,7 @@ public class WaveDisplay
     String s = null;
     int event_id = e.getID();
 
-    WaveformEvent we = (WaveformEvent) e;
+    WaveformEvent we = e;
     MultiWaveform w = (MultiWaveform) we.getSource();
     WaveInterface wi = w.getWaveInterface();
     int we_id = we.getID();

@@ -8,10 +8,10 @@ import javax.swing.event.*;
 
 import java.io.*;
 
-public class ColorMapDialog
-    extends JDialog
+public class ColorMapDialog extends JDialog
 {
-    private Vector colorMapListener = new Vector();
+    static final long serialVersionUID = 476237696543563L;
+    private Vector<ActionListener> colorMapListener = new Vector<ActionListener>();
     ColorMap colorMap;
     ColorPalette cp;
     JComboBox cmComboBox;
@@ -31,6 +31,7 @@ public class ColorMapDialog
     public class ColorPalette
         extends JPanel
     {
+        static final long serialVersionUID = 4762377065452L;
         Color colors[];
 
         ColorPalette(Color colors[])
@@ -77,8 +78,7 @@ public class ColorMapDialog
         super(f, "Color Palette");
 
         if(colorPaletteFile == null)
-          colorPaletteFile = System.getProperty("user.home") + File.separator +
-                             "jScope" + File.separator + "colors1.tbl";
+          colorPaletteFile = System.getProperty("user.home") + File.separator + "jScope" + File.separator + "colors1.tbl";
        readColorPalette(colorPaletteFile);
 
         /*
@@ -168,8 +168,9 @@ public class ColorMapDialog
         {
             public void itemStateChanged(ItemEvent ev)
             {
-                cp.setColormap( ( (ColorMap) ev.getItem()).colors);
-                ColorMapDialog.this.wave.applyColorModel( (ColorMap) ev.getItem());
+                ColorMap cm = (ColorMap) ev.getItem();
+                cp.setColormap( cm.colors );
+                ColorMapDialog.this.wave.applyColorModel( cm );
             }
         });
        if(colorMap == null)
@@ -351,8 +352,7 @@ public class ColorMapDialog
     public void processActionEvents(ActionEvent avtionEvent)
     {
         for (int i = 0; i < colorMapListener.size(); i++)
-            ( (ActionListener) colorMapListener.elementAt(i)).actionPerformed(
-                avtionEvent);
+            colorMapListener.elementAt(i).actionPerformed(avtionEvent);
     }
 
     public void readColorPalette(String cmap)

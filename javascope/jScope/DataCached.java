@@ -4,7 +4,8 @@ package jScope;
 import java.io.Serializable;
 
 public class DataCached implements Serializable
- {
+{
+    static final long serialVersionUID = 56436845874835L;
     String expression;
     String experiment;
     long    shot;
@@ -21,7 +22,7 @@ public class DataCached implements Serializable
     public boolean equals(String expression, String experiment, long shot)
     {
         return ( this.expression.equals(expression) && 
-                 this.shot == shot && 
-                 this.experiment.equals(experiment));
+                    this.shot == shot && 
+                    this.experiment.equals(experiment));
     }
- }
+}
