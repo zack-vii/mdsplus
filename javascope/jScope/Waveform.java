@@ -14,6 +14,7 @@ import java.awt.geom.*;
 
 public class Waveform extends JComponent implements SignalListener
 {
+    static final long serialVersionUID = 86438438731453L;
     public static int MAX_POINTS = 1000;
     static public boolean is_debug = false;
     
@@ -279,7 +280,7 @@ public class Waveform extends JComponent implements SignalListener
         }
         else
         {
-            this.font = wave.font;
+//            Waveform.font = Waveform.font;   is static
             is_image = false;
         }
         not_drawn = true;
@@ -2039,8 +2040,7 @@ public class Waveform extends JComponent implements SignalListener
       else 
       {
         g2.clearRect(0, 0, dim.width, dim.height);
-        g2.drawRenderedImage( (RenderedImage) img,
-                               new AffineTransform(1f, 0f, 0f, 1f, 0F, 0F));
+        g2.drawRenderedImage( (RenderedImage) img, new AffineTransform(1f, 0f, 0f, 1f, 0F, 0F));
       }
     }
   
@@ -2048,16 +2048,16 @@ public class Waveform extends JComponent implements SignalListener
     protected void drawSignalContour(Signal s, Graphics g, Dimension d)
     {
         if (DEBUG.ON){System.out.println("Waveform.drawSignalContour("+s+", "+g+", "+d+")");}
-      Vector cs = s.getContourSignals();
-      Vector ls = s.getContourLevelValues();
+      Vector<Vector<Vector<Point2D.Double>>> cs = s.getContourSignals();
+      Vector<Float> ls = s.getContourLevelValues();
       int numLevel = cs.size();
-      Vector cOnLevel;
+      Vector<Vector<Point2D.Double>> cOnLevel;
       float level;
   
       for (int l = 0; l < numLevel; l++)
       {
-        cOnLevel = (Vector) cs.elementAt(l);
-        level = ( (Float) ls.elementAt(l)).floatValue();
+        cOnLevel = cs.elementAt(l);
+        level = ls.elementAt(l).floatValue();
         float z[] = s.getZ();
         float zMin, zMax;
         zMin = zMax = z[0];
@@ -2073,20 +2073,20 @@ public class Waveform extends JComponent implements SignalListener
       }
     }
   
-    public void drawContourLevel(Vector cOnLevel, Graphics g, Dimension d)
+    public void drawContourLevel(Vector<Vector<Point2D.Double>> cOnLevel, Graphics g, Dimension d)
     {
         if (DEBUG.ON){System.out.println("Waveform.drawContourLevel("+cOnLevel+", "+g+", "+d+")");}
-      Vector c;
-      Point2D.Float p;
+      Vector<Point2D.Double> c;
+      Point2D.Double p;
       wm.ComputeFactors(d);
       for (int i = 0; i < cOnLevel.size(); i++)
       {
-        c = (Vector) cOnLevel.elementAt(i);
+        c = cOnLevel.elementAt(i);
         int cx[] = new int[c.size()];
         int cy[] = new int[c.size()];
         for (int j = 0; j < c.size(); j++)
         {
-          p = (Point2D.Float) c.elementAt(j);
+          p = c.elementAt(j);
           cx[j] = wm.XPixel(p.x);
           cy[j] = wm.YPixel(p.y);
         }
@@ -2136,7 +2136,7 @@ public class Waveform extends JComponent implements SignalListener
     void drawWave(Signal s, Graphics g, Dimension d)
     {
         if (DEBUG.ON){System.out.println("Waveform.drawWave("+s+", "+g+", "+d+")");}
-      Vector segments = wm.ToPolygons(s, d, appendDrawMode);
+      Vector<Polygon> segments = wm.ToPolygons(s, d, appendDrawMode);
       Polygon curr_polygon;
   
       if (s.getColor() != null)
@@ -2150,7 +2150,7 @@ public class Waveform extends JComponent implements SignalListener
       }
       for (int k = 0; k < segments.size(); k++)
       {
-        curr_polygon = (Polygon) segments.elementAt(k);
+        curr_polygon = segments.elementAt(k);
         if (s.getInterpolate())
         {
           g.drawPolyline(curr_polygon.xpoints, curr_polygon.ypoints,
@@ -2164,7 +2164,7 @@ public class Waveform extends JComponent implements SignalListener
         if (DEBUG.ON){System.out.println("Waveform.drawMarkers("+s+", "+g+", "+d+")");}
       if (s.getMarker() != Signal.NONE)
       {
-        Vector segments = wm.ToPolygons(s, d, appendDrawMode);
+        Vector<Polygon> segments = wm.ToPolygons(s, d, appendDrawMode);
         drawMarkers(g, segments, s.getMarker(), s.getMarkerStep(), s.getMode1D());
       }
     }
@@ -2298,7 +2298,7 @@ public class Waveform extends JComponent implements SignalListener
     }
   
   
-    protected void drawMarkers(Graphics g, Vector segments, int marker, int step, int mode)
+    protected void drawMarkers(Graphics g, Vector<Polygon> segments, int marker, int step, int mode)
     {
         if (DEBUG.ON){System.out.println("Waveform.drawMarkers("+g+", "+segments+", "+marker+", "+step+", "+mode+")");}
         Polygon currPolygon;
@@ -2307,7 +2307,7 @@ public class Waveform extends JComponent implements SignalListener
       
         for (int k = 0; k < segments.size(); k++)
         {
-            currPolygon = (Polygon) segments.elementAt(k);
+            currPolygon = segments.elementAt(k);
             pntX = currPolygon.xpoints;
             pntY = currPolygon.ypoints;
             for (int i = 0; i < currPolygon.npoints; i += step)
@@ -2723,7 +2723,7 @@ public class Waveform extends JComponent implements SignalListener
     {
         if(frames != null)
         {
-            ((Frames)frames).shiftImagePixel(bitShift, bitClip);
+            frames.shiftImagePixel(bitShift, bitClip);
             not_drawn = true;
             repaint();
         }

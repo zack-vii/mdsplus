@@ -6,6 +6,7 @@ import jScope.WaveContainerListener;
 import jScope.RowColumnContainer;
 import jScope.RowColumnLayout;
 import jScope.MultiWaveform;
+import jScope.Waveform;
 import jScope.Grid;
 import java.io.*;
 import java.awt.*;
@@ -33,6 +34,7 @@ public class WaveformContainer extends RowColumnContainer implements WaveformMan
                                                                      WaveformListener,
                                                                      Printable
 {
+   static final long serialVersionUID = 424436570978461L;
    private   Waveform     sel_wave;
              int          mode = Waveform.MODE_ZOOM, grid_mode = Grid.IS_DOTTED ,
                           x_grid_lines = 5, y_grid_lines = 5;
@@ -215,7 +217,7 @@ public class WaveformContainer extends RowColumnContainer implements WaveformMan
         {
             for(int i = 0; i < wave_container_listener.size(); i++)
             {
-                ((WaveContainerListener)wave_container_listener.elementAt(i)).processWaveContainerEvent(e);
+                wave_container_listener.elementAt(i).processWaveContainerEvent(e);
             }
         }
     }
@@ -653,7 +655,7 @@ public class WaveformContainer extends RowColumnContainer implements WaveformMan
             {
                 w = GetWavePanel(k);
                 if (w != null) {
-                    w.SetColors(colors, colors_name);
+                    Waveform.SetColors(colors, colors_name);
                 }
             }
         }
@@ -765,7 +767,7 @@ public class WaveformContainer extends RowColumnContainer implements WaveformMan
                w = GetWavePanel(i);
             }
         } else
-            return (Waveform)sel_wave;
+            return sel_wave;
         return w;
     }
 

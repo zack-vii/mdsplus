@@ -17,6 +17,7 @@ import java.util.Properties;
 
 public class jScopeProperties extends Properties 
 {
+    static final long serialVersionUID = 153764867658348L;
     private static final String keyValueSeparators = "=: \t\r\n\f";
 
     private static final String strictKeyValueSeparators = "=:";

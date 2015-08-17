@@ -16,10 +16,10 @@ import java.awt.print.*;
 
 public class CompositeWaveDisplay extends JApplet implements WaveContainerListener
 {
-
+    static final long serialVersionUID = 68434384573454L;
     public class myQueue
     {
-        Vector data = new Vector();
+        Vector<Object> data = new Vector<Object>();
 
         synchronized public void add(Object o)
         {
@@ -62,10 +62,10 @@ public class CompositeWaveDisplay extends JApplet implements WaveContainerListen
     static  private JFrame    f = null;
     PrinterJob                prnJob;
     PageFormat                pf;
-    Hashtable                 signals1DHash = new Hashtable();
-    Hashtable                 signals2DHash = new Hashtable();
-    Vector                    signals1DVector = new Vector();
-    Vector                    signals2DVector = new Vector();
+    Hashtable<String,Signal>  signals1DHash   = new Hashtable<String,Signal>();
+    Hashtable<String,Signal>  signals2DHash   = new Hashtable<String,Signal>();
+    Vector<Signal>            signals1DVector = new Vector<Signal>();
+    Vector<Signal>            signals2DVector = new Vector<Signal>();
 
     myQueue updSignalDataQeue = new  myQueue();
     AppendThread appendThread;
@@ -184,7 +184,7 @@ public class CompositeWaveDisplay extends JApplet implements WaveContainerListen
 
                     for(int i = 0; i < signals2DVector.size(); i++)
                     {
-                        ((Signal) signals2DVector.elementAt(i)).setMode2D(Signal.MODE_PROFILE);
+                        signals2DVector.elementAt(i).setMode2D(Signal.MODE_PROFILE);
                     }
 
                     wave_container.appendUpdateWaveforms();
@@ -198,7 +198,7 @@ public class CompositeWaveDisplay extends JApplet implements WaveContainerListen
                             wait();
                         }
                     }
-                    Thread.currentThread().sleep(500);
+                    Thread.sleep(500);
 
                 } catch (Exception exc) {
                     System.out.println(exc);
@@ -262,7 +262,7 @@ public class CompositeWaveDisplay extends JApplet implements WaveContainerListen
         {
             Signal s;
 
-            s = (Signal)signals1DHash.get(usd.name);
+            s = signals1DHash.get(usd.name);
             if(s != null)
             {
                 appendToSignal(s, usd.operation, usd.x, usd.y);
@@ -279,7 +279,7 @@ public class CompositeWaveDisplay extends JApplet implements WaveContainerListen
 
             for (int i = 0; i < signals1DVector.size(); i++)
             {
-                s = (Signal)signals1DVector.elementAt(i);
+                s = signals1DVector.elementAt(i);
                 System.arraycopy(usd.y, i * usd.numPointsPerSignal,
                                  y, 0, usd.numPointsPerSignal);
                 if (usd.x != null && usd.x.length > 1)
@@ -297,6 +297,7 @@ public class CompositeWaveDisplay extends JApplet implements WaveContainerListen
             }
         }
 
+        @SuppressWarnings("fallthrough")
         private void appendToSignal(Signal s, int operation, float x[], float y[])
         {
             switch (operation)
@@ -309,7 +310,8 @@ public class CompositeWaveDisplay extends JApplet implements WaveContainerListen
             }
         }
 
-        private void appendToSignal(Signal s, int operation, float x[], float y[], int numPoints[], float time[])
+       @SuppressWarnings("fallthrough")
+       private void appendToSignal(Signal s, int operation, float x[], float y[], int numPoints[], float time[])
        {
            switch (operation)
            {
@@ -339,7 +341,7 @@ public class CompositeWaveDisplay extends JApplet implements WaveContainerListen
 
             for (int i = 0; i < signals2DVector.size(); i++)
             {
-                s = (Signal)signals2DVector.elementAt(i);
+                s = signals2DVector.elementAt(i);
                 System.arraycopy(usd.y, i * totPoints, y, 0, totPoints);
                 System.arraycopy(usd.x, i * totPoints, x, 0, totPoints);
                 nPoints[0] = usd.numPointsPerSignal;
@@ -351,7 +353,7 @@ public class CompositeWaveDisplay extends JApplet implements WaveContainerListen
         {
             Signal s;
 
-            s = (Signal)signals2DHash.get(usd.name);
+            s = signals2DHash.get(usd.name);
             if(s != null)
             {
                 int nPoints[] = new int[usd.times.length];
@@ -434,7 +436,7 @@ public class CompositeWaveDisplay extends JApplet implements WaveContainerListen
 
     public void setEnabledMode(boolean state)
     {
-        Enumeration e = pointer_mode.getElements();
+        Enumeration<AbstractButton> e = pointer_mode.getElements();
         while(e.hasMoreElements())
             ((JRadioButton)e.nextElement()).setEnabled(state);
     }
@@ -516,6 +518,7 @@ public class CompositeWaveDisplay extends JApplet implements WaveContainerListen
 
         JPanel panel = new JPanel()
         {
+            static final long serialVersionUID = 43645646536534L;
             public void print(Graphics g){}
             public void printAll(Graphics g){}
         };
@@ -1257,9 +1260,9 @@ public class CompositeWaveDisplay extends JApplet implements WaveContainerListen
     {
         if(!this.isShowing())
         {
-            ((JFrame)f).pack();
-            ((JFrame)f).setBounds(new Rectangle(x, y, width, height));
-            ((JFrame)f).setVisible(true);
+            f.pack();
+            f.setBounds(new Rectangle(x, y, width, height));
+            f.setVisible(true);
         }
         wave_container.update();
    }

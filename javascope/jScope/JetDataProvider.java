@@ -36,7 +36,7 @@ class JetDataProvider implements DataProvider
     private boolean evaluate_url = false;
     private String url_source = "http://data.jet.uk/";
 
-    private   Vector    connection_listener = new Vector();
+    private Vector<ConnectionListener> connection_listener = new Vector<ConnectionListener>();
 
     JTextField user_text;
     JPasswordField passwd_text;
@@ -60,7 +60,7 @@ class JetDataProvider implements DataProvider
     {
         throw(new IOException("Frames visualization on JetDataProvider not implemented"));
     }
-    public void enableAsyncUpdate(boolean enable){}
+    public void    enableAsyncUpdate(boolean enable){}
     public void    SetEnvironment(String s) {}
     public void    Dispose(){}
     public String  GetString(String in) {return in; }
@@ -73,7 +73,7 @@ class JetDataProvider implements DataProvider
     public boolean SupportsFastNetwork(){return false;}
     public void    SetArgument(String arg){};
     public boolean SupportsTunneling() {return false; }
-    public void setContinuousUpdate(){}
+    public void   setContinuousUpdate(){}
 
     class SimpleWaveData implements WaveData
     {
@@ -523,7 +523,7 @@ class JetDataProvider implements DataProvider
         {
             for(int i = 0; i < connection_listener.size(); i++)
             {
-                ((ConnectionListener)connection_listener.elementAt(i)).processConnectionEvent(e);
+                connection_listener.elementAt(i).processConnectionEvent(e);
             }
         }
     }

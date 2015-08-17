@@ -9,9 +9,10 @@ import java.util.*;
 
 class Frames extends Canvas
 {
+    static final long serialVersionUID = 345323264578461L;
     static final int ROI = 20;
 
-    Vector frame_time = new Vector();
+    Vector<Float> frame_time = new Vector<Float>();
     Rectangle zoom_rect = null;
     Rectangle view_rect = null;
     private int curr_frame_idx = -1;
@@ -82,7 +83,7 @@ class Frames extends Canvas
     class FrameCache
     {
         FrameData fd;
-        Hashtable recentFrames;
+        Hashtable<Integer,FrameDescriptor> recentFrames;
         int bitShift;
         boolean bitClip;
         ColorMap colorMap;
@@ -92,7 +93,7 @@ class Frames extends Canvas
         Dimension frameDim;
         int numFrames;
         MediaTracker tracker;
-        Vector recentIdxV= new Vector();
+        Vector<Object> recentIdxV= new Vector<Object>();
         int updateCount = 0;
         static final int MAX_CACHE_MEM = 64000000;
 
@@ -100,7 +101,7 @@ class Frames extends Canvas
         {
             if (DEBUG.ON){System.out.println("Frames.FrameCache()");}
             this.fd = fd;
-            recentFrames = new Hashtable();
+            recentFrames = new Hashtable<Integer,FrameDescriptor>();
             bitShift = 0;
             bitClip = false;
             colorMap = new ColorMap();
@@ -113,12 +114,12 @@ class Frames extends Canvas
             bitShift = 0;
             bitClip = false;
             colorMap = new ColorMap();
-            recentFrames = new Hashtable();
-            Enumeration fds = fc.recentFrames.keys();
+            recentFrames = new Hashtable<Integer,FrameDescriptor>();
+            Enumeration<Integer> fds = fc.recentFrames.keys();
             while(fds.hasMoreElements())
             {
-                Integer idx = (Integer)fds.nextElement();
-                FrameDescriptor fDescr = (FrameDescriptor)fc.recentFrames.get(idx);
+                Integer idx = fds.nextElement();
+                FrameDescriptor fDescr = fc.recentFrames.get(idx);
                 recentFrames.put(idx, fDescr);
             }
 
@@ -301,7 +302,7 @@ class Frames extends Canvas
         Image getImageAt(int idx) throws IOException
         {
             if (DEBUG.ON){System.out.println("Frames.FrameCache.getImageAt("+idx+")");}
-            FrameDescriptor fDesc = (FrameDescriptor)recentFrames.get(new Integer(idx));
+            FrameDescriptor fDesc = recentFrames.get(new Integer(idx));
             if(fDesc == null)
             {
                 try {
@@ -311,7 +312,7 @@ class Frames extends Canvas
                     System.out.println("Error Loading frame at " + idx+": "+exc );
                     return null;
                 }
-                fDesc = (FrameDescriptor)recentFrames.get(new Integer(idx));
+                fDesc = recentFrames.get(new Integer(idx));
             }
             if(fDesc == null) return null;
             if(fDesc.updateCount == updateCount) //fDesc.updatedImage  is still ok
@@ -380,7 +381,7 @@ class Frames extends Canvas
         byte [] getBufferAt(int idx)
         {
             if (DEBUG.ON){System.out.println("Frames.FrameCache.getBufferAt("+idx+")");}
-            FrameDescriptor fDescr = (FrameDescriptor)recentFrames.get(new Integer(idx));
+            FrameDescriptor fDescr = recentFrames.get(new Integer(idx));
             if(fDescr == null)
             {
                 try {
@@ -391,7 +392,7 @@ class Frames extends Canvas
                     return null;
                 }
             }
-            fDescr = (FrameDescriptor)recentFrames.get(new Integer(idx));
+            fDescr = recentFrames.get(new Integer(idx));
             if(fDescr == null) return null;
             return fDescr.buffer;
 
@@ -400,7 +401,7 @@ class Frames extends Canvas
         float[] getValuesAt(int idx)
         {
             if (DEBUG.ON){System.out.println("Frames.FrameCache.getValuesAt("+idx+")");}
-            FrameDescriptor fDescr = (FrameDescriptor)recentFrames.get(new Integer(idx));
+            FrameDescriptor fDescr = recentFrames.get(new Integer(idx));
             if(fDescr == null)
             {
                 try {
@@ -411,7 +412,7 @@ class Frames extends Canvas
                     return null;
                 }
             }
-            fDescr = (FrameDescriptor)recentFrames.get(new Integer(idx));
+            fDescr = recentFrames.get(new Integer(idx));
             if(fDescr == null) return null;
             byte []buf = fDescr.buffer;
             int n_pix = frameDim.width * frameDim.height;
@@ -1278,7 +1279,7 @@ class Frames extends Canvas
             ft = new float[frame_time.size()];
             for(int i = 0; i < frame_time.size(); i++)
             {
-                ft[i] = ((Float)frame_time.elementAt(i)).floatValue();
+                ft[i] = frame_time.elementAt(i).floatValue();
             }
         }
         return ft;
@@ -1291,7 +1292,7 @@ class Frames extends Canvas
         float t_out = 0;
         if(curr_frame_idx != -1 && frame_time.size() != 0)
         {
-            t_out = ((Float)frame_time.elementAt(curr_frame_idx)).floatValue();
+            t_out = frame_time.elementAt(curr_frame_idx).floatValue();
         }
         return t_out;
     }
@@ -1423,7 +1424,7 @@ class Frames extends Canvas
     {
         if (DEBUG.ON){System.out.println("Frames.GetTime("+frame_idx+")");}
         if(frame_idx > cache.getNumFrames() - 1 || frame_idx < 0) return (float)0.0;
-        return ((Float)frame_time.elementAt(frame_idx)).floatValue();
+        return frame_time.elementAt(frame_idx).floatValue();
     }
 
     public int GetFrameIdxAtTime(float t)
@@ -1439,19 +1440,19 @@ class Frames extends Canvas
         if(numFrames == 1)
            dt = 1;
         else
-           dt = ( (Float) frame_time.elementAt(1)).floatValue() -
-                ( (Float) frame_time.elementAt(0)).floatValue();
+           dt = frame_time.elementAt(1).floatValue() -
+                frame_time.elementAt(0).floatValue();
 
-        if(t >= ((Float)frame_time.elementAt(numFrames-1)).floatValue() + dt)
+        if(t >= frame_time.elementAt(numFrames-1).floatValue() + dt)
             return -1;
 
-        if(t >= ((Float)frame_time.elementAt(numFrames-1)).floatValue() )
+        if(t >= frame_time.elementAt(numFrames-1).floatValue() )
             return  numFrames-1;
 
         for(int i = 0; i < numFrames - 1; i++)
         {
-            if( t >= ((Float)frame_time.elementAt(i)).floatValue() &&
-                t < ((Float)frame_time.elementAt(i + 1)).floatValue())
+            if( t >= frame_time.elementAt(i    ).floatValue() &&
+                t <  frame_time.elementAt(i + 1).floatValue())
             {
                 idx = i;
                 break;

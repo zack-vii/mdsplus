@@ -7,7 +7,7 @@ import java.io.IOException;
 class DataAccessURL  
 {
     
-    static Vector dataAccessVector = new Vector();
+    static Vector<DataAccess> dataAccessVector = new Vector<DataAccess>();
         
     static public void addProtocol(DataAccess dataAccess)
     {
@@ -30,7 +30,7 @@ class DataAccessURL
         
         for(int i = 0 ; i < dataAccessVector.size(); da = null, i++)
         {
-            da = (DataAccess)dataAccessVector.elementAt(i);
+            da = dataAccessVector.elementAt(i);
             if(da.supports(url))
                 break;
         }
@@ -109,7 +109,7 @@ class DataAccessURL
         DataAccess da = null;
         for(int i = 0 ; i < dataAccessVector.size(); i++)
         {
-            da = (DataAccess)dataAccessVector.elementAt(i);
+            da = dataAccessVector.elementAt(i);
             if(da != null)
                 da.close();
         }

@@ -10,6 +10,7 @@ import java.text.*;
 public class WaveformEvent
     extends AWTEvent
 {
+    static final long serialVersionUID = 325464327645634L;
     static final int POINT_UPDATE = AWTEvent.RESERVED_ID_MAX + 1;
     static final int MEASURE_UPDATE = AWTEvent.RESERVED_ID_MAX + 2;
     static final int STATUS_INFO = AWTEvent.RESERVED_ID_MAX + 3;
@@ -218,6 +219,7 @@ public class WaveformEvent
         }
         return dateFormat.format(date).toString();
     }
+    @SuppressWarnings("fallthrough")
     public String toString()
     {
         String s = null;
@@ -269,7 +271,6 @@ public class WaveformEvent
                                    + Waveform.ConvertToString(1. / dx_f, false) +
                                    "]", 90);
                 }
-
             case WaveformEvent.POINT_UPDATE:
             case WaveformEvent.POINT_IMAGE_UPDATE:
                 if (s == null)

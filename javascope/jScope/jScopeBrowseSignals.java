@@ -20,6 +20,7 @@ import java.net.*;
 
 public abstract class jScopeBrowseSignals extends jScopeBrowseUrl
 {
+    static final long serialVersionUID = 32443264357561L;
     jScopeWaveContainer wave_panel;
     JButton add_sig;
     JButton add_sig_shot;
@@ -94,7 +95,7 @@ public abstract class jScopeBrowseSignals extends jScopeBrowseUrl
     {
         if(wave_panel != null)
         {
-            URL u = (URL)url_list.elementAt(curr_url);
+            URL u = url_list.elementAt(curr_url);
             String url_name = (u.toString());
             String sig_path = getSignal(url_name);
             String shot = (with_shot) ? getShot() : null;

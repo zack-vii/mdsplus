@@ -350,7 +350,7 @@ public class MdsConnection
             Descriptor p;
             for(int i = 0; i < n_args; i++)
             {
-                p = (Descriptor) args.elementAt(i);
+                p = args.elementAt(i);
                 sendArg(idx++, p.dtype, totalarg, p.dims, p.dataToByteArray());
             }
             

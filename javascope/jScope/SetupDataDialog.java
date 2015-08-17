@@ -17,16 +17,17 @@ import javax.swing.event.*;
                                                   KeyListener,
                                                   WaveformListener
  {
-   public  static int   UNDEF_SHOT     = -99999;
+    static final long serialVersionUID = 40864646848676L;
+    public  static int   UNDEF_SHOT     = -99999;
 
-   private JLabel	    lab;
-   private SError	    error_w;
-   private jScopeFacade	    main_scope;
-   private ExpandExp        expand_expr;
-   private SList	    signalList;
-   private jScopeMultiWave  wave;
-   public  MdsWaveInterface wi;
-   private Point            wave_coord;
+    private JLabel	    lab;
+    private SError	    error_w;
+    private jScopeFacade	    main_scope;
+    private ExpandExp        expand_expr;
+    private SList	    signalList;
+    private jScopeMultiWave  wave;
+    public  MdsWaveInterface wi;
+    private Point            wave_coord;
 
     JCheckBox title_b = new JCheckBox("Title");
     JTextField title = new JTextField(50);
@@ -157,7 +158,7 @@ import javax.swing.event.*;
 
    class SError extends JDialog implements ActionListener
    {
-
+    static final long serialVersionUID = 476237704286796L;
       private JTextField e_up, e_low;
       private JButton ok, cancel;
       private Data ws;
@@ -248,10 +249,11 @@ import javax.swing.event.*;
 
    class SList extends JPanel implements ItemListener
    {
-    private JList            sig_list;
-//    private DefaultListModel<String> list_model = new DefaultListModel<String>();
+    static final long serialVersionUID = 476268765462546L;
+    private JList    sig_list;
+//    private DefaultListModel list_model = new DefaultListModel();
     private DefaultListModel list_model = new DefaultListModel();
-    private JComboBox        mode1D, mode2D, color, marker;
+    private JComboBox mode1D, mode2D, color, marker;
     private JTextField	     marker_step_t;
     private Vector<Data>     signals = new Vector<Data>();
     private long		     shots[]=null;
@@ -354,7 +356,7 @@ import javax.swing.event.*;
                     if(getSignalSelect() != -1)
                     {
                             try {
-                                ((Data)signals.elementAt(getSignalSelect())).marker_step = new Integer(marker_step_t.getText()).intValue();
+                                signals.elementAt(getSignalSelect()).marker_step = new Integer(marker_step_t.getText()).intValue();
                             } catch (NumberFormatException ex) {
                                 marker_step_t.setText("1");
                             }
@@ -399,7 +401,7 @@ import javax.swing.event.*;
 	    sig_list.ensureIndexIsVisible(id);
         if(sig >= 0)
             if(getSignalSelect() < signals.size())
-                putSignalSetup((Data)signals.elementAt(getSignalSelect()));
+                putSignalSetup(signals.elementAt(getSignalSelect()));
         else
         	resetSignalSetup();
 	    setOptionState(getSignalSelect() >= 0);
@@ -438,7 +440,7 @@ import javax.swing.event.*;
      public int findSignalSetup(Data ws)
      {
 	    for(int i=0; i < signals.size(); i++)
-	        if(((Data)signals.elementAt(i)).equals(ws))
+	        if((signals.elementAt(i)).equals(ws))
 		        return i;
 	    return -1;
      }
@@ -950,15 +952,16 @@ import javax.swing.event.*;
    }
 
 
-  class ExpandExp extends JDialog implements ActionListener {
+    class ExpandExp extends JDialog implements ActionListener
+    {
+        static final long serialVersionUID = 476237738567356L;
+        private JLabel lab_x, lab_y;
+        private JTextArea x_expr, y_expr;
+        private JButton ok, cancel;
+        private SetupDataDialog  conf_dialog;
 
-  private JLabel lab_x, lab_y;
-  private JTextArea x_expr, y_expr;
-  private JButton ok, cancel;
-  private SetupDataDialog  conf_dialog;
-
-     ExpandExp(Frame _fw, SetupDataDialog conf_diag)
-     {
+        ExpandExp(Frame _fw, SetupDataDialog conf_diag)
+        {
 	    super(_fw, "Expand Expression Dialog", false);
 	    setModal(true);
 	    conf_dialog = conf_diag;
@@ -975,7 +978,7 @@ import javax.swing.event.*;
         p1.add(p2);
 
 	    y_expr = new JTextArea(50, 20);
- 		JScrollPane scroller = new JScrollPane(y_expr);
+ 	    JScrollPane scroller = new JScrollPane(y_expr);
 	    p1.add(scroller);
 
         JPanel p3 = new JPanel(new FlowLayout(FlowLayout.LEFT));
@@ -984,7 +987,7 @@ import javax.swing.event.*;
         p1.add(p3);
 
 	    x_expr = new JTextArea(50, 20);
- 		scroller = new JScrollPane(x_expr);
+ 	    scroller = new JScrollPane(x_expr);
 	    p1.add(scroller);
 
 	    JPanel p = new JPanel();
@@ -1002,7 +1005,7 @@ import javax.swing.event.*;
 	    getContentPane().add("South", p);
 
 
-     }
+        }
 
      /**
       ** Set values of x and/or y expression field
@@ -2071,8 +2074,8 @@ import javax.swing.event.*;
 	    if(ob == x_max || ob == y_max || ob == x_min
 	       || ob == y_min || ob == shot || ob == time_max || ob == time_min)
 	    {
-	        Character ch = new Character((char)key);
-            if(!ch.isDigit((char)key) &&
+	        Character ch = new Character(key);
+            if(!Character.isDigit(key) &&
 		    key != KeyEvent.VK_DELETE &&
 	        key != '.' && key != '+' && key != '-')
 		    return;

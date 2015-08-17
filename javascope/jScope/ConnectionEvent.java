@@ -15,6 +15,7 @@ import java.awt.Event;
  */
 public class ConnectionEvent extends AWTEvent 
 {
+    static final long serialVersionUID = 47623776584563L;
     public static final int LOST_CONNECTION = AWTEvent.RESERVED_ID_MAX + 1;
 
     /**

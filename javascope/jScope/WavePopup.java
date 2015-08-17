@@ -19,6 +19,7 @@ public class WavePopup
     extends JPopupMenu
     implements ItemListener
 {
+    static final long serialVersionUID = 247273265246434L;
     protected Waveform wave = null;
     protected SetupWaveformParams setup_params;
     protected JSeparator sep1, sep2, sep3;
@@ -444,7 +445,7 @@ public class WavePopup
     {
         int i;
         JRadioButtonMenuItem b = null;
-        Enumeration e;
+        Enumeration<AbstractButton> e;
 
         for (e = bg.getElements(), i = 0; e.hasMoreElements() && i <= idx; i++)
             b = (JRadioButtonMenuItem) e.nextElement();

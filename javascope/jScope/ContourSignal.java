@@ -120,9 +120,9 @@ public class ContourSignal
     return out;
   }
 
-  public Vector<Vector> contour(double level)
+  public Vector<Vector<Point2D.Double>> contour(double level)
   {
-    Vector<Vector> contours = new Vector<Vector>();
+    Vector<Vector<Point2D.Double>> contours = new Vector<Vector<Point2D.Double>>();
     Vector<Point2D.Double> contour = new Vector<Point2D.Double>();
 
     double x1, y1, z1;

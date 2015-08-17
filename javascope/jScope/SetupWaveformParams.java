@@ -14,101 +14,102 @@ import javax.swing.*;
 
 public class SetupWaveformParams extends JDialog implements ActionListener
 {
-   Waveform          wave;
-   JTextField        title;
-   JTextField        x_max, x_min, x_label;
-   JTextField        y_max, y_min, y_label;
-   JButton           ok, cancel, reset, erase, apply;
-   JLabel            lab;
+    static final long serialVersionUID = 2324834354383L;
+    Waveform          wave;
+    JTextField        title;
+    JTextField        x_max, x_min, x_label;
+    JTextField        y_max, y_min, y_label;
+    JButton           ok, cancel, reset, erase, apply;
+    JLabel            lab;
 
-   boolean reversed;
+    boolean reversed;
 
-   private JTextField    x_grid_lines, y_grid_lines;
-   private JTextField    vertical_offset, horizontal_offset;
-   private JComboBox	 grid_mode;
-   private JComboBox     legend_mode;
-   private JCheckBox     reversed_b;
-   int	   x_curr_lines_grid = 3,
+    private JTextField    x_grid_lines, y_grid_lines;
+    private JTextField    vertical_offset, horizontal_offset;
+    private JComboBox	  grid_mode;
+    private JComboBox     legend_mode;
+    private JCheckBox     reversed_b;
+    int	   x_curr_lines_grid = 3,
            y_curr_lines_grid = 3;
-   private boolean is_changed = false;
+    private boolean is_changed = false;
 
-   public SetupWaveformParams(Frame fw, String frame_title)
-   {
+    public SetupWaveformParams(Frame fw, String frame_title)
+    {
 
-      super(fw, frame_title, true);
-      setModal(true);
+        super(fw, frame_title, true);
+        setModal(true);
 
-	  //GetPropertiesValue();
+        //GetPropertiesValue();
 
-      GridBagLayout gridbag = new GridBagLayout();
-      GridBagConstraints c = new GridBagConstraints();
-      Insets insets = new Insets(4, 4, 4, 4);
+        GridBagLayout gridbag = new GridBagLayout();
+        GridBagConstraints c = new GridBagConstraints();
+        Insets insets = new Insets(4, 4, 4, 4);
 
-      getContentPane().setLayout(gridbag);
-      c.insets = insets;
-      c.fill =  GridBagConstraints.BOTH;
-      c.weightx = 1.0;
-      c.gridwidth = 1;
-      lab = new JLabel("Title");
-      gridbag.setConstraints(lab, c);
-      getContentPane().add(lab);
+        getContentPane().setLayout(gridbag);
+        c.insets = insets;
+        c.fill =  GridBagConstraints.BOTH;
+        c.weightx = 1.0;
+        c.gridwidth = 1;
+        lab = new JLabel("Title");
+        gridbag.setConstraints(lab, c);
+        getContentPane().add(lab);
 
-      c.gridwidth = GridBagConstraints.REMAINDER;
-      title = new JTextField(30);
-      gridbag.setConstraints(title, c);
-      getContentPane().add(title);
+        c.gridwidth = GridBagConstraints.REMAINDER;
+        title = new JTextField(30);
+        gridbag.setConstraints(title, c);
+        getContentPane().add(title);
 
-      c.gridwidth = 1;
-      lab = new JLabel("Y Label");
-      gridbag.setConstraints(lab, c);
-      getContentPane().add(lab);
+        c.gridwidth = 1;
+        lab = new JLabel("Y Label");
+        gridbag.setConstraints(lab, c);
+        getContentPane().add(lab);
 
-      y_label = new JTextField(25);
-      gridbag.setConstraints(y_label, c);
-      getContentPane().add(y_label);
+        y_label = new JTextField(25);
+        gridbag.setConstraints(y_label, c);
+        getContentPane().add(y_label);
 
-      lab = new JLabel("Y min");
-      gridbag.setConstraints(lab, c);
-      getContentPane().add(lab);
+        lab = new JLabel("Y min");
+        gridbag.setConstraints(lab, c);
+        getContentPane().add(lab);
 
-      y_min = new JTextField(10);
-      gridbag.setConstraints(y_min, c);
-      getContentPane().add(y_min);
+        y_min = new JTextField(10);
+        gridbag.setConstraints(y_min, c);
+        getContentPane().add(y_min);
 
-      lab = new JLabel("Y max");
-      gridbag.setConstraints(lab, c);
-      getContentPane().add(lab);
+        lab = new JLabel("Y max");
+        gridbag.setConstraints(lab, c);
+        getContentPane().add(lab);
 
-      c.gridwidth = GridBagConstraints.REMAINDER;
-      y_max = new JTextField(10);
-      gridbag.setConstraints(y_max, c);
-      getContentPane().add(y_max);
+        c.gridwidth = GridBagConstraints.REMAINDER;
+        y_max = new JTextField(10);
+        gridbag.setConstraints(y_max, c);
+        getContentPane().add(y_max);
 
-      c.gridwidth = 1;
-      lab = new JLabel("X Label");
-      gridbag.setConstraints(lab, c);
-      getContentPane().add(lab);
+        c.gridwidth = 1;
+        lab = new JLabel("X Label");
+        gridbag.setConstraints(lab, c);
+        getContentPane().add(lab);
 
-      x_label = new JTextField(25);
-      gridbag.setConstraints(x_label, c);
-      getContentPane().add(x_label);
+        x_label = new JTextField(25);
+        gridbag.setConstraints(x_label, c);
+        getContentPane().add(x_label);
 
-      lab = new JLabel("X min");
-      gridbag.setConstraints(lab, c);
-      getContentPane().add(lab);
+        lab = new JLabel("X min");
+        gridbag.setConstraints(lab, c);
+        getContentPane().add(lab);
 
-      x_min = new JTextField(10);
-      gridbag.setConstraints(x_min, c);
-      getContentPane().add(x_min);
+        x_min = new JTextField(10);
+        gridbag.setConstraints(x_min, c);
+        getContentPane().add(x_min);
 
-      lab = new JLabel("X max");
-      gridbag.setConstraints(lab, c);
-      getContentPane().add(lab);
+        lab = new JLabel("X max");
+        gridbag.setConstraints(lab, c);
+        getContentPane().add(lab);
 
-      c.gridwidth = GridBagConstraints.REMAINDER;
-      x_max = new JTextField(10);
-      gridbag.setConstraints(x_max, c);
-      getContentPane().add(x_max);
+        c.gridwidth = GridBagConstraints.REMAINDER;
+        x_max = new JTextField(10);
+        gridbag.setConstraints(x_max, c);
+        getContentPane().add(x_max);
 
 
         JPanel panel = new JPanel();
@@ -165,33 +166,33 @@ public class SetupWaveformParams extends JDialog implements ActionListener
 
         JPanel p1 = new JPanel();
 
-      ok = new JButton("Ok");
-      ok.addActionListener(this);
-      p1.add(ok);
+        ok = new JButton("Ok");
+        ok.addActionListener(this);
+        p1.add(ok);
 
-      apply = new JButton("Apply");
-      apply.addActionListener(this);
-      p1.add(apply);
+        apply = new JButton("Apply");
+        apply.addActionListener(this);
+        p1.add(apply);
 
-      reset = new JButton("Reset");
-      reset.addActionListener(this);
-      p1.add(reset);
+        reset = new JButton("Reset");
+        reset.addActionListener(this);
+        p1.add(reset);
 
-      erase = new JButton("Erase");
-      erase.addActionListener(this);
-      p1.add(erase);
+        erase = new JButton("Erase");
+        erase.addActionListener(this);
+        p1.add(erase);
 
-      cancel = new JButton("Cancel");
-      cancel.addActionListener(this);
-      p1.add(cancel);
+        cancel = new JButton("Cancel");
+        cancel.addActionListener(this);
+        p1.add(cancel);
 
-      c.fill =  GridBagConstraints.NONE;
-      c.anchor = GridBagConstraints.CENTER;
-      c.gridwidth = GridBagConstraints.REMAINDER;
-      gridbag.setConstraints(p1, c);
-      getContentPane().add(p1);
- 	  pack();
-  }
+        c.fill =  GridBagConstraints.NONE;
+        c.anchor = GridBagConstraints.CENTER;
+        c.gridwidth = GridBagConstraints.REMAINDER;
+        gridbag.setConstraints(p1, c);
+        getContentPane().add(p1);
+        pack();
+    }
 
    private int IsGridMode(String mode)
    {
@@ -432,25 +433,23 @@ public class SetupWaveformParams extends JDialog implements ActionListener
    }
 
 
-   public void actionPerformed(ActionEvent e)
-   {
-      Object ob = e.getSource();
+    public void actionPerformed(ActionEvent e)
+    {
+        Object ob = e.getSource();
 
-      if(ob == erase)
-	    eraseForm();
+        if(ob == erase)
+        eraseForm();
 
-      if(ob == cancel)
-	    setVisible(false);
+        if(ob == cancel)
+        setVisible(false);
 
-      if(ob == apply || ob == ok)
-      {
+        if(ob == apply || ob == ok)
+        {
         SaveParameters();
-	    if(ob == ok)
+        if(ob == ok)
 	        setVisible(false);
-      }
+        }
 
-      if(ob == reset)
-      {
-      }
-   }
+        if(ob == reset) {}
+    }
 }
