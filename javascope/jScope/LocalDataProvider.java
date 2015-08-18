@@ -78,49 +78,57 @@ public class LocalDataProvider extends MdsDataProvider /* implements DataProvide
         int pixelSize;
         int startIdx, endIdx;
 
-        private void mygetAllFrames(String nodeName, int startIdx, int endIdx) throws IOException
+        private byte[] mygetAllFrames(String nodeName, int startIdx, int endIdx) throws IOException
         {
-            int size = width*height;
-            int maxpages; 
+            if (DEBUG.ON){System.out.println("LocalDataProvider.LocalFrameData.mygetAllFrames(\""+nodeName+"\", "+startIdx+", "+endIdx+")");}
+
             switch(pixelSize)
                 {
                 case 2 :
+                    if (DEBUG.ON){System.out.println(">> Short");}
                 case 1 :
                 {
-                    allFrames = GetByteArray(nodeName);
+                    if (DEBUG.ON){System.out.println(">> Bytes");}
+                    byte buf[] = GetByteArray(nodeName);
                     if(allFrames == null) throw new IOException(LocalDataProvider.this.ErrorString());
-                    maxpages = allFrames.length/size/pixelSize;
-                    if (startIdx==0 && endIdx==maxpages-1)
-                    {//crop to region of interest
-                        allFrames = Arrays.copyOfRange(allFrames,size*startIdx,size*endIdx);
-                    }
-                    break;
+                    int size = width*height;
+                    int maxpages = buf.length/size;
+                    if (startIdx>0 || endIdx<maxpages)
+                        return Arrays.copyOfRange(buf,size*startIdx,size*endIdx);
+                    else
+                        return buf;
                 }
                 case 4 :
                 {
+                    if (DEBUG.ON){System.out.println(">> Integer");}
                     int buf[] = GetIntArray(nodeName);
                     if(buf == null) throw new IOException(LocalDataProvider.this.ErrorString());
-                    maxpages = allFrames.length/size/pixelSize;
-                    if (startIdx==0 && endIdx==maxpages-1)
-                    {//crop to region of interest
+                    if (DEBUG.ON){System.out.println(">> GetIntArray "+buf);}
+                    int size = width*height;
+                    int maxpages = buf.length/size;
+                    if (startIdx>0 || endIdx<maxpages)
+                    {
+                        if (DEBUG.ON){System.out.println(">> from "+size*startIdx+" to "+size*endIdx);}
                         buf = Arrays.copyOfRange(buf,size*startIdx,size*endIdx);
                     }
+                    if (DEBUG.ON){System.out.println(">> size = "+size);}
+                    if (DEBUG.ON){System.out.println(">> width = "+width);}
+                    if (DEBUG.ON){System.out.println(">> maxpages = "+maxpages);}
                     ByteArrayOutputStream dosb = new ByteArrayOutputStream();
                     DataOutputStream dos = new DataOutputStream(dosb);
                     for ( int i=0 ; i<buf.length ; i++ )
                         dos.writeInt(buf[i]);
-                    allFrames = dosb.toByteArray();
-                    break;
+                    return dosb.toByteArray();
                 }
                 default:
-                    if(segIdxs == null) throw new IOException("Unexpected pixelSize = "+pixelSize);
+                    throw new IOException("Unexpected pixelSize = "+pixelSize);
             }
         }
 
-        void configure(String nodeName, String timeName, float timeMin, float timeMax) throws IOException
+        void configure(String _nodeName, String timeName, float timeMin, float timeMax) throws IOException
         {
             if (DEBUG.ON){System.out.println("LocalDataProvider.LocalFrameData.configure(\""+nodeName+"\", \""+timeName+"\", "+timeMin+", "+timeMax+")");}
-            this.nodeName = nodeName;
+            nodeName = _nodeName;
             isSegmented = isSegmentedNode(nodeName);
             if(isSegmented)
             {
@@ -143,7 +151,7 @@ public class LocalDataProvider extends MdsDataProvider /* implements DataProvide
             width = info.dims[0];
             height = info.dims[1];
             pixelSize = info.pixelSize;
-            if (DEBUG.ON){System.out.println("pixelSize = "+pixelSize);}
+            if (DEBUG.ON){System.out.println(">> pixelSize = "+pixelSize);}
             if(!isSegmented)
             {
                 if(timeName == null || timeName.trim().equals(""))
@@ -151,12 +159,14 @@ public class LocalDataProvider extends MdsDataProvider /* implements DataProvide
                 float[] allTimes = getAllTimes(nodeName, timeName);
                 if (DEBUG.ON){System.out.println("LocalDataProvider.getAllTimes(\""+nodeName+"\", \""+timeName+"\") OK allTimes = "+allTimes);}
                 if(allTimes == null) throw new IOException(LocalDataProvider.this.ErrorString());
+                if (DEBUG.ON){System.out.println(">> allTimes.length = "+allTimes.length);}
                 for(startIdx = 0; startIdx < allTimes.length && allTimes[startIdx] < timeMin; startIdx++);
                 for(endIdx = startIdx; endIdx < allTimes.length && allTimes[endIdx] < timeMax; endIdx++);
+                if (DEBUG.ON){System.out.println(">> startIdx = "+startIdx+", endIdx = "+endIdx);}
                 times = new float[endIdx - startIdx];
                 for(int i = 0; i < endIdx - startIdx; i++)
                    times[i] = allTimes[startIdx + i];
-                allFrames = getAllFrames(nodeName, startIdx, endIdx);
+                allFrames = mygetAllFrames(nodeName, startIdx, endIdx);
                 if (DEBUG.ON){DEBUG.printByteArray(allFrames, pixelSize, width, height, times.length);}
             }
         }
