@@ -82,22 +82,32 @@ public class LocalDataProvider extends MdsDataProvider /* implements DataProvide
         private byte[] mygetAllFrames(String nodeName, int startIdx, int endIdx) throws IOException
         {
             if (DEBUG.ON){System.out.println("LocalDataProvider.LocalFrameData.mygetAllFrames(\""+nodeName+"\", "+startIdx+", "+endIdx+")");}
-
+            int size = width*height;
             switch(pixelSize)
                 {
-                case 2 :
-                    if (DEBUG.LV>1){System.out.println(">> Short");}
                 case 1 :
                 {
                     if (DEBUG.LV>1){System.out.println(">> Bytes");}
                     byte buf[] = GetByteArray(nodeName);
-                    if(allFrames == null) throw new IOException(LocalDataProvider.this.ErrorString());
-                    int size = width*height;
+                    if(buf == null) throw new IOException(LocalDataProvider.this.ErrorString());
                     int maxpages = buf.length/size;
                     if (startIdx>0 || endIdx<maxpages)
                         return Arrays.copyOfRange(buf,size*startIdx,size*endIdx);
                     else
                         return buf;
+                }
+                case 2 :
+                {
+                    if (DEBUG.LV>1){System.out.println(">> Short");}
+                    int buf[] = GetIntArray(nodeName);
+                    if(buf == null) throw new IOException(LocalDataProvider.this.ErrorString());
+                    if (DEBUG.LV>1){System.out.println(">> GetIntArray "+buf);}
+                    int maxpages = buf.length/size;
+                    ByteArrayOutputStream dosb = new ByteArrayOutputStream();
+                    DataOutputStream dos = new DataOutputStream(dosb);
+                    for ( int i=0 ; i<buf.length ; i++ )
+                        dos.writeChar(0xFFFF & buf[i]);
+                    return dosb.toByteArray();
                 }
                 case 4 :
                 {
@@ -105,20 +115,36 @@ public class LocalDataProvider extends MdsDataProvider /* implements DataProvide
                     int buf[] = GetIntArray(nodeName);
                     if(buf == null) throw new IOException(LocalDataProvider.this.ErrorString());
                     if (DEBUG.LV>1){System.out.println(">> GetIntArray "+buf);}
-                    int size = width*height;
                     int maxpages = buf.length/size;
                     if (startIdx>0 || endIdx<maxpages)
                     {
                         if (DEBUG.LV>1){System.out.println(">> from "+size*startIdx+" to "+size*endIdx);}
                         buf = Arrays.copyOfRange(buf,size*startIdx,size*endIdx);
                     }
-                    if (DEBUG.LV>1){System.out.println(">> size = "+size);}
-                    if (DEBUG.LV>1){System.out.println(">> width = "+width);}
-                    if (DEBUG.LV>1){System.out.println(">> maxpages = "+maxpages);}
+                    if (DEBUG.LV>1){System.out.println(">> size = "+size+"\n>> width = "+width+"\n>> maxpages = "+maxpages);}
                     ByteArrayOutputStream dosb = new ByteArrayOutputStream();
                     DataOutputStream dos = new DataOutputStream(dosb);
                     for ( int i=0 ; i<buf.length ; i++ )
                         dos.writeInt(buf[i]);
+                    return dosb.toByteArray();
+                }
+                case 8 : //FLOAT
+                case 16 : //Double
+                {
+                    if (DEBUG.LV>1){System.out.println(">> Float");}
+                    float buf[] = GetFloatArrayNative(nodeName);
+                    if(buf == null) throw new IOException(LocalDataProvider.this.ErrorString());
+                    int maxpages = buf.length/size;
+                    if (startIdx>0 || endIdx<maxpages)
+                    {
+                        if (DEBUG.LV>1){System.out.println(">> from "+size*startIdx+" to "+size*endIdx);}
+                        buf = Arrays.copyOfRange(buf,size*startIdx,size*endIdx);
+                    }
+                    if (DEBUG.LV>1){System.out.println(">> size = "+size+"\n>> width = "+width+"\n>> maxpages = "+maxpages);}
+                    ByteArrayOutputStream dosb = new ByteArrayOutputStream();
+                    DataOutputStream dos = new DataOutputStream(dosb);
+                    for ( int i=0 ; i<buf.length ; i++ )
+                        dos.writeFloat(buf[i]);
                     return dosb.toByteArray();
                 }
                 default:
@@ -156,7 +182,7 @@ public class LocalDataProvider extends MdsDataProvider /* implements DataProvide
             if(!isSegmented)
             {
                 if(timeName == null || timeName.trim().equals(""))
-                    timeName = "DIM_OF("+nodeName+", 2)";
+                    timeName = "DIM_OF("+nodeName+")";
                 if (DEBUG.LV>1){System.out.println(">> timeName = "+timeName);}
                 float[] allTimes = GetFloatArrayNative(timeName);
                 if(allTimes == null) throw new IOException(LocalDataProvider.this.ErrorString());
@@ -197,8 +223,9 @@ public class LocalDataProvider extends MdsDataProvider /* implements DataProvide
                      return FrameData.BITMAP_IMAGE_16;
                 case 4:
                      return FrameData.BITMAP_IMAGE_32;
-                default:
+                default://8
                      return FrameData.BITMAP_IMAGE_FLOAT;
+
             }
         }
 
