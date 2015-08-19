@@ -2694,7 +2694,7 @@ public class Waveform extends JComponent implements SignalListener
     {
         if(frames != null)
         {
-            frames.shiftImagePixel(bitShift, bitClip);
+            frames.setBitShift(bitShift, bitClip);
             not_drawn = true;
             repaint();
         }

@@ -139,9 +139,9 @@ class Frames extends Canvas
             }catch(Exception exc){numFrames = 0;}
         }
 
-        public void shiftImagePixel(int bitShift, boolean bitClip)
+        public void setBitShift(int bitShift, boolean bitClip)
         {
-            if (DEBUG.ON){System.out.println("Frames.FrameCache.shiftImagePixel("+bitShift+", "+bitClip+")");}
+            if (DEBUG.ON){System.out.println("Frames.FrameCache.setBitShift("+bitShift+", "+bitClip+")");}
             this.bitShift = bitShift;
             this.bitClip = bitClip;
             updateCount++;
@@ -468,7 +468,7 @@ class Frames extends Canvas
     FrameCache cache;
     public int getFrameType(){return cache.getFrameType();}
     public ColorMap getColorMap(){return cache.getColorMap();}
-    public void shiftImagePixel(int bitShift, boolean bitClip){cache.shiftImagePixel(bitShift, bitClip);}
+    public void setBitShift(int bitShift, boolean bitClip){cache.setBitShift(bitShift, bitClip);}
     public void SetColorIdx(int color_idx){this.color_idx = color_idx;}
     public int GetColorIdx(){return color_idx;}
     public int getNumFrame(){return cache.getNumFrames();}

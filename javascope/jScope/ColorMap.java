@@ -61,61 +61,7 @@ public class ColorMap
       }
   }
 
-
-  ColorMap(int numColors, float min, float max)
-  {
-      /*
-    createColorMap(numColors, 0,  min,  max);
-
-    this.max = max;
-    this.min = min;
-    this.numColors = numColors;
-    pR = new float[5];
-    pR[0] = 0.f;
-    pR[1] = 0.2f;
-    pR[2] = 0.6f;
-    pR[3] = 0.8f;
-    pR[4] = 1.f;
-
-    vR = new float[5];
-    vR[0] = 255;
-    vR[1] = 0;
-    vR[2] = 0;
-    vR[3] = 255;
-    vR[4] = 255;
-
-    pG = new float[5];
-    pG[0] = 0.f;
-    pG[1] = 0.2f;
-    pG[2] = 0.4f;
-    pG[3] = 0.8f;
-    pG[4] = 1.f;
-
-    vG = new float[5];
-    vG[0] = 0;
-    vG[1] = 0;
-    vG[2] = 255;
-    vG[3] = 255;
-    vG[4] = 0;
-
-    pB = new float[4];
-    pB[0] = 0.f;
-    pB[1] = 0.4f;
-    pB[2] = 0.6f;
-    pB[3] = 1.f;
-
-    vB = new float[4];
-    vB[0] = 255;
-    vB[1] = 255;
-    vB[2] = 0;
-    vB[3] = 0;
-
-    computeColorMap();
-    */
-  }
-
-  public void createColorMap(int numColors, int numPoints,
-                             float min, float max)
+  public void createColorMap(int numColors, int numPoints, float min, float max)
   {
 
       this.max = max;
