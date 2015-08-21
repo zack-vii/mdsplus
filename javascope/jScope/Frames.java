@@ -334,8 +334,8 @@ class Frames extends Canvas
             if (pixelSize == 32)
                 colorModel = new DirectColorModel(32, 0xff0000, 0xff00, 0xff, 0xff000000);
             else
-                colorModel = colorMap.getIndexColorModel( pixelSize );
-            Image img = new BufferedImage(colorModel, ((BufferedImage)fDesc.image).getRaster(), false, null);
+                colorModel = colorMap.getIndexColorModel( pixelSize<32 ? pixelSize : 16 );
+            Image img = (BufferedImage)(fDesc.image);
             if(bitShift != 0)
                 try{
                     doBitShift((BufferedImage)img, fDesc);

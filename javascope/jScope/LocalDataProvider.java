@@ -82,65 +82,61 @@ public class LocalDataProvider extends MdsDataProvider /* implements DataProvide
         private byte[] mygetAllFrames(String nodeName, int startIdx, int endIdx) throws IOException
         {
             if (DEBUG.ON){System.out.println("LocalDataProvider.LocalFrameData.mygetAllFrames(\""+nodeName+"\", "+startIdx+", "+endIdx+")");}
+            if (DEBUG.ON){System.out.println(">> "+width+"x"+height+"x"+pixelSize);}
             int size = width*height;
+            int maxpages;
             switch(pixelSize)
                 {
-                case 1 :
+                case 1 : //int8
                 {
                     if (DEBUG.LV>1){System.out.println(">> Bytes");}
                     byte buf[] = GetByteArray(nodeName);
                     if(buf == null) throw new IOException(LocalDataProvider.this.ErrorString());
-                    int maxpages = buf.length/size;
+                    maxpages = buf.length/size;
+                    if (DEBUG.LV>1){System.out.println("\n>> maxpages = "+maxpages);}
                     if (startIdx>0 || endIdx<maxpages)
                         return Arrays.copyOfRange(buf,size*startIdx,size*endIdx);
                     else
                         return buf;
                 }
-                case 2 :
-                {
+                case 2 : //int16
                     if (DEBUG.LV>1){System.out.println(">> Short");}
-                    int buf[] = GetIntArray(nodeName);
-                    if(buf == null) throw new IOException(LocalDataProvider.this.ErrorString());
-                    if (DEBUG.LV>1){System.out.println(">> GetIntArray "+buf);}
-                    int maxpages = buf.length/size;
-                    ByteArrayOutputStream dosb = new ByteArrayOutputStream();
-                    DataOutputStream dos = new DataOutputStream(dosb);
-                    for ( int i=0 ; i<buf.length ; i++ )
-                        dos.writeChar(0xFFFF & buf[i]);
-                    return dosb.toByteArray();
-                }
-                case 4 :
+                case 4 : //int32
                 {
-                    if (DEBUG.LV>1){System.out.println(">> Integer");}
+                    if (DEBUG.LV>1 && pixelSize==4){System.out.println(">> Integer");}
                     int buf[] = GetIntArray(nodeName);
                     if(buf == null) throw new IOException(LocalDataProvider.this.ErrorString());
-                    if (DEBUG.LV>1){System.out.println(">> GetIntArray "+buf);}
-                    int maxpages = buf.length/size;
+                    maxpages = buf.length/size;
+                    if (DEBUG.LV>1){System.out.println("\n>> maxpages = "+maxpages);}
                     if (startIdx>0 || endIdx<maxpages)
                     {
                         if (DEBUG.LV>1){System.out.println(">> from "+size*startIdx+" to "+size*endIdx);}
                         buf = Arrays.copyOfRange(buf,size*startIdx,size*endIdx);
                     }
-                    if (DEBUG.LV>1){System.out.println(">> size = "+size+"\n>> width = "+width+"\n>> maxpages = "+maxpages);}
                     ByteArrayOutputStream dosb = new ByteArrayOutputStream();
                     DataOutputStream dos = new DataOutputStream(dosb);
-                    for ( int i=0 ; i<buf.length ; i++ )
-                        dos.writeInt(buf[i]);
+                    if (pixelSize==2)
+                        for ( int i=0 ; i<buf.length ; i++ )
+                            dos.writeShort( 0xFFFF & buf[i] );
+                    else
+                        for ( int i=0 ; i<buf.length ; i++ )
+                            dos.writeInt(buf[i]);
                     return dosb.toByteArray();
                 }
                 case 8 : //FLOAT
+                    if (DEBUG.LV>1){System.out.println(">> Float");}
                 case 16 : //Double
                 {
-                    if (DEBUG.LV>1){System.out.println(">> Float");}
+                    if (DEBUG.LV>1 && pixelSize==16){System.out.println(">> Double");}
                     float buf[] = GetFloatArrayNative(nodeName);
                     if(buf == null) throw new IOException(LocalDataProvider.this.ErrorString());
-                    int maxpages = buf.length/size;
+                    maxpages = buf.length/size;
+                    if (DEBUG.LV>1){System.out.println("\n>> maxpages = "+maxpages);}
                     if (startIdx>0 || endIdx<maxpages)
                     {
                         if (DEBUG.LV>1){System.out.println(">> from "+size*startIdx+" to "+size*endIdx);}
                         buf = Arrays.copyOfRange(buf,size*startIdx,size*endIdx);
                     }
-                    if (DEBUG.LV>1){System.out.println(">> size = "+size+"\n>> width = "+width+"\n>> maxpages = "+maxpages);}
                     ByteArrayOutputStream dosb = new ByteArrayOutputStream();
                     DataOutputStream dos = new DataOutputStream(dosb);
                     for ( int i=0 ; i<buf.length ; i++ )
