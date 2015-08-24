@@ -281,12 +281,6 @@ public class MdsDataClient extends MdsConnection
 
         switch(desc.dtype)
         {
-	        case Descriptor.DTYPE_FLOAT:
-	            throw new MdsIOException("Cannot convert a string to byte array");
-	        case Descriptor.DTYPE_LONG:
-	            throw new MdsIOException("Cannot convert a string to byte array");
-	        case Descriptor.DTYPE_DOUBLE:
-	            throw new MdsIOException("Cannot convert a string to byte array");
 	        case Descriptor.DTYPE_BYTE:
 	        case Descriptor.DTYPE_UBYTE:
 	            out_data = new byte[desc.byte_data.length];

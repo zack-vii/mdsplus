@@ -246,7 +246,7 @@ public class MdsDataProvider implements DataProvider
             if (DEBUG.ON){System.out.println("MdsDataProvider.SegmentedFrameData.GetFrameAt("+idx+")");}
             int segmentIdx = startSegment + idx / framesPerSegment;
             int segmentOffset = (idx % framesPerSegment) * dim.width * dim.height * bytesPerPixel;
-            byte[] segment = GetByteArray("GetSegment("+ in_y+","+segmentIdx+")").buf;
+            byte[] segment = getByteArray("GetSegment("+ in_y+","+segmentIdx+")").buf;
             if(framesPerSegment == 1)
                 return segment;
             byte []outFrame = new byte[dim.width * dim.height * bytesPerPixel];
@@ -634,7 +634,7 @@ public class MdsDataProvider implements DataProvider
               Vector<Descriptor> args = new Vector<Descriptor>();
               args.addElement(new Descriptor(null, in_y));
               try {
-                  byte[] retData = GetByteArray("byte(MdsMisc->IsSegmented($))", args).buf;
+                  byte[] retData = getByteArray("byte(MdsMisc->IsSegmented($))", args).buf;
             
                   if (retData[0] > 0)
                       segmentMode = SEGMENTED_YES;
@@ -731,9 +731,9 @@ public class MdsDataProvider implements DataProvider
             //all fine if setTimeContext is an empty string
             //if a space is required between ; and further code setTimeContext sould have it
             if(isLong)
-                retData = GetByteArray(setTimeContext+"MdsMisc->GetXYSignalLongTimes:DSC", args).buf;
+                retData = getByteArray(setTimeContext+"MdsMisc->GetXYSignalLongTimes:DSC", args).buf;
             else
-                retData = GetByteArray(setTimeContext+"MdsMisc->GetXYSignal:DSC", args).buf;
+                retData = getByteArray(setTimeContext+"MdsMisc->GetXYSignal:DSC", args).buf;
             if (DEBUG.LV>1){System.out.println(">> MdsMisc->GetXYSignal*Long*Times:DSC");}
             /*Decode data: Format:
                    -retResolution(float)
@@ -1185,10 +1185,10 @@ public class MdsDataProvider implements DataProvider
         int pixel_size = 8;
         int num_time = 0;
 
-        img = GetByteArray("_jScope_img =" + in_frame );
+        img = getByteArray("_jScope_img =" + in_frame );
         if (img == null)
             return null;
-        if (DEBUG.LV>1){System.out.println(">> MdsDataProvider.GetByteArray:  not null");}
+        if (DEBUG.LV>1){System.out.println(">> MdsDataProvider.getByteArray:  not null");}
         for ( int i=2 ; i>=0 ; i-- )
         {
             time = GetFloatArray("DIM_OF( _jScope_img, "+i+" )");
@@ -1282,16 +1282,16 @@ public class MdsDataProvider implements DataProvider
         if (DEBUG.ON){System.out.println("MdsDataProvider.GetFrameAt(\""+in_frame+"\", "+frame_idx+")");}
         String exp = GetExperimentName(in_frame);
         String in = "JavaGetFrameAt(\"" + exp + "\",\" " + in_frame + "\"," + shot + ", " + frame_idx + " )";
-        return GetByteArray(in).buf;
+        return getByteArray(in).buf;
     }
-    public  synchronized  ByteArray GetByteArray(String in) throws IOException
+    public  synchronized  ByteArray getByteArray(String in) throws IOException
     {
-        return GetByteArray(in, null);
+        return getByteArray(in, null);
     }
 
-    public  synchronized  ByteArray GetByteArray(String in, Vector<Descriptor> args) throws IOException
+    public  synchronized  ByteArray getByteArray(String in, Vector<Descriptor> args) throws IOException
     {
-        if (DEBUG.ON){System.out.println("MdsDataProvider.GetByteArray(\""+in+"\", "+args+")");}
+        if (DEBUG.ON){System.out.println("MdsDataProvider.getByteArray(\""+in+"\", "+args+")");}
         ByteArrayOutputStream dosb = new ByteArrayOutputStream();
         DataOutputStream dos = new DataOutputStream(dosb);
         if (!CheckOpen())
@@ -1590,7 +1590,6 @@ public class MdsDataProvider implements DataProvider
 
         if (!CheckOpen())
             return null;
-        isPresent("_jscope_0");
         Descriptor desc = mds.MdsValue(in);
         RealArray out = null;
         if (DEBUG.LV>1){System.out.println(">> MdsDataProvider.GetRealArray: "+desc.dtype);}
@@ -2009,7 +2008,7 @@ public class MdsDataProvider implements DataProvider
         if (DEBUG.ON){System.out.println("MdsDataProvider.GetNumDimensions(\""+expression+"\")");}
         //return GetIntArray(in_y);
         //Gabriele June 2013: reduce dimension if one component is 1
-        isPresent(expression);
+        if(DEBUG.LV>1){isPresent(expression);}
         int [] fullDims = GetIntArray("SHAPE( "+expression+" )");
         if( fullDims == null )
             return null;

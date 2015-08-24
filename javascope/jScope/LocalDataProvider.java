@@ -45,7 +45,7 @@ public class LocalDataProvider extends MdsDataProvider /* implements DataProvide
     } //EventDescriptor
 
 
-    native public byte [] LocalGetByteArray(String in);
+    native public byte [] GetByteArray(String in);
     native public String ErrorString();
     native public long [] GetLongArrayNative(String in);
     native public float[] GetFloatArrayNative(String in);
@@ -90,7 +90,7 @@ public class LocalDataProvider extends MdsDataProvider /* implements DataProvide
                 case 1 : //int8
                 {
                     if (DEBUG.LV>1){System.out.println(">> Bytes");}
-                    byte buf[] = LocalGetByteArray(nodeName);
+                    byte buf[] = GetByteArray(nodeName);
                     if(buf == null) throw new IOException(LocalDataProvider.this.ErrorString());
                     maxpages = buf.length/size;
                     if (DEBUG.LV>1){System.out.println(">> maxpages = "+maxpages);}
