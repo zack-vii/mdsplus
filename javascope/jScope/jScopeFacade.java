@@ -2844,6 +2844,7 @@ remove 28/06/2005
                 SetDataServer(new DataServerItem("Not Connected", null, null,
                                              "NotConnectedDataProvider", null, null, null, false));
           //SetFastNetworkState(wave_panel.GetFastNetworkState());
+            shot_t.setText("");
             UpdateAllWaves();
         }
         catch (Exception e)
