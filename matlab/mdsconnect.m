@@ -21,7 +21,7 @@ function [ status ] = mdsconnect( host )
       end
     end
     if status == 0
-      if strcmp(upper(host),'LOCAL') == 1
+      if strcmpi(host,'LOCAL') == 1
         clearvars -global MDSplusConnection_Obj
         MDSplus_Connection_Host='LOCAL';
         status = 1;
