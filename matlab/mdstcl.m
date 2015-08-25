@@ -1,5 +1,4 @@
-function mdstcl(command);
-
+function mdstcl(command)
 % This function provides Matlab with the same MDSTCL interface as IDL.
 % Written by R. Granetz on 2014/12/23
 
@@ -14,9 +13,9 @@ if (exist('command','var'));
   response = char(mdsvalue('_response'));
   if (~isempty(response));
     fprintf(1, '%s\n', response);
-  end;
-  return;
-end;
+  end
+  return
+end
 
 while 1;
   tclcmd = input('TCL> ','s');
@@ -24,11 +23,11 @@ while 1;
     continue;
   elseif (any(strcmpi(tclcmd,{'ex','exi','exit'})));
     return;
-  else;
+  else
     mdsvalue('tcl($, _response)', tclcmd);
     response = char(mdsvalue('_response'));
     if (~isempty(response));
       fprintf(1, '%s\n', response);
-    end;
-  end;
-end;
+    end
+  end
+end

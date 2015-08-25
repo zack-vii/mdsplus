@@ -9,7 +9,6 @@ function [ status ] = mdsclose()
    import MDSplus.Data
    global MDSplus_Connection_Obj
    status = 1;
-   shoto = '';
    if isjava(MDSplus_Connection_Obj)
      try
        MDSplus_Connection_Obj.get('TreeClose()');
