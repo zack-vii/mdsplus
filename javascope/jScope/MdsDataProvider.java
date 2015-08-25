@@ -470,10 +470,8 @@ public class MdsDataProvider implements DataProvider
             try{
                 if (DEBUG.LV>1){System.out.println(">> v_y = "+v_y);}
                 if (DEBUG.LV>1){System.out.println(">> mds = "+mds);}
-                System.out.println(">> "+GetString(v_y+"="+in_y+";\"ok\""));
-				Descriptor descr = mds.MdsValue(v_y);
-                if (DEBUG.LV>1){System.out.println(">> descr = "+descr);}
-                if (DEBUG.LV>1){System.out.println(">> cached"+descr.dtype);}
+                GetString(v_y+"="+in_y+";\"\"");
+                if (DEBUG.LV>1){System.out.println(">> ok");}
             } catch(Exception exc){System.err.println("# MdsDataProvider.cacheXData: "+exc);}
         }
 
@@ -647,14 +645,18 @@ public class MdsDataProvider implements DataProvider
             }
 //            String setTimeContext = getTimeContext(xmin,xmax,isLong);
             String setTimeContext = "";
+/*            //causes the next mdsvalue to fail raising: %TDI-E-SYNTAX, Bad punctuation or misspelled word or number
             try{
                 return getXYSignal(xmin, xmax, numPoints, isLong, setTimeContext);
             }catch(Exception exc)
             {
                if (DEBUG.ON){System.err.println("# MdsMisc->GetXYSignal() is not available on the server: "+exc);}
             }
-            cacheXData();
+*/
+            if (DEBUG.LV>1){isPresent(v_y);}
             float y[] = GetFloatArray(setTimeContext+v_y);
+            if (DEBUG.LV>1){System.out.println(">> y = "+y);}
+            cacheXData();
             RealArray xReal = GetRealArray(v_x);
             if(xReal.isLong)
             {
@@ -1229,12 +1231,13 @@ public class MdsDataProvider implements DataProvider
 
         d.writeInt(shape[0]);
         d.writeInt(shape[1]);
+//        d.writeInt(img.dtype);
         d.writeInt(num_time);
 
         for (int i = 0; i < num_time; i++)
             d.writeFloat(time[i]);
 
-        d.write(img_buf);
+        d.write(img.buf);
         img_buf = null;
         out = b.toByteArray();
         d.close();
@@ -1296,7 +1299,11 @@ public class MdsDataProvider implements DataProvider
         DataOutputStream dos = new DataOutputStream(dosb);
         if (!CheckOpen())
             throw new IOException("TreeNotOpen");
+        if(DEBUG.LV>1){System.out.println("mds = "+mds);}
         Descriptor desc = mds.MdsValue(in, args);
+        if (desc==null)
+            throw new IOException("MdsValue: not result ("+in+")");
+        if(DEBUG.LV>1){System.out.println("desc.dtype = "+desc.dtype);}
         switch (desc.dtype)
         {
             case Descriptor.DTYPE_DOUBLE:
@@ -2041,7 +2048,7 @@ public class MdsDataProvider implements DataProvider
 
         RealArray(float[] floatArray)
         {
-            if (DEBUG.ON){System.out.println("MdsDataProvider.RealArray(floatArray)");}
+            if (DEBUG.ON){System.out.println("MdsDataProvider.RealArray("+floatArray+")");}
             this.floatArray = floatArray;
             isDouble = false;
             isLong = false;
@@ -2049,7 +2056,7 @@ public class MdsDataProvider implements DataProvider
 
         RealArray(double[] doubleArray)
         {
-            if (DEBUG.ON){System.out.println("MdsDataProvider.RealArray(doubleArray)");}
+            if (DEBUG.ON){System.out.println("MdsDataProvider.RealArray("+doubleArray+")");}
             this.doubleArray = doubleArray;
             isDouble = true;
             isLong = false;
@@ -2057,7 +2064,7 @@ public class MdsDataProvider implements DataProvider
 
         RealArray(long[] longArray)
         {
-            if (DEBUG.ON){System.out.println("MdsDataProvider.RealArray(longArray)");}
+            if (DEBUG.ON){System.out.println("MdsDataProvider.RealArray("+longArray+")");}
             this.longArray = longArray;
             for(int i = 0; i < longArray.length; i++)
                 longArray[i] = jScopeFacade.convertFromSpecificTime(longArray[i]);
@@ -2083,6 +2090,8 @@ public class MdsDataProvider implements DataProvider
         double[] getDoubleArray()
         {
             if (DEBUG.ON){System.out.println("MdsDataProvider.RealArray.getDoubleArray()");}
+            if (DEBUG.LV>1){System.out.println(">> "+isLong+isDouble+(floatArray!=null)+(doubleArray!=null));}
+
             if(isLong) return null;
 
             if (!isDouble && floatArray != null && doubleArray == null)
