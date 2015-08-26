@@ -189,7 +189,7 @@ public class MdsDataProvider implements DataProvider
             dim = new Dimension(dims[0], dims[1]);
             framesPerSegment = dims[2];
 //Get Frame element length in bytes
-            ByteArray data = getByteArray("_jscope_seg[0,0,0]"));
+            ByteArray data = getByteArray("_jscope_seg[0,0,0]");
             if (DEBUG.ON){System.out.println(">> data = "+data);}
             bytesPerPixel  = data.getDataSize();
             mode           = data.getFrameType();
@@ -1140,16 +1140,16 @@ public class MdsDataProvider implements DataProvider
         } catch(Exception exc){error = null;}
         
         if(numSegments != null && numSegments[0] > 0)
-            return new SegmentedFrameData(in_y, in_x, time_min, time_max, numSegments[0]);
-        else
         {
-            try {
-                return (new SimpleFrameData(in_y, in_x, time_min, time_max));
-            }catch(Exception exc){
-                if (DEBUG.LV>1)
-                    System.err.println("# MdsDataProvider.SimpleFrameData: "+exc);
-                return null;
-            }
+            int numDims[] = GetIntArray("NDims("+in_y+")");
+            if (numDims != null && numDims[0]>2)
+                return new SegmentedFrameData(in_y, in_x, time_min, time_max, numSegments[0]);
+        }
+        try {
+            return (new SimpleFrameData(in_y, in_x, time_min, time_max));
+        }catch(Exception exc){
+            if (DEBUG.LV>1)System.err.println("# MdsDataProvider.SimpleFrameData: "+exc);
+            return null;
         }
     }
 
