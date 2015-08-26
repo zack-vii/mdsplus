@@ -315,28 +315,18 @@ public class MdsConnection
         return out;
     }
 
-    public Descriptor MdsValue(String expr, Vector<Descriptor> args)
-    {
-        return MdsValue(expr, args, true);
-    }
-
-    public Descriptor MdsValueStraight(String expr, Vector<Descriptor> args)
-    {
-        return MdsValue(expr, args, false);
-    }
-
+    public      Descriptor MdsValueStraight(String expr, Vector<Descriptor> args){return MdsValue(expr, args, false);}
+    public              Descriptor MdsValue(String expr, Vector<Descriptor> args){return MdsValue(expr, args, true);}
     public synchronized Descriptor MdsValue(String expr, Vector<Descriptor> args, boolean wait)
     {
+        if (DEBUG.ON){System.out.println("MdsConnection.MdsValue(\""+expr+"\", "+args+", "+wait+")");}
         if (args==null) args = new Vector<Descriptor>();
         StringBuffer cmd = new StringBuffer(expr);
         int n_args = args.size();
         byte idx = 0, totalarg = (byte)(n_args+1);
         Descriptor out;
-
-        //System.out.println("With Arg ->\n"+expr+"\n<-\n");
-                
-        try
-        {
+               
+        try{
             if(expr.indexOf("($") == -1) //If no $ args specified, build argument list 
             {
                 if(n_args > 0)
@@ -354,59 +344,40 @@ public class MdsConnection
                 p = args.elementAt(i);
                 sendArg(idx++, p.dtype, totalarg, p.dims, p.dataToByteArray());
             }
-            
 
             pending_count++;
             if(wait)
-	    {
+	        {
                 out = getAnswer();
-		if(out == null)
-		    out = new Descriptor("Could not get IO for "+provider);
-	    }
+		        if(out == null)
+		            out = new Descriptor("Could not get IO for "+provider);
+	        }
             else
                 out = new Descriptor();
-		
-        }
-        catch(IOException e)
+        }catch(IOException e)
         {
             out = new Descriptor("Could not get IO for "+provider + e);
         }
         return out;
     }
 
-    public  void sendArg(byte descr_idx,
-                            byte dtype,
-                            byte nargs,
-                            int dims[],
-                            byte body[]) throws IOException
+    public  void sendArg(byte descr_idx, byte dtype, byte nargs, int dims[], byte body[]) throws IOException
     {
-       MdsMessage msg = new MdsMessage( descr_idx, dtype,
-                                        nargs, dims,
-                                        body);
-       msg.Send(dos);
+        MdsMessage msg = new MdsMessage(descr_idx, dtype, nargs, dims, body);
+        msg.Send(dos);
     }
 
 
     // Read either a string or a float array
     public synchronized Descriptor MdsValue(String expr)
     {
-	int i, status;
-	Descriptor out;
-        MdsMessage message = new MdsMessage(expr);
-
-        //System.out.println("->\n"+expr+"\n<-\n");
-        
+        if (DEBUG.ON){System.out.println("MdsConnection.MdsValue(\""+expr+"\")");}
         try {
+            MdsMessage message = new MdsMessage(expr);
             pending_count++;
-	    message.Send(dos);
-            out = getAnswer();
-	}
-	catch(IOException e)
-	{
-	    out = new Descriptor("Could not get IO for "+provider + e);
-	}
-        message.body = null;
-	return out;
+	        message.Send(dos);
+            return getAnswer();
+	    }catch(IOException exc){return new Descriptor("Could not get IO for "+provider+exc);}
     }
 
     public  int DisconnectFromMds()

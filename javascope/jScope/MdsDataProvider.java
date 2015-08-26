@@ -43,17 +43,6 @@ public class MdsDataProvider implements DataProvider
             this.dtype= dtype; 
         }
         public short getDataSize(){return Descriptor.getDataSize(dtype,buf);}
-    }
-    public class AllFrames extends ByteArray
-    {
-        Dimension dim;
-        float times[];
-        public AllFrames(ByteArray byteArray, int width, int height, float times[])
-        {
-            super(byteArray.buf,byteArray.dtype); 
-            this.dim    = new Dimension(width, height); 
-            this.times  = times; 
-        }
         public int getFrameType()
         {
             if (DEBUG.LV>1){System.out.println(">> getFrameType = " + this.dtype);}
@@ -71,6 +60,17 @@ public class MdsDataProvider implements DataProvider
                 case Descriptor.DTYPE_DOUBLE :    return FrameData.BITMAP_IMAGE_FLOAT;
                 default:                          return FrameData.BITMAP_IMAGE_8;
             }
+        }
+    }
+    public class AllFrames extends ByteArray
+    {
+        Dimension dim;
+        float times[];
+        public AllFrames(ByteArray byteArray, int width, int height, float times[])
+        {
+            super(byteArray.buf,byteArray.dtype); 
+            this.dim    = new Dimension(width, height); 
+            this.times  = times; 
         }
     }
 
@@ -122,6 +122,11 @@ public class MdsDataProvider implements DataProvider
         Dimension dim;
         float times[];
         int bytesPerPixel;
+
+        public int GetFrameType() throws IOException{return mode;}
+        public int GetNumFrames(){return actSegments * framesPerSegment;}
+        public Dimension GetFrameDimension(){return dim;}
+        public float[] GetFrameTimes(){return times;}
 
         public SegmentedFrameData(String in_y, String in_x, float time_min, float time_max, int numSegments) throws IOException
         {
@@ -178,28 +183,16 @@ public class MdsDataProvider implements DataProvider
 
             actSegments = endSegment - startSegment;
 //Get Frame Dimension and frames per segment
-            int dims[] = GetIntArray("shape(GetSegment("+in_y+", 0))");
+            int dims[] = GetIntArray("shape(_jscope_seg=GetSegment("+in_y+", 0))");
             if(dims.length != 3)
                 throw new IOException("Invalid number of segment dimensions: "+ dims.length);
             dim = new Dimension(dims[0], dims[1]);
             framesPerSegment = dims[2];
 //Get Frame element length in bytes
-            int len[] = GetIntArray("len(GetSegment("+in_y+", 0))");
-            bytesPerPixel = len[0];
-            switch (len[0])
-            {
-                case 1:
-                    mode = BITMAP_IMAGE_8;
-                    break;
-                case 2:
-                    mode = BITMAP_IMAGE_16;
-                    break;
-                case 4:
-                    mode = BITMAP_IMAGE_32;
-                    break;
-                default:
-                    throw new IOException("Unexpected length for frame data: "+ len[0]);
-             }
+            ByteArray data = getByteArray("_jscope_seg[0,0,0]"));
+            if (DEBUG.ON){System.out.println(">> data = "+data);}
+            bytesPerPixel  = data.getDataSize();
+            mode           = data.getFrameType();
 //Get Frame times
              if(framesPerSegment == 1) //We assume in this case that start time is the same of the frame time
              {
@@ -214,32 +207,13 @@ public class MdsDataProvider implements DataProvider
                 {
                     float segTimes [] = GetFloatArray("dim_of(GetSegment("+in_y+","+i+"))");
                     if(segTimes.length != framesPerSegment)
-                        throw new IOException("Inconsistent definition of time in frame + "+i+": read "+ segTimes.length+
-                                " times, expected "+ framesPerSegment );
+                        throw new IOException("Inconsistent definition of time in frame + "+i+": read "+ segTimes.length+" times, expected "+ framesPerSegment );
                     for(int j = 0; j < framesPerSegment; j++)
                         times[i * framesPerSegment + j] = segTimes[j];
                  }
              }
         }
-        public int GetFrameType() throws IOException
-        {
-            return mode;
-        }
 
-        public int GetNumFrames()
-        {
-            return actSegments * framesPerSegment;
-        }
-
-        public Dimension GetFrameDimension()
-        {
-            return dim;
-        }
-
-        public float[] GetFrameTimes()
-        {
-            return times;
-        }
         public byte[] GetFrameAt(int idx) throws IOException
         {
             if (DEBUG.ON){System.out.println("MdsDataProvider.SegmentedFrameData.GetFrameAt("+idx+")");}
@@ -268,6 +242,10 @@ public class MdsDataProvider implements DataProvider
         private float times[] = null;
         private long  long_times[] = null; 
         private Dimension dim = null;
+
+        public int GetNumFrames(){return n_frames;}
+        public Dimension GetFrameDimension(){return dim;}
+        public float[] GetFrameTimes(){return times;}
 
         public SimpleFrameData(String in_y, String in_x, float time_min, float time_max) throws Exception
         {
@@ -364,12 +342,6 @@ public class MdsDataProvider implements DataProvider
             mode = Frames.DecodeImageType(buf);
             return mode;
         }
-
-        public int GetNumFrames(){return n_frames;}
-
-        public Dimension GetFrameDimension(){return dim;}
-
-        public float[] GetFrameTimes(){return times;}
 
         public byte[] GetFrameAt(int idx) throws IOException
         {
@@ -494,7 +466,7 @@ public class MdsDataProvider implements DataProvider
             if(segmentMode == SEGMENTED_UNKNOWN)
             {
                 try {//fast using in_y as NumSegments is a node property
-                    int[] numSegments = GetIntArray("GetNumSegments("+in_y+")");
+                    int[] numSegments = GetIntArray("GetNumSegments("+v_y+")");
                     if (numSegments==null)
                         segmentMode = SEGMENTED_UNKNOWN;
                     else if(numSegments[0] > 0)
@@ -539,10 +511,10 @@ public class MdsDataProvider implements DataProvider
             if(numDimensions != UNKNOWN)
                 return numDimensions;
             String expr;
-            if(segmentMode == SEGMENTED_YES)
-                expr = v_y+"=GetSegment("+in_y+",0)";
+/*            if(segmentMode == SEGMENTED_YES)
+                expr = "GetSegment("+v_y+",0)";
             else
-                expr = v_y;
+*/                expr = v_y;
 
             error = null;
             int shape[] = GetNumDimensions(expr);
@@ -593,17 +565,17 @@ public class MdsDataProvider implements DataProvider
                 yLabelEvaluated = true;
                 if( getNumDimension() > 1)
                 {
-/*                    if(segmentMode == SEGMENTED_YES)
+                    if(segmentMode == SEGMENTED_YES)
                         yLabel = GetStringValue("Units(Dim_of(GetSegment("+v_y+",0),1))");
                     else
-*/                        yLabel = GetStringValue("Units(Dim_of("+v_y+",1))");
+                        yLabel = GetStringValue("Units(Dim_of("+v_y+",1))");
                 }
                 else
                 {
-/*                    if(segmentMode == SEGMENTED_YES)
+                    if(segmentMode == SEGMENTED_YES)
                         yLabel = GetStringValue("Units(GetSegment("+v_y+",0))");
                     else
-*/                        yLabel = GetStringValue("Units("+v_y+")");
+                        yLabel = GetStringValue("Units("+v_y+")");
                 }
             }
             return yLabel;
@@ -1773,11 +1745,7 @@ public class MdsDataProvider implements DataProvider
         }
     }
 
-    protected synchronized boolean CheckOpen() throws IOException
-    {
-        return CheckOpen( this.experiment,  this.shot);
-    }
-    
+    protected synchronized boolean CheckOpen() throws IOException{return CheckOpen( this.experiment,  this.shot);}
     protected synchronized boolean CheckOpen(String experiment, long shot) throws IOException
     {
         if (DEBUG.ON){System.out.println("MdsDataProvider.CheckOpen(\""+experiment+"\", "+shot+")");}
