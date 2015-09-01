@@ -381,7 +381,7 @@ public class WaveInterface
         int n_error = 0;
         String er = error;
 
-        if (DEBUG.ON){System.out.println(">> "+error);}
+        if (DEBUG.LV>1){System.out.println(">> "+error);}
         if (num_waves == 0 || (is_image && frames == null))
         {
             if (error != null)
@@ -844,7 +844,7 @@ public class WaveInterface
             error = dp.ErrorString();
             return 0;
         }
-        if (DEBUG.ON){System.out.println(">> Compute title");}
+        if (DEBUG.LV>1){System.out.println(">> Compute title");}
         if (in_title != null && (in_title.trim()).length() != 0)
         {
             title = dp.GetString(in_title);
@@ -855,7 +855,7 @@ public class WaveInterface
             }
         }
 
-        if (DEBUG.ON){System.out.println(">> Compute limits");}
+        if (DEBUG.LV>1){System.out.println(">> Compute limits");}
         if (in_xmin != null &&
             (in_xmin.trim()).length() != 0 &&
             in_upd_limits)
@@ -939,7 +939,7 @@ public class WaveInterface
                 timemin = -Double.MAX_VALUE;
         }
 
-        if (DEBUG.ON){System.out.println(">> Compute x label");}
+        if (DEBUG.LV>1){System.out.println(">> Compute x label");}
         if (in_xlabel != null && (in_xlabel.trim()).length() != 0)
         {
             xlabel = dp.GetString(in_xlabel);
@@ -949,7 +949,7 @@ public class WaveInterface
                 return 0;
             }
         }
-        if (DEBUG.ON){System.out.println(">> Compute y label");}
+        if (DEBUG.LV>1){System.out.println(">> Compute y label");}
         if (in_ylabel != null && (in_ylabel.trim()).length() != 0)
         {
             ylabel = dp.GetString(in_ylabel);
