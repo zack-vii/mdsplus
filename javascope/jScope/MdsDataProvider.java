@@ -377,7 +377,7 @@ public class MdsDataProvider implements DataProvider
 
                 if( d.available() < img_size )
                 {
-                    if (DEBUG.ON){System.err.println(">> insufficient bytes: "+d.available()+"/"+img_size);}
+                    if (DEBUG.ON){System.err.println("# >> insufficient bytes: "+d.available()+"/"+img_size);}
                     return null;
                 }
 
@@ -430,16 +430,17 @@ public class MdsDataProvider implements DataProvider
             if (DEBUG.ON){System.out.println("MdsDataProvider.SimpleWaveData(\""+in_y+"\", \""+in_x+"\", \""+experiment+"\", "+shot+")");}
             this.wd_experiment = experiment;
             this.wd_shot = shot;
-            v_y = "_jscope_"+var_idx++;
-            v_x = in_x;
             if(checkForAsynchRequest(in_y))
             {
                 this.in_y = "[]";
                 this.in_x = "[]";
-             }
+                v_y = "[]";
+                v_x = "[]";
+            }
             else
             {   
-
+                v_y = "_jscope_"+var_idx++;
+                v_x = in_x;
                 this.in_y = in_y;
                 this.in_x = in_x;
                 cacheYData();
@@ -457,7 +458,7 @@ public class MdsDataProvider implements DataProvider
 				Descriptor descr = mds.MdsValue(v_y);
                 if (DEBUG.ON){System.out.println(">> descr = "+descr);}
                 if (DEBUG.ON){System.out.println(">> cached"+descr.dtype);}
-            } catch(Exception exc){System.err.println("MdsDataProvider.cacheXData: "+exc);}
+            } catch(Exception exc){System.err.println("# MdsDataProvider.cacheXData: "+exc);}
         }
 
         private void cacheXData()
@@ -475,7 +476,7 @@ public class MdsDataProvider implements DataProvider
                       v_x = v_y+"x";
                       if (DEBUG.ON){System.out.println(">> cached");}
                   }
-             } catch(Exception exc){System.err.println("MdsDataProvider.cacheXData: "+exc);}
+             } catch(Exception exc){System.err.println("# MdsDataProvider.cacheXData: "+exc);}
         }
 
         private void SegmentMode()
@@ -493,7 +494,7 @@ public class MdsDataProvider implements DataProvider
                         segmentMode = SEGMENTED_NO;
                 }catch(Exception exc)
                 {// numSegments==null should not get here anymore
-                    if (DEBUG.ON){System.err.println("MdsDataProvider.SimpleWaveData.SegmentMode: "+exc);}
+                    if (DEBUG.ON){System.err.println("# MdsDataProvider.SimpleWaveData.SegmentMode: "+exc);}
                     error = null;
                     segmentMode = SEGMENTED_UNKNOWN;
                 }
@@ -537,7 +538,6 @@ public class MdsDataProvider implements DataProvider
 
             error = null;
             int shape[] = GetNumDimensions(expr);
-            if (DEBUG.ON){System.out.println("*********** "+shape[0]);}
 
             if (error != null || shape == null)
             {
@@ -634,9 +634,8 @@ public class MdsDataProvider implements DataProvider
                 return getXYSignal(xmin, xmax, numPoints, isLong, setTimeContext);
             }catch(Exception exc)
             {
-               if (DEBUG.ON){System.err.println("MdsMisc->GetXYSignal() is not available on the server: "+exc);}
+               if (DEBUG.ON){System.err.println("# MdsMisc->GetXYSignal() is not available on the server: "+exc);}
             }
-            if (DEBUG.ON){System.out.println("traditional method");}
             cacheXData();
             float y[] = GetFloatArray(setTimeContext+"("+v_y+")");
             RealArray xReal = GetRealArray("("+v_x+")");
@@ -682,7 +681,7 @@ public class MdsDataProvider implements DataProvider
             }
             catch(Exception exc)
             {
-                if (DEBUG.ON){System.err.println("MdsDataProvider.SimpleWaveData.setTimeContext: "+exc);}
+                if (DEBUG.ON){System.err.println("# MdsDataProvider.SimpleWaveData.setTimeContext: "+exc);}
                 res = "";
             }
             return res;
@@ -714,11 +713,11 @@ public class MdsDataProvider implements DataProvider
             int nSamples;
             //all fine if setTimeContext is an empty string
             //if a space is required between ; and further code setTimeContext sould have it
-            if (DEBUG.ON){System.out.println("MdsMisc->GetXYSignal*Long*Times:DSC");}
             if(isLong)
                 retData = GetByteArray(setTimeContext+"MdsMisc->GetXYSignalLongTimes:DSC", args);
             else
                 retData = GetByteArray(setTimeContext+"MdsMisc->GetXYSignal:DSC", args);
+            if (DEBUG.ON){System.out.println(">> MdsMisc->GetXYSignal*Long*Times:DSC");}
             /*Decode data: Format:
                    -retResolution(float)
                    -number of samples (minumum between X and Y)
@@ -810,7 +809,7 @@ public class MdsDataProvider implements DataProvider
 /*          }
             catch(Exception exc)
             {
-            if (DEBUG.ON){System.err.println("Error Reading data: "+exc);}
+            if (DEBUG.ON){System.err.println("# Error Reading data: "+exc);}
                 nSamples = 0;
             }
 */          //Got resampled signal, if it is segmented and jScope.refreshPeriod > 0, enqueue a new request
@@ -1022,7 +1021,6 @@ public class MdsDataProvider implements DataProvider
                     {
                          try 
                         {
-                            
                             requestsV.removeElementAt(i);
                             XYData currData = currUpdate.simpleWaveData.getData(currUpdate.updateLowerBound, currUpdate.updateUpperBound, currUpdate.updatePoints, currUpdate.isXLong);
                             
@@ -1034,7 +1032,6 @@ public class MdsDataProvider implements DataProvider
                                     currUpdate.waveDataListenersV.elementAt(j).dataRegionUpdated(currData.xLong, currData.y, currData.resolution);
                                 else
                                     currUpdate.waveDataListenersV.elementAt(j).dataRegionUpdated(currData.x, currData.y, currData.resolution);
-
                             }
                         }catch(Exception exc)
                         {
@@ -1233,8 +1230,6 @@ public class MdsDataProvider implements DataProvider
 
         String in = "JavaGetFrameTimes(\"" + exp + "\",\"" + in_frame + "\"," +
             shot + " )";
-        //    if(!CheckOpen())
-        //	    return null;
         Descriptor desc = mds.MdsValue(in);
         switch (desc.dtype)
         {
@@ -1262,9 +1257,6 @@ public class MdsDataProvider implements DataProvider
         String exp = GetExperimentName(in_frame);
         String in = "JavaGetFrameAt(\"" + exp + "\",\" " + in_frame + "\"," +
             shot + ", " + frame_idx + " )";
-
-        //    if(!CheckOpen())
-        //	    return null;
         return GetByteArray(in);
     }
     public  synchronized  byte[] GetByteArray(String in) throws IOException
@@ -1278,14 +1270,9 @@ public class MdsDataProvider implements DataProvider
         byte out_byte[] = null;
         ByteArrayOutputStream dosb = new ByteArrayOutputStream();
         DataOutputStream dos = new DataOutputStream(dosb);
-
         if (!CheckOpen())
             return null;
-        Descriptor desc;
-        if(args == null)
-            desc = mds.MdsValue(in);
-        else
-            desc = mds.MdsValue(in, args);
+        Descriptor desc = mds.MdsValue(in, args);
         switch (desc.dtype)
         {
             case Descriptor.DTYPE_FLOAT:
@@ -2087,7 +2074,7 @@ public class MdsDataProvider implements DataProvider
 	{
         try{
 		    String out = GetString("TEXT(PRESENT( "+expression+" ))").trim();
-	        System.out.println(expression+" present ="+out);
+	        System.out.println(">> "+expression+" present = "+out);
 		    return out=="1";
         }catch(IOException exc){return false;}    
 	}

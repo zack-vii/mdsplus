@@ -35,40 +35,34 @@ public class LocalDataProvider extends MdsDataProvider /* implements DataProvide
         UpdateEventListener getListener() {return listener;}
         String getEvent() {return event;}
         int getEvId() {return evId;}
+
+        @Override
+        public int hashCode()
+        {
+            if (DEBUG.ON){System.out.println("# hashCode() is not defined for LocalDataProvider.EventDescriptor");}
+            return listener.hashCode();
+        }
     } //EventDescriptor
 
 
+    native public byte [] GetByteArray(String in);
+    native public String ErrorString();
+    native public long [] GetLongArrayNative(String in);
+    native public float[] GetFloatArrayNative(String in);
+    native public double[] GetDoubleArrayNative(String in);
+    native public int[] GetIntArray(String in);
+    native public void SetEnvironmentSpecific(String in, String defaultNode);
+    native public void UpdateNative(String exp, long s);
+    native public String GetString(String in);
+    native public double GetFloatNative(String in);
     static native boolean isSegmentedNode(String nodeName);
     static native byte[] getSegment(String nodeName, int segIdx, int segOffset);
-//    static native byte[] getAllFrames(String nodeName, int startIdx, int endIdx);
+    static native byte[] getAllFrames(String nodeName, int startIdx, int endIdx);
     static native LocalDataProviderInfo getInfo(String nodeName, boolean isSegmented); //returned: width, height,  bytesPerPixel
     static native float[] getSegmentTimes(String nodeName, String timeNames, float timeMin, float timeMax);
     static native float[] getAllTimes(String nodeName, String timeNames);
     static native int[] getSegmentIdxs(String nodeName, float timeMin, float timeMax);
 
-
-    public byte[] getAllFrames(String nodeName, int startIdx, int endIdx)throws IOException
-    {
-        if (DEBUG.ON){System.out.println("LocalDataProvider.LocalFrameData.configure(\""+nodeName+"\", "+startIdx+", "+endIdx+")");}
-        byte bufout[] = null;
-        byte buf[] = GetAllFrames(nodeName);
-        if (buf != null)
-        {
-            ByteArrayInputStream b = new ByteArrayInputStream(buf);
-            DataInputStream d = new DataInputStream(b);
-            int pixel_size = d.readInt(); // 4bytes
-            int width = d.readInt();  // 4bytes
-            int height = d.readInt(); // 4bytes
-            int n_frame = d.readInt();// 4bytes
-            int img_size = height * width;
-            Dimension dim = new Dimension(width, height);
-            int header = 16 + 4 * n_frame;
-            bufout =  Arrays.copyOfRange(buf, header, buf.length);
-            if (DEBUG.ON){DEBUG.printByteArray(buf, 4, 4, 2, 1);}
-            if (DEBUG.ON){DEBUG.printByteArray(bufout, pixel_size, width, height, n_frame);}
-        }
-        return bufout;
-    }
 
     class LocalFrameData implements FrameData
     {
@@ -83,6 +77,45 @@ public class LocalDataProvider extends MdsDataProvider /* implements DataProvide
         byte []allFrames;
         int pixelSize;
         int startIdx, endIdx;
+
+        private void mygetAllFrames(String nodeName, int startIdx, int endIdx) throws IOException
+        {
+            int size = width*height;
+            int maxpages; 
+            switch(pixelSize)
+                {
+                case 2 :
+                case 1 :
+                {
+                    allFrames = GetByteArray(nodeName);
+                    if(allFrames == null) throw new IOException(LocalDataProvider.this.ErrorString());
+                    maxpages = allFrames.length/size/pixelSize;
+                    if (startIdx==0 && endIdx==maxpages-1)
+                    {//crop to region of interest
+                        allFrames = Arrays.copyOfRange(allFrames,size*startIdx,size*endIdx);
+                    }
+                    break;
+                }
+                case 4 :
+                {
+                    int buf[] = GetIntArray(nodeName);
+                    if(buf == null) throw new IOException(LocalDataProvider.this.ErrorString());
+                    maxpages = allFrames.length/size/pixelSize;
+                    if (startIdx==0 && endIdx==maxpages-1)
+                    {//crop to region of interest
+                        buf = Arrays.copyOfRange(buf,size*startIdx,size*endIdx);
+                    }
+                    ByteArrayOutputStream dosb = new ByteArrayOutputStream();
+                    DataOutputStream dos = new DataOutputStream(dosb);
+                    for ( int i=0 ; i<buf.length ; i++ )
+                        dos.writeInt(buf[i]);
+                    allFrames = dosb.toByteArray();
+                    break;
+                }
+                default:
+                    if(segIdxs == null) throw new IOException("Unexpected pixelSize = "+pixelSize);
+            }
+        }
 
         void configure(String nodeName, String timeName, float timeMin, float timeMax) throws IOException
         {
@@ -99,8 +132,20 @@ public class LocalDataProvider extends MdsDataProvider /* implements DataProvide
             }
             else
             {
-                GetString("_jscope_frames = ("+nodeName+");\"\""); // Caching
-                nodeName = "_jscope_frames";
+                try{
+                    GetString("_jscope_frames = ( "+nodeName+" );\"\""); // Caching
+                    nodeName = "_jscope_frames";
+                }catch(Exception exc){System.out.println("# error "+exc);}
+            }
+            LocalDataProviderInfo info = getInfo(nodeName, isSegmented);
+            if (DEBUG.ON){System.out.println("LocalDataProvider.getAllTimes.getInfo() info="+info);}
+            if(info == null) throw new IOException(LocalDataProvider.this.ErrorString());
+            width = info.dims[0];
+            height = info.dims[1];
+            pixelSize = info.pixelSize;
+            if (DEBUG.ON){System.out.println("pixelSize = "+pixelSize);}
+            if(!isSegmented)
+            {
                 if(timeName == null || timeName.trim().equals(""))
                     timeName = "dim_of("+nodeName+")";
                 float[] allTimes = getAllTimes(nodeName, timeName);
@@ -111,18 +156,9 @@ public class LocalDataProvider extends MdsDataProvider /* implements DataProvide
                 times = new float[endIdx - startIdx];
                 for(int i = 0; i < endIdx - startIdx; i++)
                    times[i] = allTimes[startIdx + i];
-                allFrames = getAllFrames("_jscope_frames", startIdx, endIdx);
-                if(allFrames == null) throw new IOException(LocalDataProvider.this.ErrorString());
-//                for (int i = allFrames.length-1-4 ; i>=0 ; i--)
-//                    allFrames[i+4] = allFrames[i];
+                allFrames = getAllFrames(nodeName, startIdx, endIdx);
+                if (DEBUG.ON){DEBUG.printByteArray(allFrames, pixelSize, width, height, times.length);}
             }
-            LocalDataProviderInfo info = getInfo(nodeName, isSegmented);
-            if (DEBUG.ON){System.out.println("LocalDataProvider.getAllTimes.getInfo() info="+info);}
-            if(info == null) throw new IOException(LocalDataProvider.this.ErrorString());
-            width = info.dims[0];
-            height = info.dims[1];
-            pixelSize = info.pixelSize;
-            if (DEBUG.ON){DEBUG.printByteArray(allFrames, 4, width, height, times.length);}
         }
 
       /**
@@ -240,10 +276,6 @@ public class LocalDataProvider extends MdsDataProvider /* implements DataProvide
         UpdateNative(exp, s);
     }
 
-    native public void SetEnvironmentSpecific(String in, String defaultNode);
-    native public void UpdateNative(String exp, long s);
-    native public String GetString(String in);
-    native public double GetFloatNative(String in);
 
     public synchronized double GetFloat(String in) throws IOException
     {
@@ -281,10 +313,6 @@ public class LocalDataProvider extends MdsDataProvider /* implements DataProvide
             return new RealArray(GetDoubleArray(in));
     }
 
-    native public long []GetLongArrayNative(String in);
-    native public float[] GetFloatArrayNative(String in);
-    native public double[] GetDoubleArrayNative(String in);
-    native public int[]   GetIntArray(String in);
 
     public long[] GetShots(String in)
     {
@@ -298,18 +326,16 @@ public class LocalDataProvider extends MdsDataProvider /* implements DataProvide
         }
         catch(UnsatisfiedLinkError e)
         {
-            System.err.println("Error in GetIntArray: " + e);
+            System.err.println("# Error in GetIntArray: " + e);
             return null;
         }
         catch(Exception exc)
         {
-            System.err.println("Error in GetIntArray: " + exc);
+            System.err.println("# Error in GetIntArray: " + exc);
             return null;
         }
     }
 
-    native public byte [] GetByteArray(String in);
-    native public String ErrorString();
     public void AddUpdateEventListener(UpdateEventListener l, String event)
     {
         if (DEBUG.ON){System.out.println("LocalDataProvider.AddUpdateEventListener("+l+", \""+event+"\")");}
