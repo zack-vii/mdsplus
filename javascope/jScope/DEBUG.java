@@ -10,12 +10,12 @@ public final class DEBUG
         int i = 0;
         String s;
         System.out.println("---page break---");
-        for(int f = 0; f < pages; f++)
+        for(int f = 0; f < pages && i<0x10000; f++)
         {
-            for(int h = 0; h < height; h++)
+            for(int h = 0; h < height && i<0x10000; h++)
             {
                 s = ", ";
-                for(int w = 0; w < width; w++)
+                for(int w = 0; w < width && i<0x10000; w++)
                 {   
                     for(int b = 0; b < byteblock && i<0x10000; b++)
                     {
@@ -40,12 +40,12 @@ public final class DEBUG
         int i = 0;
         String s;
         System.out.println("---page break---");
-        for(int f = 0; f < pages; f++)
+        for(int f = 0; f < pages && i<0x10000; f++)
         {
-            for(int h = 0; h < height; h++)
+            for(int h = 0; h < height && i<0x10000; h++)
             {
                 s = ", ";
-                for(int w = 0; w < width; w++)
+                for(int w = 0; w < width && i<0x10000; w++)
                 {   
                     for(int b = 0; b < byteblock && i<0x10000; b++)
                     {

@@ -182,12 +182,9 @@ class Frames extends Canvas
                     ByteArrayInputStream b = new ByteArrayInputStream(buf);
                     DataInputStream din = new DataInputStream(b);
                     int n_pix = frameDim.width * frameDim.height;
-                    /*
                     buf_out = new short[n_pix];
                     for (int j = 0; j < n_pix; j++)
                         buf_out[j] = din.readShort();
-                    */
-                    buf_out = shiftBits(din,n_pix);
                     ColorModel colorModel = colorMap.getIndexColorModel(16);
                     db = new DataBufferUShort(buf_out, buf.length);
                     raster = Raster.createInterleavedRaster(db, frameDim.width, frameDim.height, frameDim.width, 1, new int[]{0}, null);
@@ -269,47 +266,6 @@ class Frames extends Canvas
             }
         }
 
-        private short[] shiftBits(DataInputStream din, int n_pix)throws IOException
-        {
-            boolean right;
-            int value;
-            short buf[] = new short[n_pix];
-            bitShift = colorMap.bitShift;
-            if(bitShift < 0)//right
-            {
-                if(colorMap.bitClip)
-                    for (int j = 0; j < n_pix; j++)
-                    {
-                        value = 0xffff & din.readShort();
-                        value = ( value >> bitShift );
-                        buf[j] = (short)(value > 255 ? 255 : value);
-                    }
-                else
-                    for (int j = 0; j < n_pix; j++)
-                    {
-                        value = 0xffff & din.readShort();
-                        buf[j] = (short)( value >> bitShift );
-                    }
-            }
-            else
-            {
-                if(colorMap.bitClip)
-                    for (int j = 0; j < n_pix; j++)
-                    {
-                        value = 0xffff & din.readShort();
-                        value = (value << bitShift );
-                        buf[j] = (short)(value > 255 ? 255 : value);
-                    }
-                else
-                    for (int j = 0; j < n_pix; j++)
-                    {
-                        value = 0xffff & din.readShort();
-                        buf[j] = (short)( value << bitShift );
-                    }
-            }
-            return buf;
-        }
-
         Image getImageAt(int idx) throws IOException
         {
             if (DEBUG.ON){System.out.println("Frames.FrameCache.getImageAt("+idx+")");}
@@ -336,10 +292,9 @@ class Frames extends Canvas
             else
                 colorModel = colorMap.getIndexColorModel( pixelSize<32 ? pixelSize : 16 );
             Image img = (BufferedImage)(fDesc.image);
-            if(bitShift != 0)
-                try{
-                    doBitShift((BufferedImage)img, fDesc);
-                } catch(Exception exc){System.err.println(exc);return null;}
+            try{
+                doBitShift((BufferedImage)img, fDesc);
+            } catch(Exception exc){System.err.println(exc);return null;}
             tracker = new MediaTracker(Frames.this);
             tracker.addImage(img, idx);
             try {
@@ -351,6 +306,8 @@ class Frames extends Canvas
         
         private void doBitShift(BufferedImage bi, FrameDescriptor fDesc) throws Exception
         {
+            if(frameType != FrameData.BITMAP_IMAGE_16)
+                return;
             ByteArrayInputStream b = new ByteArrayInputStream(fDesc.buffer);
             DataInputStream din = new DataInputStream(b);
     
@@ -363,28 +320,22 @@ class Frames extends Canvas
             int absBitShift = Math.abs(bitShift);
             for(int j = 0; j < nPixels; j++)
             {
-                if(frameType == FrameData.BITMAP_IMAGE_8)
-                    val = din.readByte();
-                else if(frameType == FrameData.BITMAP_IMAGE_16)
-                    val = din.readShort();
-                else
-                    val = din.readInt();
-    
+                val = din.readShort();
                 if(bitShift > 0)
                 {
                     val = val << bitShift ;
                     if(bitClip)
                         db.setElem(j, val > 255 ? 255 : val);
                     else
-                        db.setElem(j, val);
+                        db.setElem(j, (val % 0x100) );
                 }
                 else
                 {
-                     val = val >> absBitShift ;
-                   if(bitClip)
+                    val = val >> absBitShift ;
+                    if(bitClip)
                         db.setElem(j, val > 255 ? 255 : val);
                     else
-                        db.setElem(j, val);
+                        db.setElem(j, (val % 0x100));
                 }
             }
         }

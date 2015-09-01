@@ -530,6 +530,7 @@ public class Signal implements WaveDataListener
     
    public Signal(WaveData data, WaveData x_data, double xminVal, double xmaxVal, WaveData lowErrData, WaveData upErrData)
    {
+        if (DEBUG.ON){System.out.println("Signal("+data+", "+x_data+", "+xminVal+", "+xmaxVal+", "+lowErrData+", "+upErrData+")");}
         error = (lowErrData != null || upErrData != null);
         asym_error = (lowErrData != null && upErrData != null);
         up_errorData = upErrData;
@@ -545,7 +546,6 @@ public class Signal implements WaveDataListener
         }
         this.data = data;
         this.x_data = x_data;
-        
         try {
             checkData(saved_xmin, saved_xmax);
             
@@ -553,13 +553,8 @@ public class Signal implements WaveDataListener
                 saved_xmin = this.xmin;
             if(saved_xmax == Double.MAX_VALUE)
                 saved_xmax = this.xmax;
-            
-           
             data.addWaveDataListener(this);
-        }catch(Exception exc)
-        {
-            System.err.println("# Signal exception: " + exc);
-        }
+        }catch(Exception exc){System.err.println("# Signal exception: " + exc);}
    }
     
     public Signal(WaveData data, double xmin, double xmax)
