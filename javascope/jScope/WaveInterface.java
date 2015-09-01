@@ -15,11 +15,6 @@ import java.util.Vector;
 
 public class WaveInterface
 {
-    public final class DEBUG {
-    //set to false to allow compiler to identify and eliminate
-    //unreachable code
-        public static final boolean ON = true;
-    }
     static SignalBox sig_box = new SignalBox();
 
     static final int MAX_NUM_SHOT = 30;
@@ -384,11 +379,14 @@ public class WaveInterface
         int n_error = 0;
         String er = error;
 
+        if (DEBUG.ON){System.out.println(">> "+error);}
         if (num_waves == 0 || (is_image && frames == null))
         {
             if (error != null)
+            {
                 if (brief)
                     er = GetFirstLine(new String(error));
+            }
             return er;
         }
 
@@ -959,7 +957,6 @@ public class WaveInterface
                 return 0;
             }
         }
-        if (DEBUG.ON){System.out.println("ymin="+ymin+",ymax="+ymax+",xmin="+xmin+",xmax="+xmax);}
         if (xmin > xmax)
             xmin = xmax;
         if (ymin > ymax)

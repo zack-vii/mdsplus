@@ -11,7 +11,7 @@ import java.util.zip.*;
 public class MdsMessage extends Object
 {
     public    static final int    HEADER_SIZE          = 48;
-    public    static final int    SUPPORTS_COMPRESSION = (int)0x8000;
+    public    static final int    SUPPORTS_COMPRESSION = 0x8000;
     public    static final byte   SENDCAPABILITIES     = (byte)0xF;
     public    static final byte   COMPRESSED           = (byte)0x20;
     public    static final byte   BIG_ENDIAN_MASK      = (byte)0x80;

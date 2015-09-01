@@ -8,12 +8,6 @@ import java.util.*;
 
 class MdsWaveInterface extends WaveInterface
 {
-    public final class DEBUG {
-    //set to false to allow compiler to identify and eliminate
-    //unreachable code
-        public static final boolean ON = true;
-    }
-
     public String in_upd_event, last_upd_event;
 
     // Configuration parameter
