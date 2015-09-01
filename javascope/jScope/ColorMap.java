@@ -27,11 +27,11 @@ public class ColorMap
   byte b[] = new byte[256];
 
   int bitShift = 0;
-  boolean bitClip = false;  
+  boolean bitClip = false;
 
   ColorMap()
   {
-      this.name = "Green scale";
+      this.name = "gray";
       numColors = 256;
       this.colors = new Color[256];
 

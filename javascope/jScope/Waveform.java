@@ -2584,29 +2584,13 @@ public class Waveform extends JComponent implements SignalListener
       ReportLimits(r, true);
     }
   
-    public void SetTitle(String title) {
-      this.title = title;
-    }
+    public String GetTitle(){return title;}
+    public void SetTitle(String title){this.title = title;}
+    public String GetXLabel(){return x_label;} 
+    public void SetXLabel(String x_label){this.x_label = x_label;}
+    public String GetYLabel(){return y_label;}
+    public void SetYLabel(String y_label){this.y_label = y_label;}
   
-    public String GetTitle() {
-      return title;
-    }
-  
-    public void SetXLabel(String x_label) {
-      this.x_label = x_label;
-    }
-  
-    public String GetXLabel() {
-      return x_label;
-    }
-  
-    public void SetYLabel(String y_label) {
-      this.y_label = y_label;
-    }
-  
-    public String GetYLabel() {
-      return y_label;
-    }
   
     void ReportChanges() {
    /*   if (undo_zoom.size() != 0) {
@@ -2638,32 +2622,23 @@ public class Waveform extends JComponent implements SignalListener
   
     }
   
+    public boolean IsImage(){return is_image;};
+    public boolean IsSelected(){return is_select;}  
+
+    public boolean IsCopySelected(){return copy_selected;}
     public void SetCopySelected(boolean selec) {
       copy_selected = selec;
       not_drawn = true;
       repaint();
     }
   
-    public boolean IsCopySelected() {
-      return copy_selected;
-    }
+    public boolean ShowMeasure(){return show_measure;};   
+    public void SetShowMeasure(boolean state){show_measure = state;}
+    public Image GetImage(){return off_image;}
+    public void SetFrames(Frames frames){this.frames = frames;}
   
-    public boolean IsSelected() {
-      return is_select;
-    }
-  
-    public boolean ShowMeasure() {
-      return show_measure;
-    };
-  
-    public boolean IsImage() {
-      return is_image;
-    };
-  
-    public void SetShowMeasure(boolean state) {
-      show_measure = state;
-    }
-  
+    public int GetGridStepX(){return grid_step_x;}
+    public int GetGridStepY(){return grid_step_y;}
     public void SetGridSteps(int _grid_step_x, int _grid_step_y) {
       grid_step_x = _grid_step_x;
       if (grid_step_x <= 1) {
@@ -2678,26 +2653,7 @@ public class Waveform extends JComponent implements SignalListener
       not_drawn = true;
     }
   
-    public int GetGridStepX() {
-      return grid_step_x;
-    }
-  
-    public int GetGridStepY() {
-      return grid_step_y;
-    }
-  
-    public Image GetImage() {
-      return off_image;
-    }
-  
-    public void SetFrames(Frames frames) {
-      this.frames = frames;
-    }
-  
-    public boolean IsReversed() {
-      return reversed;
-    }
-  
+    public boolean IsReversed(){return reversed;}
     public void SetReversed(boolean reversed) {
       if (this.is_image && !reversed) {
         return;
@@ -2710,6 +2666,7 @@ public class Waveform extends JComponent implements SignalListener
       }
     }
   
+    public ColorMap getColorMap(){return frames.getColorMap();}
     public void setColorMap(ColorMap cm)
     {
         this.colorMap = cm;
@@ -2717,24 +2674,7 @@ public class Waveform extends JComponent implements SignalListener
             frames.setColorMap(cm);
         not_drawn = true;
         repaint();
-    }
-  
-    public void setFrameBitShift(int bitShift, boolean bitClip)
-    {
-        if(frames != null)
-        {
-            frames.shiftImagePixel(bitShift, bitClip);
-            not_drawn = true;
-            repaint();
-        }
-    }
-  
-    
-    public ColorMap getColorMap()
-    {
-        return frames.getColorMap();
-    }
-  
+    } 
     public void applyColorModel(ColorMap cm)
     {
        if(cm == null) return;
@@ -2750,20 +2690,19 @@ public class Waveform extends JComponent implements SignalListener
        repaint();
     }
   
-  
-    public synchronized void addWaveformListener(WaveformListener l) {
-      if (l == null) {
-        return;
-      }
-      waveform_listener.addElement(l);
+    public void setFrameBitShift(int bitShift, boolean bitClip)
+    {
+        if(frames != null)
+        {
+            frames.shiftImagePixel(bitShift, bitClip);
+            not_drawn = true;
+            repaint();
+        }
     }
+
+    public synchronized void addWaveformListener(WaveformListener l){if (l != null) waveform_listener.addElement(l);}
   
-    public synchronized void removeWaveformListener(WaveformListener l) {
-      if (l == null) {
-        return;
-      }
-      waveform_listener.removeElement(l);
-    }
+    public synchronized void removeWaveformListener(WaveformListener l){if (l != null) waveform_listener.removeElement(l);}
   
     protected synchronized void dispatchWaveformEvent(WaveformEvent e) {
       if (e == null || !event_enabled) {
@@ -2786,7 +2725,8 @@ public class Waveform extends JComponent implements SignalListener
       }
     }
   
-    void Waveform_ComponentAdded(java.awt.event.ContainerEvent event) {
+    void Waveform_ComponentAdded(java.awt.event.ContainerEvent event)
+    {
       // to do: code goes here.
     }
     

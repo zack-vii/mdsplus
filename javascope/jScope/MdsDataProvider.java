@@ -1159,7 +1159,7 @@ public class MdsDataProvider implements DataProvider
     {
         if (DEBUG.ON){System.out.println("MdsDataProvider.GetAllFrames("+in_frame+")");}
         byte img_buf[], out[] = null;
-        float time[];
+        float time[] = null;
         int shape[];
         int pixel_size = 8;
         int num_time = 0;
@@ -1167,22 +1167,19 @@ public class MdsDataProvider implements DataProvider
         if (!CheckOpen())
             return null;
 
-        String in;
-        GetString("_jScope_img = (" + in_frame + ");");
-        time = GetFloatArray("DIM_OF( _jScope_img )");
-/*        if (time == null || ((time.length >= 2 ) && (time[1] == 1.0)))
+        img_buf = GetByteArray("_jScope_img = (" + in_frame + ")");
+        if (img_buf == null)
+            return null;
+        for ( int i=2 ; i>=0 ; i-- )
         {
-            time = GetFloatArray("DIM_OF( _jScope_img )");
-            if (time == null)
-                return null;
+            time = GetFloatArray("DIM_OF( _jScope_img, "+i+" )");
+            if (time != null)
+                break;
         }
-*/
+        if (time == null)
+            return null;
         shape = GetIntArray("shape( _jScope_img )");
         if (shape == null)
-            return null;
-
-        img_buf = GetByteArray("_jScope_img");
-        if (img_buf == null)
             return null;
 
         if (shape.length == 3)

@@ -78,60 +78,8 @@ public class ColorMapDialog extends JDialog
         super(f, "Color Palette");
 
         if(colorPaletteFile == null)
-          colorPaletteFile = System.getProperty("user.home") + File.separator + "jScope" + File.separator + "colors1.tbl";
-       readColorPalette(colorPaletteFile);
-
-        /*
-            colorMap = wave.getColorMap();
-            this.wave = wave;
-        */
-
-        /*
-            WaveformEditor.SetHorizontalOffset(10);
-            WaveformEditor.SetVerticalOffset(25);
-            weR = new WaveformEditor();
-            weR.setEditable(true);
-            weR.setWaveform(cm.getRedPoints(), cm.getRedValues(), 0f, 255f);
-            getContentPane().add(weR);
-            weR.addWaveformEditorListener(new WaveformEditorListener()
-            {
-              public void waveformUpdated(float[] p, float[] v, int newIdx)
-              {
-                cm.setRedParam(p, v);
-                cp.setColormap(cm.getColors());
-                processActionEvents(new ActionEvent(this, 0, ""));
-              }
-            }
-            );
-            weG = new WaveformEditor();
-            weG.setEditable(true);
-             weG.setWaveform(cm.getGreenPoints(), cm.getGreenValues(), 0f, 255f);
-            getContentPane().add(weG);
-            weG.addWaveformEditorListener(new WaveformEditorListener()
-            {
-              public void waveformUpdated(float[] p, float[] v, int newIdx)
-              {
-                cm.setGreenParam(p, v);
-                cp.setColormap(cm.getColors());
-                processActionEvents(new ActionEvent(this, 0, ""));
-              }
-            }
-            );
-            weB = new WaveformEditor();
-            weB.setEditable(true);
-            weB.setWaveform(cm.getBluePoints(), cm.getBlueValues(), 0f, 255f);
-            getContentPane().add(weB);
-            weB.addWaveformEditorListener(new WaveformEditorListener()
-            {
-              public void waveformUpdated(float[] p, float[] v, int newIdx)
-              {
-                cm.setBlueParam(p, v);
-                cp.setColormap(cm.getColors());
-                processActionEvents(new ActionEvent(this, 0, ""));
-              }
-            }
-            );
-         */
+            colorPaletteFile = System.getProperty("user.home") + File.separator + "jScope" + File.separator + "colors1.tbl";
+        readColorPalette(colorPaletteFile);
 
         getContentPane().setLayout(new GridLayout(3, 1));
 
@@ -147,8 +95,7 @@ public class ColorMapDialog extends JDialog
             pan2.add(maxVal = new JTextField(6));
          */
 
-        cmComboBox = new JComboBox();
-        pan2.add(cmComboBox);
+        pan2.add(cmComboBox = new JComboBox());
         int r[] = new int[256];
         int g[] = new int[256];
         int b[] = new int[256];
@@ -168,7 +115,7 @@ public class ColorMapDialog extends JDialog
         {
             public void itemStateChanged(ItemEvent ev)
             {
-                ColorMap cm = (ColorMap) ev.getItem();
+                ColorMap cm = (ColorMap)ev.getItem();
                 cp.setColormap( cm.colors );
                 ColorMapDialog.this.wave.applyColorModel( cm );
             }
@@ -205,8 +152,7 @@ public class ColorMapDialog extends JDialog
             {
                  ColorMapDialog.this.wave.setFrameBitShift(shiftSlider.getValue(), bitClip.isSelected());
             }
-        }
-        );
+        });
        
         JPanel pan4 = new JPanel();
         pan4.add(ok = new JButton("Ok"));
@@ -216,7 +162,7 @@ public class ColorMapDialog extends JDialog
             {
 //                if (ColorMapDialog.this.wave.IsImage())
                 {
-                    ColorMap cm = (ColorMap) cmComboBox.getSelectedItem();
+                    ColorMap cm = (ColorMap)cmComboBox.getSelectedItem();
                     if(is16BitImage)
                     {
                         cm.bitClip = bitClip.isSelected();

@@ -136,35 +136,35 @@ public class MdsConnection
 	        //catch(IOException e) CESARE 14/9/2015
 	        catch(Exception e)
 	        {
-                   synchronized(this)
-                    {		    
-                        killed = true;
-                        notifyAll();
-                    }
+                synchronized(this)
+                {		    
+                    killed = true;
+                    notifyAll();
+                }
 	            if(connected)
 	            {
 	                message = null;
 	                connected = false;
 	                //ConnectionEvent ce = new ConnectionEvent(MdsConnection.this, ConnectionEvent.LOST_CONNECTION, "Lost connection from : "+provider);
-			(new Thread() {
-				public void run()
-				{
-				    ConnectionEvent ce = new ConnectionEvent(MdsConnection.this, ConnectionEvent.LOST_CONNECTION, "Lost connection from : "+provider);
-				    dispatchConnectionEvent(ce);}
-				}).start();
+			        (new Thread() {
+				        public void run() {
+				            ConnectionEvent ce = new ConnectionEvent(MdsConnection.this, ConnectionEvent.LOST_CONNECTION, "Lost connection from : "+provider);
+				            dispatchConnectionEvent(ce);
+                        }
+				    }).start();
 	                //MdsConnection.this.dispatchConnectionEvent(ce);
 	                //MdsConnection.this.NotifyMessage();
 	            }
 	        }
 	    }
 
-            public synchronized void waitExited()
-            {
-                while(!killed)
-                    try{
-                      wait();
-                    }catch(InterruptedException exc){}
-            }
+        public synchronized void waitExited()
+        {
+            while(!killed)
+                try{
+                    wait();
+                }catch(InterruptedException exc){}
+        }
 
 	    public synchronized MdsMessage GetMessage()
 	    {
