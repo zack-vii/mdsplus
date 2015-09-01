@@ -452,12 +452,12 @@ public class MdsDataProvider implements DataProvider
         {
             if (DEBUG.ON){System.out.println("MdsDataProvider.cacheYData()");}
             try{
-                if (DEBUG.ON){System.out.println(">> v_y = "+v_y);}
-                if (DEBUG.ON){System.out.println(">> mds = "+mds);}
+                if (DEBUG.LV>1){System.out.println(">> v_y = "+v_y);}
+                if (DEBUG.LV>1){System.out.println(">> mds = "+mds);}
                 System.out.println(">> "+GetString(v_y+"=("+in_y+");\"ok\""));
 				Descriptor descr = mds.MdsValue(v_y);
-                if (DEBUG.ON){System.out.println(">> descr = "+descr);}
-                if (DEBUG.ON){System.out.println(">> cached"+descr.dtype);}
+                if (DEBUG.LV>1){System.out.println(">> descr = "+descr);}
+                if (DEBUG.LV>1){System.out.println(">> cached"+descr.dtype);}
             } catch(Exception exc){System.err.println("# MdsDataProvider.cacheXData: "+exc);}
         }
 
@@ -474,7 +474,7 @@ public class MdsDataProvider implements DataProvider
                   {
                       GetString(v_y+"x=("+in_x+");\"\"");//we just want mds to execute in_x; returning empty string \"\"
                       v_x = v_y+"x";
-                      if (DEBUG.ON){System.out.println(">> cached");}
+                      if (DEBUG.LV>1){System.out.println(">> cached");}
                   }
              } catch(Exception exc){System.err.println("# MdsDataProvider.cacheXData: "+exc);}
         }
@@ -717,7 +717,7 @@ public class MdsDataProvider implements DataProvider
                 retData = GetByteArray(setTimeContext+"MdsMisc->GetXYSignalLongTimes:DSC", args);
             else
                 retData = GetByteArray(setTimeContext+"MdsMisc->GetXYSignal:DSC", args);
-            if (DEBUG.ON){System.out.println(">> MdsMisc->GetXYSignal*Long*Times:DSC");}
+            if (DEBUG.LV>1){System.out.println(">> MdsMisc->GetXYSignal*Long*Times:DSC");}
             /*Decode data: Format:
                    -retResolution(float)
                    -number of samples (minumum between X and Y)
@@ -1081,7 +1081,7 @@ public class MdsDataProvider implements DataProvider
             mds.MdsValue("JavaClose(\"" + experiment + "\"," + shot + ")");
         if (connected)
             status = mds.DisconnectFromMds();
-            if (DEBUG.ON){System.out.println(">> disconnected");}
+            if (DEBUG.LV>1){System.out.println(">> disconnected");}
     }
     //To be overridden by any DataProvider implementation with added dynamic generation
     public jScope.AsynchDataSource getAsynchSource()
@@ -1169,13 +1169,14 @@ public class MdsDataProvider implements DataProvider
 
         String in;
         GetString("_jScope_img = (" + in_frame + ");");
-        time = GetFloatArray("DIM_OF( _jScope_img , 2 )");
-        if (time == null || ((time.length >= 2 ) && (time[1] == 1.0)))
+        time = GetFloatArray("DIM_OF( _jScope_img )");
+/*        if (time == null || ((time.length >= 2 ) && (time[1] == 1.0)))
         {
             time = GetFloatArray("DIM_OF( _jScope_img )");
             if (time == null)
                 return null;
         }
+*/
         shape = GetIntArray("shape( _jScope_img )");
         if (shape == null)
             return null;
@@ -1712,7 +1713,7 @@ public class MdsDataProvider implements DataProvider
         {
             connected = false;
             mds.DisconnectFromMds();
-            if (DEBUG.ON){System.out.println(">> disconnected");}
+            if (DEBUG.LV>1){System.out.println(">> disconnected");}
             ConnectionEvent ce = new ConnectionEvent(this,
                 ConnectionEvent.LOST_CONNECTION,
                 "Lost connection from : " + provider);
@@ -1767,7 +1768,7 @@ public class MdsDataProvider implements DataProvider
                     error = "Cannot connect to data server";
                 return false;
             }
-            if (DEBUG.ON){System.out.println(">> connected");}
+            if (DEBUG.LV>1){System.out.println(">> connected");}
             connected = true;
             updateWorker = new UpdateWorker();
             updateWorker.start();

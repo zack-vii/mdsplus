@@ -199,7 +199,7 @@ class Frames extends Canvas
                     {
                         buf_out[j] = 0xFF000000 | din.readInt();
                     }
-                    if (DEBUG.ON){DEBUG.printIntArray(buf_out, 1, frameDim.width, frameDim.height, 1);}
+                    if (DEBUG.LV>2){DEBUG.printIntArray(buf_out, 1, frameDim.width, frameDim.height, 1);}
                     ColorModel colorModel = new DirectColorModel(32, 0xff0000, 0xff00, 0xff, 0xff000000);
                     db = new DataBufferInt(buf_out, buf.length);
                     raster = Raster.createPackedRaster(db, frameDim.width, frameDim.height, frameDim.width, new int[] {0xff0000, 0xff00, 0xff, 0xff000000}, null) ;
