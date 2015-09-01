@@ -3,7 +3,7 @@ package jScope;
 /* $Id$ */
 import jScope.ConnectionListener;
 import javax.swing.JFrame;
-import java.io.IOException;
+import java.io.*;//import java.io.IOException;
 import java.util.*;
 import java.awt.*;
 import java.text.SimpleDateFormat;
@@ -11,12 +11,6 @@ import java.text.DateFormat;
 
 public class LocalDataProvider extends MdsDataProvider /* implements DataProvider */
 {
-    public final class DEBUG {
-    //set to false to allow compiler to identify and eliminate
-    //unreachable code
-    public static final boolean ON = true;
-    }
-
     Vector listeners = new Vector();
     Vector eventNames = new Vector();
 
@@ -46,11 +40,36 @@ public class LocalDataProvider extends MdsDataProvider /* implements DataProvide
 
     static native boolean isSegmentedNode(String nodeName);
     static native byte[] getSegment(String nodeName, int segIdx, int segOffset);
-    static native byte[] getAllFrames(String nodeName, int startIdx, int endIdx);
+//    static native byte[] getAllFrames(String nodeName, int startIdx, int endIdx);
     static native LocalDataProviderInfo getInfo(String nodeName, boolean isSegmented); //returned: width, height,  bytesPerPixel
     static native float[] getSegmentTimes(String nodeName, String timeNames, float timeMin, float timeMax);
     static native float[] getAllTimes(String nodeName, String timeNames);
     static native int[] getSegmentIdxs(String nodeName, float timeMin, float timeMax);
+
+
+    public byte[] getAllFrames(String nodeName, int startIdx, int endIdx)throws IOException
+    {
+        if (DEBUG.ON){System.out.println("LocalDataProvider.LocalFrameData.configure(\""+nodeName+"\", "+startIdx+", "+endIdx+")");}
+        byte bufout[] = null;
+        byte buf[] = GetAllFrames(nodeName);
+        if (buf != null)
+        {
+            ByteArrayInputStream b = new ByteArrayInputStream(buf);
+            DataInputStream d = new DataInputStream(b);
+            int pixel_size = d.readInt(); // 4bytes
+            int width = d.readInt();  // 4bytes
+            int height = d.readInt(); // 4bytes
+            int n_frame = d.readInt();// 4bytes
+            int img_size = height * width;
+            Dimension dim = new Dimension(width, height);
+            int header = 16 + 4 * n_frame;
+            bufout =  Arrays.copyOfRange(buf, header, buf.length);
+            if (DEBUG.ON){DEBUG.printByteArray(buf, 4, 4, 2, 1);}
+            if (DEBUG.ON){DEBUG.printByteArray(bufout, pixel_size, width, height, n_frame);}
+        }
+        return bufout;
+    }
+
     class LocalFrameData implements FrameData
     {
         //If the frames are stored in non segmented data, all the frames are read at the same time
@@ -80,8 +99,10 @@ public class LocalDataProvider extends MdsDataProvider /* implements DataProvide
             }
             else
             {
+                GetString("_jscope_frames = ("+nodeName+");\"\""); // Caching
+                nodeName = "_jscope_frames";
                 if(timeName == null || timeName.trim().equals(""))
-                   timeName = "dim_of("+nodeName+")";
+                    timeName = "dim_of("+nodeName+")";
                 float[] allTimes = getAllTimes(nodeName, timeName);
                 if (DEBUG.ON){System.out.println("LocalDataProvider.getAllTimes(\""+nodeName+"\", \""+timeName+"\") OK allTimes = "+allTimes);}
                 if(allTimes == null) throw new IOException(LocalDataProvider.this.ErrorString());
@@ -90,9 +111,10 @@ public class LocalDataProvider extends MdsDataProvider /* implements DataProvide
                 times = new float[endIdx - startIdx];
                 for(int i = 0; i < endIdx - startIdx; i++)
                    times[i] = allTimes[startIdx + i];
-                allFrames = getAllFrames(nodeName, startIdx, endIdx);
-                if (DEBUG.ON){System.out.println("LocalDataProvider.getAllFrames(\""+nodeName+"\", "+startIdx+", "+endIdx+") OK allFrames = "+allFrames);}
+                allFrames = getAllFrames("_jscope_frames", startIdx, endIdx);
                 if(allFrames == null) throw new IOException(LocalDataProvider.this.ErrorString());
+//                for (int i = allFrames.length-1-4 ; i>=0 ; i--)
+//                    allFrames[i+4] = allFrames[i];
             }
             LocalDataProviderInfo info = getInfo(nodeName, isSegmented);
             if (DEBUG.ON){System.out.println("LocalDataProvider.getAllTimes.getInfo() info="+info);}
@@ -100,8 +122,9 @@ public class LocalDataProvider extends MdsDataProvider /* implements DataProvide
             width = info.dims[0];
             height = info.dims[1];
             pixelSize = info.pixelSize;
-            if (DEBUG.ON){System.out.println(">> width="+width+", height="+height);}
+            if (DEBUG.ON){DEBUG.printByteArray(allFrames, 4, width, height, times.length);}
         }
+
       /**
       * Returns the type of the corresponding frames. Returned frames can have either of the following types:
       * <br>
@@ -128,7 +151,7 @@ public class LocalDataProvider extends MdsDataProvider /* implements DataProvide
                 case 4:
                      return FrameData.BITMAP_IMAGE_32;
                 default:
-                     return FrameData.BITMAP_IMAGE_8;
+                     return FrameData.BITMAP_IMAGE_FLOAT;
             }
         }
 
@@ -188,9 +211,9 @@ public class LocalDataProvider extends MdsDataProvider /* implements DataProvide
                 }
                 return frames[idx];
             }
-            byte[] outFrame = new byte[pixelSize * width * height];
-            System.arraycopy(allFrames, idx*pixelSize * width * height, outFrame, 0, pixelSize * width * height);
-            //for(int i = 0; i < 10000; i++) System.out.println(allFrames[i]);
+            int img_size = pixelSize * width * height;
+            byte[] outFrame = new byte[img_size];
+            System.arraycopy(allFrames, idx*img_size, outFrame, 0, img_size);
             return outFrame;
         }
     } //LocalFrameData
@@ -198,7 +221,7 @@ public class LocalDataProvider extends MdsDataProvider /* implements DataProvide
      static {
         try
         {
-          System.loadLibrary("JavaMds");
+            System.loadLibrary("JavaMds");
         }
         catch(UnsatisfiedLinkError  e)
         {
@@ -383,14 +406,12 @@ public class LocalDataProvider extends MdsDataProvider /* implements DataProvide
             long minSpecific = jScopeFacade.convertToSpecificTime( (long) min);
 
             long dt = ( (long) maxSpecific - (long) minSpecific) / MAX_PIXELS;
-            limitsExpr = "JavaSetResampleLimits(" + minSpecific + "UQ," +
-                maxSpecific + "UQ," + dt + "UQ)";
+            limitsExpr = "JavaSetResampleLimits(" + minSpecific + "UQ," +  maxSpecific + "UQ," + dt + "UQ)";
         }
         else
         {
             double dt = (max - min) / MAX_PIXELS;
-            limitsExpr = "JavaSetResampleLimits(" + min + "," + max + "," + dt +
-                ")";
+            limitsExpr = "JavaSetResampleLimits(" + min + "," + max + "," + dt + ")";
         }
         GetFloatNative(limitsExpr);
     }

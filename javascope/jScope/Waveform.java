@@ -14,11 +14,6 @@ import java.awt.geom.*;
 
 public class Waveform extends JComponent implements SignalListener
 {
-    public final class DEBUG {
-    //set to false to allow compiler to identify and eliminate
-    //unreachable code
-        public static final boolean ON = true;
-    }
     public static int MAX_POINTS = 1000;
     static public boolean is_debug = false;
     
@@ -1179,7 +1174,7 @@ public class Waveform extends JComponent implements SignalListener
   
     synchronized public void PaintImage(Graphics g, Dimension d, int print_mode)
     {
-        if (DEBUG.ON){System.out.println("Waveform.DrawWave("+g+", "+d+", "+print_mode+")");}
+        if (DEBUG.ON){System.out.println("Waveform.PaintImage("+g+", "+d+", "+print_mode+")");}
         if (frames != null)
         {
             DrawFrame(g, d, frame);
@@ -1239,33 +1234,30 @@ public class Waveform extends JComponent implements SignalListener
                 double yrange = ymax - ymin;
                 ymax += yrange * vertical_offset / 200.;
                 ymin -= yrange * vertical_offset / 200.;
-        
-                orizLabel = (x_label == null) ? waveform_signal.getXlabel() : x_label;
-                vertLabel = (y_label == null) ? waveform_signal.getYlabel() : y_label;
-                sigTitle = (title == null || title.length() == 0) ?
-                    waveform_signal.getTitlelabel() : title;
-        
-                if (waveform_signal.getType() == Signal.TYPE_2D) {
+
+                if (waveform_signal.getType() == Signal.TYPE_2D)
+                {
                     switch (waveform_signal.getMode2D())
                     {
                         case Signal.MODE_IMAGE:
-  
-                            //orizLabel = waveform_signal.getXlabel();
-                            vertLabel = waveform_signal.getZlabel();
+                        case Signal.MODE_XZ:
+                            orizLabel = (x_label == null) ? waveform_signal.getXlabel() : x_label;
                             break;
                         case Signal.MODE_YZ:
-                            orizLabel = vertLabel;
-                            vertLabel = waveform_signal.getZlabel();
-                            break;
-                        case Signal.MODE_XZ:
-                            //orizLabel = waveform_signal.getZlabel();
-                            vertLabel = waveform_signal.getZlabel();
+                            orizLabel = (y_label == null) ? waveform_signal.getYlabel() : y_label;
                             break;
                     }
+                    vertLabel = waveform_signal.getZlabel();
                 }
+                else
+                {
+                    orizLabel = (x_label == null) ? waveform_signal.getXlabel() : x_label;
+                    vertLabel = (y_label == null) ? waveform_signal.getYlabel() : y_label;
+                }
+                sigTitle = (title == null || title.length() == 0) ? waveform_signal.getTitlelabel() : title;
             }
         }
-  
+
         if (resizing || grid == null || wm == null || change_limits)
         {
             change_limits = false;
@@ -1276,8 +1268,7 @@ public class Waveform extends JComponent implements SignalListener
                             int_xlabel, int_ylabel, reversed);
             curr_display_limits = new Rectangle();
             grid.GetLimits(g, curr_display_limits, y_log);
-            wm = new WaveformMetrics(xmax, xmin, ymax, ymin, curr_display_limits,
-                                     d, x_log, y_log, 0, 0);
+            wm = new WaveformMetrics(xmax, xmin, ymax, ymin, curr_display_limits, d, x_log, y_log, 0, 0);
         }
         else
         {
@@ -1963,7 +1954,7 @@ public class Waveform extends JComponent implements SignalListener
 
       Rectangle r = frames.GetZoomRect();
       Graphics2D g2 = (Graphics2D)g;
-      Dimension imgDim = new Dimension(((BufferedImage)img).getWidth(),((BufferedImage)img).getHeight()); 
+      Dimension imgDim = new Dimension(((BufferedImage)img).getWidth(),((BufferedImage)img).getHeight());
       
       
       // Turn on antialiasing.

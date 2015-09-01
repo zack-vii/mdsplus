@@ -15,11 +15,6 @@ import java.util.logging.Logger;
 
 public class MdsDataProvider implements DataProvider
 {
-    public final class DEBUG {
-    //set to false to allow compiler to identify and eliminate
-    //unreachable code
-        public static final boolean ON = true;
-    }
     protected String provider;
     protected String experiment;
     String default_node;
@@ -89,7 +84,7 @@ public class MdsDataProvider implements DataProvider
 
         public SegmentedFrameData(String in_y, String in_x, float time_min, float time_max, int numSegments) throws IOException
         {
-            if (DEBUG.ON){System.out.println("MdsDataProvider.SegmentedFrameData("+in_y+", "+in_x+", "+time_min+", "+time_max+", "+numSegments+")");}
+            if (DEBUG.ON){System.out.println("MdsDataProvider.SegmentedFrameData(\""+in_y+"\", \""+in_x+"\", "+time_min+", "+time_max+", "+numSegments+")");}
             //Find out frames per segment and frame min and max based on time min and time max
             this.in_x = in_x;
             this.in_y = in_y;
@@ -206,7 +201,7 @@ public class MdsDataProvider implements DataProvider
         }
         public byte[] GetFrameAt(int idx) throws IOException
         {
-            //System.out.println("GET FRAME AT " + idx);
+            if (DEBUG.ON){System.out.println("MdsDataProvider.SegmentedFrameData.GetFrameAt("+idx+")");}
             int segmentIdx = startSegment + idx / framesPerSegment;
             int segmentOffset = (idx % framesPerSegment) * dim.width * dim.height * bytesPerPixel;
             byte[] segment = GetByteArray("GetSegment("+ in_y+","+segmentIdx+")");
@@ -218,9 +213,7 @@ public class MdsDataProvider implements DataProvider
         }
     }
 
-
-    class SimpleFrameData
-        implements FrameData
+    class SimpleFrameData implements FrameData
     {
         String in_x, in_y;
         float time_max, time_min;
@@ -236,10 +229,10 @@ public class MdsDataProvider implements DataProvider
         private Dimension dim = null;
         private int header_size = 0;
 
-        public SimpleFrameData(String in_y, String in_x, float time_min,
-                               float time_max) throws Exception
+        public SimpleFrameData(String in_y, String in_x, float time_min, float time_max) throws Exception
         {
-            if (DEBUG.ON){System.out.println("MdsDataProvider.SimpleFrameData("+in_y+", "+in_x+", time_min, time_max)");}
+
+            if (DEBUG.ON){System.out.println("MdsDataProvider.SimpleFrameData(\""+in_y+"\", \""+in_x+"\", time_min, time_max)");}
             int i;
             float t;
             float all_times[] = null;
@@ -260,16 +253,13 @@ public class MdsDataProvider implements DataProvider
                 int height = d.readInt();
                 int img_size = height * width;
                 int n_frame = d.readInt();
-                Vector f_time = new Vector();
 
                 dim = new Dimension(width, height);
                 if (in_x == null || in_x.length() == 0)
                 {
                     all_times = new float[n_frame];                
                     for (i = 0; i < n_frame; i++)
-                    {
                         all_times[i] = d.readFloat();
-                    }
                 }
                 else
                 {
@@ -291,6 +281,8 @@ public class MdsDataProvider implements DataProvider
                     case 32:
                         mode = BITMAP_IMAGE_32;
                         break;
+                    default:
+                        mode = BITMAP_IMAGE_FLOAT;
                 }
             }
             else
@@ -306,9 +298,8 @@ public class MdsDataProvider implements DataProvider
                 if (all_times == null)
                 {
                     if (mframe_error != null)
-                        error =
-                            " Pulse file or image file not found\nRead pulse file error\n" +
-                            mframe_error + "\nFrame times read error";
+                        error = " Pulse file or image file not found\nRead pulse file error\n" +
+                                mframe_error + "\nFrame times read error";
                     else
                         error = " Image file not found ";
 
@@ -333,8 +324,7 @@ public class MdsDataProvider implements DataProvider
             end_idx = i;
 
             if (st_idx == -1)
-                throw (new IOException("No frames found between " + time_min +
-                                       " - " + time_max));
+                throw (new IOException("No frames found between " + time_min + " - " + time_max));
 
             n_frames = end_idx - st_idx;
             times = new float[n_frames];
@@ -345,6 +335,7 @@ public class MdsDataProvider implements DataProvider
 
         public int GetFrameType() throws IOException
         {
+            if (DEBUG.ON){System.out.println("MdsDataProvider.SimpleFrameData.GetFrameType()");}
             if (mode != -1)
                 return mode;
             int i;
@@ -359,27 +350,18 @@ public class MdsDataProvider implements DataProvider
             return mode;
         }
 
-        public int GetNumFrames()
-        {
-            return n_frames;
-        }
+        public int GetNumFrames(){return n_frames;}
 
-        public Dimension GetFrameDimension()
-        {
-            return dim;
-        }
+        public Dimension GetFrameDimension(){return dim;}
 
-        public float[] GetFrameTimes()
-        {
-            return times;
-        }
+        public float[] GetFrameTimes(){return times;}
 
         public byte[] GetFrameAt(int idx) throws IOException
         {
+            if (DEBUG.ON){System.out.println("MdsDataProvider.SimpleFrameData.GetFrameAt("+idx+")");}
             byte[] b_img = null;
 
-            if (mode == BITMAP_IMAGE_8 || mode == BITMAP_IMAGE_16 ||
-                mode == BITMAP_IMAGE_32)
+            if (mode == BITMAP_IMAGE_8 || mode == BITMAP_IMAGE_16 || mode == BITMAP_IMAGE_32 || mode == BITMAP_IMAGE_FLOAT)
             {
                 if (buf == null)
                     throw (new IOException("Frames not loaded"));
@@ -394,8 +376,10 @@ public class MdsDataProvider implements DataProvider
                 d.skip(header_size + (st_idx + idx) * img_size);
 
                 if( d.available() < img_size )
+                {
+                    if (DEBUG.ON){System.err.println(">> insufficient bytes: "+d.available()+"/"+img_size);}
                     return null;
-
+                }
 
                 b_img = new byte[img_size];
                 d.readFully(b_img);
@@ -419,6 +403,7 @@ public class MdsDataProvider implements DataProvider
     class SimpleWaveData implements WaveData
     {
         String in_x, in_y, v_x, v_y;
+        int v_idx;
         static final int SEGMENTED_YES = 1, SEGMENTED_NO = 2, SEGMENTED_UNKNOWN = 3;
         static final int UNKNOWN = -1;
         int numDimensions = UNKNOWN;
@@ -442,46 +427,56 @@ public class MdsDataProvider implements DataProvider
 
         public SimpleWaveData(String in_y, String in_x, String experiment, long shot)
         {
-            if (DEBUG.ON){System.out.println("MdsDataProvider.SimpleWaveData("+in_y+", "+in_x+", "+experiment+", "+shot+")");}
+            if (DEBUG.ON){System.out.println("MdsDataProvider.SimpleWaveData(\""+in_y+"\", \""+in_x+"\", \""+experiment+"\", "+shot+")");}
             this.wd_experiment = experiment;
             this.wd_shot = shot;
-            v_y = "_jscope_"+(var_idx  );
-            v_x = "_jscope_"+(var_idx+1);
-            var_idx+=2;
+            v_y = "_jscope_"+var_idx++;
+            v_x = in_x;
             if(checkForAsynchRequest(in_y))
             {
                 this.in_y = "[]";
                 this.in_x = "[]";
              }
             else
-            {
-                try
-                {
-                    if (DEBUG.ON){System.out.println(">> wait y - "+in_y);}
-                    GetString(v_y+"=("+in_y+");\"\"");//we just want mds to execute in_y; returning empty string \"\"
-                    if (DEBUG.ON){System.out.println(">> y done: ("+v_y+"="+in_y+")");}
+            {   
 
-                    if(in_x == null)
-                    {
-                        if (DEBUG.ON){System.out.println(">> wait x - null");}
-                        in_x = "DIM_OF("+in_y+");"; //to be save with other code, write the real expression to in_x
-                        GetString(v_x+"=DIM_OF("+v_y+");\"\"");//we just want mds to execute DIM_OF("+v_y+"); returning empty string \"\"
-                        if (DEBUG.ON){System.out.println(">> x done: ("+v_x+"=DIM_OF("+v_y+"))");}
-                    }
-                    else
-                    {
-                        if (DEBUG.ON){System.out.println(">> wait x - "+in_x);}
-                        GetString(v_x+"=("+in_x+");\"\"");//we just want mds to execute in_x; returning empty string \"\"
-                        if (DEBUG.ON){System.out.println(">> x done: ("+v_x+"="+in_x+")");}
-                    }
-
-                } catch(Exception exc){System.err.println("MdsDataProvider.SimpleWaveData: "+exc);}
                 this.in_y = in_y;
                 this.in_x = in_x;
+                cacheYData();
             }
             SegmentMode();
         }
 
+        private void cacheYData()
+        {
+            if (DEBUG.ON){System.out.println("MdsDataProvider.cacheYData()");}
+            try{
+                if (DEBUG.ON){System.out.println(">> v_y = "+v_y);}
+                if (DEBUG.ON){System.out.println(">> mds = "+mds);}
+                System.out.println(">> "+GetString(v_y+"=("+in_y+");\"ok\""));
+				Descriptor descr = mds.MdsValue(v_y);
+                if (DEBUG.ON){System.out.println(">> descr = "+descr);}
+                if (DEBUG.ON){System.out.println(">> cached"+descr.dtype);}
+            } catch(Exception exc){System.err.println("MdsDataProvider.cacheXData: "+exc);}
+        }
+
+        private void cacheXData()
+        {
+            if (DEBUG.ON){System.out.println("MdsDataProvider.cacheXData()");}
+            try{
+                  if(in_x == null)
+                  {
+                      v_x = "DIM_OF("+v_y+")";
+                      in_x = "DIM_OF("+in_y+")"; //to be save with other code, write the real expression to in_x
+                  }
+                  else
+                  {
+                      GetString(v_y+"x=("+in_x+");\"\"");//we just want mds to execute in_x; returning empty string \"\"
+                      v_x = v_y+"x";
+                      if (DEBUG.ON){System.out.println(">> cached");}
+                  }
+             } catch(Exception exc){System.err.println("MdsDataProvider.cacheXData: "+exc);}
+        }
 
         private void SegmentMode()
         {
@@ -542,6 +537,7 @@ public class MdsDataProvider implements DataProvider
 
             error = null;
             int shape[] = GetNumDimensions(expr);
+            if (DEBUG.ON){System.out.println("*********** "+shape[0]);}
 
             if (error != null || shape == null)
             {
@@ -584,9 +580,9 @@ public class MdsDataProvider implements DataProvider
                 if( getNumDimension() > 1)
                 {
                     if(segmentMode == SEGMENTED_YES)
-                        yLabel = GetStringValue("Units(dim_of(GetSegment("+v_y+",0),1))");
+                        yLabel = GetStringValue("Units(Dim_of(GetSegment("+v_y+",0),1))");
                     else
-                        yLabel = GetStringValue("Units(dim_of("+v_y+",1))");
+                        yLabel = GetStringValue("Units(Dim_of("+v_y+",1))");
                 }
                 else
                 {
@@ -618,7 +614,7 @@ public class MdsDataProvider implements DataProvider
             
             if(segmentMode == SEGMENTED_UNKNOWN)
             {
-              Vector args = new Vector();
+              Vector<Descriptor> args = new Vector<Descriptor>();
               args.addElement(new Descriptor(null, in_y));
               try {
                   byte[] retData = GetByteArray("byte(MdsMisc->IsSegmented($))", args);
@@ -641,6 +637,7 @@ public class MdsDataProvider implements DataProvider
                if (DEBUG.ON){System.err.println("MdsMisc->GetXYSignal() is not available on the server: "+exc);}
             }
             if (DEBUG.ON){System.out.println("traditional method");}
+            cacheXData();
             float y[] = GetFloatArray(setTimeContext+"("+v_y+")");
             RealArray xReal = GetRealArray("("+v_x+")");
             if(xReal.isLong)
@@ -698,7 +695,7 @@ public class MdsDataProvider implements DataProvider
                 throw new Exception("Use Old Method for getting data");  
             XYData res = null;
             double maxX = 0;
-            Vector args = new Vector();
+            Vector<Descriptor> args = new Vector<Descriptor>();
             args.addElement(new Descriptor(null, in_y));
             args.addElement(new Descriptor(null, in_x));
 
@@ -750,14 +747,7 @@ public class MdsDataProvider implements DataProvider
             for(int i = 0; i < nSamples; i++)
                 y[i] = dis.readFloat();
             
-<<<<<<< c6eae8991f880a689139084ff0265267f4ad8e14
-            float y[] = GetFloatArray("("+yExpr+")");
-            RealArray xReal = GetRealArray("("+xExpr+";)");
-            if(y == null || xReal == null) return null;
-            if(xReal.isLong())
-=======
             if(type == 1) //Long X (i.e. absolute times
->>>>>>> isDouble not brackets
             {
                 long []longX = new long[nSamples];
                 for(int i = 0; i < nSamples; i++)
@@ -852,6 +842,7 @@ public class MdsDataProvider implements DataProvider
         public double[] getX2D()
         {
             if (DEBUG.ON){System.out.println("MdsDataProvider.SimpleWaveData.getX2D()");}
+            cacheXData();
             try {
                 RealArray realArray = GetRealArray("DIM_OF("+v_y+", 0)");
                 if( realArray.isLong )
@@ -1180,26 +1171,19 @@ public class MdsDataProvider implements DataProvider
             return null;
 
         String in;
-
-        in = "DIM_OF( _jScope_img = (" + in_frame + "), 2)";
-        time = GetFloatArray(in);
+        GetString("_jScope_img = (" + in_frame + ");");
+        time = GetFloatArray("DIM_OF( _jScope_img , 2 )");
         if (time == null || ((time.length >= 2 ) && (time[1] == 1.0)))
         {
-            //in = "DIM_OF(" + in_frame + ")";
-            in = "DIM_OF( _jScope_img )";
-            time = GetFloatArray(in);
+            time = GetFloatArray("DIM_OF( _jScope_img )");
             if (time == null)
                 return null;
         }
-//      in = "eshape(data(" + in_frame + "))";
-        in = "eshape(data( _jScope_img ))";
-        shape = GetIntArray(in);
+        shape = GetIntArray("shape( _jScope_img )");
         if (shape == null)
             return null;
 
-        //in = in_frame;
-        in = "_jScope_img";
-        img_buf = GetByteArray(in);
+        img_buf = GetByteArray("_jScope_img");
         if (img_buf == null)
             return null;
 
@@ -1288,7 +1272,7 @@ public class MdsDataProvider implements DataProvider
         return GetByteArray(in, null);
     }
 
-    public  synchronized  byte[] GetByteArray(String in, Vector args) throws IOException
+    public  synchronized  byte[] GetByteArray(String in, Vector<Descriptor> args) throws IOException
     {
         if (DEBUG.ON){System.out.println("MdsDataProvider.GetByteArray(\""+in+"\", "+args+")");}
         byte out_byte[] = null;
@@ -1400,7 +1384,7 @@ public class MdsDataProvider implements DataProvider
 
         Properties pr = new Properties();
         pr.load(new ByteArrayInputStream(in.getBytes()));
-        String def_node = ( (String) pr.getProperty("__default_node"));
+        String def_node = pr.getProperty("__default_node");
         if (def_node != null)
         {
             def_node = def_node.trim();
@@ -2006,9 +1990,10 @@ public class MdsDataProvider implements DataProvider
         if (DEBUG.ON){System.out.println("MdsDataProvider.GetNumDimensions(\""+expression+"\")");}
         //return GetIntArray(in_y);
         //Gabriele June 2013: reduce dimension if one component is 1
-        int [] fullDims = GetIntArray("shape("+expression+")");
-		if( fullDims == null )
-			return null;
+        isPresent(expression);
+        int [] fullDims = GetIntArray("SHAPE( "+expression+" )");
+        if( fullDims == null )
+            return null;
 
         if(fullDims.length == 1) return fullDims;
         //count dimensions == 1
@@ -2098,4 +2083,12 @@ public class MdsDataProvider implements DataProvider
             return longArray;
         }
     }
+    public boolean isPresent(String expression)
+	{
+        try{
+		    String out = GetString("TEXT(PRESENT( "+expression+" ))").trim();
+	        System.out.println(expression+" present ="+out);
+		    return out=="1";
+        }catch(IOException exc){return false;}    
+	}
 }

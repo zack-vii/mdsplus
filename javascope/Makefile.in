@@ -556,7 +556,8 @@ JSCOPE_SRC = \
 	jScope/MdsDataClient.java        \
 	jScope/MdsIOException.java       \
 	jScope/MdsPlusBrowseSignals.java \
-	jScope/TextorBrowseSignals.java
+	jScope/TextorBrowseSignals.java \
+	jScope/DEBUG.java
 
 EXTRA_CLASS = \
         jScope/FakeTWUProperties.class \
