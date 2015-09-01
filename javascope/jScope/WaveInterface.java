@@ -63,6 +63,7 @@ public class WaveInterface
     public String title, xlabel, ylabel, zlabel;
     protected DataProvider dp;
 
+/*
 // Used for asynchronous Update
     public boolean asynch_update = true;
     Signal wave_signals[];
@@ -70,6 +71,8 @@ public class WaveInterface
     int wave_timestamp;
     boolean request_pending;
     double orig_xmin, orig_xmax;
+    protected boolean is_async_update = false;
+*/
     protected boolean evaluated[];
 
 
@@ -80,7 +83,6 @@ public class WaveInterface
     int     signal_select = -1;
     private Frames frames;
 
-    protected boolean is_async_update = false;
 
     static public boolean auto_color_on_expr = false;
 

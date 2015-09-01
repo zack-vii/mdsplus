@@ -16,7 +16,7 @@ class Frames extends Canvas
     Rectangle zoom_rect = null;
     Rectangle view_rect = null;
     private int curr_frame_idx = -1;
-  
+
     protected boolean aspect_ratio = true;
     protected int curr_grab_frame = -1;
     protected int[] pixel_array;
@@ -170,54 +170,16 @@ class Frames extends Canvas
                     if (DEBUG.ON){System.out.println("Frames.FrameData.BITMAP_IMAGE_16");}
                     pixelSize = 16;
                     bytesPerPixel = 2;
+                    short buf_out[];
                     ByteArrayInputStream b = new ByteArrayInputStream(buf);
                     DataInputStream din = new DataInputStream(b);
                     int n_pix = frameDim.width * frameDim.height;
-                    short buf_out[] = new short[n_pix];
+                    /*
+                    buf_out = new short[n_pix];
                     for (int j = 0; j < n_pix; j++)
                         buf_out[j] = din.readShort();
-
-                    //FlipFrame(buf, frameDim, 2);
-                    /* // should not be here as it is tha data that's written into the cache
-                    boolean right;
-                    if(colorMap.bitShift < 0)
-                        right = true;
-                    else
-                        right = false;
-                    if(right)
-                    bitShift = colorMap.bitShift;
-                    {
-                        if(colorMap.bitClip)
-                            for (int j = 0; j < n_pix; j++)
-                            {
-                                values[j] = 0xffff & din.readShort();
-                                int val = ( (int)values[j] >> bitShift );
-                                buf_out[j] = (short)(val > 255 ? 255 : val);
-                            }
-                        else
-                            for (int j = 0; j < n_pix; j++)
-                            {
-                                values[j] = 0xffff & din.readShort();
-                                buf_out[j] = (short)((int)values[j] >> bitShift );
-                            }
-                    }
-                    else
-                    {
-                        if(colorMap.bitClip)
-                            for (int j = 0; j < n_pix; j++)
-                            {
-                                values[j] = 0xffff & din.readShort();
-                                int val = ( (int)values[j] << bitShift );
-                                buf_out[j] = (short)(val > 255 ? 255 : val);
-                            }
-                        else
-                            for (int j = 0; j < n_pix; j++)
-                            {
-                                values[j] = 0xffff & din.readShort();
-                                buf_out[j] = (short)((int)values[j] << bitShift );
-                            }
-                    }
                     */
+                    buf_out = shiftBits(din,n_pix);
                     ColorModel colorModel = colorMap.getIndexColorModel(16);
                     db = new DataBufferUShort(buf_out, buf.length);
                     raster = Raster.createInterleavedRaster(db, frameDim.width, frameDim.height, frameDim.width, 1, new int[]{0}, null);
@@ -236,11 +198,11 @@ class Frames extends Canvas
                     for(int j = 0; j < n_pix; j++)
                     {
                         buf_out[j] = 0xFF000000 | din.readInt();
-//                        if (DEBUG.ON){System.out.println(Integer.toHexString(buf_out[j]));}
                     }
+                    if (DEBUG.ON){DEBUG.printIntArray(buf_out, 1, frameDim.width, frameDim.height, 1);}
                     ColorModel colorModel = new DirectColorModel(32, 0xff0000, 0xff00, 0xff, 0xff000000);
                     db = new DataBufferInt(buf_out, buf.length);
-                    raster = Raster.createPackedRaster(db, frameDim.width, frameDim.height, 1, new int[] {0xff0000, 0xff00, 0xff, 0xff000000}, null) ;
+                    raster = Raster.createPackedRaster(db, frameDim.width, frameDim.height, frameDim.width, new int[] {0xff0000, 0xff00, 0xff, 0xff000000}, null) ;
                     img = new BufferedImage(colorModel, raster, false, null);
                     img.setRGB(0, 0, frameDim.width, frameDim.height, buf_out, 0, frameDim.width);
                     break;
@@ -287,7 +249,7 @@ class Frames extends Canvas
             recentFrames.put(new Integer(idx), new FrameDescriptor(buf, img, img, 0));
             try {
                 tracker.waitForID(idx);
-            }catch(Exception exc){if (DEBUG.ON){System.err.println("Frames.waitForID: "+exc);}}
+            }catch(Exception exc){if (DEBUG.ON){System.err.println("# Frames.waitForID: "+exc);}}
             int maxStoreFrames = MAX_CACHE_MEM/buf.length;
             recentIdxV.insertElementAt(new Integer(idx), 0);
             if(maxStoreFrames < 1) maxStoreFrames = 1;
@@ -297,6 +259,46 @@ class Frames extends Canvas
                 recentFrames.remove(delIdx);
                 recentIdxV.removeElementAt(maxStoreFrames);
             }
+        }
+        private short[] shiftBits(DataInputStream din, int n_pix)throws IOException
+        {
+            boolean right;
+            int value;
+            short buf[] = new short[n_pix];
+            bitShift = colorMap.bitShift;
+            if(bitShift < 0)//right
+            {
+                if(colorMap.bitClip)
+                    for (int j = 0; j < n_pix; j++)
+                    {
+                        value = 0xffff & din.readShort();
+                        value = ( value >> bitShift );
+                        buf[j] = (short)(value > 255 ? 255 : value);
+                    }
+                else
+                    for (int j = 0; j < n_pix; j++)
+                    {
+                        value = 0xffff & din.readShort();
+                        buf[j] = (short)( value >> bitShift );
+                    }
+            }
+            else
+            {
+                if(colorMap.bitClip)
+                    for (int j = 0; j < n_pix; j++)
+                    {
+                        value = 0xffff & din.readShort();
+                        value = (value << bitShift );
+                        buf[j] = (short)(value > 255 ? 255 : value);
+                    }
+                else
+                    for (int j = 0; j < n_pix; j++)
+                    {
+                        value = 0xffff & din.readShort();
+                        buf[j] = (short)( value << bitShift );
+                    }
+            }
+            return buf;
         }
 
         Image getImageAt(int idx) throws IOException
@@ -439,9 +441,9 @@ class Frames extends Canvas
                                 values[j] = din.readFloat();
                         return values;
                     default:
-                        System.err.println("INTERNAL ERROR frame values requested for unexpected type: "+ frameType);
+                        System.err.println("# INTERNAL ERROR frame values requested for unexpected type: "+ frameType);
                 }
-            }catch(IOException exc){System.err.println("INTERNAL ERROR Getting Frame values: " + exc);}
+            }catch(IOException exc){System.err.println("# INTERNAL ERROR Getting Frame values: " + exc);}
             return null;
         }
 
@@ -512,19 +514,11 @@ class Frames extends Canvas
             frame_time.removeAllElements();
         tracker = null;
     }
-*/
-    public void SetFrameData(FrameData fd) throws Exception
+    private void shiftBits(FrameData fd)
     {
-        if (DEBUG.ON){System.out.println("Frames.SetFrameData("+fd+")");}
-        cache.setFrameData(fd);
-        curr_frame_idx = 0;
-        float t[] = fd.GetFrameTimes();
-        for(int i = 0; i < t.length; i++)
-            frame_time.addElement(new Float(t[i]));
-/*      int n_frames = fd.GetNumFrames();
+        int n_frames = fd.GetNumFrames();
         float t[] = fd.GetFrameTimes();
         byte[] buf;
-        ColorModel colorModel;
         boolean right = false;
         
         frame_type = new int[n_frames];
@@ -633,7 +627,17 @@ class Frames extends Canvas
             }
         }
 
+    }
  */
+    public void SetFrameData(FrameData fd) throws Exception
+    {
+        if (DEBUG.ON){System.out.println("Frames.SetFrameData("+fd+")");}
+        cache.setFrameData(fd);
+        curr_frame_idx = 0;
+        float t[] = fd.GetFrameTimes();
+        for(int i = 0; i < t.length; i++)
+            frame_time.addElement(new Float(t[i]));
+        //shiftBits(fd);
     }
 
     public void applyColorModel(ColorMap colorMap)
@@ -882,7 +886,7 @@ class Frames extends Canvas
        {
           grabber.grabPixels();
        } catch(InterruptedException ie) {
-            System.err.println("Pixel array not completed");
+            System.err.println("# Pixel array not completed");
             return null;
        }
        return pixel_array;

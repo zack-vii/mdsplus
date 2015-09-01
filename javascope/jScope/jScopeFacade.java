@@ -3069,7 +3069,7 @@ remove 28/06/2005
             {
                 // Error - unsupported L&F
                 rb.setEnabled(false);
-                System.err.println("Unsupported LookAndFeel: " + rb.getText());
+                System.err.println("# Unsupported LookAndFeel: " + rb.getText());
 
                 // Set L&F to JLF
                 try
@@ -3083,7 +3083,7 @@ remove 28/06/2005
                 catch (Exception exc2)
                 {
                     exc2.printStackTrace();
-                    System.err.println("Could not load LookAndFeel: " + exc2);
+                    System.err.println("# Could not load LookAndFeel: " + exc2);
                     exc2.printStackTrace();
                 }
             }
@@ -3091,7 +3091,7 @@ remove 28/06/2005
             {
                 rb.setEnabled(false);
                 exc.printStackTrace();
-                System.err.println("Could not load LookAndFeel: " + rb.getText());
+                System.err.println("# Could not load LookAndFeel: " + rb.getText());
                 exc.printStackTrace();
             }
 
