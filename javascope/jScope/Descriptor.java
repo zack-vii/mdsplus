@@ -114,28 +114,25 @@ public class Descriptor
             dos.writeShort(d);
             b = dosb.toByteArray();
         }
-
-        if(o instanceof Integer)
+        else if(o instanceof Integer)
         {
             int d = ((Integer)o).intValue();
             dos.writeInt(d);
             b = dosb.toByteArray();
         }
-
-        if(o instanceof Float)
+        else if(o instanceof Float)
         {
             float d = ((Float)o).floatValue();
             dos.writeFloat(d);
             b = dosb.toByteArray();
         }
-
-        if(o instanceof Double)
+        else if(o instanceof Double)
         {
             double d = ((Double)o).doubleValue();
             dos.writeDouble(d);
             b = dosb.toByteArray();
         }
-        if(o instanceof Long)
+        else if(o instanceof Long)
         {
             long l = ((Long)o).longValue();
             dos.writeLong(l);
@@ -209,6 +206,7 @@ public class Descriptor
       switch(type)
      {
        case DTYPE_CSTRING : return (short)body.length;
+       case DTYPE_UBYTE:
        case DTYPE_BYTE: return 1;
        case DTYPE_USHORT :
        case DTYPE_SHORT : return 2;

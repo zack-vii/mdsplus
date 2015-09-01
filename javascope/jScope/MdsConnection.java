@@ -327,6 +327,7 @@ public class MdsConnection
 
     public synchronized Descriptor MdsValue(String expr, Vector<Descriptor> args, boolean wait)
     {
+        if (args==null) args = new Vector<Descriptor>();
         StringBuffer cmd = new StringBuffer(expr);
         int n_args = args.size();
         byte idx = 0, totalarg = (byte)(n_args+1);

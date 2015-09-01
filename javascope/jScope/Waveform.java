@@ -574,49 +574,51 @@ public class Waveform extends JComponent implements SignalListener
         addKeyListener( new KeyAdapter() {
             public void keyPressed(KeyEvent e)
             {
-                if ( e.getKeyCode() == KeyEvent.VK_PAGE_DOWN)
+                if ( e.getKeyCode() == KeyEvent.VK_PAGE_DOWN || e.getKeyCode() == KeyEvent.VK_PAGE_UP )
                 {
-                    if (is_image)
+                    if ( e.getKeyCode() == KeyEvent.VK_PAGE_DOWN)
                     {
-                        if (frames != null && frames.GetFrameIdx() > 0)
+                        if (is_image)
                         {
-                            frame = frames.getLastFrameIdx();
-                            not_drawn = false;
+                            if (frames != null && frames.GetFrameIdx() > 0)
+                            {
+                                frame = frames.getLastFrameIdx();
+                                not_drawn = false;
+                            }
+                        }
+                        else
+                        {
+                            Signal s = GetSignal();
+                            if (s.getType() == Signal.TYPE_2D)
+                            {
+                                s.decShow();
+                                not_drawn = true;
+                            }
                         }
                     }
-                    else
+                    else // ( e.getKeyCode() == KeyEvent.VK_PAGE_UP )
                     {
-                        Signal s = GetSignal();
-                        if (s.getType() == Signal.TYPE_2D)
+                        if (is_image) {
+                            if (frames != null)
+                            {
+                                frame = frames.getNextFrameIdx();
+                                not_drawn = false;
+                           }
+                        }
+                        else
                         {
-                            s.decShow();
-                            not_drawn = true;
+                            Signal s = GetSignal();
+                            if (s.getType() == Signal.TYPE_2D)
+                            {
+                                s.incShow();
+                                not_drawn = true;
+                            }
                         }
                     }
+                    //ReportChanges();
+                    repaint();
+                    sendUpdateEvent();
                 }
-  
-                if ( e.getKeyCode() == KeyEvent.VK_PAGE_UP )
-                {
-                    if (is_image) {
-                        if (frames != null)
-                        {
-                            frame = frames.getNextFrameIdx();
-                            not_drawn = false;
-                       }
-                    }
-                    else
-                    {
-                        Signal s = GetSignal();
-                        if (s.getType() == Signal.TYPE_2D)
-                        {
-                            s.incShow();
-                            not_drawn = true;
-                        }
-                    }
-                }
-                //ReportChanges();
-                repaint();
-                sendUpdateEvent();
             }
             public void keyReleased(KeyEvent e) {}
             public void keyTyyped(KeyEvent e) {}

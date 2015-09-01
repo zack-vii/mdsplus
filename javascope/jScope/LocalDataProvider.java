@@ -45,7 +45,7 @@ public class LocalDataProvider extends MdsDataProvider /* implements DataProvide
     } //EventDescriptor
 
 
-    native public byte [] GetByteArray(String in);
+    native public byte [] LocalGetByteArray(String in);
     native public String ErrorString();
     native public long [] GetLongArrayNative(String in);
     native public float[] GetFloatArrayNative(String in);
@@ -90,10 +90,10 @@ public class LocalDataProvider extends MdsDataProvider /* implements DataProvide
                 case 1 : //int8
                 {
                     if (DEBUG.LV>1){System.out.println(">> Bytes");}
-                    byte buf[] = GetByteArray(nodeName);
+                    byte buf[] = LocalGetByteArray(nodeName);
                     if(buf == null) throw new IOException(LocalDataProvider.this.ErrorString());
                     maxpages = buf.length/size;
-                    if (DEBUG.LV>1){System.out.println("\n>> maxpages = "+maxpages);}
+                    if (DEBUG.LV>1){System.out.println(">> maxpages = "+maxpages);}
                     if (startIdx>0 || endIdx<maxpages)
                         return Arrays.copyOfRange(buf,size*startIdx,size*endIdx);
                     else
@@ -107,7 +107,7 @@ public class LocalDataProvider extends MdsDataProvider /* implements DataProvide
                     int buf[] = GetIntArray(nodeName);
                     if(buf == null) throw new IOException(LocalDataProvider.this.ErrorString());
                     maxpages = buf.length/size;
-                    if (DEBUG.LV>1){System.out.println("\n>> maxpages = "+maxpages);}
+                    if (DEBUG.LV>1){System.out.println(">> maxpages = "+maxpages);}
                     if (startIdx>0 || endIdx<maxpages)
                     {
                         if (DEBUG.LV>1){System.out.println(">> from "+size*startIdx+" to "+size*endIdx);}
@@ -123,15 +123,15 @@ public class LocalDataProvider extends MdsDataProvider /* implements DataProvide
                             dos.writeInt(buf[i]);
                     return dosb.toByteArray();
                 }
-                case 8 : //FLOAT
-                    if (DEBUG.LV>1){System.out.println(">> Float");}
-                case 16 : //Double
+//                case 4 : //FLOAT
+//                    if (DEBUG.LV>1){System.out.println(">> Float");}
+                case 8 : //Double
                 {
-                    if (DEBUG.LV>1 && pixelSize==16){System.out.println(">> Double");}
+                    if (DEBUG.LV>1 && pixelSize==8){System.out.println(">> Double");}
                     float buf[] = GetFloatArrayNative(nodeName);
                     if(buf == null) throw new IOException(LocalDataProvider.this.ErrorString());
                     maxpages = buf.length/size;
-                    if (DEBUG.LV>1){System.out.println("\n>> maxpages = "+maxpages);}
+                    if (DEBUG.LV>1){System.out.println(">> maxpages = "+maxpages);}
                     if (startIdx>0 || endIdx<maxpages)
                     {
                         if (DEBUG.LV>1){System.out.println(">> from "+size*startIdx+" to "+size*endIdx);}
