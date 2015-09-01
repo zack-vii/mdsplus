@@ -57,8 +57,7 @@ public class WavePopup
             {
                 ShowDialog();
             }
-        }
-        );
+        });
         this.setup_params = setup_params;
         this.profDialog = profDialog;
 
@@ -68,10 +67,7 @@ public class WavePopup
         {
             public void actionPerformed(ActionEvent e)
             {
-                Object[] options =
-                    {
-                    "Yes",
-                    "No"};
+                Object[] options = {"Yes", "No"};
                 int opt = JOptionPane.showOptionDialog(null,
                     "Are you sure you want to remove this wave panel?",
                     "Warning",
@@ -80,17 +76,10 @@ public class WavePopup
                     null,
                     options,
                     options[1]);
-                switch (opt)
-                {
-                    case JOptionPane.YES_OPTION:
-                        ( (WaveformManager) parent).removePanel(wave);
-                        ;
-                        break;
-                }
-
+                if (opt==JOptionPane.YES_OPTION)
+                    ((WaveformManager) parent).removePanel(wave);
             }
-        }
-        );
+        });
 
         maximize = new JMenuItem("Maximize Panel");
         maximize.setEnabled(false);
@@ -99,18 +88,11 @@ public class WavePopup
             public void actionPerformed(ActionEvent e)
             {
                 if ( ( (WaveformManager) WavePopup.this.parent).isMaximize())
-                {
-                    ( (WaveformManager) WavePopup.this.parent).
-                        maximizeComponent(null);
-                }
+                    ( (WaveformManager) WavePopup.this.parent).maximizeComponent(null);
                 else
-                {
-                    ( (WaveformManager) WavePopup.this.parent).
-                        maximizeComponent(wave);
-                }
+                    ( (WaveformManager) WavePopup.this.parent).maximizeComponent(wave);
             }
-        }
-        );
+        });
 
         set_point = new JMenuItem("Set Point");
         set_point.addActionListener(new ActionListener()
@@ -119,8 +101,7 @@ public class WavePopup
             {
                 WavePopup.this.SetDeselectPoint(wave);
             }
-        }
-        );
+        });
 
         markerList = new JMenu("Markers");
         JRadioButtonMenuItem ob;
@@ -367,6 +348,7 @@ public class WavePopup
         {
             public void actionPerformed(ActionEvent e)
             {
+                if(DEBUG.LV>1){System.out.println("actionPerformed"+e);}
                 Dimension dim = wave.getSize();
                 BufferedImage ri = new BufferedImage(dim.width, dim.height,
                     BufferedImage.TYPE_INT_RGB);
@@ -381,13 +363,9 @@ public class WavePopup
                         getSystemClipboard();
                     cli.setContents(imageTransferable, imageTransferable);
                 }
-                catch (Exception exc)
-                {
-                    System.out.println("Exception " + exc);
-                }
+                catch (Exception exc){System.err.println("Exception " + exc);}
             }
-        }
-        );
+        });
 
         playFrame = new JMenuItem();
         playFrame.addActionListener(new ActionListener()

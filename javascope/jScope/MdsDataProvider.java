@@ -396,6 +396,7 @@ public class MdsDataProvider implements DataProvider
                     return null;
                 }
 
+                d.skip(img_size*idx);
                 b_img = new byte[img_size];
                 d.readFully(b_img);
                 return b_img;
