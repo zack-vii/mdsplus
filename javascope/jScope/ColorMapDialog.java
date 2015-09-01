@@ -20,7 +20,7 @@ public class ColorMapDialog extends JDialog
     JButton ok, apply, cancel;
     JSlider shiftSlider;
     JCheckBox bitClip;
-    JPanel bitOptionPanel;
+    JPanel bitOptionPanel,colorMapPanel;
     boolean is16BitImage = false;
 //WaveformEditor weR, weG, weB;
     Waveform wave = null;
@@ -120,37 +120,39 @@ public class ColorMapDialog extends JDialog
                 ColorMapDialog.this.wave.applyColorModel( cm );
             }
         });
-       if(colorMap == null)
+        if(colorMap == null)
             colorMap = new ColorMap();
-       cp = new ColorPalette(colorMap.colors);
-       getContentPane().add(cp);
-       pan1.add(pan2);
+        cp = new ColorPalette(colorMap.colors);
+        getContentPane().add(cp);
+        pan1.add(pan2);
        
-       bitOptionPanel = new JPanel();
-       bitOptionPanel.setBorder(BorderFactory.createTitledBorder("16 bit  Option"));
-       bitOptionPanel.add(shiftSlider = new JSlider(-8, 8, 0) );
-       shiftSlider.setName("Bit Offset");
-       shiftSlider.setMajorTickSpacing(1);
-       shiftSlider.setPaintTicks(true);
-       shiftSlider.setPaintLabels(true);
-       shiftSlider.setSnapToTicks(true);
+        bitOptionPanel = new JPanel();
+        bitOptionPanel.setBorder(BorderFactory.createTitledBorder("16 bit  Option"));
+        bitOptionPanel.add(shiftSlider = new JSlider(-8, 8, 0) );
+        shiftSlider.setName("Bit Offset");
+        shiftSlider.setMajorTickSpacing(1);
+        shiftSlider.setPaintTicks(true);
+        shiftSlider.setPaintLabels(true);
+        shiftSlider.setSnapToTicks(true);
        
                
-        shiftSlider.addChangeListener( new ChangeListener()
+        shiftSlider.addChangeListener(new ChangeListener()
         {
             public void stateChanged(ChangeEvent e)
             {
-                 ColorMapDialog.this.wave.setFrameBitShift(shiftSlider.getValue(), bitClip.isSelected());
+                JSlider source = (JSlider)e.getSource();
+                if (!source.getValueIsAdjusting()) {
+                    ColorMapDialog.this.wave.setFrameBitShift(shiftSlider.getValue(), bitClip.isSelected());
+                }    
             }
-        }
-        );
+        });
 
-       bitOptionPanel.add(bitClip = new JCheckBox("Bit Clip"));
-       bitClip.addChangeListener( new ChangeListener()
+        bitOptionPanel.add(bitClip = new JCheckBox("Bit Clip"));
+        bitClip.addItemListener(new ItemListener()
         {
-            public void stateChanged(ChangeEvent e)
+            public void itemStateChanged(ItemEvent e)
             {
-                 ColorMapDialog.this.wave.setFrameBitShift(shiftSlider.getValue(), bitClip.isSelected());
+                ColorMapDialog.this.wave.setFrameBitShift(shiftSlider.getValue(), bitClip.isSelected());
             }
         });
        
@@ -172,51 +174,8 @@ public class ColorMapDialog extends JDialog
                     ColorMapDialog.this.setVisible(false);
                 }
             }
-        }
-        );
-        /*
-             ok.addActionListener(new ActionListener()
-             {
-            public void actionPerformed(ActionEvent e)
-            {
-                int max, min;
-                try {
-                    min = Integer.parseInt(minVal.getText());
-                } catch(Exception exc) {
-                    min = 0;
-                }
-                try {
-                    max = Integer.parseInt(maxVal.getText());
-                } catch(Exception exc) {
-                    max = 255;
-                }
-                cm.createColorMap( 256, 0, min, max );
-             weR.setWaveform(cm.getRedPoints(), cm.getRedValues(), 0f, 255f);
-                weR.repaint();
-             weG.setWaveform(cm.getGreenPoints(), cm.getGreenValues(), 0f, 255f);
-                weG.repaint();
-             weB.setWaveform(cm.getBluePoints(), cm.getBlueValues(), 0f, 255f);
-                weB.repaint();
-                processActionEvents(new ActionEvent(this, 0, ""));
-            }
-             }
-             );
-         */
-        /*
-         pan3.add(apply = new JButton("Apply"));
-         apply.addActionListener(new ActionListener()
-         {
-             public void actionPerformed(ActionEvent e)
-             {
-                 if(ColorMapDialog.this.wave.IsImage())
-                 {
-                     ColorMap cm = (ColorMap)cmComboBox.getSelectedItem();
-                     ColorMapDialog.this.wave.changeColorModel(cm);
-                  }
-             }
-         }
-         );
-         */
+        });
+
         pan4.add(cancel = new JButton("Cancel"));
         cancel.addActionListener(new ActionListener()
         {
@@ -234,8 +193,7 @@ public class ColorMapDialog extends JDialog
 
                 }
             }
-        }
-        );
+        });
 
         getContentPane().add(pan1);
 //        getContentPane().add(bitOptionPanel);

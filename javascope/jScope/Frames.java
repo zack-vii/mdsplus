@@ -209,7 +209,6 @@ class Frames extends Canvas
                     db = new DataBufferInt(buf_out, buf.length);
                     raster = Raster.createPackedRaster(db, frameDim.width, frameDim.height, frameDim.width, new int[] {0xff0000, 0xff00, 0xff, 0xff000000}, null) ;
                     img = new BufferedImage(colorModel, raster, false, null);
-                    img.setRGB(0, 0, frameDim.width, frameDim.height, buf_out, 0, frameDim.width);
                     break;
                 }
                 case FrameData.BITMAP_IMAGE_FLOAT:
@@ -285,13 +284,14 @@ class Frames extends Canvas
             if(fDesc.updateCount == updateCount) //fDesc.updatedImage  is still ok
                 return fDesc.updatedImage;
             //Othewise it is necessary to update it
-
-            ColorModel colorModel;
-            if (pixelSize == 32)
-                colorModel = new DirectColorModel(32, 0xff0000, 0xff00, 0xff, 0xff000000);
+            Image img;
+            if (frameType == FrameData.BITMAP_IMAGE_32)
+                img = fDesc.image;
             else
-                colorModel = colorMap.getIndexColorModel( pixelSize<32 ? pixelSize : 16 );
-            Image img = (BufferedImage)(fDesc.image);
+            {
+                ColorModel colorModel = colorMap.getIndexColorModel( pixelSize<32 ? pixelSize : 16 );
+                img = new BufferedImage(colorModel, ((BufferedImage)fDesc.image).getRaster(), false, null);
+            }
             try{
                 doBitShift((BufferedImage)img, fDesc);
             } catch(Exception exc){System.err.println(exc);return null;}
