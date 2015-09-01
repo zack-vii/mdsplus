@@ -156,9 +156,9 @@ public class LocalDataProvider extends MdsDataProvider /* implements DataProvide
             if(!isSegmented)
             {
                 if(timeName == null || timeName.trim().equals(""))
-                    timeName = "dim_of("+nodeName+")";
-                float[] allTimes = getAllTimes(nodeName, timeName);
-                if (DEBUG.ON){System.out.println("LocalDataProvider.getAllTimes(\""+nodeName+"\", \""+timeName+"\") OK allTimes = "+allTimes);}
+                    timeName = "DIM_OF("+nodeName+", 2)";
+                if (DEBUG.LV>1){System.out.println(">> timeName = "+timeName);}
+                float[] allTimes = GetFloatArrayNative(timeName);
                 if(allTimes == null) throw new IOException(LocalDataProvider.this.ErrorString());
                 if (DEBUG.LV>1){System.out.println(">> allTimes.length = "+allTimes.length);}
                 for(startIdx = 0; startIdx < allTimes.length && allTimes[startIdx] < timeMin; startIdx++);
@@ -210,6 +210,8 @@ public class LocalDataProvider extends MdsDataProvider /* implements DataProvide
      */
         public int GetNumFrames() throws IOException
         {
+            if (DEBUG.ON){System.out.println("LocalDataProvider.LocalFrameData.GetNumFrames()");}
+            if (DEBUG.LV>1){System.out.println(">> NumFrames = "+times.length);}
             return times.length;
         }
 
