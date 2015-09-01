@@ -123,9 +123,7 @@ public class LocalDataProvider extends MdsDataProvider /* implements DataProvide
                             dos.writeInt(buf[i]);
                     return dosb.toByteArray();
                 }
-//                case 4 : //FLOAT
-//                    if (DEBUG.LV>1){System.out.println(">> Float");}
-                case 8 : //Double
+                case 8 : //Double & (double)Float
                 {
                     if (DEBUG.LV>1 && pixelSize==8){System.out.println(">> Double");}
                     float buf[] = GetFloatArrayNative(nodeName);

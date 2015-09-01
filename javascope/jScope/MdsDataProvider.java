@@ -69,8 +69,7 @@ public class MdsDataProvider implements DataProvider
                 case Descriptor.DTYPE_LONGLONG :
                 case Descriptor.DTYPE_FLOAT:
                 case Descriptor.DTYPE_DOUBLE :    return FrameData.BITMAP_IMAGE_FLOAT;
-                default:       
-                    return FrameData.BITMAP_IMAGE_8;
+                default:                          return FrameData.BITMAP_IMAGE_8;
             }
         }
     }
@@ -436,31 +435,25 @@ public class MdsDataProvider implements DataProvider
         long wd_shot;
         AsynchDataSource asynchSource = null;
 
-        public SimpleWaveData(String in_y, String experiment, long shot)
+        public SimpleWaveData(String _in_y, String experiment, long shot)
         {
-            this(in_y, null , experiment, shot);
+            this(_in_y, null , experiment, shot);
         }
 
-        public SimpleWaveData(String in_y, String in_x, String experiment, long shot)
+        public SimpleWaveData(String _in_y, String _in_x, String experiment, long shot)
         {
-            if (DEBUG.ON){System.out.println("MdsDataProvider.SimpleWaveData(\""+in_y+"\", \""+in_x+"\", \""+experiment+"\", "+shot+")");}
-            this.wd_experiment = experiment;
-            this.wd_shot = shot;
-            if(checkForAsynchRequest(in_y))
-            {
-                this.in_y = "[]";
-                this.in_x = "[]";
-                v_y = "[]";
-                v_x = "[]";
-            }
+            if (DEBUG.ON){System.out.println("MdsDataProvider.SimpleWaveData(\""+_in_y+"\", \""+_in_x+"\", \""+experiment+"\", "+shot+")");}
+            wd_experiment = experiment;
+            wd_shot = shot;
+            if(checkForAsynchRequest(_in_y))
+                v_y = in_y = in_x = "[]";
             else
             {   
-                v_y = "_jscope_"+var_idx++;
-                v_x = in_x;
-                this.in_y = in_y;
-                this.in_x = in_x;
+                in_y = _in_y;
+                in_x = _in_x;
                 cacheYData();
             }
+            v_x = in_x;
             SegmentMode();
         }
 
@@ -468,11 +461,12 @@ public class MdsDataProvider implements DataProvider
         {
             if (DEBUG.ON){System.out.println("MdsDataProvider.cacheYData()");}
             try{
+                v_y = "_jscope_"+var_idx++;
                 if (DEBUG.LV>1){System.out.println(">> v_y = "+v_y);}
                 if (DEBUG.LV>1){System.out.println(">> mds = "+mds);}
                 GetString(v_y+"="+in_y+";\"\"");
                 if (DEBUG.LV>1){System.out.println(">> ok");}
-            } catch(Exception exc){System.err.println("# MdsDataProvider.cacheXData: "+exc);}
+            } catch(Exception exc){System.err.println("# MdsDataProvider.cacheYData: "+exc);}
         }
 
         private void cacheXData()
@@ -482,7 +476,7 @@ public class MdsDataProvider implements DataProvider
                   if (DEBUG.LV>1){System.out.println(">> "+in_y+" , "+v_y+" , "+in_x);}
                   if(in_x == null)
                   {
-                      v_x = "DIM_OF("+v_y+")";
+                      v_x  = "DIM_OF("+v_y+")";
                       in_x = "DIM_OF("+in_y+")"; //to be save with other code, write the real expression to in_x
                   }
                   else
@@ -544,16 +538,21 @@ public class MdsDataProvider implements DataProvider
             if (DEBUG.ON){System.out.println("MdsDataProvider.SimpleWaveData.getNumDimension()");}
             if(numDimensions != UNKNOWN)
                 return numDimensions;
-
             String expr;
             if(segmentMode == SEGMENTED_YES)
-                expr = "GetSegment("+v_y+",0)";
+                expr = v_y+"=GetSegment("+in_y+",0)";
             else
                 expr = v_y;
 
             error = null;
             int shape[] = GetNumDimensions(expr);
-
+            if (DEBUG.LV>1)
+            {
+                String msg = ">> shape =";
+                for (int i=0 ; i<shape.length ; i++)
+                    msg+= " "+shape[i];
+                System.out.println(msg);
+            }
             if (error != null || shape == null)
             {
                 error = null;
@@ -594,17 +593,17 @@ public class MdsDataProvider implements DataProvider
                 yLabelEvaluated = true;
                 if( getNumDimension() > 1)
                 {
-                    if(segmentMode == SEGMENTED_YES)
+/*                    if(segmentMode == SEGMENTED_YES)
                         yLabel = GetStringValue("Units(Dim_of(GetSegment("+v_y+",0),1))");
                     else
-                        yLabel = GetStringValue("Units(Dim_of("+v_y+",1))");
+*/                        yLabel = GetStringValue("Units(Dim_of("+v_y+",1))");
                 }
                 else
                 {
-                    if(segmentMode == SEGMENTED_YES)
+/*                    if(segmentMode == SEGMENTED_YES)
                         yLabel = GetStringValue("Units(GetSegment("+v_y+",0))");
                     else
-                        yLabel = GetStringValue("Units("+v_y+")");
+*/                        yLabel = GetStringValue("Units("+v_y+")");
                 }
             }
             return yLabel;
@@ -656,17 +655,21 @@ public class MdsDataProvider implements DataProvider
             if (DEBUG.LV>1){isPresent(v_y);}
             float y[] = GetFloatArray(setTimeContext+v_y);
             if (DEBUG.LV>1){System.out.println(">> y = "+y);}
+            if (DEBUG.LV>2){DEBUG.printFloatArray(y,y.length,1,1);}
             cacheXData();
             RealArray xReal = GetRealArray(v_x);
             if(xReal.isLong)
             {
-              isXLong = true;
-              return new XYData(xReal.getLongArray(), y, 1E12);
+                isXLong = true;
+                return new XYData(xReal.getLongArray(), y, 1E12);
             }
             else
             {
-              isXLong = false;
-              return new XYData(xReal.getDoubleArray(), y, 1E12);
+                isXLong = false;
+                double x[] = xReal.getDoubleArray();
+                if (DEBUG.LV>1){System.out.println(">> x = "+x);}
+                if (DEBUG.LV>2){DEBUG.printDoubleArray(x,x.length,1,1);}
+                return new XYData(x, y, 1E12);
             }
         }
         private String getTimeContext(double xmin, double xmax, boolean isLong)throws Exception
@@ -1251,8 +1254,7 @@ public class MdsDataProvider implements DataProvider
         if (DEBUG.ON){System.out.println("MdsDataProvider.GetFrameTimes(\""+in_frame+"\")");}
         String exp = GetExperimentName(in_frame);
 
-        String in = "JavaGetFrameTimes(\"" + exp + "\",\"" + in_frame + "\"," +
-            shot + " )";
+        String in = "JavaGetFrameTimes(\"" + exp + "\",\"" + in_frame + "\"," + shot + " )";
         Descriptor desc = mds.MdsValue(in);
         float out_data[];
         switch (desc.dtype)
@@ -1287,11 +1289,8 @@ public class MdsDataProvider implements DataProvider
         String in = "JavaGetFrameAt(\"" + exp + "\",\" " + in_frame + "\"," + shot + ", " + frame_idx + " )";
         return getByteArray(in).buf;
     }
-    public  synchronized  ByteArray getByteArray(String in) throws IOException
-    {
-        return getByteArray(in, null);
-    }
 
+    public  synchronized  ByteArray getByteArray(String in) throws IOException{return getByteArray(in, null);}
     public  synchronized  ByteArray getByteArray(String in, Vector<Descriptor> args) throws IOException
     {
         if (DEBUG.ON){System.out.println("MdsDataProvider.getByteArray(\""+in+"\", "+args+")");}
@@ -1299,11 +1298,11 @@ public class MdsDataProvider implements DataProvider
         DataOutputStream dos = new DataOutputStream(dosb);
         if (!CheckOpen())
             throw new IOException("TreeNotOpen");
-        if(DEBUG.LV>1){System.out.println("mds = "+mds);}
+        if(DEBUG.LV>1){System.out.println(">> mds = "+mds);}
         Descriptor desc = mds.MdsValue(in, args);
         if (desc==null)
             throw new IOException("MdsValue: not result ("+in+")");
-        if(DEBUG.LV>1){System.out.println("desc.dtype = "+desc.dtype);}
+        if(DEBUG.LV>1){System.out.println(">> desc.dtype = "+desc.dtype);}
         switch (desc.dtype)
         {
             case Descriptor.DTYPE_DOUBLE:
@@ -1333,36 +1332,30 @@ public class MdsDataProvider implements DataProvider
                 return  new ByteArray(desc.byte_data,desc.dtype);
 
             case Descriptor.DTYPE_CSTRING:
+                if(DEBUG.LV>1){System.out.println("# "+desc.strdata);}
                 if ( (desc.status & 1) == 0)
                     error = desc.error;
-                 throw new IOException(error);
+                throw new IOException(error);
        }
        throw new IOException(error);
     }
 
-    public synchronized String ErrorString()
-    {
-        return error;
-    }
+    public synchronized String ErrorString(){return error;}
 
-    public synchronized void Update(String experiment, long shot)
-    {
-        Update( experiment,  shot, false);
-    }
+    public synchronized void Update(String experiment, long shot){Update( experiment,  shot, false);}
     public synchronized void Update(String experiment, long shot, boolean resetExperiment)
     {
         if (DEBUG.ON){System.out.println("MdsDataProvider.Update(\""+experiment+"\", "+shot+", "+resetExperiment+")");}
         this.error = null;
         this.var_idx = 0;
 
-        if (resetExperiment) {
-          this.experiment = null;
-        }
+        if (resetExperiment)
+            this.experiment = null;
         if ((shot != this.shot) || (shot == 0L) || (this.experiment == null) || (this.experiment.length() == 0) || (!this.experiment.equalsIgnoreCase(experiment)))
         {
-          this.experiment = ((experiment != null) && (experiment.trim().length() > 0) ? experiment : null);
-          this.shot = shot;
-          this.open = false;
+            this.experiment = ((experiment != null) && (experiment.trim().length() > 0) ? experiment : null);
+            this.shot = shot;
+            this.open = false;
         }
     }
 
@@ -1406,7 +1399,6 @@ public class MdsDataProvider implements DataProvider
         if (DEBUG.ON){System.out.println("MdsDataProvider.SetEnvironment(\""+in+"\")");}
         if (in == null || in.length() == 0)
             return;
-
         Properties pr = new Properties();
         pr.load(new ByteArrayInputStream(in.getBytes()));
         String def_node = pr.getProperty("__default_node");
@@ -1421,18 +1413,13 @@ public class MdsDataProvider implements DataProvider
             }
             return;
         }
-        
         if( in.indexOf("pulseSetVer") >= 0 )
-        {
             open = false;
-        }
-        
         if( environment_vars == null || !environment_vars.equalsIgnoreCase(in) )
         {
             open = false;
             environment_vars = in;
         }
-    
     }
 
     void SetEnvironmentSpecific(String in)
@@ -1608,8 +1595,8 @@ public class MdsDataProvider implements DataProvider
             case Descriptor.DTYPE_DOUBLE:
                 out = new RealArray(desc.double_data);
                 break;
+            case Descriptor.DTYPE_ULONG:
             case Descriptor.DTYPE_LONG:
-            case Descriptor.DTYPE_USHORT:
             {
                 float[] outF = new float[desc.int_data.length];
                 for (int i = 0; i < desc.int_data.length; i++)
@@ -1617,6 +1604,7 @@ public class MdsDataProvider implements DataProvider
                 out = new RealArray(outF);
             }
             break;
+            case Descriptor.DTYPE_USHORT:
             case Descriptor.DTYPE_SHORT:
             {
                 float[] outF = new float[desc.short_data.length];
@@ -1625,8 +1613,8 @@ public class MdsDataProvider implements DataProvider
                 out = new RealArray(outF);
             }
             break;
-            case Descriptor.DTYPE_BYTE:
             case Descriptor.DTYPE_UBYTE:
+            case Descriptor.DTYPE_BYTE:
             {
                 float[] outF = new float[desc.byte_data.length];
                 for (int i = 0; i < desc.byte_data.length; i++)
@@ -2015,7 +2003,6 @@ public class MdsDataProvider implements DataProvider
         if (DEBUG.ON){System.out.println("MdsDataProvider.GetNumDimensions(\""+expression+"\")");}
         //return GetIntArray(in_y);
         //Gabriele June 2013: reduce dimension if one component is 1
-        if(DEBUG.LV>1){isPresent(expression);}
         int [] fullDims = GetIntArray("SHAPE( "+expression+" )");
         if( fullDims == null )
             return null;

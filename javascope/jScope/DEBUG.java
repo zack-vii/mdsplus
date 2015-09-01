@@ -5,6 +5,50 @@ public final class DEBUG
     //unreachable code
     public static final int LV = 0;
     public static final boolean ON = LV>0;
+    public static void printDoubleArray(double[] buf, int width, int height, int pages)
+    {
+        int i = 0;
+        String s;
+        System.out.println("---page break---");
+        for(int f = 0; f < pages && i<0x10000; f++)
+        {
+            for(int h = 0; h < height && i<0x10000; h++)
+            {
+                s = ", ";
+                for(int w = 0; w < width && i<0x10000; w++)
+                {
+                    s += buf[i]+", ";
+                    i++;
+                }
+                System.out.println(s);
+            }
+            if (i==0x10000)
+                System.out.println(" ... "+i+"/"+buf.length);
+            System.out.println("---page break---");
+        }
+    }
+    public static void printFloatArray(float[] buf, int width, int height, int pages)
+    {
+        int i = 0;
+        String s;
+        System.out.println("---page break---");
+        for(int f = 0; f < pages && i<0x10000; f++)
+        {
+            for(int h = 0; h < height && i<0x10000; h++)
+            {
+                s = ", ";
+                for(int w = 0; w < width && i<0x10000; w++)
+                {
+                    s += buf[i]+", ";
+                    i++;
+                }
+                System.out.println(s);
+            }
+            if (i==0x10000)
+                System.out.println(" ... "+i+"/"+buf.length);
+            System.out.println("---page break---");
+        }
+    }
     public static void printByteArray(byte[] buf, int byteblock, int width, int height, int pages)
     {
         int i = 0;
