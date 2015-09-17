@@ -219,7 +219,7 @@ public class MdsDataProvider implements DataProvider
             if (DEBUG.ON){System.out.println("MdsDataProvider.SegmentedFrameData.GetFrameAt("+idx+")");}
             int segmentIdx = startSegment + idx / framesPerSegment;
             int segmentOffset = (idx % framesPerSegment) * dim.width * dim.height * bytesPerPixel;
-            byte[] segment = getByteArray("GetSegment("+ in_y+","+segmentIdx+")").buf;
+            byte[] segment = GetByteArray("GetSegment("+ in_y+","+segmentIdx+")");
             if(framesPerSegment == 1)
                 return segment;
             byte []outFrame = new byte[dim.width * dim.height * bytesPerPixel];
@@ -396,7 +396,7 @@ public class MdsDataProvider implements DataProvider
         String yc;
         byte   xkind = 0;
         byte   ykind = 0;
-        public boolean isSig;
+        public boolean useCache = false;
         public tdicache(String _in_y, String _in_x, int _var) { prep(_in_y, _in_x, Integer.toString(_var)); }
         public tdicache(String _in_y, String _in_x, String _var) { prep(_in_y, _in_x, _var); }
         void prep(String _in_y, String _in_x, String _var)
@@ -408,9 +408,14 @@ public class MdsDataProvider implements DataProvider
                 in_x = "DIM_OF("+in_y+")";
             else
                 in_x = _in_x;
+            if (in_y != "[]")
+                cache();
+        }
+        void cache()
+        {
             y();
-            isSig = ykind == -60;
-            if (isSig)
+            useCache = ykind == -62;   // -61 = Sig, -62 parm -> python script
+            if (!useCache)
             {
                 yc = in_y;
                 xc = in_x;    
@@ -423,10 +428,14 @@ public class MdsDataProvider implements DataProvider
             if (yc == null)
             {
                 yc = var+"y";
+                String expr = yc+" = ("+in_y+"); KIND( "+yc+" )";
                 try {
-                    ykind = (byte)GetIntArray(yc+"="+in_y+" ; KIND( "+yc+" )")[0];
-                } catch (Exception exc) {System.err.println("# tdicache error: could not cache y ("+yc+" = "+in_y+"): "+ exc.getMessage());}
-                if (DEBUG.LV>1){System.out.println(">> tdicache y ( "+yc+"="+in_y+" ; KIND( "+yc+" ) )");}
+                    ykind = GetByteArray(expr)[0];
+                    if (DEBUG.LV>1){System.out.println(">> tdicache y ( "+expr+" -> "+ykind+" ) )");}
+                } catch (Exception exc) {
+                    System.err.println("# tdicache error: could not cache y ( "+expr+" -> "+ykind+" ) ): "+ exc);
+                    yc = in_y;
+                }
                 if (xdim)
                     xc = "DIM_OF("+yc+")";
             }
@@ -440,10 +449,14 @@ public class MdsDataProvider implements DataProvider
                 else
                 {
                     xc = var+"x";                       
+                    String expr = xc+" = ("+in_x+"); KIND( "+xc+" )";
                     try {
-                        xkind = (byte)GetIntArray(xc+"="+in_x+";KIND("+xc+")")[0];
-                    } catch (Exception exc) {System.err.println("# tdicache error: could not cache x ("+xc+" = "+in_x+")");}
-                    if (DEBUG.LV>1){System.out.println(">> tdicache x ("+xc+" = "+in_x+")");}
+                        xkind = GetByteArray(expr)[0];
+                        if (DEBUG.LV>1){System.out.println(">> tdicache x ("+expr+")");}
+                    } catch (Exception exc) {
+                        System.err.println("# tdicache error: could not cache x ("+expr+")");
+                        xc = in_x;
+                    }
                 }
             }
             return xc;
@@ -494,7 +507,7 @@ public class MdsDataProvider implements DataProvider
             if(segmentMode == SEGMENTED_UNKNOWN)
             {
                 try {//fast using in_y as NumSegments is a node property
-                    int[] numSegments = GetIntArray("GetNumSegments("+c.y()+")");
+                    int[] numSegments = GetIntArray("GetNumSegments("+c.yo()+")");
                     if (numSegments==null)
                         segmentMode = SEGMENTED_UNKNOWN;
                     else if(numSegments[0] > 0)
@@ -542,7 +555,7 @@ public class MdsDataProvider implements DataProvider
             if(segmentMode == SEGMENTED_YES)
                 expr = "GetSegment("+c.yo()+",0)";
             else
-                expr = c.yo();
+                expr = c.y();
 
             error = null;
             int shape[] = GetNumDimensions(expr);
@@ -631,7 +644,7 @@ public class MdsDataProvider implements DataProvider
                 Vector<Descriptor> args = new Vector<Descriptor>();
                 args.addElement(new Descriptor(null, c.yo()));
                 try {
-                    byte[] retData = getByteArray("byte(MdsMisc->IsSegmented($))", args).buf;
+                    byte[] retData = GetByteArray("byte(MdsMisc->IsSegmented($))", args);
             
                     if (retData[0] > 0)
                         segmentMode = SEGMENTED_YES;
@@ -644,7 +657,7 @@ public class MdsDataProvider implements DataProvider
             }
 //            String setTimeContext = getTimeContext(xmin,xmax,isLong);
             String setTimeContext = "";
-            if(c.isSig)
+            if(!c.useCache)
                 try{
                     return getXYSignal(xmin, xmax, numPoints, isLong, setTimeContext);
                 }catch(Exception exc)
@@ -736,9 +749,9 @@ public class MdsDataProvider implements DataProvider
             //if a space is required between ; and further code setTimeContext sould have it
             try {
             if(isLong)
-                retData = getByteArray(setTimeContext+"MdsMisc->GetXYSignalLongTimes:DSC", args).buf;
+                retData = GetByteArray(setTimeContext+"MdsMisc->GetXYSignalLongTimes:DSC", args);
             else
-                retData = getByteArray(setTimeContext+"MdsMisc->GetXYSignal:DSC", args).buf;
+                retData = GetByteArray(setTimeContext+"MdsMisc->GetXYSignal:DSC", args);
             } catch(IOException exc) {throw(new Exception(exc.getMessage()));}
             if (DEBUG.LV>1){System.out.println(">> MdsMisc->GetXYSignal*Long*Times:DSC");
                             DEBUG.printByteArray(retData,1,8,8,1);}
@@ -1189,12 +1202,7 @@ public class MdsDataProvider implements DataProvider
         if (img == null)
             return null;
         if (DEBUG.LV>1){System.out.println(">> MdsDataProvider.getByteArray:  not null");}
-        for ( int i=2 ; i>=0 ; i-- )
-        {
-            time = GetFloatArray("DIM_OF( _jScope_img, "+i+" )");
-            if (time != null)
-                break;
-        }
+        time = GetFloatArray("DIM_OF( _jScope_img, 0 )");
         if (time == null)
             return null;
         if (DEBUG.LV>1){System.out.println(">> MdsDataProvider.GetFloatArray:  not null");}
@@ -1282,15 +1290,15 @@ public class MdsDataProvider implements DataProvider
         if (DEBUG.ON){System.out.println("MdsDataProvider.GetFrameAt(\""+in_frame+"\", "+frame_idx+")");}
         String exp = GetExperimentName(in_frame);
         String in = "JavaGetFrameAt(\"" + exp + "\",\" " + in_frame + "\"," + shot + ", " + frame_idx + " )";
-        return getByteArray(in).buf;
+        return GetByteArray(in);
     }
 
+    public  synchronized  byte[] GetByteArray(String in) throws IOException {return getByteArray(in, null).buf;}
+    public  synchronized  byte[] GetByteArray(String in, Vector<Descriptor> args) throws IOException {return getByteArray(in, args).buf;}
     public  synchronized  ByteArray getByteArray(String in) throws IOException {return getByteArray(in, null);}
     public  synchronized  ByteArray getByteArray(String in, Vector<Descriptor> args) throws IOException
     {
         if (DEBUG.ON){System.out.println("MdsDataProvider.getByteArray(\""+in+"\", "+args+")");}
-        ByteArrayOutputStream dosb = new ByteArrayOutputStream();
-        DataOutputStream dos = new DataOutputStream(dosb);
         if (!CheckOpen())
             throw new IOException("TreeNotOpen");
         if(DEBUG.LV>1){System.out.println(">> mds = "+mds);}
@@ -1298,6 +1306,8 @@ public class MdsDataProvider implements DataProvider
         if (desc==null || desc.dtype==0)
             throw new IOException("MdsValue: no result ("+in+")");
         if(DEBUG.LV>1){System.out.println(">> desc.dtype = "+desc.dtype);}
+        ByteArrayOutputStream dosb = new ByteArrayOutputStream();
+        DataOutputStream dos = new DataOutputStream(dosb);
         switch (desc.dtype)
         {
             case Descriptor.DTYPE_DOUBLE:
@@ -1324,7 +1334,7 @@ public class MdsDataProvider implements DataProvider
 
             case Descriptor.DTYPE_UBYTE:
             case Descriptor.DTYPE_BYTE:
-                return  new ByteArray(desc.byte_data,desc.dtype);
+                return new ByteArray(desc.byte_data,desc.dtype);
 
             case Descriptor.DTYPE_CSTRING:
                 if(DEBUG.LV>1){System.out.println("# "+desc.strdata);}
