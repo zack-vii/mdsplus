@@ -139,7 +139,7 @@ public class MdsDataProvider implements DataProvider
             this.numSegments = numSegments;
             startSegment = -1;
             float startTimes[] = new float[numSegments];
- //Get segment window corresponding to the passed time window
+            // Get segment window corresponding to the passed time window
             for(int i = 0; i < numSegments; i++)
             {
                 float limits[] = GetFloatArray("GetSegmentLimits("+in_y+","+i+")");
@@ -152,9 +152,9 @@ public class MdsDataProvider implements DataProvider
             }
             if(startSegment == -1)
                 throw new IOException("Frames outside defined time window");
-//Check first if endTime is greated than the end of the last segment, to avoid rolling over all segments
+            // Check first if endTime is greated than the end of the last segment, to avoid rolling over all segments
             float endLimits[] = GetFloatArray("GetSegmentLimits("+in_y+","+(numSegments - 1)+")");
-//Throw away spurious frames at the end
+            // Throw away spurious frames at the end
             while(endLimits == null || endLimits.length != 2)
             {
                 numSegments--;
@@ -182,36 +182,36 @@ public class MdsDataProvider implements DataProvider
             }
 
             actSegments = endSegment - startSegment;
-//Get Frame Dimension and frames per segment
+            // Get Frame Dimension and frames per segment
             int dims[] = GetIntArray("shape(_jscope_seg=GetSegment("+in_y+", 0))");
             if(dims.length != 3)
                 throw new IOException("Invalid number of segment dimensions: "+ dims.length);
             dim = new Dimension(dims[0], dims[1]);
             framesPerSegment = dims[2];
-//Get Frame element length in bytes
+            // Get Frame element length in bytes
             ByteArray data = getByteArray("_jscope_seg[0,0,0]");
             if (DEBUG.ON){System.out.println(">> data = "+data);}
             bytesPerPixel  = data.getDataSize();
             mode           = data.getFrameType();
-//Get Frame times
-             if(framesPerSegment == 1) //We assume in this case that start time is the same of the frame time
-             {
-                 times = new float[actSegments];
-                 for(int i = 0; i < actSegments; i++)
-                     times[i] = startTimes[startSegment + i];
-             }
-             else //Get segment times. We assume that the same number of frames is contained in every segment
-             {
-                times = new float[actSegments * framesPerSegment];
+            // Get Frame times
+            if(framesPerSegment == 1) //We assume in this case that start time is the same of the frame time
+            {
+                times = new float[actSegments];
                 for(int i = 0; i < actSegments; i++)
-                {
-                    float segTimes [] = GetFloatArray("dim_of(GetSegment("+in_y+","+i+"))");
-                    if(segTimes.length != framesPerSegment)
-                        throw new IOException("Inconsistent definition of time in frame + "+i+": read "+ segTimes.length+" times, expected "+ framesPerSegment );
-                    for(int j = 0; j < framesPerSegment; j++)
-                        times[i * framesPerSegment + j] = segTimes[j];
-                 }
-             }
+                    times[i] = startTimes[startSegment + i];
+            }
+            else //Get segment times. We assume that the same number of frames is contained in every segment
+            {
+            times = new float[actSegments * framesPerSegment];
+            for(int i = 0; i < actSegments; i++)
+            {
+                float segTimes [] = GetFloatArray("dim_of(GetSegment("+in_y+","+i+"))");
+                if(segTimes.length != framesPerSegment)
+                    throw new IOException("Inconsistent definition of time in frame + "+i+": read "+ segTimes.length+" times, expected "+ framesPerSegment );
+                for(int j = 0; j < framesPerSegment; j++)
+                    times[i * framesPerSegment + j] = segTimes[j];
+                }
+            }
         }
 
         public byte[] GetFrameAt(int idx) throws IOException
@@ -386,10 +386,74 @@ public class MdsDataProvider implements DataProvider
 
     
     ////////////////////////////////////////GAB JULY 2014
+    class tdicache
+    {
+        String var;
+        boolean xdim;
+        String in_x;
+        String in_y;
+        String xc;
+        String yc;
+        byte   xkind = 0;
+        byte   ykind = 0;
+        public boolean isSig;
+        public tdicache(String _in_y, String _in_x, int _var) { prep(_in_y, _in_x, Integer.toString(_var)); }
+        public tdicache(String _in_y, String _in_x, String _var) { prep(_in_y, _in_x, _var); }
+        void prep(String _in_y, String _in_x, String _var)
+        {
+            in_y = _in_y;
+            var  = "_jscope_"+_var;
+            xdim = _in_x == null;
+            if (xdim)
+                in_x = "DIM_OF("+in_y+")";
+            else
+                in_x = _in_x;
+            y();
+            isSig = ykind == -60;
+            if (isSig)
+            {
+                yc = in_y;
+                xc = in_x;    
+            }
+            if (DEBUG.LV>1){System.out.println(">> tdicache yclass  = "+ykind);}
+        }
+        public String xo(){ return in_x; }
+        public String yo(){ return in_y; }
+        public String y() {
+            if (yc == null)
+            {
+                yc = var+"y";
+                try {
+                    ykind = (byte)GetIntArray(yc+"="+in_y+" ; KIND( "+yc+" )")[0];
+                } catch (Exception exc) {System.err.println("# tdicache error: could not cache y ("+yc+" = "+in_y+"): "+ exc.getMessage());}
+                if (DEBUG.LV>1){System.out.println(">> tdicache y ( "+yc+"="+in_y+" ; KIND( "+yc+" ) )");}
+                if (xdim)
+                    xc = "DIM_OF("+yc+")";
+            }
+            return yc;
+        }
+        public String x() {
+            if (xc == null)
+            {
+                if (xdim)
+                    y(); 
+                else
+                {
+                    xc = var+"x";                       
+                    try {
+                        xkind = (byte)GetIntArray(xc+"="+in_x+";KIND("+xc+")")[0];
+                    } catch (Exception exc) {System.err.println("# tdicache error: could not cache x ("+xc+" = "+in_x+")");}
+                    if (DEBUG.LV>1){System.out.println(">> tdicache x ("+xc+" = "+in_x+")");}
+                }
+            }
+            return xc;
+        }
+    }
+    
      
     class SimpleWaveData implements WaveData
     {
-        String in_x, in_y, v_x, v_y;
+        tdicache c;
         int v_idx;
         static final int SEGMENTED_YES = 1, SEGMENTED_NO = 2, SEGMENTED_UNKNOWN = 3;
         static final int UNKNOWN = -1;
@@ -412,52 +476,16 @@ public class MdsDataProvider implements DataProvider
             this(_in_y, null , experiment, shot);
         }
 
-        public SimpleWaveData(String _in_y, String _in_x, String experiment, long shot)
+        public SimpleWaveData(String in_y, String in_x, String experiment, long shot)
         {
-            if (DEBUG.ON){System.out.println("MdsDataProvider.SimpleWaveData(\""+_in_y+"\", \""+_in_x+"\", \""+experiment+"\", "+shot+")");}
+            if (DEBUG.ON){System.out.println("MdsDataProvider.SimpleWaveData(\""+in_y+"\", \""+in_x+"\", \""+experiment+"\", "+shot+")");}
             wd_experiment = experiment;
             wd_shot = shot;
-            if(checkForAsynchRequest(_in_y))
-                v_y = in_y = in_x = "[]";
+            if(checkForAsynchRequest(in_y))
+                c = new tdicache("[]","[]",var_idx++);
             else
-            {   
-                in_y = _in_y;
-                in_x = _in_x;
-                cacheYData();
-            }
-            v_x = in_x;
+                c = new tdicache(in_y,in_x,var_idx++);
             SegmentMode();
-        }
-
-        private void cacheYData()
-        {
-            if (DEBUG.ON){System.out.println("MdsDataProvider.cacheYData()");}
-            try{
-                v_y = "_jscope_"+var_idx++;
-                if (DEBUG.LV>1){System.out.println(">> v_y = "+v_y);}
-                if (DEBUG.LV>1){System.out.println(">> mds = "+mds);}
-                GetString(v_y+"="+in_y+";\"\"");
-                if (DEBUG.LV>1){System.out.println(">> ok");}
-            } catch(Exception exc){System.err.println("# MdsDataProvider.cacheYData: "+exc);}
-        }
-
-        private void cacheXData()
-        {
-            if (DEBUG.ON){System.out.println("MdsDataProvider.cacheXData()");}
-            try{
-                  if (DEBUG.LV>1){System.out.println(">> "+in_y+" , "+v_y+" , "+in_x);}
-                  if(in_x == null)
-                  {
-                      v_x  = "DIM_OF("+v_y+")";
-                      in_x = "DIM_OF("+in_y+")"; //to be save with other code, write the real expression to in_x
-                  }
-                  else
-                  {
-                      GetString(v_y+"x=("+in_x+");\"\"");//we just want mds to execute in_x; returning empty string \"\"
-                      v_x = v_y+"x";
-                      if (DEBUG.LV>1){System.out.println(">> cached");}
-                  }
-             } catch(Exception exc){System.err.println("# MdsDataProvider.cacheXData: "+exc);}
         }
 
         private void SegmentMode()
@@ -466,7 +494,7 @@ public class MdsDataProvider implements DataProvider
             if(segmentMode == SEGMENTED_UNKNOWN)
             {
                 try {//fast using in_y as NumSegments is a node property
-                    int[] numSegments = GetIntArray("GetNumSegments("+v_y+")");
+                    int[] numSegments = GetIntArray("GetNumSegments("+c.y()+")");
                     if (numSegments==null)
                         segmentMode = SEGMENTED_UNKNOWN;
                     else if(numSegments[0] > 0)
@@ -511,10 +539,10 @@ public class MdsDataProvider implements DataProvider
             if(numDimensions != UNKNOWN)
                 return numDimensions;
             String expr;
-/*            if(segmentMode == SEGMENTED_YES)
-                expr = "GetSegment("+v_y+",0)";
+            if(segmentMode == SEGMENTED_YES)
+                expr = "GetSegment("+c.yo()+",0)";
             else
-*/                expr = v_y;
+                expr = c.yo();
 
             error = null;
             int shape[] = GetNumDimensions(expr);
@@ -540,7 +568,7 @@ public class MdsDataProvider implements DataProvider
             if(!titleEvaluated)
             {
                 titleEvaluated = true;
-                title = GetStringValue("help_of("+v_y+")");
+                title = GetStringValue("help_of("+c.y()+")");
             }
             return title;
         }
@@ -551,7 +579,7 @@ public class MdsDataProvider implements DataProvider
             if(!xLabelEvaluated)
             {
                 xLabelEvaluated = true;
-                xLabel = GetStringValue("Units("+v_x+")");
+                xLabel = GetStringValue("Units("+c.x()+")");
             }
             return xLabel;
         }
@@ -566,16 +594,16 @@ public class MdsDataProvider implements DataProvider
                 if( getNumDimension() > 1)
                 {
                     if(segmentMode == SEGMENTED_YES)
-                        yLabel = GetStringValue("Units(Dim_of(GetSegment("+v_y+",0),1))");
+                        yLabel = GetStringValue("Units(Dim_of(GetSegment("+c.yo()+",0),1))");
                     else
-                        yLabel = GetStringValue("Units(Dim_of("+v_y+",1))");
+                        yLabel = GetStringValue("Units(Dim_of("+c.y()+",1))");
                 }
                 else
                 {
                     if(segmentMode == SEGMENTED_YES)
-                        yLabel = GetStringValue("Units(GetSegment("+v_y+",0))");
+                        yLabel = GetStringValue("Units(GetSegment("+c.yo()+",0))");
                     else
-                        yLabel = GetStringValue("Units("+v_y+")");
+                        yLabel = GetStringValue("Units("+c.y()+")");
                 }
             }
             return yLabel;
@@ -584,7 +612,7 @@ public class MdsDataProvider implements DataProvider
         public String GetZLabel() throws IOException
         {
             if (DEBUG.ON){System.out.println("MdsDataProvider.SimpleWaveData.GetZLabel()");}
-            return GetStringValue("Units("+v_y+")");
+            return GetStringValue("Units("+c.y()+")");
         }
 
         //GAB JULY 2014 NEW WAVEDATA INTERFACE RAFFAZZONATA
@@ -600,36 +628,35 @@ public class MdsDataProvider implements DataProvider
             
             if(segmentMode == SEGMENTED_UNKNOWN)
             {
-              Vector<Descriptor> args = new Vector<Descriptor>();
-              args.addElement(new Descriptor(null, in_y));
-              try {
-                  byte[] retData = getByteArray("byte(MdsMisc->IsSegmented($))", args).buf;
+                Vector<Descriptor> args = new Vector<Descriptor>();
+                args.addElement(new Descriptor(null, c.yo()));
+                try {
+                    byte[] retData = getByteArray("byte(MdsMisc->IsSegmented($))", args).buf;
             
-                  if (retData[0] > 0)
-                      segmentMode = SEGMENTED_YES;
-                  else
-                      segmentMode = SEGMENTED_NO;
-              }catch(Exception exc)
-              {// MdsMisc->IsSegmented failed
+                    if (retData[0] > 0)
+                        segmentMode = SEGMENTED_YES;
+                    else
+                        segmentMode = SEGMENTED_NO;
+                }catch(Exception exc)
+                {// MdsMisc->IsSegmented failed
                 segmentMode = SEGMENTED_NO;
-              }
+                }
             }
 //            String setTimeContext = getTimeContext(xmin,xmax,isLong);
             String setTimeContext = "";
-/*            //causes the next mdsvalue to fail raising: %TDI-E-SYNTAX, Bad punctuation or misspelled word or number
-            try{
-                return getXYSignal(xmin, xmax, numPoints, isLong, setTimeContext);
-            }catch(Exception exc)
-            {
-               if (DEBUG.ON){System.err.println("# MdsMisc->GetXYSignal() is not available on the server: "+exc);}
-            }
-*/
-            if (DEBUG.LV>1){isPresent(v_y);}
-            float y[] = GetFloatArray(setTimeContext+v_y);
+            if(c.isSig)
+                try{
+                    return getXYSignal(xmin, xmax, numPoints, isLong, setTimeContext);
+                }catch(Exception exc)
+                {// causes the next mdsvalue to fail raising: %TDI-E-SYNTAX, Bad punctuation or misspelled word or number
+                   if (DEBUG.ON){System.err.println("# MdsMisc->GetXYSignal() is not available on the server: "+exc);}
+                   mds.MdsValue("1");
+                }
+
+            float y[] = GetFloatArray(setTimeContext+c.y());
             if (DEBUG.LV>1){System.out.println(">> y = "+y);}
             if (DEBUG.LV>2){DEBUG.printFloatArray(y,y.length,1,1);}
-            cacheXData();
-            RealArray xReal = GetRealArray(v_x);
+            RealArray xReal = GetRealArray(c.x());
             if(xReal.isLong)
             {
                 isXLong = true;
@@ -689,8 +716,8 @@ public class MdsDataProvider implements DataProvider
             XYData res = null;
             double maxX = 0;
             Vector<Descriptor> args = new Vector<Descriptor>();
-            args.addElement(new Descriptor(null, in_y));
-            args.addElement(new Descriptor(null, in_x));
+            args.addElement(new Descriptor(null, c.yo()));
+            args.addElement(new Descriptor(null, c.xo()));
 
             if(isLong)
             {
@@ -707,18 +734,22 @@ public class MdsDataProvider implements DataProvider
             int nSamples;
             //all fine if setTimeContext is an empty string
             //if a space is required between ; and further code setTimeContext sould have it
+            try {
             if(isLong)
                 retData = getByteArray(setTimeContext+"MdsMisc->GetXYSignalLongTimes:DSC", args).buf;
             else
                 retData = getByteArray(setTimeContext+"MdsMisc->GetXYSignal:DSC", args).buf;
-            if (DEBUG.LV>1){System.out.println(">> MdsMisc->GetXYSignal*Long*Times:DSC");}
+            } catch(IOException exc) {throw(new Exception(exc.getMessage()));}
+            if (DEBUG.LV>1){System.out.println(">> MdsMisc->GetXYSignal*Long*Times:DSC");
+                            DEBUG.printByteArray(retData,1,8,8,1);}
             /*Decode data: Format:
                    -retResolution(float)
                    -number of samples (minumum between X and Y)
                    -type of X xamples (byte: long(1), double(2) or float(3))
                    -y samples 
                    -x Samples 
-           */
+            */
+            if (DEBUG.LV>1){System.out.println(">> retData "+retData.length+" "+retData);}
             ByteArrayInputStream bis = new ByteArrayInputStream(retData);
             DataInputStream dis = new DataInputStream(bis);
             float fRes;
@@ -800,13 +831,6 @@ public class MdsDataProvider implements DataProvider
             titleEvaluated = xLabelEvaluated = yLabelEvaluated = true;
             if(type == 1)
                 isLong = true;
-/*          }
-            catch(Exception exc)
-            {
-            if (DEBUG.ON){System.err.println("# Error Reading data: "+exc);}
-                nSamples = 0;
-            }
-*/          //Got resampled signal, if it is segmented and jScope.refreshPeriod > 0, enqueue a new request
             if(segmentMode == SEGMENTED_YES && continuousUpdate)
             {
                 long refreshPeriod = jScopeFacade.getRefreshPeriod();
@@ -827,7 +851,7 @@ public class MdsDataProvider implements DataProvider
         {
             if (DEBUG.ON){System.out.println("MdsDataProvider.SimpleWaveData.getZ()");}
             try {
-                return GetFloatArray(v_y);
+                return GetFloatArray(c.y());
             }catch(Exception exc){return null;}
         }
         
@@ -835,9 +859,8 @@ public class MdsDataProvider implements DataProvider
         public double[] getX2D()
         {
             if (DEBUG.ON){System.out.println("MdsDataProvider.SimpleWaveData.getX2D()");}
-            cacheXData();
             try {
-                RealArray realArray = GetRealArray("DIM_OF("+v_y+", 0)");
+                RealArray realArray = GetRealArray("DIM_OF("+c.y()+", 0)");
                 if( realArray.isLong )
                 {
                     this.isXLong = true;
@@ -862,7 +885,7 @@ public class MdsDataProvider implements DataProvider
         {
             if (DEBUG.ON){System.out.println("MdsDataProvider.SimpleWaveData.getY2D()");}
             try {
-                return GetFloatArray("DIM_OF("+v_y+", 1)");
+                return GetFloatArray("DIM_OF("+c.y()+", 1)");
             }catch(Exception exc){return null;}
         }
 
@@ -872,21 +895,21 @@ public class MdsDataProvider implements DataProvider
         {
             if (DEBUG.ON){System.out.println("MdsDataProvider.SimpleWaveData.getX_Z()");}
             try {
-                return GetFloatArray("("+v_x+")");
+                return GetFloatArray("("+c.x()+")");
             }catch(Exception exc){return null;}
         }
         public float[] getX_X2D()
         {
             if (DEBUG.ON){System.out.println("MdsDataProvider.SimpleWaveData.getX_X2D()");}
             try {
-                return GetFloatArray("DIM_OF("+v_x+", 0)");
+                return GetFloatArray("DIM_OF("+c.x()+", 0)");
             }catch(Exception exc){return null;}
         }
         public float[] getX_Y2D()
         {
             if (DEBUG.ON){System.out.println("MdsDataProvider.SimpleWaveData.getX_Y2D()");}
             try {
-                return GetFloatArray("DIM_OF("+v_x+", 1)");
+                return GetFloatArray("DIM_OF("+c.x()+", 1)");
             }catch(Exception exc){return null;}
         }
         //End
@@ -1262,7 +1285,7 @@ public class MdsDataProvider implements DataProvider
         return getByteArray(in).buf;
     }
 
-    public  synchronized  ByteArray getByteArray(String in) throws IOException{return getByteArray(in, null);}
+    public  synchronized  ByteArray getByteArray(String in) throws IOException {return getByteArray(in, null);}
     public  synchronized  ByteArray getByteArray(String in, Vector<Descriptor> args) throws IOException
     {
         if (DEBUG.ON){System.out.println("MdsDataProvider.getByteArray(\""+in+"\", "+args+")");}
@@ -1272,8 +1295,8 @@ public class MdsDataProvider implements DataProvider
             throw new IOException("TreeNotOpen");
         if(DEBUG.LV>1){System.out.println(">> mds = "+mds);}
         Descriptor desc = mds.MdsValue(in, args);
-        if (desc==null)
-            throw new IOException("MdsValue: not result ("+in+")");
+        if (desc==null || desc.dtype==0)
+            throw new IOException("MdsValue: no result ("+in+")");
         if(DEBUG.LV>1){System.out.println(">> desc.dtype = "+desc.dtype);}
         switch (desc.dtype)
         {
@@ -1606,7 +1629,7 @@ public class MdsDataProvider implements DataProvider
                     error = desc.error;
                 break;
             default:
-                error = "Data type code : " + desc.dtype + " not yet supported ";
+                error = "Data type code : " + desc.dtype + " not yet supported (RealArray.GetRealArray)";
         }
         return out;
     }
@@ -1663,7 +1686,7 @@ public class MdsDataProvider implements DataProvider
                     error = desc.error;
                 throw new IOException(error);
             default:
-                error = "Data type code : " + desc.dtype + " not yet supported ";
+                error = "Data type code : " + desc.dtype + " not yet supported (GetLongArray)";
         }
         throw new IOException(error);
     }
@@ -1694,7 +1717,7 @@ public class MdsDataProvider implements DataProvider
                     error = desc.error;
                 throw new IOException(error);
             default:
-                error = "Data type code : " + desc.dtype + " not yet supported ";
+                error = "Data type code : " + desc.dtype + " not yet supported (GetIntegerArray)";
         }
         throw new IOException(error);
     }
