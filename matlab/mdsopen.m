@@ -35,12 +35,14 @@ if status
             end
         end
     else
-        [result,status] = mdsvalue('TreeOpen($,$)',ltree,shot);
-        status = status && mod(result,2);
-        if status
-            shoto = mdsvalue('$shot');
+        [value,status] = mdsvalue('TreeOpen($,$)',ltree,shot);
+        status = status && logical(bitand(uint32(value),1));
+        if ~status
+            error(mdsgetmsg(value))
         end
+        shoto = mdsvalue('$shot');
     end
 end
 end
+
 

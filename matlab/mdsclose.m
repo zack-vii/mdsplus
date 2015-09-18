@@ -20,7 +20,10 @@ if isjava(MDSplus_Connection_Obj)
         end
     end
 else
-    status = mdsvalue('TreeClose()');
-    status = status==265388041;% or anything more general
+    value = mdsvalue('TreeClose()');
+    status = logical(bitand(uint32(value),1));
+    if ~status
+        error(mdsgetmsg(value))
+    end
 end
 

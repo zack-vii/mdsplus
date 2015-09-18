@@ -17,7 +17,11 @@ else
             MDSplus_Connection_Obj.put(node,expression,args);
             status = true;
         else
-            status = mdsvalue(['TreePut($,$',repmat(',$', 1,size(varargin, 2)),')'],node,expression,varargin{:});
+            value = mdsvalue(['TreePut($,$',repmat(',$', 1,size(varargin, 2)),')'],node,expression,varargin{:});
+            status = logical(bitand(uint32(value),1));
+            if ~status
+                error(mdsgetmsg(value))
+            end
         end
     catch err
         if nargout==1
