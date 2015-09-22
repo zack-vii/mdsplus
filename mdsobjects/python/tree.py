@@ -11,6 +11,7 @@ thread_data=local()
 
 _mdsshr=_mimport('_mdsshr',1)
 _treeshr=_mimport('_treeshr',1)
+_ver=_mimport('version',1)
 
 class Tree(object):
     """Open an MDSplus Data Storage Hierarchy"""
