@@ -39,6 +39,7 @@ int Notify(TreeshrHookType htype, char *tree, int shot, int nid)
   case PutData:
     name = "PutData";
     path = TreeGetPath(nid);
+    MDSEvent(path, 0, (char *)0);
     break;
   case PutNci:
     name = "PutNci";
