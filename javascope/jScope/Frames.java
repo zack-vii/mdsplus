@@ -393,8 +393,14 @@ class Frames extends Canvas
                             values[j] = 0xFFFF & din.readShort();
                         return values;
                     case FrameData.BITMAP_IMAGE_32 :
-                            for(int j = 0; j < n_pix; j++)
-                                values[j] = 0xFF000000 ^ din.readInt();
+                        int intbuf;
+                        for(int j = 0; j < n_pix; j++)
+                        {
+                            intbuf = din.readInt();
+                            values[j] = Math.round(((intbuf & 0xFF0000)*100.)/0xFF0000);
+                            values[j] = Math.round(((intbuf & 0xFF00  )*100.)/0xFF00  ) + values[j]*100;
+                            values[j] = Math.round(((intbuf & 0xFF    )*100.)/0xFF    ) + values[j]*100;
+                        }
                         return values;
                     case FrameData.BITMAP_IMAGE_FLOAT :
                             for(int j = 0; j < n_pix; j++)
