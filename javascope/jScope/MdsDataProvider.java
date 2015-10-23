@@ -824,14 +824,14 @@ public class MdsDataProvider implements DataProvider
             {
                 byte []titleBuf = new byte[titleLen];
                 dis.readFully(titleBuf);
-                title = new String(titleBuf);
+                title = new String(titleBuf, "UTF-8");
             }
             int xLabelLen = dis.readInt();
             if(xLabelLen > 0)
             {
                 byte []xLabelBuf = new byte[xLabelLen];
                 dis.readFully(xLabelBuf);
-                xLabel = new String(xLabelBuf);
+                xLabel = new String(xLabelBuf, "UTF-8");
             }
             
             int yLabelLen = dis.readInt();
@@ -839,7 +839,7 @@ public class MdsDataProvider implements DataProvider
             {
                 byte []yLabelBuf = new byte[yLabelLen];
                 dis.readFully(yLabelBuf);
-                yLabel = new String(yLabelBuf);
+                yLabel = new String(yLabelBuf, "UTF-8");
             }
             titleEvaluated = xLabelEvaluated = yLabelEvaluated = true;
             if(type == 1)
@@ -1381,7 +1381,7 @@ public class MdsDataProvider implements DataProvider
             {
                 case Descriptor.DTYPE_BYTE:
                 case Descriptor.DTYPE_UBYTE:
-                    return new String(desc.byte_data);
+                    return new String(desc.byte_data, "UTF-8");
                 case Descriptor.DTYPE_FLOAT:
                     error = "Cannot convert a float to string";
                     throw new IOException(error);
@@ -1396,7 +1396,7 @@ public class MdsDataProvider implements DataProvider
             return (error = desc.error);
         }
         else
-            return new String(in.getBytes(), 1, in.length() - 2);
+            return new String(in.getBytes(), 1, in.length() - 2, "UTF-8");
     }
 
     public synchronized void SetEnvironment(String in) throws IOException
