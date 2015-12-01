@@ -38,6 +38,7 @@ public class NodeInfo implements Serializable
     public static final int NID_REFERENCE =    1 << 14;
     public static final int INCLUDE_IN_PULSE = 1 << 15;
     public static final int COMPRESS_SEGMENTS =1 << 16;
+    public static final int EVENT_ON_PUT =     1 << 17;
 
     public static final NodeInfo getNodeInfo(byte dclass, byte dtype, byte usage, int flags, int owner, int length, int conglomerate_nids, int conglomerate_elt,
 	                                   String date_inserted, String name, String fullpath, String minpath, String path)
@@ -99,6 +100,7 @@ public class NodeInfo implements Serializable
     public final boolean isNoWriteShot(){return (flags & NO_WRITE_SHOT) != 0;}
     public final boolean isPathReference(){return (flags & PATH_REFERENCE) != 0;}
     public final boolean isNidReference(){return (flags & NID_REFERENCE) != 0;}
-    public final boolean isCompressSegments(){return (flags & COMPRESS_SEGMENTS) != 0;}
     public final boolean isIncludeInPulse(){return (flags & INCLUDE_IN_PULSE) != 0;}
+    public final boolean isCompressSegments(){return (flags & COMPRESS_SEGMENTS) != 0;}
+    public final boolean isEventOnPut(){return (flags & EVENT_ON_PUT) != 0;}
 }
