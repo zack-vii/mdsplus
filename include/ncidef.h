@@ -28,6 +28,7 @@
 #define   NciM_NID_REFERENCE       0x00004000
 #define   NciM_INCLUDE_IN_PULSE    0x00008000
 #define   NciM_COMPRESS_SEGMENTS   0x00010000
+#define   NciM_EVENT_ON_PUT        0x00020000
 
 #define NciTIME_INSERTED          4
 #define NciOWNER_ID	          5

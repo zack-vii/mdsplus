@@ -37,7 +37,6 @@
 #include "treethreadsafe.h"
 #include <treeshr.h>
 #include <usagedef.h>
-#include <ncidef.h>
 #include <string.h>
 #include <time.h>
 #include <mdsshr_messages.h>
