@@ -11,6 +11,7 @@ int Notify(TreeshrHookType htype, TREE_INFO * info, int nid)
   char *path = na;
   sprintf(def_name, "Hook number %d", htype);
   name = def_name;
+  printf("%s hook called for nid=%d\n", name, nid);
   switch (htype) {
   case OpenTree:
     return 1
