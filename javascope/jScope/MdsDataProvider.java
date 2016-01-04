@@ -65,8 +65,8 @@ public class MdsDataProvider implements DataProvider
     public class AllFrames extends ByteArray
     {
         Dimension dim;
-        float times[];
-        public AllFrames(ByteArray byteArray, int width, int height, float times[])
+        double times[];
+        public AllFrames(ByteArray byteArray, int width, int height, double times[])
         {
             super(byteArray.buf,byteArray.dtype); 
             this.dim    = new Dimension(width, height); 
@@ -114,21 +114,21 @@ public class MdsDataProvider implements DataProvider
     class SegmentedFrameData implements FrameData
     {
         String in_x, in_y;
-        float time_max, time_min;
+        double time_max, time_min;
         int framesPerSegment;
         int numSegments;
         int startSegment, endSegment, actSegments;
         int mode;
         Dimension dim;
-        float times[];
+        double times[];
         int bytesPerPixel;
 
         public int GetFrameType() throws IOException{return mode;}
         public int GetNumFrames(){return actSegments * framesPerSegment;}
         public Dimension GetFrameDimension(){return dim;}
-        public float[] GetFrameTimes(){return times;}
+        public double[] GetFrameTimes(){return times;}
 
-        public SegmentedFrameData(String in_y, String in_x, float time_min, float time_max, int numSegments) throws IOException
+        public SegmentedFrameData(String in_y, String in_x, double time_min, double time_max, int numSegments) throws IOException
         {
             if (DEBUG.ON){System.out.println("MdsDataProvider.SegmentedFrameData(\""+in_y+"\", \""+in_x+"\", "+time_min+", "+time_max+", "+numSegments+")");}
             //Find out frames per segment and frame min and max based on time min and time max
@@ -138,11 +138,11 @@ public class MdsDataProvider implements DataProvider
             this.time_max = time_max;
             this.numSegments = numSegments;
             startSegment = -1;
-            float startTimes[] = new float[numSegments];
+            double startTimes[] = new double[numSegments];
             // Get segment window corresponding to the passed time window
             for(int i = 0; i < numSegments; i++)
             {
-                float limits[] = GetFloatArray("GetSegmentLimits("+in_y+","+i+")");
+                double limits[] = GetDoubleArray("GetSegmentLimits("+in_y+","+i+")");
                 startTimes[i] = limits[0];
                 if(limits[1] > time_min)
                 {
@@ -153,14 +153,14 @@ public class MdsDataProvider implements DataProvider
             if(startSegment == -1)
                 throw new IOException("Frames outside defined time window");
             // Check first if endTime is greated than the end of the last segment, to avoid rolling over all segments
-            float endLimits[] = GetFloatArray("GetSegmentLimits("+in_y+","+(numSegments - 1)+")");
+            double endLimits[] = GetDoubleArray("GetSegmentLimits("+in_y+","+(numSegments - 1)+")");
             // Throw away spurious frames at the end
             while(endLimits == null || endLimits.length != 2)
             {
                 numSegments--;
                 if(numSegments == 0)
                     break;
-                endLimits = GetFloatArray("GetSegmentLimits("+in_y+","+(numSegments - 1)+")");
+                endLimits = GetDoubleArray("GetSegmentLimits("+in_y+","+(numSegments - 1)+")");
             }
             if(numSegments > 100 && endLimits[0] < time_max)
             {
@@ -173,7 +173,7 @@ public class MdsDataProvider implements DataProvider
                 for(endSegment = startSegment; endSegment < numSegments; endSegment++)
                 {
                     try {
-                        float limits[] = GetFloatArray("GetSegmentLimits("+in_y+","+endSegment+")");
+                        double limits[] = GetDoubleArray("GetSegmentLimits("+in_y+","+endSegment+")");
                         startTimes[endSegment] = limits[0];
                         if(limits[0] > time_max)
                             break;
@@ -196,16 +196,16 @@ public class MdsDataProvider implements DataProvider
             // Get Frame times
             if(framesPerSegment == 1) //We assume in this case that start time is the same of the frame time
             {
-                times = new float[actSegments];
+                times = new double[actSegments];
                 for(int i = 0; i < actSegments; i++)
                     times[i] = startTimes[startSegment + i];
             }
             else //Get segment times. We assume that the same number of frames is contained in every segment
             {
-            times = new float[actSegments * framesPerSegment];
+            times = new double[actSegments * framesPerSegment];
             for(int i = 0; i < actSegments; i++)
             {
-                float segTimes [] = GetFloatArray("dim_of(GetSegment("+in_y+","+i+"))");
+                double segTimes [] = GetDoubleArray("D_Float(Dim_Of(GetSegment("+in_y+","+i+")))");
                 if(segTimes.length != framesPerSegment)
                     throw new IOException("Inconsistent definition of time in frame + "+i+": read "+ segTimes.length+" times, expected "+ framesPerSegment );
                 for(int j = 0; j < framesPerSegment; j++)
@@ -231,7 +231,7 @@ public class MdsDataProvider implements DataProvider
     class SimpleFrameData implements FrameData
     {
         String in_x, in_y;
-        float time_max, time_min;
+        double time_max, time_min;
         int mode = -1;
         int pixel_size;
         int first_frame_idx = -1;
@@ -239,20 +239,20 @@ public class MdsDataProvider implements DataProvider
         String error;
         private int st_idx = -1, end_idx = -1;
         private int n_frames = 0;
-        private float times[] = null;
+        private double times[] = null;
         private long  long_times[] = null; 
         private Dimension dim = null;
 
         public int GetNumFrames(){return n_frames;}
         public Dimension GetFrameDimension(){return dim;}
-        public float[] GetFrameTimes(){return times;}
+        public double[] GetFrameTimes(){return times;}
 
-        public SimpleFrameData(String in_y, String in_x, float time_min, float time_max) throws Exception
+        public SimpleFrameData(String in_y, String in_x, double time_min, double time_max) throws Exception
         {
             if (DEBUG.ON){System.out.println("MdsDataProvider.SimpleFrameData(\""+in_y+"\", \""+in_x+"\", "+time_min+", "+time_max+")");}
             int i;
-            float t;
-            float all_times[] = null;
+            double t;
+            double all_times[] = null;
             int n_all_frames = 0;
 
             this.in_y = in_y;
@@ -274,8 +274,8 @@ public class MdsDataProvider implements DataProvider
                 else
                 {
                     if (DEBUG.LV>1){System.out.println(">> GetWaveData(in_x), "+in_x);}
-                  //all_times = MdsDataProvider.this.GetWaveData(in_x).GetFloatData();
-                    all_times = MdsDataProvider.this.GetWaveData(in_x).getData(MAX_PIXELS).y;
+                    all_times = MdsDataProvider.this.GetDoubleArray(in_x);
+                    //all_times = MdsDataProvider.this.GetWaveData(in_x).getData(MAX_PIXELS).y;
                 }
             }
             else
@@ -285,8 +285,8 @@ public class MdsDataProvider implements DataProvider
                 if (in_x == null || in_x.length() == 0)
                     all_times = MdsDataProvider.this.GetFrameTimes(in_y);
                 else
-                  //all_times = MdsDataProvider.this.GetWaveData(in_x).GetFloatData();
-                    all_times = MdsDataProvider.this.GetWaveData(in_x).getData(MAX_PIXELS).y;
+                    all_times = MdsDataProvider.this.GetDoubleArray(in_x);
+                    //all_times = MdsDataProvider.this.GetWaveData(in_x).getData(MAX_PIXELS).y;
 
                 if (all_times == null)
                 {
@@ -320,7 +320,7 @@ public class MdsDataProvider implements DataProvider
                 throw (new IOException("No frames found between " + time_min + " - " + time_max));
 
             n_frames = end_idx - st_idx;
-            times = new float[n_frames];
+            times = new double[n_frames];
             int j = 0;
             for (i = st_idx; i < end_idx; i++)
                 times[j++] = all_times[i];
@@ -1193,20 +1193,20 @@ public class MdsDataProvider implements DataProvider
     {
         if (DEBUG.ON){System.out.println("MdsDataProvider.GetAllFrames("+in_frame+")");}
         ByteArray img = null;
-        float time[] = null;
+        double time[] = null;
         int shape[];
         int pixel_size = 8;
         int num_time = 0;
 
-        img = getByteArray("_jScope_img =" + in_frame );
+        img = getByteArray("_jScope_img = EVALUATE(" + in_frame + ")");
         if (img == null)
             return null;
-        if (DEBUG.LV>1){System.out.println(">> MdsDataProvider.getByteArray:  not null");}
-        time = GetFloatArray("DIM_OF( _jScope_img, 0 )");
+        if (DEBUG.LV>1){System.out.println(">> MdsDataProvider.getByteArray: " + img.buf.length);}
+        time = GetDoubleArray("D_FLOAT(DIM_OF( _jScope_img ))");
         if (time == null)
             return null;
-        if (DEBUG.LV>1){System.out.println(">> MdsDataProvider.GetFloatArray:  not null");}
-        shape = GetIntArray("shape( _jScope_img )");
+        if (DEBUG.LV>1){System.out.println(">> MdsDataProvider.GetDoubleArray: " + time.length);}
+        shape = GetIntArray("SHAPE( _jScope_img )");
         if (shape == null)
             return null;
 
@@ -1229,53 +1229,32 @@ public class MdsDataProvider implements DataProvider
             }
         }
         return new AllFrames(img,shape[0],shape[1],time); 
-        /*
-        ByteArrayOutputStream b = new ByteArrayOutputStream();
-        DataOutputStream d = new DataOutputStream(b);
-
-        d.writeInt(pixel_size);
-
-        d.writeInt(shape[0]);
-        d.writeInt(shape[1]);
-//        d.writeInt(img.dtype);
-        d.writeInt(num_time);
-
-        for (int i = 0; i < num_time; i++)
-            d.writeFloat(time[i]);
-
-        d.write(img.buf);
-        img_buf = null;
-        out = b.toByteArray();
-        d.close();
-         Byt
-        return out;
-        */
     }
 
-    public synchronized float[] GetFrameTimes(String in_frame)
+    public synchronized double[] GetFrameTimes(String in_frame)
     {
         if (DEBUG.ON){System.out.println("MdsDataProvider.GetFrameTimes(\""+in_frame+"\")");}
         String exp = GetExperimentName(in_frame);
 
         String in = "JavaGetFrameTimes(\"" + exp + "\",\"" + in_frame + "\"," + shot + " )";
         Descriptor desc = mds.MdsValue(in);
-        float out_data[];
+        double out_data[];
         switch (desc.dtype)
         {
-            case Descriptor.DTYPE_DOUBLE:
-                out_data = new float[desc.double_data.length];
-                for (int i = 0; i < desc.double_data.length; i++)
-                    out_data[i] = (float) desc.double_data[i];
-                return out_data;
             case Descriptor.DTYPE_FLOAT:
-                return desc.float_data;
+                out_data = new double[desc.float_data.length];
+                for (int i = 0; i < desc.float_data.length; i++)
+                    out_data[i] = (double) desc.float_data[i];
+                return out_data;
+            case Descriptor.DTYPE_DOUBLE:
+                return desc.double_data;
             case Descriptor.DTYPE_LONG:
-                out_data = new float[desc.int_data.length];
+                out_data = new double[desc.int_data.length];
                 for (int i = 0; i < desc.int_data.length; i++)
-                    out_data[i] = (float) desc.int_data[i];
+                    out_data[i] = (double) desc.int_data[i];
                 return out_data;
             case Descriptor.DTYPE_BYTE:
-                error = "Cannot convert byte array to float array";
+                error = "Cannot convert byte array to double array";
                 return null;
             case Descriptor.DTYPE_CSTRING:
                 if ( (desc.status & 1) == 0)
