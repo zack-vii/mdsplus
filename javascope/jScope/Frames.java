@@ -455,7 +455,7 @@ class Frames extends Canvas
         if (DEBUG.ON){System.out.println("Frames.SetFrameData("+fd+")");}
         cache.setFrameData(fd);
         curr_frame_idx = 0;
-        float t[] = fd.GetFrameTimes();
+        double t[] = fd.GetFrameTimes();
         for(int i = 0; i < t.length; i++)
             frame_time.addElement(new Float(t[i]));
         //shiftBits(fd);

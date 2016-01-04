@@ -60,7 +60,7 @@ interface FrameData
      * @return The time array for the frame sequence.
      * @exception java.io.IOException
      */
-    public float[] GetFrameTimes() throws Exception;
+    public double[] GetFrameTimes() throws Exception;
 
     /**
      * Return the frame at the given position.

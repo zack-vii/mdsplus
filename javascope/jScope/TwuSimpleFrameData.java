@@ -116,9 +116,12 @@ class TwuSimpleFrameData
         return dim;
     }
 
-    public float[] GetFrameTimes()
+    public double[] GetFrameTimes()
     {
-        return times;
+		double dtimes[] = new double[times.length];
+        for(int i = 0; i < times.length; i++)
+          dtimes[i] = (double)times[i];
+        return dtimes;
     }
 
     public byte[] GetFrameAt(int idx) throws IOException

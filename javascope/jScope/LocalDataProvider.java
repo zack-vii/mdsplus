@@ -59,9 +59,9 @@ public class LocalDataProvider extends MdsDataProvider /* implements DataProvide
     static native byte[] getSegment(String nodeName, int segIdx, int segOffset);
     static native byte[] getAllFrames(String nodeName, int startIdx, int endIdx);
     static native LocalDataProviderInfo getInfo(String nodeName, boolean isSegmented); //returned: width, height,  bytesPerPixel
-    static native float[] getSegmentTimes(String nodeName, String timeNames, float timeMin, float timeMax);
-    static native float[] getAllTimes(String nodeName, String timeNames);
-    static native int[] getSegmentIdxs(String nodeName, float timeMin, float timeMax);
+    static native double[] getSegmentTimes(String nodeName, String timeNames, double timeMin, double timeMax);
+    static native double[] getAllTimes(String nodeName, String timeNames);
+    static native int[] getSegmentIdxs(String nodeName, double timeMin, double timeMax);
 
 
     class LocalFrameData implements FrameData
@@ -70,7 +70,7 @@ public class LocalDataProvider extends MdsDataProvider /* implements DataProvide
         //otherwise they are read when needed
         boolean isSegmented;
         String nodeName;
-        float [] times;
+        double [] times;
         int segIdxs[];
         int width, height;
         byte [][] frames;
@@ -178,13 +178,13 @@ public class LocalDataProvider extends MdsDataProvider /* implements DataProvide
                 if(timeName == null || timeName.trim().equals(""))
                     timeName = "DIM_OF("+nodeName+")";
                 if (DEBUG.LV>1){System.out.println(">> timeName = "+timeName);}
-                float[] allTimes = GetFloatArrayNative(timeName);
+                double[] allTimes = GetDoubleArrayNative(timeName);
                 if(allTimes == null) throw new IOException(LocalDataProvider.this.ErrorString());
                 if (DEBUG.LV>1){System.out.println(">> allTimes.length = "+allTimes.length);}
                 for(startIdx = 0; startIdx < allTimes.length && allTimes[startIdx] < timeMin; startIdx++);
                 for(endIdx = startIdx; endIdx < allTimes.length && allTimes[endIdx] < timeMax; endIdx++);
                 if (DEBUG.LV>1){System.out.println(">> startIdx = "+startIdx+", endIdx = "+endIdx);}
-                times = new float[endIdx - startIdx];
+                times = new double[endIdx - startIdx];
                 for(int i = 0; i < endIdx - startIdx; i++)
                    times[i] = allTimes[startIdx + i];
                 allFrames = mygetAllFrames(nodeName, startIdx, endIdx);
@@ -254,7 +254,7 @@ public class LocalDataProvider extends MdsDataProvider /* implements DataProvide
      * @return The time array for the frame sequence.
      * @exception java.io.IOException
      */
-        public float[] GetFrameTimes() throws IOException
+        public double[] GetFrameTimes() throws IOException
         {
             return times;
         }
