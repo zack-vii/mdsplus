@@ -150,6 +150,8 @@ class Frames extends Canvas
         void loadFrame(int idx) throws Exception
         {
             if (DEBUG.ON){System.out.println("Frames.FrameCache.loadFrame("+idx+")");}
+            bitShift = colorMap.bitShift;
+            bitClip = colorMap.bitClip;
             frameType = fd.GetFrameType();
             frameDim = fd.GetFrameDimension();
             numFrames = fd.GetNumFrames();
@@ -178,17 +180,12 @@ class Frames extends Canvas
                     if (DEBUG.ON){System.out.println("Frames.FrameData.BITMAP_IMAGE_16");}
                     pixelSize = 16;
                     bytesPerPixel = 2;
-                    short buf_out[];
-                    ByteArrayInputStream b = new ByteArrayInputStream(buf);
-                    DataInputStream din = new DataInputStream(b);
-                    int n_pix = frameDim.width * frameDim.height;
-                    buf_out = new short[n_pix];
-                    for (int j = 0; j < n_pix; j++)
-                        buf_out[j] = din.readShort();
                     ColorModel colorModel = colorMap.getIndexColorModel(16);
-                    db = new DataBufferUShort(buf_out, buf.length);
-                    raster = Raster.createInterleavedRaster(db, frameDim.width, frameDim.height, frameDim.width, 1, new int[]{0}, null);
+                    raster = Raster.createInterleavedRaster(DataBuffer.TYPE_USHORT, frameDim.width, frameDim.height, frameDim.width, 1, new int[]{0}, null);
                     img = new BufferedImage(colorModel, raster, false, null);
+                    try{
+                        doBitShift(img, buf);
+                    } catch(Exception exc){System.err.println(exc);}
                     break;
                 }
                 case FrameData.BITMAP_IMAGE_32 :
@@ -216,8 +213,6 @@ class Frames extends Canvas
                     if (DEBUG.ON){System.out.println("Frames.FrameData.BITMAP_IMAGE_FLOAT");}
                     pixelSize = 32;
                     bytesPerPixel = 4;
-                    //FlipFrame(buf, frameDim, 4);
-
                     int n_pix = frameDim.width*frameDim.height;
                     float buf_out[] = new float[n_pix];
                     ByteArrayInputStream b = new ByteArrayInputStream(buf);
@@ -251,9 +246,8 @@ class Frames extends Canvas
             tracker = new MediaTracker(Frames.this);
             tracker.addImage(img, idx);
             recentFrames.put(new Integer(idx), new FrameDescriptor(buf, img, img, 0));
-            try {
-                tracker.waitForID(idx);
-            }catch(Exception exc){if (DEBUG.ON){System.err.println("# Frames.waitForID: "+exc);}}
+            try { tracker.waitForID(idx);
+            }catch(Exception exc){System.err.println("# >> Frames.waitForID: "+exc);}
             int maxStoreFrames = MAX_CACHE_MEM/buf.length;
             recentIdxV.insertElementAt(new Integer(idx), 0);
             if(maxStoreFrames < 1) maxStoreFrames = 1;
@@ -271,13 +265,8 @@ class Frames extends Canvas
             FrameDescriptor fDesc = recentFrames.get(new Integer(idx));
             if(fDesc == null)
             {
-                try {
-                    loadFrame(idx);
-                }catch(Exception exc)
-                {
-                    System.out.println("Error Loading frame at " + idx+": "+exc );
-                    return null;
-                }
+                try { loadFrame(idx);
+                }catch(Exception exc){System.err.println("# >> Error Loading frame at "+idx+": "+exc );return null;}
                 fDesc = recentFrames.get(new Integer(idx));
             }
             if(fDesc == null) return null;
@@ -306,14 +295,18 @@ class Frames extends Canvas
         
         private void doBitShift(BufferedImage bi, FrameDescriptor fDesc) throws Exception
         {
-            if(frameType != FrameData.BITMAP_IMAGE_16)
-                return;
-            ByteArrayInputStream b = new ByteArrayInputStream(fDesc.buffer);
+            doBitShift(bi, fDesc.buffer);
+        }
+        private void doBitShift(BufferedImage bi, byte[] buffer) throws Exception
+        {
+            if(frameType != FrameData.BITMAP_IMAGE_16){return;}
+            if (DEBUG.ON){System.out.println("Frames.FrameCache.doBitShift("+bi+","+buffer+"["+buffer.length+"])");}
+            ByteArrayInputStream b = new ByteArrayInputStream(buffer);
             DataInputStream din = new DataInputStream(b);
     
             WritableRaster wr = bi.getRaster();
             DataBuffer db = wr.getDataBuffer();
-            int nPixels = db.getSize()/bytesPerPixel;
+            int nPixels = db.getSize();
             if(nPixels != frameDim.width * frameDim.height)
                 throw new Exception("INTERNAL ERRROR: Inconsistend frame dimension when getting frame");
             int val;
@@ -345,15 +338,8 @@ class Frames extends Canvas
             if (DEBUG.ON){System.out.println("Frames.FrameCache.getBufferAt("+idx+")");}
             FrameDescriptor fDescr = recentFrames.get(new Integer(idx));
             if(fDescr == null)
-            {
-                try {
-                    loadFrame(idx);
-                }catch(Exception exc)
-                {
-                    System.out.println("Error Loading frame at " + idx);
-                    return null;
-                }
-            }
+                try { loadFrame(idx);
+                }catch(Exception exc){System.err.println("Error Loading frame at " + idx);return null;}
             fDescr = recentFrames.get(new Integer(idx));
             if(fDescr == null) return null;
             return fDescr.buffer;
@@ -365,15 +351,8 @@ class Frames extends Canvas
             if (DEBUG.ON){System.out.println("Frames.FrameCache.getValuesAt("+idx+")");}
             FrameDescriptor fDescr = recentFrames.get(new Integer(idx));
             if(fDescr == null)
-            {
-                try {
-                    loadFrame(idx);
-                }catch(Exception exc)
-                {
-                    System.out.println("Error Loading frame at " + idx);
-                    return null;
-                }
-            }
+                try { loadFrame(idx);
+                }catch(Exception exc){System.err.println("# >> Error Loading frame at " + idx);return null;}
             fDescr = recentFrames.get(new Integer(idx));
             if(fDescr == null) return null;
             byte []buf = fDescr.buffer;
@@ -458,7 +437,6 @@ class Frames extends Canvas
         double t[] = fd.GetFrameTimes();
         for(int i = 0; i < t.length; i++)
             frame_time.addElement(new Float(t[i]));
-        //shiftBits(fd);
     }
 
     public void applyColorModel(ColorMap colorMap)
@@ -1164,11 +1142,11 @@ class Frames extends Canvas
                 width = d.width;
                 height = (int)(d.width/ratio);
             }
-	}
-	/*
-	Temporary fix, in order to avoid modification image if it is resized,
-	must be investigate
-	*/
+    }
+    /*
+    Temporary fix, in order to avoid modification image if it is resized,
+    must be investigate
+    */
         return new Dimension(width, height);
 //      return GetFrameDim(idx);
     }
@@ -1299,9 +1277,8 @@ class Frames extends Canvas
         //if(idx < 0)// || frame.elementAt(idx) == null) return null;
         curr_frame_idx = idx;
         BufferedImage img;
-        try {
-            img = (BufferedImage)cache.getImageAt(idx);
-        }catch(Exception exc){img = null;}
+        try { img = (BufferedImage)cache.getImageAt(idx);
+        }catch(Exception exc){System.err.println("# >> Error getting frame "+idx+": "+exc);return null;}
         if(img_width == -1)
         {
             img_width = img.getWidth(this);
