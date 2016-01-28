@@ -11,6 +11,7 @@ import javax.swing.table.*;
 
 public class SignalsBoxDialog extends JDialog
 {  
+    static final long serialVersionUID = 4362345435764563L;
     jScopeFacade scope;
     JTable table;
     TableModel dataModel;
@@ -21,6 +22,7 @@ public class SignalsBoxDialog extends JDialog
         scope = (jScopeFacade)f;
         dataModel = new AbstractTableModel() 
         {
+            static final long serialVersionUID = 43624535345564L;
             public int getColumnCount() { return 2; }
             public int getRowCount() { return WaveInterface.sig_box.signals_name.size();}
             public Object getValueAt(int row, int col) 

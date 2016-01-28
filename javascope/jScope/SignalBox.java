@@ -7,8 +7,8 @@ import javax.swing.*;
 public class SignalBox
 {
      
-     class Sign
-     {
+    class Sign
+    {
         String x_expr;
         String y_expr;
         
@@ -24,7 +24,7 @@ public class SignalBox
         }
      }
     
-     Hashtable signals_name = new Hashtable();
+     Hashtable<String,Sign> signals_name = new Hashtable<String,Sign>();
      Object obj[];
      
      public void AddSignal(String x_expr, String y_expr)
@@ -35,7 +35,7 @@ public class SignalBox
         if(!signals_name.containsKey(s))
         {
             signals_name.put(s, new Sign(x_expr,y_expr));
-            obj = (Object[])(signals_name.values()).toArray();
+            obj = signals_name.values().toArray();
         }
      }
      
@@ -61,7 +61,7 @@ public class SignalBox
         if(signals_name.containsKey(s))
         {
             signals_name.remove(s);
-            obj = (Object[])(signals_name.values()).toArray();
+            obj = signals_name.values().toArray();
         }
      }
      

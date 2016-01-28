@@ -18,7 +18,8 @@ interface FrameData
     static final int BITMAP_IMAGE_32 = 4;
     static final int AWT_IMAGE = 5;
     static final int JAI_IMAGE = 6;
-    
+    static final int BITMAP_IMAGE_FLOAT = 8;
+
     /**
      * Returns the type of the corresponding frames. Returned frames can have either of the following types:
      * <br>
@@ -59,7 +60,7 @@ interface FrameData
      * @return The time array for the frame sequence.
      * @exception java.io.IOException
      */
-    public float[] GetFrameTimes() throws Exception;
+    public double[] GetFrameTimes() throws Exception;
 
     /**
      * Return the frame at the given position.

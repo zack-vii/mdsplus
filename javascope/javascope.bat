@@ -136,7 +136,7 @@ IF %ERROR% NEQ 0 GOTO:end
 ECHO start jScope?
 PAUSE
 CLS
-java -cp "%JARDIR%\jScope.jar" -Xmx128M  jScope
+java -cp "%JARDIR%\jScope.jar" -Xmx6G  jScope
 
 :end
 PAUSE

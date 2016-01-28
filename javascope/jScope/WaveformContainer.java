@@ -6,6 +6,7 @@ import jScope.WaveContainerListener;
 import jScope.RowColumnContainer;
 import jScope.RowColumnLayout;
 import jScope.MultiWaveform;
+import jScope.Waveform;
 import jScope.Grid;
 import java.io.*;
 import java.awt.*;
@@ -33,6 +34,7 @@ public class WaveformContainer extends RowColumnContainer implements WaveformMan
                                                                      WaveformListener,
                                                                      Printable
 {
+   static final long serialVersionUID = 424436570978461L;
    private   Waveform     sel_wave;
              int          mode = Waveform.MODE_ZOOM, grid_mode = Grid.IS_DOTTED ,
                           x_grid_lines = 5, y_grid_lines = 5;
@@ -43,7 +45,8 @@ public class WaveformContainer extends RowColumnContainer implements WaveformMan
    protected Font         font = new Font("Helvetica", Font.PLAIN, 12);
    protected WavePopup    wave_popup;
 
-   private   Vector       wave_container_listener = new Vector();
+   private   Vector<WaveContainerListener> 
+                          wave_container_listener = new Vector<WaveContainerListener>();
    protected boolean      print_with_legend = false;
    protected boolean      print_bw = false;
    protected String       save_as_txt_directory = null;
@@ -214,7 +217,7 @@ public class WaveformContainer extends RowColumnContainer implements WaveformMan
         {
             for(int i = 0; i < wave_container_listener.size(); i++)
             {
-                ((WaveContainerListener)wave_container_listener.elementAt(i)).processWaveContainerEvent(e);
+                wave_container_listener.elementAt(i).processWaveContainerEvent(e);
             }
         }
     }
@@ -652,7 +655,7 @@ public class WaveformContainer extends RowColumnContainer implements WaveformMan
             {
                 w = GetWavePanel(k);
                 if (w != null) {
-                    w.SetColors(colors, colors_name);
+                    Waveform.SetColors(colors, colors_name);
                 }
             }
         }
@@ -764,7 +767,7 @@ public class WaveformContainer extends RowColumnContainer implements WaveformMan
                w = GetWavePanel(i);
             }
         } else
-            return (Waveform)sel_wave;
+            return sel_wave;
         return w;
     }
 
@@ -957,6 +960,7 @@ public class WaveformContainer extends RowColumnContainer implements WaveformMan
 
     public void PrintAll(Graphics g, int st_x, int st_y, int height, int width)
     {
+        if (DEBUG.ON){System.out.println("WaveformContainer.PrintAll()");}
         Waveform w;
         int i, j, k = 0;
         int pix = 1;
@@ -1052,7 +1056,7 @@ public class WaveformContainer extends RowColumnContainer implements WaveformMan
    public void SaveAsText(Waveform w, boolean all)
    {
 
-        Vector panel = new Vector();
+        Vector<Waveform> panel = new Vector<Waveform>();
 
         String title = "Save";
         if (all)

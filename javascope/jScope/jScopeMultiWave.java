@@ -30,6 +30,7 @@ public class jScopeMultiWave
     extends MultiWaveform
     implements UpdateEventListener
 {
+    static final long serialVersionUID = 86131468442245L;
     String eventName;
     public jScopeMultiWave(DataProvider dp, jScopeDefaultValues def_values,
                            boolean cache_enabled)
@@ -233,8 +234,8 @@ public class jScopeMultiWave
                     wi.signals[i].setInterpolate(wi.interpolates[i]);
                     wi.signals[i].setColorIdx(wi.colors_idx[i]);
 
-                    wi.signals[i].setMode1D( (int) wi.mode1D[i]);
-                    wi.signals[i].setMode2D( (int) wi.mode2D[i]);
+                    wi.signals[i].setMode1D(wi.mode1D[i]);
+                    wi.signals[i].setMode2D(wi.mode2D[i]);
 
 
                 }
@@ -328,8 +329,8 @@ public class jScopeMultiWave
 
         if (signals.size() > i)
         {
-            s += ((Signal) signals.elementAt(i)).getName();
-            Signal sign = (Signal) signals.elementAt(i);
+            Signal sign = signals.elementAt(i);
+            s += sign.getName();
             if (sign != null && sign.getType() == Signal.TYPE_2D)
             {
                 switch (sign.getMode2D())
@@ -429,6 +430,7 @@ public class jScopeMultiWave
           //Inner class ToTransferHandler to receive jTraverser info
     class ToTransferHandler extends TransferHandler
     {
+        static final long serialVersionUID = 247273265246434L;
         public boolean canImport(TransferHandler.TransferSupport support)
         {
             if(!support.isDrop())

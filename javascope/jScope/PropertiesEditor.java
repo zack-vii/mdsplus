@@ -8,6 +8,7 @@ import javax.swing.*;
 
 public class PropertiesEditor extends JDialog
 {
+    static final long serialVersionUID = 34724623452341L;
     JEditorPane text;
     String prFile;
 

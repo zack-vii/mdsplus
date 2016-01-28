@@ -19,11 +19,12 @@ import java.net.*;
 
 public class jScopeBrowseUrl extends JDialog
 {
+    static final long serialVersionUID = 156468466436846L;
     JEditorPane html;
     URLConnection url_con;
     String mime_type;
 
-    Vector url_list = new Vector();
+    Vector<URL> url_list = new Vector<URL>();
     JButton back;
     JButton forward;
     JButton home;
@@ -60,7 +61,7 @@ public class jScopeBrowseUrl extends JDialog
                         try {
                             curr_url--;
                             //html.setPage((URL)url_list.elementAt(curr_url));
-                            setPage((URL)url_list.elementAt(curr_url));
+                            setPage(url_list.elementAt(curr_url));
                         } catch (IOException ioe) {
                             System.out.println("IOE: " + ioe);
                         }
@@ -79,7 +80,7 @@ public class jScopeBrowseUrl extends JDialog
                     {
                         try {
                             curr_url++;
-                            html.setPage((URL)url_list.elementAt(curr_url));
+                            html.setPage(url_list.elementAt(curr_url));
                         } catch (IOException ioe) {
                             System.out.println("IOE: " + ioe);
                         }
@@ -98,7 +99,7 @@ public class jScopeBrowseUrl extends JDialog
                     {
                         try {
                             curr_url = 0;
-                            html.setPage((URL)url_list.elementAt(0));
+                            html.setPage(url_list.elementAt(0));
                         } catch (IOException ioe) {
                             System.out.println("IOE: " + ioe);
                         }

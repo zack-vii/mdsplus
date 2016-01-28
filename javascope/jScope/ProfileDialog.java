@@ -9,6 +9,7 @@ import java.awt.event.*;
 
 public class ProfileDialog extends JDialog implements WaveformListener
 {
+    static final long serialVersionUID = 9845564654324L;
     static final String TITLE[] = {"X profile", "Y profile", "Pixel time profile"};
     private WaveformContainer profile_container;
    // int row[] = {3};
@@ -203,7 +204,7 @@ public class ProfileDialog extends JDialog implements WaveformListener
         String s = null;
 	    int event_id = e.getID();
 
-	    WaveformEvent we = (WaveformEvent)e;
+	    WaveformEvent we = e;
 	    MultiWaveform w = (MultiWaveform)we.getSource();
 	    WaveInterface  wi = w.getWaveInterface();
 	    int we_id = we.getID();

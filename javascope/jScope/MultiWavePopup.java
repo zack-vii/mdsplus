@@ -18,6 +18,7 @@ import javax.swing.BoxLayout;
 public class MultiWavePopup
     extends WavePopup
 {
+    static final long serialVersionUID = 864135413574153L;
     protected MultiWaveform wave = null;
     protected JMenuItem legend, remove_legend;
     protected JMenu signalList;

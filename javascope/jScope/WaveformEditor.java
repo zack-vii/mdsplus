@@ -6,14 +6,14 @@ import java.awt.event.*;
 import java.awt.*;
 import java.util.*;
 
-public class WaveformEditor
-    extends Waveform
+public class WaveformEditor extends Waveform
 {
+    static final long serialVersionUID = 23457567346312L;
     float[] currentX, currentY;
     float minY, maxY;
     int closestIdx = -1;
     public static final float MIN_STEP = 1E-6F;
-    Vector listeners = new Vector();
+    Vector<WaveformEditorListener> listeners = new Vector<WaveformEditorListener>();
     protected boolean editable = false;
 
     static float[] copyX, copyY;
@@ -258,24 +258,20 @@ public class WaveformEditor
 
     }
 
-    public synchronized void addWaveformEditorListener(WaveformEditorListener
-        listener)
+    public synchronized void addWaveformEditorListener(WaveformEditorListener listener)
     {
         listeners.add(listener);
     }
 
-    public synchronized void removeWaveformEditorListener(
-        WaveformEditorListener listener)
+    public synchronized void removeWaveformEditorListener(WaveformEditorListener listener)
     {
         listeners.remove(listener);
     }
 
-    public synchronized void notifyUpdate(float[] waveX, float[] waveY,
-                                          int newIdx)
+    public synchronized void notifyUpdate(float[] waveX, float[] waveY, int newIdx)
     {
         for (int i = 0; i < listeners.size(); i++)
-            ( (WaveformEditorListener) listeners.elementAt(i)).waveformUpdated(
-                waveX, waveY, newIdx);
+            listeners.elementAt(i).waveformUpdated(waveX, waveY, newIdx);
     }
 
     public void setEditable(boolean editable)

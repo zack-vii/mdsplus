@@ -13,6 +13,7 @@ import java.awt.Event;
  */
 public class UpdateEvent extends AWTEvent 
 {
+    static final long serialVersionUID = 47623770978461L;
     /**
      * The name of the event just received.
      */

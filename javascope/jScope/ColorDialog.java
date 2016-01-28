@@ -10,10 +10,9 @@ import java.io.*;
 import javax.swing.*;
 import javax.swing.event.*;
 
-class ColorDialog
-    extends JDialog
-    implements ActionListener, ItemListener
+class ColorDialog extends JDialog implements ActionListener, ItemListener
 {
+    static final long serialVersionUID = 4766785678461L;
     JList colorList;
     DefaultListModel listModel = new DefaultListModel();
     JTextField colorName;
@@ -25,8 +24,8 @@ class ColorDialog
     Canvas color_test;
     int red_i, green_i, blue_i;
     boolean changed = false;
-    Vector color_set = new Vector();
-    Vector color_set_clone;
+    Vector<Item> color_set = new Vector<Item>();
+    Vector<Item> color_set_clone;
     Color color_vector[];
     String color_name[];
     int colorMapIndex[] = null;
@@ -120,7 +119,7 @@ class ColorDialog
                 int color_idx = ( (JList) e.getSource()).getSelectedIndex();
                 if (color_idx >= 0 && color_idx < color_set.size())
                 {
-                    Item c_item = (Item) color_set.elementAt(color_idx);
+                    Item c_item = color_set.elementAt(color_idx);
                     ColorDialog.this.SetSliderToColor(c_item.color);
                     ColorDialog.this.colorName.setText(c_item.name);
                 }
@@ -143,7 +142,7 @@ class ColorDialog
         gridbag.setConstraints(label, c);
         getContentPane().add(label);
 
-        Hashtable labelTable = new Hashtable();
+        Hashtable<Integer,JLabel> labelTable = new Hashtable<Integer,JLabel>();
         labelTable.put(new Integer(0), new JLabel("0"));
         labelTable.put(new Integer(64), new JLabel("64"));
         labelTable.put(new Integer(128), new JLabel("128"));
@@ -257,7 +256,7 @@ class ColorDialog
             return;
         while (true)
         {
-            prop = (String) js_prop.getProperty("jScope.item_color_" + i);
+            prop = js_prop.getProperty("jScope.item_color_" + i);
             if (prop == null)
                 break;
             String name = new String(prop.substring(0, len = prop.indexOf(",")));
@@ -268,12 +267,11 @@ class ColorDialog
         }
     }
 
-    private Vector CopyColorItemsVector(Vector in)
+    private Vector<Item> CopyColorItemsVector(Vector<Item> in)
     {
-        Vector out = new Vector(in.size());
+        Vector<Item> out = new Vector<Item>(in.size());
         for (int i = 0; i < in.size(); i++)
-            out.addElement(new Item( ( (Item) in.elementAt(i)).name,
-                                    ( (Item) in.elementAt(i)).color));
+            out.addElement(new Item( in.elementAt(i).name, in.elementAt(i).color ));
         return out;
     }
 
@@ -355,7 +353,7 @@ class ColorDialog
     {
         if (idx >= 0 && idx < color_set.size())
         {
-            Color color = ( (Item) color_set.elementAt(idx)).color;
+            Color color = color_set.elementAt(idx).color;
             return color;
         }
         return null;
@@ -365,7 +363,7 @@ class ColorDialog
     {
         if (idx >= 0 && idx < color_set.size())
         {
-            String name = ( (Item) color_set.elementAt(idx)).name;
+            String name = color_set.elementAt(idx).name;
             return name;
         }
         return null;
@@ -385,8 +383,7 @@ class ColorDialog
             color_name = new String[color_set.size()];
             for (int i = 0; i < color_set.size(); i++)
             {
-                color_name[i] = new String( ( (Item) color_set.elementAt(i)).
-                                           name);
+                color_name[i] = color_set.elementAt(i).name;
             }
         }
         return color_name;
@@ -418,12 +415,12 @@ class ColorDialog
 
         for (i = 0; i < color_set.size(); i++)
         {
-            if ( ( ( (Item) color_set.elementAt(i)).name.equals(name + ext)))
+            if ( color_set.elementAt(i).name.equals(name + ext) )
             {
                 ext = "_" + extIdx;
                 extIdx++;
             }
-            if ( ( ( (Item) color_set.elementAt(i)).color.equals(color)))
+            if ( color_set.elementAt(i).color.equals(color) )
                 return i;
         }
 
@@ -448,7 +445,7 @@ class ColorDialog
         color_vector = new Color[color_set.size()];
 
         for (int i = 0; i < color_set.size(); i++)
-            color_vector[i] = ( (Item) color_set.elementAt(i)).color;
+            color_vector[i] = color_set.elementAt(i).color;
         return color_vector;
     }
 
@@ -524,7 +521,7 @@ class ColorDialog
             listModel.clear();
         for (int i = 0; i < color_set.size(); i++)
         {
-            listModel.addElement( ( (Item) color_set.elementAt(i)).name);
+            listModel.addElement( color_set.elementAt(i).name );
         }
     }
 
@@ -551,7 +548,7 @@ class ColorDialog
     {
         String prop;
         int idx = 0;
-        Vector newColorMap = new Vector();
+        Vector<Integer> newColorMap = new Vector<Integer>();
 	removeAllColorItems();
 
          //Syntax  Scope.color_x: <name>,java.awt.Color[r=xxx,g=xxx,b=xxx]
@@ -569,9 +566,7 @@ class ColorDialog
 
         colorMapIndex = new int[newColorMap.size()];
         for (int i = 0; i < newColorMap.size(); i++)
-        {
-            colorMapIndex[i] = ( (Integer) newColorMap.elementAt(i)).intValue();
-        }
+            colorMapIndex[i] = ( newColorMap.elementAt(i).intValue() );
 
         //Set default color list if is not defined color
         //in configuration file

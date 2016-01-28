@@ -50,13 +50,12 @@ import java.lang.reflect.Array;
 
 
         
-public class jScopeFacade
-    extends JFrame
+public class jScopeFacade extends JFrame
     implements ActionListener, ItemListener,
     WindowListener, WaveContainerListener,
     UpdateEventListener, ConnectionListener, Printable
 {
-
+    static final long serialVersionUID = 476443678461L;
     static final String VERSION = "jScope (version 7.4.5)";
     static public boolean is_debug = false;
 
@@ -307,9 +306,9 @@ public class jScopeFacade
         extends JDialog
         implements ActionListener
     {
-
-        private Vector name_list = new Vector();
-        private Vector expr_list = new Vector();
+        static final long serialVersionUID = 47667456425261L;
+        private Vector<String> name_list = new Vector<String>();
+        private Vector<String> expr_list = new Vector<String>();
         private JButton apply, cancel, save, reset;
         jScopeFacade dw;
         boolean is_pv_apply = false;
@@ -412,8 +411,8 @@ public class jScopeFacade
 
             for (int i = 0; i < name_list.size() && i < MAX_VARIABLE; i++)
             {
-                txt1 = (String) name_list.elementAt(i);
-                txt2 = (String) expr_list.elementAt(i);
+                txt1 = name_list.elementAt(i);
+                txt2 = expr_list.elementAt(i);
                 if (txt1.length() != 0 && txt2.length() != 0)
                 {
                     if (txt1.indexOf("_") != 0)
@@ -455,10 +454,8 @@ public class jScopeFacade
             Container p = getContentPane();
             for (int i = 2, j = 0; j < name_list.size() && j < MAX_VARIABLE; i += 2, j++)
             {
-                ( (JTextField) p.getComponent(i)).setText( (String) name_list.
-                    elementAt(j));
-                ( (JTextField) p.getComponent(i + 1)).setText( (String)
-                    expr_list.elementAt(j));
+                ( (JTextField) p.getComponent(i    )).setText( name_list.elementAt(j));
+                ( (JTextField) p.getComponent(i + 1)).setText( expr_list.elementAt(j));
             }
         }
 
@@ -1520,11 +1517,11 @@ public class jScopeFacade
         //for same abnormal reason the directory creation failed
         //<home directory> is used as configuration directory
 
-        curr_directory = (String) System.getProperty("jScope.config_directory");
+        curr_directory = System.getProperty("jScope.config_directory");
 
         if (curr_directory == null || curr_directory.trim().length() == 0)
         {
-            curr_directory = (String) js_prop.getProperty("jScope.directory");
+            curr_directory = js_prop.getProperty("jScope.directory");
 
             if (curr_directory == null || curr_directory.trim().length() == 0)
             {
@@ -1578,50 +1575,37 @@ public class jScopeFacade
         }
 
         default_server_idx = -1;
-        String prop = (String) js_prop.getProperty("jScope.default_server");
+        String prop = js_prop.getProperty("jScope.default_server");
         if (prop != null)
         {
-            try
-            {
+            try{
                 default_server_idx = Integer.parseInt(prop) - 1;
-            }
-            catch (NumberFormatException e)
-            {}
+            }catch (NumberFormatException e){}
         }
 
-        String cache_directory = (String) js_prop.getProperty(
-            "jScope.cache_directory");
-        String cache_size = (String) js_prop.getProperty("jScope.cache_size");
-        String f_name = (String) js_prop.getProperty(
-            "jScope.save_selected_points");
-        String proxy_host = (String) js_prop.getProperty(
-            "jScope.http_proxy_host");
-        String proxy_port = (String) js_prop.getProperty(
-            "jScope.http_proxy_port");
+        String cache_directory = js_prop.getProperty("jScope.cache_directory");
+        String cache_size =      js_prop.getProperty("jScope.cache_size");
+        String f_name =          js_prop.getProperty("jScope.save_selected_points");
+        String proxy_host =      js_prop.getProperty("jScope.http_proxy_host");
+        String proxy_port =      js_prop.getProperty("jScope.http_proxy_port");
 
-        prop = (String) js_prop.getProperty("jScope.vertical_offset");
+        prop = js_prop.getProperty("jScope.vertical_offset");
         int val = 0;
         if (prop != null)
         {
-            try
-            {
+            try{
                 val = Integer.parseInt(prop);
-            }
-            catch (NumberFormatException e)
-            {}
+            }catch (NumberFormatException e){}
             Waveform.SetVerticalOffset(val);
 
         }
         val = 0;
-        prop = (String) js_prop.getProperty("jScope.horizontal_offset");
+        prop = js_prop.getProperty("jScope.horizontal_offset");
         if (prop != null)
         {
-            try
-            {
+            try{
                 val = Integer.parseInt(prop);
-            }
-            catch (NumberFormatException e)
-            {}
+            }catch (NumberFormatException e){}
             Waveform.SetHorizontalOffset(val);
         }
 
@@ -1882,12 +1866,10 @@ public class jScopeFacade
         int idx = 0, maxIdx = 0;
         int maxHistory = 2;
 
-        String config_file_history = (String) js_prop.getProperty("jScope.config_file_history_length");
-        try
-        {
+        String config_file_history = js_prop.getProperty("jScope.config_file_history_length");
+        try{
             maxHistory = Integer.parseInt(config_file_history);
-        }
-        catch (Exception exc){};
+        }catch (Exception exc){};
 
 
         File pf = f.getParentFile();
@@ -2862,6 +2844,7 @@ remove 28/06/2005
                 SetDataServer(new DataServerItem("Not Connected", null, null,
                                              "NotConnectedDataProvider", null, null, null, false));
           //SetFastNetworkState(wave_panel.GetFastNetworkState());
+            shot_t.setText("");
             UpdateAllWaves();
         }
         catch (Exception e)
@@ -2943,11 +2926,8 @@ remove 28/06/2005
 
         win.pack();
         win.setSize(750, 550);
-
- 
-                
-        
-        win.num_scope++;
+       
+        jScopeFacade.num_scope++;
         win.startScope(file);
     }
 
@@ -3017,6 +2997,7 @@ remove 28/06/2005
      * L&F options should be active or inactive.
      *
      */
+    @SuppressWarnings("rawtypes")
     protected static boolean isAvailableLookAndFeel(String classname)
     {
         try
@@ -3034,8 +3015,7 @@ remove 28/06/2005
     /**
      * Switch the between the Windows, Motif, Mac, and the Java Look and Feel
      */
-    class ToggleUIListener
-        implements ItemListener
+    class ToggleUIListener implements ItemListener
     {
         public void itemStateChanged(ItemEvent e)
         {
@@ -3090,7 +3070,7 @@ remove 28/06/2005
             {
                 // Error - unsupported L&F
                 rb.setEnabled(false);
-                System.err.println("Unsupported LookAndFeel: " + rb.getText());
+                System.err.println("# Unsupported LookAndFeel: " + rb.getText());
 
                 // Set L&F to JLF
                 try
@@ -3104,7 +3084,7 @@ remove 28/06/2005
                 catch (Exception exc2)
                 {
                     exc2.printStackTrace();
-                    System.err.println("Could not load LookAndFeel: " + exc2);
+                    System.err.println("# Could not load LookAndFeel: " + exc2);
                     exc2.printStackTrace();
                 }
             }
@@ -3112,7 +3092,7 @@ remove 28/06/2005
             {
                 rb.setEnabled(false);
                 exc.printStackTrace();
-                System.err.println("Could not load LookAndFeel: " + rb.getText());
+                System.err.println("# Could not load LookAndFeel: " + rb.getText());
                 exc.printStackTrace();
             }
 
@@ -3125,7 +3105,7 @@ class WindowDialog
     extends JDialog
     implements ActionListener
 {
-
+    static final long serialVersionUID = 433426264578461L;
     JTextField titleText, eventText, printEventText;
     JSlider row_1, row_2, row_3, row_4;
     JButton ok, apply, cancel;
@@ -3163,7 +3143,7 @@ class WindowDialog
         row_1.setMinorTickSpacing(1);
         row_1.setPaintTicks(true);
         row_1.setPaintLabels(true);
-        Hashtable labelTable = new Hashtable();
+        Hashtable<Integer,JLabel> labelTable = new Hashtable<Integer,JLabel>();
         labelTable.put(new Integer(1), new JLabel("1"));
         labelTable.put(new Integer(4), new JLabel("4"));
         labelTable.put(new Integer(8), new JLabel("8"));
@@ -3329,20 +3309,21 @@ class ServerDialog
     extends JDialog
     implements ActionListener
 {
-    private Hashtable data_server_class = new Hashtable();
+    static final long serialVersionUID = 4734523460978461L;
+    private Hashtable<String,String> data_server_class = new Hashtable<String,String>();
     static private JList server_list;
     private DefaultListModel list_model = new DefaultListModel();
     private JButton add_b, remove_b, exit_b, connect_b, modify_b;
     JLabel server_label, user_label;
     JTextField server_l, server_a, server_u;
     JCheckBox automatic;
-//    JComboBox<String> data_provider_list;
     JComboBox data_provider_list;
 
     JCheckBox tunneling;
     JTextField tunnel_port;
 
     jScopeFacade dw;
+
     private static String know_provider[] =
         {
         "MdsDataProvider",
@@ -3359,6 +3340,7 @@ class ServerDialog
         "MdsAsynchDataProvider",
         "MDSplus.MdsStreamingDataProvider"};
 
+    @SuppressWarnings("rawtypes")
     ServerDialog(JFrame _dw, String title)
     {
         super(_dw, title, true);
@@ -3388,24 +3370,24 @@ class ServerDialog
                 {
                     remove_b.setEnabled(true);
                     modify_b.setEnabled(true);
-                    server_l.setText(dw.server_ip_list[idx].name);
-                    server_a.setText(dw.server_ip_list[idx].argument);
-                    server_u.setText(dw.server_ip_list[idx].user);
-                    data_provider_list.setSelectedItem(dw.server_ip_list[idx].class_name);
-                    if (dw.server_ip_list[idx].tunnel_port != null)
+                    server_l.setText(jScopeFacade.server_ip_list[idx].name);
+                    server_a.setText(jScopeFacade.server_ip_list[idx].argument);
+                    server_u.setText(jScopeFacade.server_ip_list[idx].user);
+                    data_provider_list.setSelectedItem(jScopeFacade.server_ip_list[idx].class_name);
+                    if (jScopeFacade.server_ip_list[idx].tunnel_port != null)
                     {
-                        if (dw.server_ip_list[idx].tunnel_port.trim().length() ==
+                        if (jScopeFacade.server_ip_list[idx].tunnel_port.trim().length() ==
                             0)
-                            dw.server_ip_list[idx].tunnel_port = null;
+                            jScopeFacade.server_ip_list[idx].tunnel_port = null;
                         else
                         {
                             tunneling.setSelected(true);
-                            tunnel_port.setText(dw.server_ip_list[idx].
+                            tunnel_port.setText(jScopeFacade.server_ip_list[idx].
                                                 tunnel_port);
                             tunnel_port.setEditable(true);
                         }
                     }
-                    if (dw.server_ip_list[idx].tunnel_port == null)
+                    if (jScopeFacade.server_ip_list[idx].tunnel_port == null)
                     {
                         tunnel_port.setText("");
                         tunneling.setSelected(false);
@@ -3517,7 +3499,6 @@ class ServerDialog
 
         c.gridwidth = GridBagConstraints.REMAINDER;
         c.fill = GridBagConstraints.BOTH;
- //       data_provider_list = new JComboBox<String>();
         data_provider_list = new JComboBox();
         gridbag.setConstraints(data_provider_list, c);
         getContentPane().add(data_provider_list);
@@ -3575,10 +3556,10 @@ class ServerDialog
 
         addKnowProvider();
 
-        if (dw.server_ip_list == null)
+        if (jScopeFacade.server_ip_list == null)
             GetPropertiesValue();
         else
-            addServerIpList(dw.server_ip_list);
+            addServerIpList(jScopeFacade.server_ip_list);
 
     }
 
@@ -3593,32 +3574,18 @@ class ServerDialog
         while (true)
         {
             dsi = new DataServerItem();
-            dsi.name = (String) js_prop.getProperty("jScope.data_server_" + i +
-                ".name");
+            dsi.name = js_prop.getProperty("jScope.data_server_" + i + ".name");
             if (dsi.name == null)
                 break;
-            dsi.argument = (String) js_prop.getProperty("jScope.data_server_" +
-                i + ".argument");
-            dsi.user = (String) js_prop.getProperty("jScope.data_server_" + i +
-                ".user");
-            dsi.class_name = (String) js_prop.getProperty("jScope.data_server_" +
-                i + ".class");
-            dsi.browse_class = (String) js_prop.getProperty(
-                "jScope.data_server_" + i + ".browse_class");
-            dsi.browse_url = (String) js_prop.getProperty("jScope.data_server_" +
-                i + ".browse_url");
-            dsi.tunnel_port = (String) js_prop.getProperty(
-                "jScope.data_server_" + i + ".tunnel_port");
-            try
-            {
-                dsi.fast_network_access = new Boolean( (String) js_prop.
-                    getProperty("jScope.data_server_" + i +
-                                ".fast_network_access")).booleanValue();
-            }
-            catch (Exception exc)
-            {
-                dsi.fast_network_access = false;
-            }
+            dsi.argument = js_prop.getProperty("jScope.data_server_" + i + ".argument");
+            dsi.user = js_prop.getProperty("jScope.data_server_" + i + ".user");
+            dsi.class_name = js_prop.getProperty("jScope.data_server_" + i + ".class");
+            dsi.browse_class = js_prop.getProperty("jScope.data_server_" + i + ".browse_class");
+            dsi.browse_url = js_prop.getProperty("jScope.data_server_" + i + ".browse_url");
+            dsi.tunnel_port = js_prop.getProperty("jScope.data_server_" + i + ".tunnel_port");
+            try{
+                dsi.fast_network_access = new Boolean( js_prop.getProperty("jScope.data_server_" + i + ".fast_network_access")).booleanValue();
+            }catch (Exception exc){dsi.fast_network_access = false;}
             addServerIp(dsi);
             i++;
         }
@@ -3648,10 +3615,10 @@ class ServerDialog
     private DataServerItem findServer(DataServerItem dsi)
     {
         DataServerItem found_dsi = null;
-        Enumeration e = list_model.elements();
+        Enumeration<DataServerItem> e = (Enumeration<DataServerItem>)list_model.elements();
         while (e.hasMoreElements())
         {
-            found_dsi = (DataServerItem) e.nextElement();
+            found_dsi = e.nextElement();
             if (found_dsi.equals(dsi))
             {
                 return found_dsi;
@@ -3698,7 +3665,7 @@ class ServerDialog
             dw.servers_m.add(new_ip);
             new_ip.setActionCommand("SET_SERVER " + dsi.name);
             new_ip.addActionListener(dw);
-            dw.server_ip_list = getServerIpList();
+            jScopeFacade.server_ip_list = getServerIpList();
         }
 
         /*
@@ -3742,10 +3709,10 @@ class ServerDialog
     public DataServerItem[] getServerIpList()
     {
 
-        Enumeration e = list_model.elements();
+        Enumeration<DataServerItem> e = (Enumeration<DataServerItem>)list_model.elements();
         DataServerItem out[] = new DataServerItem[list_model.size()];
         for (int i = 0; e.hasMoreElements(); i++)
-            out[i] = ( (DataServerItem) e.nextElement());
+            out[i] = e.nextElement();
         return out;
 
     }
@@ -3788,7 +3755,7 @@ class ServerDialog
         {
             int idx = server_list.getSelectedIndex();
             if (idx >= 0)
-                dw.SetDataServer( dw.server_ip_list[idx] );
+                dw.SetDataServer( jScopeFacade.server_ip_list[idx] );
         }
 
         if (ob == modify_b)
@@ -3799,26 +3766,26 @@ class ServerDialog
                 String srv = server_l.getText().trim();
                 if (srv != null && srv.length() != 0)
                 {
-                    if(!dw.server_ip_list[idx].name.equals(srv))
+                    if(!jScopeFacade.server_ip_list[idx].name.equals(srv))
                     {
                         int itemsCount = dw.servers_m.getItemCount();
                         JMenuItem mi;
                         for(int i = 0; i < itemsCount; i++)
                         {
                             mi = dw.servers_m.getItem(i);
-                            if(mi.getText().equals(dw.server_ip_list[idx].name))
+                            if(mi.getText().equals(jScopeFacade.server_ip_list[idx].name))
                             {
                                 mi.setText(srv);
                                 mi.setActionCommand("SET_SERVER " + srv);
 
                             }
                         }
-                        dw.server_ip_list[idx].name = srv;
+                        jScopeFacade.server_ip_list[idx].name = srv;
                     }
-                    dw.server_ip_list[idx].argument = server_a.getText().trim();
-                    dw.server_ip_list[idx].user = server_u.getText().trim();
-                    dw.server_ip_list[idx].class_name = (String)data_provider_list.getSelectedItem();
-                    dw.server_ip_list[idx].tunnel_port = tunnel_port.getText();
+                    jScopeFacade.server_ip_list[idx].argument = server_a.getText().trim();
+                    jScopeFacade.server_ip_list[idx].user = server_u.getText().trim();
+                    jScopeFacade.server_ip_list[idx].class_name = (String)data_provider_list.getSelectedItem();
+                    jScopeFacade.server_ip_list[idx].tunnel_port = tunnel_port.getText();
                     server_list.repaint();
                     //It is need to update the current data server if it is
                     //the modified server
