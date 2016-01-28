@@ -773,7 +773,7 @@ class CYGNET4K(Device):
                     sleep(.5)  # listen to stopReq
                 else:
                     sleep(timeTillNextMeasurement);  # wait remaining period unit self.period
-                    currTime = int(int(time()/self.period+.1)*self.period*1000);  # currTime in steps of self.period
+                    currTime = int(int(time()/self.period+.1)*self.period*1000000000);  # currTime in steps of self.period
                     try:
                         if self.shot==0:
                             if Tree.getCurrent(self.tree) != tree.shot:
