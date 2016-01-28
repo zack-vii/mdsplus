@@ -1166,8 +1166,9 @@ public class Tree extends JScrollPane implements TreeSelectionListener,
                 jp1.add(flag[12] = new JCheckBox("NoWriteShot"));
                 jp1.add(flag[ 7] = new JCheckBox("WriteOnce"));
                 jp1.add(flag[15] = new JCheckBox("IncludeInPulse"));
+                jp1.add(flag[17] = new JCheckBox("EventOnPut"));
                 jp1.add(flag[ 3] = new JCheckBox("Cached"));
-                for (byte i = 17 ; i < 31 ; i++)
+                for (byte i = 18 ; i < 31 ; i++)
                     jp1.add(flag[i] = new JCheckBox("UndefinedFlag"+(i)));
                 jp1.add(flag[31] = new JCheckBox("Error"));
                 settable_flag = new boolean[]{true,false,true,true,false,false,true,true,false,true,true,true,true,false,false,true,true,

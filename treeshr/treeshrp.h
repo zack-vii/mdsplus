@@ -227,7 +227,7 @@ PACK_START
  -sizeof(NODE). To connect to the following
  node it should be set to sizeof(NODE) etc.
 *********************************************/
-    typedef struct node {
+typedef struct node {
   NODE_NAME name;
   int parent;
   int member;
@@ -269,7 +269,7 @@ typedef char TAG_NAME[24];
 
 typedef struct tag_info {
   TAG_NAME name;
-  int node_idx;			/* Node to which this tag is assigned   */
+  int node_idx;			/* Node to which this tag is assigned */
   int tag_link;			/* Index of next tag also assigned to this node (index of first tag is 1) */
 } TAG_INFO;
 
@@ -298,9 +298,9 @@ typedef struct tree_header {
 #endif
   char fill1[6];
   int free;			/* First node in free node list (connected by PARENT/CHILD indexes */
-  int tags;			/* Number of tags defined                                          */
-  int externals;		/* Number of externals/subtrees referenced                         */
-  int nodes;			/* Number of nodes allocated (both defined and free node)          */
+  int tags;			/* Number of tags defined */
+  int externals;		/* Number of externals/subtrees referenced */
+  int nodes;			/* Number of nodes allocated (both defined and free node) */
   char fill2[488];
 } TREE_HEADER;
 
@@ -459,32 +459,32 @@ be one tree info block per tree activated.
 *********************************************/
 
 typedef struct tree_info {
-  int blockid;			/* Identifier indicating a valid tree info block    */
-  char *treenam;		/* Tree name                                        */
+  int blockid;			/* Identifier indicating a valid tree info block */
+  char *treenam;		/* Tree name */
   int shot;			/* Shot number */
-  int vm_pages;			/* Number of pages and address of virtual memory    */
-  void *vm_addr;		/*  allocated for mapping the tree file             */
+  int vm_pages;			/* Number of pages and address of virtual memory */
+  void *vm_addr;		/*  allocated for mapping the tree file */
   char *section_addr[2];	/* Beginning and ending addresses of mapped section */
-  TREE_HEADER *header;		/* Pointer to file header                           */
-  NODE *node;			/* Pointer to nodes                                 */
-  int *tags;			/* Pointer to tag indexes                           */
-  TAG_INFO *tag_info;		/* Pointer to tag information blocks                */
-  int *external;		/* Pointer to external reference node indexes       */
-  int channel;			/* I/O channel to tree file                         */
-  int alq;			/* Blocks allocated to tree file                    */
-  char *filespec;		/* Pointer to full file spec of tree file                 */
+  TREE_HEADER *header;		/* Pointer to file header */
+  NODE *node;			/* Pointer to nodes */
+  int *tags;			/* Pointer to tag indexes */
+  TAG_INFO *tag_info;		/* Pointer to tag information blocks */
+  int *external;		/* Pointer to external reference node indexes */
+  int channel;			/* I/O channel to tree file */
+  int alq;			/* Blocks allocated to tree file */
+  char *filespec;		/* Pointer to full file spec of tree file */
   char dvi[16];			/* Tree file disk info */
-  unsigned short tree_info_w_fid[3];	/* Tree file file id                                */
-  unsigned flush:1;		/* Flush I/O's buffers                              */
+  unsigned short tree_info_w_fid[3];	/* Tree file file id */
+  unsigned flush:1;		/* Flush I/O's buffers */
   unsigned rundown:1;		/* Doing rundown */
   unsigned mapped:1;		/* Tree is mapped into memory */
   unsigned:12;			/* Spare bits */
   int rundown_id;		/* Rundown event id */
-  NODE *root;			/* Pointer to top node                              */
-  TREE_EDIT *edit;		/* Pointer to edit block (if editting the tree      */
-  NCI_FILE *nci_file;		/* Pointer to nci file block (if open)              */
-  DATA_FILE *data_file;		/* Pointer to a datafile access block               */
-  struct tree_info *next_info;	/* Pointer to next tree info block                  */
+  NODE *root;			/* Pointer to top node */
+  TREE_EDIT *edit;		/* Pointer to edit block (if editting the tree */
+  NCI_FILE *nci_file;		/* Pointer to nci file block (if open) */
+  DATA_FILE *data_file;		/* Pointer to a datafile access block */
+  struct tree_info *next_info;	/* Pointer to next tree info block */
 } TREE_INFO;
 
 /********************************************

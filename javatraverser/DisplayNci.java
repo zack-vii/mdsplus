@@ -72,10 +72,12 @@ public class DisplayNci extends NodeEditor implements ActionListener
 	        sb.append(sep+"path reference");
 	    if(node.isNidReference())
 	        sb.append(sep+"nid reference");
-	    if(node.isCompressSegments())
-	        sb.append(sep+"compress segments");
 	    if(node.isIncludeInPulse())
 	        sb.append(sep+"include in pulse");
+	    if(node.isCompressSegments())
+	        sb.append(sep+"compress segments");
+	    if(node.isEventOnPut())
+	        sb.append(sep+"event on put");
         sb.append("</nobr></td></tr><tr><td align=\"left\">Data:</td><td align=\"left\">");
 	    String dtype, dclass;
 	    if(node.getLength() == 0)

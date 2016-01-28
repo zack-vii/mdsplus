@@ -9,15 +9,15 @@ int TreeCallHook(TreeshrHookType htype, TREE_INFO * info, int nid)
 {
   STATIC_CONSTANT DESCRIPTOR(image, "TreeShrHooks");
   STATIC_CONSTANT DESCRIPTOR(rtnname, "Notify");
-  STATIC_THREADSAFE int (*Notify) (TreeshrHookType, char *, int, int) = 0;
+  STATIC_THREADSAFE int (*Notify) (TreeshrHookType, TREE_INFO*, int) = 0;
   int status = 1;
-  if (Notify != (int (*)(TreeshrHookType, char *, int, int))-1) {
+  if (Notify != (int (*)(TreeshrHookType, TREE_INFO*, int))-1) {
     if (Notify == 0)
       status = LibFindImageSymbol(&image, &rtnname, &Notify);
     if (status & 1)
-      status = (*Notify) (htype, info->treenam, info->shot, nid);
+      status = (*Notify) (htype, info, nid);
     else {
-      Notify = (int (*)(TreeshrHookType, char *, int, int))-1;
+      Notify = (int (*)(TreeshrHookType, TREE_INFO*, int))-1;
       status = 1;
     }
   }

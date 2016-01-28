@@ -211,8 +211,9 @@ public class Node
     public final boolean isNoWriteShot(){return info.isNoWriteShot();}
     public final boolean isPathReference(){return info.isPathReference();}
     public final boolean isNidReference(){return info.isNidReference();}
-    public final boolean isCompressSegments(){return info.isCompressSegments();}
     public final boolean isIncludeInPulse(){return info.isIncludeInPulse();}
+    public final boolean isCompressSegments(){return info.isCompressSegments();}
+    public final boolean isEventOnPut(){return info.isEventOnPut();}
 
     public final void setFlag(byte idx) throws DatabaseException, RemoteException
     {
