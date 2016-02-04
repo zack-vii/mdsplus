@@ -21,8 +21,8 @@ class Frames extends Canvas
     protected int curr_grab_frame = -1;
     protected int[] pixel_array;
     protected float[] values_array;
-    protected int img_width;
-    protected int img_height;
+    protected int img_width = -1;
+    protected int img_height = -1;
     protected int[] frames_pixel_array;
     protected float[] frames_value_array;
     protected Rectangle frames_pixel_roi;
@@ -55,17 +55,16 @@ class Frames extends Canvas
     {
         super();
         if (DEBUG.ON){System.out.println("Frames()");}
-        img_width = -1;
-        img_height = -1;
         cache = new FrameCache();
     }
 
     Frames(Frames frames)
     {
-        this();
+        super();
         if (DEBUG.ON){System.out.println("Frames("+frames+")");}
         Image img;
-
+        img_width = frames.img_width;
+        img_height = frames.img_height;
         cache = new FrameCache(frames.cache);
 
         if(frame_time.size() != 0)
@@ -84,8 +83,8 @@ class Frames extends Canvas
     {
         FrameData fd;
         Hashtable<Integer,FrameDescriptor> recentFrames;
-        int bitShift;
-        boolean bitClip;
+        int bitShift = 0;
+        boolean bitClip = false;
         ColorMap colorMap;
         int frameType;
         int pixelSize;
@@ -95,7 +94,7 @@ class Frames extends Canvas
         MediaTracker tracker;
         Vector<Object> recentIdxV= new Vector<Object>();
         int updateCount = 0;
-        static final int MAX_CACHE_MEM = 64000000;
+        static final int MAX_CACHE_MEM = 8000000;
 
         int getFrameType() {return frameType;}
         ColorMap getColorMap() {return colorMap;}
@@ -107,8 +106,6 @@ class Frames extends Canvas
             if (DEBUG.ON){System.out.println("Frames.FrameCache()");}
             this.fd = fd;
             recentFrames = new Hashtable<Integer,FrameDescriptor>();
-            bitShift = 0;
-            bitClip = false;
             colorMap = new ColorMap();
             tracker = new MediaTracker(Frames.this);
         }
@@ -116,8 +113,6 @@ class Frames extends Canvas
         {
             if (DEBUG.ON){System.out.println("Frames.FrameCache("+fc+")");}
             fd = fc.fd;
-            bitShift = 0;
-            bitClip = false;
             colorMap = new ColorMap();
             recentFrames = new Hashtable<Integer,FrameDescriptor>();
             Enumeration<Integer> fds = fc.recentFrames.keys();
@@ -143,15 +138,15 @@ class Frames extends Canvas
         {
             if (DEBUG.ON){System.out.println("Frames.FrameCache.setBitShift("+bitShift+", "+bitClip+")");}
             this.bitShift = bitShift;
-            this.bitClip = bitClip;
+            this.bitClip  = bitClip;
             updateCount++;
-         }
+        }
 
         void loadFrame(int idx) throws Exception
         {
             if (DEBUG.ON){System.out.println("Frames.FrameCache.loadFrame("+idx+")");}
             bitShift = colorMap.bitShift;
-            bitClip = colorMap.bitClip;
+            bitClip  = colorMap.bitClip;
             frameType = fd.GetFrameType();
             frameDim = fd.GetFrameDimension();
             numFrames = fd.GetNumFrames();
@@ -249,8 +244,9 @@ class Frames extends Canvas
             try { tracker.waitForID(idx);
             }catch(Exception exc){System.err.println("# >> Frames.waitForID: "+exc);}
             int maxStoreFrames = MAX_CACHE_MEM/buf.length;
-            recentIdxV.insertElementAt(new Integer(idx), 0);
             if(maxStoreFrames < 1) maxStoreFrames = 1;
+			System.out.println("maxStoreFrames = "+maxStoreFrames);
+            recentIdxV.insertElementAt(new Integer(idx), 0);
             if(recentIdxV.size()> maxStoreFrames)
             {
                 Object delIdx = recentIdxV.elementAt(maxStoreFrames);
@@ -303,33 +299,21 @@ class Frames extends Canvas
             if (DEBUG.ON){System.out.println("Frames.FrameCache.doBitShift("+bi+","+buffer+"["+buffer.length+"])");}
             ByteArrayInputStream b = new ByteArrayInputStream(buffer);
             DataInputStream din = new DataInputStream(b);
-    
+
             WritableRaster wr = bi.getRaster();
             DataBuffer db = wr.getDataBuffer();
             int nPixels = db.getSize();
             if(nPixels != frameDim.width * frameDim.height)
                 throw new Exception("INTERNAL ERRROR: Inconsistend frame dimension when getting frame");
             int val;
-            int absBitShift = Math.abs(bitShift);
+			int rot32 = (-bitShift) % 32;
             for(int j = 0; j < nPixels; j++)
             {
-                val = din.readShort();
-                if(bitShift > 0)
-                {
-                    val = val << bitShift ;
-                    if(bitClip)
-                        db.setElem(j, val > 255 ? 255 : val);
-                    else
-                        db.setElem(j, (val % 0x100) );
-                }
+                val = Integer.rotateRight(din.readShort(),rot32);
+                if(bitClip)
+                    db.setElem(j, val > 255 ? 255 : val);
                 else
-                {
-                    val = val >> absBitShift ;
-                    if(bitClip)
-                        db.setElem(j, val > 255 ? 255 : val);
-                    else
-                        db.setElem(j, (val % 0x100));
-                }
+                    db.setElem(j, (val & 0xFF) );
             }
         }
 
@@ -416,6 +400,8 @@ class Frames extends Canvas
         if (DEBUG.ON){System.out.println("Frames.DecodeImageType("+buf+")");}
         String s = new String(buf, 0, 20);
         if(s.indexOf("GIF") == 0)
+            return FrameData.AWT_IMAGE;
+        if(s.indexOf("PNG") == 1)
             return FrameData.AWT_IMAGE;
         if(s.indexOf("JFIF") == 6)
             return FrameData.AWT_IMAGE;
@@ -550,8 +536,6 @@ class Frames extends Canvas
         }
         float values_array[] = new float[img_w * img_h];
         int k = 0;
-//       for(int j = y; j < img_h; j++)
-//            for(int i = x; i < img_w; i++)
         for(int j = y; j < y+img_h; j++)
            for(int i = x; i < x+img_w; i++)
                values_array[k++] = values[j * img_width + i];
