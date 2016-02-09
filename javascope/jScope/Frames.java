@@ -245,7 +245,6 @@ class Frames extends Canvas
             }catch(Exception exc){System.err.println("# >> Frames.waitForID: "+exc);}
             int maxStoreFrames = MAX_CACHE_MEM/buf.length;
             if(maxStoreFrames < 1) maxStoreFrames = 1;
-			System.out.println("maxStoreFrames = "+maxStoreFrames);
             recentIdxV.insertElementAt(new Integer(idx), 0);
             if(recentIdxV.size()> maxStoreFrames)
             {
@@ -309,7 +308,7 @@ class Frames extends Canvas
 			int rot32 = (-bitShift) % 32;
             for(int j = 0; j < nPixels; j++)
             {
-                val = Integer.rotateRight(din.readShort(),rot32);
+                val = Integer.rotateRight(din.readShort(),rot32) & 0xFFFF;
                 if(bitClip)
                     db.setElem(j, val > 255 ? 255 : val);
                 else
