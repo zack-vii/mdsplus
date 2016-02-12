@@ -3326,19 +3326,21 @@ class ServerDialog
 
     private static String know_provider[] =
         {
+        "W7XDataProvider",
         "MdsDataProvider",
-        "MdsDataProviderUdt",
-        "JetMdsDataProvider",
-        "TwuDataProvider",
-        "JetDataProvider",
-        "FtuDataProvider",
-        "TSDataProvider",
-        "AsdexDataProvider",
-        "ASCIIDataProvider",
-        "T2DataProvider",
+//        "MdsDataProviderUdt",
+//        "JetMdsDataProvider",
+//        "TwuDataProvider",
+//        "JetDataProvider",
+//        "FtuDataProvider",
+//        "TSDataProvider",
+//        "AsdexDataProvider",
+//        "ASCIIDataProvider",
+//        "T2DataProvider",
         "LocalDataProvider",
-        "MdsAsynchDataProvider",
-        "MDSplus.MdsStreamingDataProvider"};
+        "MdsAsynchDataProvider"
+//        "MDSplus.MdsStreamingDataProvider"
+        };
 
     @SuppressWarnings("rawtypes")
     ServerDialog(JFrame _dw, String title)

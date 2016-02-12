@@ -79,7 +79,8 @@ jScope\WaveData.java jScope\WaveDisplay.java jScope\WaveformContainer.java ^
 jScope\WaveformEditor.java jScope\WaveformEditorListener.java jScope\WaveformEvent.java ^
 jScope\Waveform.java jScope\WaveformListener.java jScope\WaveformManager.java ^
 jScope\WaveformMetrics.java jScope\WaveInterface.java jScope\WavePopup.java ^
-jScope\XYData.java jScope\XYWaveData.java jScope\WaveDataListener.java
+jScope\XYData.java jScope\XYWaveData.java jScope\WaveDataListener.java ^
+jScope\W7XDataProvider.java
 
 SET WAVEDISPLAY_SRC=
 
@@ -98,7 +99,7 @@ jScope\FontPanel.class ^
 jScope\ServerDialog*.class ^
 jScope\WindowDialog.class
 
-SET CLASSPATH=-classpath ".;%MDSPLUS_DIR%\java\classes\MindTerm.jar"
+SET CLASSPATH=-classpath ".;I:\Projects\archive\java\archive_java\signalaccessFull-1.0.21.jar;%MDSPLUS_DIR%\java\classes\MindTerm.jar"
 SET JAVAC="%JDK_HOME%\bin\javac.exe"
 SET JCFLAGS= ||rem -Xlint -deprecation
 SET MANIFEST=%CD%\jScopeManifest.mf

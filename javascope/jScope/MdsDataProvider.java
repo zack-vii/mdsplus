@@ -1641,7 +1641,7 @@ public class MdsDataProvider implements DataProvider
         return GetIntegerArray(in);
     }
 
-    private synchronized long[] GetLongArray(String in) throws IOException
+    public synchronized long[] GetLongArray(String in) throws IOException
     {
         if (DEBUG.ON){System.out.println("MdsDataProvider.GetLongArray(\""+in+"\")");}
         long out_data[];
