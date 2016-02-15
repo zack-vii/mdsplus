@@ -1091,7 +1091,7 @@ public class MultiWaveform
     {
         Signal curr_signal;
         int curr_idx = -1, i, img_idx = -1, min_idx = 0;
-        double curr_dist = 0, img_dist = Double.MAX_VALUE,  min_dist = Double.MAX_VALUE;
+        double curr_dist = 0, img_dist = Double.POSITIVE_INFINITY,  min_dist = Double.POSITIVE_INFINITY;
 
         if (signals == null || signals.size() == 0)
             return null;

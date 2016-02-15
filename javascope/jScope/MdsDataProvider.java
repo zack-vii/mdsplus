@@ -689,16 +689,16 @@ public class MdsDataProvider implements DataProvider
             if (DEBUG.ON){System.out.println("MdsDataProvider.SimpleWaveData.setTimeContext("+xmin+", "+xmax+", "+isLong+")");}
             String res;
             try{
-                if(xmin == -Double.MAX_VALUE && xmax == Double.MAX_VALUE)
+                if(xmin == Double.NEGATIVE_INFINITY && xmax == Double.POSITIVE_INFINITY)
                     res = "SetTimeContext(*,*,*);";
-                else if(xmin == -Double.MAX_VALUE)
+                else if(xmin == Double.NEGATIVE_INFINITY)
                 {
                     if(isLong)
                         res = "SetTimeContext(*, QUADWORD("+(long)xmax+"Q), *);";
                     else
                         res = "SetTimeContext(*, "+xmax+", *);";
                 }
-                else if(xmax == Double.MAX_VALUE)
+                else if(xmax == Double.POSITIVE_INFINITY)
                 {
                     if(isLong)
                         res = "SetTimeContext(QUADWORD("+(long)xmin+"Q),*, *);";
@@ -734,8 +734,8 @@ public class MdsDataProvider implements DataProvider
 
             if(isLong)
             {
-                args.addElement(new Descriptor(null, new long[]{(xmin == -Double.MAX_VALUE)?0:(long)xmin}));
-                args.addElement(new Descriptor(null, new long[]{(xmax == Double.MAX_VALUE)?0:(long)xmax}));
+                args.addElement(new Descriptor(null, new long[]{(xmin == Double.NEGATIVE_INFINITY)?0:(long)xmin}));
+                args.addElement(new Descriptor(null, new long[]{(xmax == Double.POSITIVE_INFINITY)?0:(long)xmax}));
             }
             else
             {
@@ -769,7 +769,7 @@ public class MdsDataProvider implements DataProvider
             double dRes;
             fRes = dis.readFloat();
             if(fRes >= 1E10)
-                dRes = Double.MAX_VALUE;
+                dRes = Double.POSITIVE_INFINITY;
             else
                 dRes = fRes;
             nSamples = dis.readInt();
@@ -848,7 +848,7 @@ public class MdsDataProvider implements DataProvider
             {
                 long refreshPeriod = jScopeFacade.getRefreshPeriod();
                 if(refreshPeriod <= 0) refreshPeriod = 1000; //default 1 s refresh
-                updateWorker.updateInfo(/*xmin*/maxX, Double.MAX_VALUE, 2000,
+                updateWorker.updateInfo(/*xmin*/maxX, Double.POSITIVE_INFINITY, 2000,
                     waveDataListenersV, this, isLong, refreshPeriod);
             }
             return res;
@@ -857,7 +857,7 @@ public class MdsDataProvider implements DataProvider
          public XYData getData(int numPoints)throws Exception
          {
             if (DEBUG.ON){System.out.println("MdsDataProvider.SimpleWaveData.getData("+numPoints+")");}
-             return getData(-Double.MAX_VALUE, Double.MAX_VALUE, numPoints);
+             return getData(Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, numPoints);
          }
 
         public float[] getZ()

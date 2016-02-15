@@ -868,7 +868,7 @@ public class WaveInterface
             }
         }
         else
-            xmin = (!is_image) ? -Double.MAX_VALUE : -1;
+            xmin = (!is_image) ? Double.NEGATIVE_INFINITY  : -1;
 
         if (in_xmax != null &&
             (in_xmax.trim()).length() != 0 &&
@@ -882,7 +882,7 @@ public class WaveInterface
             }
         }
         else
-            xmax = (!is_image) ? Double.MAX_VALUE : -1;
+            xmax = (!is_image) ? Double.POSITIVE_INFINITY  : -1;
 
         if (in_ymax != null &&
             (in_ymax.trim()).length() != 0 &&
@@ -896,7 +896,7 @@ public class WaveInterface
             }
         }
         else
-            ymax = (!is_image) ? Double.MAX_VALUE : -1;
+            ymax = (!is_image) ? Double.POSITIVE_INFINITY  : -1;
 
         if (in_ymin != null &&
             (in_ymin.trim()).length() != 0 &&
@@ -910,7 +910,7 @@ public class WaveInterface
             }
         }
         else
-            ymin = (!is_image) ? -Double.MAX_VALUE : -1;
+            ymin = (!is_image) ? Double.NEGATIVE_INFINITY  : -1;
 
         if (is_image)
         {
@@ -924,7 +924,7 @@ public class WaveInterface
                 }
             }
             else
-                timemax = Double.MAX_VALUE;
+                timemax = Double.POSITIVE_INFINITY ;
 
             if (in_timemin != null && (in_timemin.trim()).length() != 0)
             {
@@ -936,7 +936,7 @@ public class WaveInterface
                 }
             }
             else
-                timemin = -Double.MAX_VALUE;
+                timemin = Double.NEGATIVE_INFINITY ;
         }
 
         if (DEBUG.LV>1){System.out.println(">> Compute x label");}
@@ -984,7 +984,7 @@ public class WaveInterface
                  markers[curr_wave] != Signal.NONE)) )
             {
                 w_error[curr_wave] = null;
-                signals[curr_wave] = GetSignal(curr_wave, -Double.MAX_VALUE, Double.MAX_VALUE);
+                signals[curr_wave] = GetSignal(curr_wave, Double.NEGATIVE_INFINITY , Double.POSITIVE_INFINITY );
                 evaluated[curr_wave] = true;
                 if (signals[curr_wave] == null)
                 {

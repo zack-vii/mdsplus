@@ -284,10 +284,10 @@ public class SetupWaveformParams extends JDialog implements ActionListener
         }
         else
         {
-            if(wave.lx_max != Float.MAX_VALUE) x_max.setText(""+wave.lx_max);
-            if(wave.lx_min != Float.MIN_VALUE) x_min.setText(""+wave.lx_min);
-            if(wave.ly_max != Float.MAX_VALUE) y_max.setText(""+wave.ly_max);
-            if(wave.ly_min != Float.MIN_VALUE) y_min.setText(""+wave.ly_min);
+            if(wave.lx_max != Float.POSITIVE_INFINITY) x_max.setText(""+wave.lx_max);
+            if(wave.lx_min != Float.NEGATIVE_INFINITY) x_min.setText(""+wave.lx_min);
+            if(wave.ly_max != Float.POSITIVE_INFINITY) y_max.setText(""+wave.ly_max);
+            if(wave.ly_min != Float.NEGATIVE_INFINITY) y_min.setText(""+wave.ly_min);
         }
 
 	    setTextValue(title, wave.GetTitle());
@@ -414,7 +414,7 @@ public class SetupWaveformParams extends JDialog implements ActionListener
         }
         catch(Exception exc)
         {
-            return min ? Float.MIN_VALUE : Float.MAX_VALUE ;
+            return min ? Float.NEGATIVE_INFINITY : Float.POSITIVE_INFINITY;
         }
    }
 

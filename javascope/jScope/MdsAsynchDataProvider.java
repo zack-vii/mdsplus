@@ -42,7 +42,7 @@ public class MdsAsynchDataProvider extends MdsDataProvider
                         float y[] = new float[]{(float)Math.sin(2 * Math.PI * sinePeriod * i/100.)};
                         for(int j = 0; j < listeners.size(); j++)
                         {
-                            listeners.elementAt(j).dataRegionUpdated(x, y, Double.MAX_VALUE);
+                            listeners.elementAt(j).dataRegionUpdated(x, y, Double.POSITIVE_INFINITY);
                             listeners.elementAt(j).legendUpdated("CICCIO"+i);
                         }
                     }

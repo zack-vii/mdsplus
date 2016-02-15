@@ -17,22 +17,22 @@ public class Waveform extends JComponent implements SignalListener
     static final long serialVersionUID = 86438438731453L;
     public static int MAX_POINTS = 1000;
     static public boolean is_debug = false;
-    
+
     public static final Color[] COLOR_SET = {
         Color.black, Color.blue, Color.cyan, Color.darkGray,
         Color.gray, Color.green, Color.lightGray,
         Color.magenta, Color.orange, Color.pink,
         Color.red, Color.yellow};
-    
+
     public static final String[] COLOR_NAME = {
         "Black", "Blue", "Cyan", "DarkGray",
         "Gray", "Green", "LightGray",
         "Magenta", "Orange", "Pink",
         "Red", "Yellow"};
-    
-    
+
+
     public static boolean zoom_on_mb1 = true;
-    
+
     public static final int MARKER_WIDTH = 8;
     public static final int MODE_ZOOM = 1;
     public static final int MODE_POINT = 2;
@@ -41,16 +41,16 @@ public class Waveform extends JComponent implements SignalListener
     public static final int MODE_WAIT = 5;
     private static final int MIN_W = 10;
     private static final int MIN_H = 10;
-    
+
     public static final int NO_PRINT = 0;
     public static final int PRINT = 2;
-    
+
     protected Signal waveform_signal;
-    
+
     protected static Color colors[];
     protected static String colors_name[];
     protected static boolean colors_changed = true;
-    
+
     protected WaveformMetrics wm;
     protected boolean not_drawn = true;
     protected boolean reversed = false;
@@ -92,33 +92,33 @@ public class Waveform extends JComponent implements SignalListener
     protected static Font font = null;
     protected boolean just_deselected;
     protected WavePopup menu;
-    
+
     private boolean execute_print = false;
     static double mark_point_x, mark_point_y;
     protected boolean show_measure = false;
     protected boolean change_limits = false;
-    
+
     protected double wave_point_x = 0, wave_point_y = 0;
     protected double curr_point;
     protected double curr_point_y;
-    
+
     // Variables for image capability
     protected int frame = 0;
     protected int prev_frame = -1;
-    
+
     protected boolean is_image = false;
     protected boolean is_playing = false;
     protected Frames frames;
     protected double frame_time = 0;
     protected String wave_error = null;
-    
+
     private static boolean bug_image = true;
-    
+
     private Vector<WaveformListener> waveform_listener = new Vector<WaveformListener>();
-    
+
     private Vector<ZoomRegion> undo_zoom = new Vector<ZoomRegion>();
     private boolean send_profile = false;
-    
+
     protected Border unselect_border;
     protected Border select_border;
     private boolean border_changed = false;
@@ -127,22 +127,22 @@ public class Waveform extends JComponent implements SignalListener
     private boolean pan_enabled = true;
     static protected int horizontal_offset = 0;
     static protected int vertical_offset = 0;
-    
+
     private double xmax = 1, ymax = 1, xmin = 0, ymin = 0;
     boolean is_min_size;
     private boolean event_enabled = true;
-    
-    public float lx_max = Float.MAX_VALUE;
-    public float lx_min = Float.MIN_VALUE;
-    public float ly_max = Float.MAX_VALUE;
-    public float ly_min = Float.MIN_VALUE;
-    
+
+    public float lx_max = Float.POSITIVE_INFINITY;
+    public float lx_min = Float.NEGATIVE_INFINITY;
+    public float ly_max = Float.POSITIVE_INFINITY;
+    public float ly_min = Float.NEGATIVE_INFINITY;
+
     protected ColorMap colorMap = new ColorMap();
-    
+
     private String properties;
     public void setProperties( String properties) { this.properties = properties;}
     public String getProperties() { return properties;}
-    
+
     static int ixxxx = 0;
 
     public Waveform(Signal s)
@@ -1228,7 +1228,7 @@ public class Waveform extends JComponent implements SignalListener
                 ymin =  MinYSignal();
                 
                     
-                if(xmax != Double.MAX_VALUE && xmin != Double.MIN_VALUE)
+                if(xmax != Double.POSITIVE_INFINITY  && xmin != Double.NEGATIVE_INFINITY)
                 {
                     double xrange = xmax - xmin;
                     xmax += xrange * horizontal_offset / 200.;

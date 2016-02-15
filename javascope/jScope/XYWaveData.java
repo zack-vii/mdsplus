@@ -141,7 +141,7 @@ public class XYWaveData implements WaveData
     public void setContinuousUpdate(boolean continuopusUpdate){}
 
     /*
-     * Read data within specified interval. either Xmin or xmax cna specify no limit (-Float.MAX_VALUE, Float.MAX_VALUE)
+     * Read data within specified interval. either Xmin or xmax cna specify no limit (-Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY)
      */
     public XYData getData(double xmin, double xmax, int numPoints)
     {
@@ -149,9 +149,9 @@ public class XYWaveData implements WaveData
         
         if(!increasingX) //If not increasing return bare data
         {
-            return new XYData(x, y, Double.MAX_VALUE, false);
+            return new XYData(x, y, Double.POSITIVE_INFINITY , false);
         }
-        if(xmin == -Float.MAX_VALUE)
+        if(xmin == Double.NEGATIVE_INFINITY)
         {
             xmin = x[0];
             minIdx = 0;
@@ -162,7 +162,7 @@ public class XYWaveData implements WaveData
             if(minIdx > 0 && x[minIdx] > xmin)
                 minIdx--;
         }
-        if(xmax == Float.MAX_VALUE)
+        if(xmax == Double.POSITIVE_INFINITY)
         {
             xmax = x[x.length - 1];
             maxIdx = x.length - 1;
@@ -189,7 +189,7 @@ public class XYWaveData implements WaveData
         {
            actPoints = maxIdx - minIdx + 1; //No resampling at all
            showMinMax = false;
-           retResolution = Double.MAX_VALUE;  //Maximum resolution
+           retResolution = Double.POSITIVE_INFINITY ;  //Maximum resolution
         }
           
         float retY[] = new float[actPoints];
@@ -236,9 +236,9 @@ public class XYWaveData implements WaveData
             }
             startLiveUpdate();
             if(isLong)
-                return new XYData(retXLong, retY, Double.MAX_VALUE, true);
+                return new XYData(retXLong, retY, Double.POSITIVE_INFINITY , true);
             else
-                return new XYData(retX, retY, Double.MAX_VALUE, true);
+                return new XYData(retX, retY, Double.POSITIVE_INFINITY , true);
         }
     }
     public XYData getData(int numPoints)
@@ -249,8 +249,8 @@ public class XYWaveData implements WaveData
            return null;
        }
        if(numPoints >= x.length)
-           return new XYData(x, y, Double.MAX_VALUE, true);
-       return getData(-Float.MAX_VALUE, Float.MAX_VALUE, numPoints);
+           return new XYData(x, y, Double.POSITIVE_INFINITY , true);
+       return getData(Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, numPoints);
     }
     
     public float[] getZ() 
@@ -412,7 +412,7 @@ public class XYWaveData implements WaveData
                 
                 newX[0] = x[x.length - 1] + i + 1;
                 newY[0] = y[x.length - 1 - i];
-                fireListeners(newX, newY, Double.MAX_VALUE);
+                fireListeners(newX, newY, Double.POSITIVE_INFINITY );
             }
         }
     }

@@ -212,8 +212,8 @@ class Frames extends Canvas
                     float buf_out[] = new float[n_pix];
                     ByteArrayInputStream b = new ByteArrayInputStream(buf);
                     DataInputStream din = new DataInputStream(b);
-                    float max = Float.MIN_VALUE;
-                    float min = Float.MAX_VALUE;
+                    float max = Float.NEGATIVE_INFINITY;
+                    float min = Float.POSITIVE_INFINITY;
                     for(int j = 0; j < n_pix; j++)
                     {
                        buf_out[j] = din.readFloat();

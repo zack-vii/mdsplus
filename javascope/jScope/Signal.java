@@ -140,22 +140,22 @@ public class Signal implements WaveDataListener
      * x min region value saved at signal creation
      */
 
-    private double saved_xmin = -Double.MAX_VALUE;
+    private double saved_xmin = Double.NEGATIVE_INFINITY ;
 
     /**
      * x max region value saved at signal creation
      */
-    private double saved_xmax = Double.MAX_VALUE;
+    private double saved_xmax = Double.POSITIVE_INFINITY ;
 
     /**
      * y min region value saved at signal creation
      */
-    private double saved_ymin = -Double.MAX_VALUE;
+    private double saved_ymin = Double.NEGATIVE_INFINITY ;
 
     /**
      * y max region value saved at signal creation
      */
-    private double saved_ymax = Double.MAX_VALUE;;
+    private double saved_ymax = Double.POSITIVE_INFINITY ;
 
     /**
      * true if symmetrical error defines
@@ -535,12 +535,12 @@ public class Signal implements WaveDataListener
         asym_error = (lowErrData != null && upErrData != null);
         up_errorData = upErrData;
         low_errorData = lowErrData;
-        if(xminVal != -Double.MAX_VALUE)
+        if(xminVal != Double.NEGATIVE_INFINITY )
         {
             xLimitsInitialized = true;
             saved_xmin = this.xmin = curr_xmin = xminVal;
         }
-        if(xmaxVal != Double.MAX_VALUE)
+        if(xmaxVal != Double.POSITIVE_INFINITY )
         {
             saved_xmax = this.xmax = curr_xmax = xmaxVal;
         }
@@ -549,12 +549,12 @@ public class Signal implements WaveDataListener
         try {
             checkData(saved_xmin, saved_xmax);
             
-            if(saved_xmin == -Double.MAX_VALUE)
+            if(saved_xmin == Double.NEGATIVE_INFINITY )
                 saved_xmin = this.xmin;
-            if(saved_xmax == Double.MAX_VALUE)
+            if(saved_xmax == Double.POSITIVE_INFINITY )
                 saved_xmax = this.xmax;
             data.addWaveDataListener(this);
-        }catch(Exception exc){System.err.println("# Signal exception: " + exc);}
+        }catch(Exception exc){System.err.println(">>> Signal exception: " + exc);}
    }
     
     public Signal(WaveData data, double xmin, double xmax)
@@ -1397,22 +1397,22 @@ public class Signal implements WaveDataListener
                 saved_xmin = xmin = x2D_min;
                 saved_xmax = xmax = x2D_max;
                 */
-                if( saved_ymin == -Double.MAX_VALUE )
+                if( saved_ymin == Double.NEGATIVE_INFINITY  )
                     saved_ymin = ymin = y2D_min;
                 else
                     ymin = saved_ymin;
                                
-                if( saved_ymax == Double.MAX_VALUE )
+                if( saved_ymax == Double.POSITIVE_INFINITY  )
                     saved_ymax = ymax = y2D_max;
                 else
                     ymax = saved_ymax;
                 
-                if( saved_xmin == -Double.MAX_VALUE )
+                if( saved_xmin == Double.NEGATIVE_INFINITY  )
                     saved_xmin = xmin = x2D_min;
                 else
                     xmin = saved_xmin;
                 
-                if( saved_xmax == Double.MAX_VALUE )                
+                if( saved_xmax == Double.POSITIVE_INFINITY  )                
                     saved_xmax = xmax = x2D_max;
                 else
                     xmax = saved_xmax;
@@ -1802,7 +1802,7 @@ public class Signal implements WaveDataListener
      */
     public void setYlimits(double ymin, double ymax)
     {
-        if (ymax != Double.MAX_VALUE)
+        if (ymax != Double.POSITIVE_INFINITY )
         {
             this.ymax =  ymax;
  //           this.ymax = saved_ymax = ymax;
@@ -1811,7 +1811,7 @@ public class Signal implements WaveDataListener
         else
             this.fix_ymax = false;
 
-        if (ymin != -Double.MAX_VALUE)
+        if (ymin != Double.NEGATIVE_INFINITY )
         {
 //            this.ymin = saved_ymin = ymin;
             this.ymin = ymin;
@@ -1860,6 +1860,7 @@ public class Signal implements WaveDataListener
         if (DEBUG.ON){System.out.println("Signal.AutoscaleX()");}
         if (type == Signal.TYPE_2D  && (mode2D == Signal.MODE_IMAGE || mode2D == Signal.MODE_CONTOUR))
         {
+            if (DEBUG.ON){System.out.println("Signal.AutoscaleX:x2D!");}
             xmax = this.x2D_max;
             xmin = this.x2D_min;
             return;
@@ -2029,11 +2030,11 @@ public class Signal implements WaveDataListener
                 adjustArraySizes();
                 increasing_x = xyData.increasingX;
                 
-                if(xMin == -Double.MAX_VALUE)
+                if(xMin == Double.NEGATIVE_INFINITY )
                     this.xmin = curr_xmin = xyData.xMin;
                 else
                     this.xmin = curr_xmin = xMin;
-                if(xMax == Double.MAX_VALUE)
+                if(xMax == Double.POSITIVE_INFINITY )
                     this.xmax = curr_xmax = xyData.xMax;
                 else
                     this.xmax = curr_xmax = xMax;
@@ -2066,10 +2067,10 @@ public class Signal implements WaveDataListener
                 lowError = xyData.y;
             }
 
-            if(saved_ymin == -Double.MAX_VALUE)
+            if(saved_ymin == Double.NEGATIVE_INFINITY )
                 saved_ymin = ymin;
             
-            if(saved_ymax == Double.MAX_VALUE)
+            if(saved_ymax == Double.POSITIVE_INFINITY )
                 saved_ymax = ymax;            
             
         }
@@ -2132,11 +2133,11 @@ public class Signal implements WaveDataListener
                     z2D_max = z[i];
             }
             
-            if(xMin == -Double.MAX_VALUE)
+            if(xMin == Double.NEGATIVE_INFINITY )
                 this.xmin = curr_xmin = x2D_min;
             else
                 this.xmin = curr_xmin = xMin;
-            if(xMax == Double.MAX_VALUE)
+            if(xMax == Double.POSITIVE_INFINITY )
                 this.xmax = curr_xmax = x2D_max;
             else
                 this.xmax = curr_xmax = xMax;            
@@ -2302,7 +2303,7 @@ public class Signal implements WaveDataListener
         }
 
         min_idx = 0;
-        min_dist = Double.MAX_VALUE;
+        min_dist = Double.POSITIVE_INFINITY ;
         find_NaN = false;
         for (i = 0; i < x.length - 1; i++)
         {
@@ -2462,7 +2463,7 @@ public class Signal implements WaveDataListener
         }    
             
         xLimitsInitialized = true;
-        if(xmin != -Double.MAX_VALUE)
+        if(xmin != Double.NEGATIVE_INFINITY )
         {
             this.xmin = xmin;
             if((mode & AT_CREATION) != 0)
@@ -2472,7 +2473,7 @@ public class Signal implements WaveDataListener
             if((mode & FIXED_LIMIT)!= 0)
                 fix_xmin = true;
         }
-        if(xmax != Double.MAX_VALUE)
+        if(xmax != Double.POSITIVE_INFINITY )
         {
             this.xmax = xmax;
             if ((mode & AT_CREATION) != 0)
@@ -2482,10 +2483,10 @@ public class Signal implements WaveDataListener
         }
         
         double actXMin = xmin;
-        if(actXMin == -Double.MAX_VALUE)
+        if(actXMin == Double.NEGATIVE_INFINITY )
             actXMin = this.xmin;
         double actXMax = xmax;
-        if(actXMax == Double.MAX_VALUE)
+        if(actXMax == Double.POSITIVE_INFINITY )
             actXMax = this.xmax;
  
         /*Enlarge by 1/20 */
@@ -2539,7 +2540,7 @@ public class Signal implements WaveDataListener
 
     public void setYmin(double ymin, int mode)
     {
-        if(ymin == -Double.MAX_VALUE)
+        if(ymin == Double.NEGATIVE_INFINITY )
             return;
         this.ymin = ymin;
         if ((mode & AT_CREATION) != 0)
@@ -2552,7 +2553,7 @@ public class Signal implements WaveDataListener
 
      public void setYmax(double ymax, int mode)
     {
-        if(ymax == Double.MAX_VALUE)
+        if(ymax == Double.POSITIVE_INFINITY )
             return;
         this.ymax = ymax;
         if ((mode & AT_CREATION) != 0)
@@ -2565,13 +2566,13 @@ public class Signal implements WaveDataListener
     public double getXmin() 
     {
        // if(!xLimitsInitialized)
-       //     return Double.MAX_VALUE;
+       //     return Double.POSITIVE_INFINITY ;
         return xmin;
     }
     public double getXmax() 
     {
        // if(!xLimitsInitialized)
-       //     return -Double.MAX_VALUE;
+       //     return Double.NEGATIVE_INFINITY ;
         return xmax;
     }
     public double getYmin() {return ymin;}
@@ -2675,7 +2676,7 @@ public class Signal implements WaveDataListener
         if(!resolutionManager.isEmpty())
         {
             double minMax[] = resolutionManager.getMinMaxX();
-            if(minMax[0] == -Double.MAX_VALUE && minMax[1] == Double.MAX_VALUE)
+            if(minMax[0] == Double.NEGATIVE_INFINITY && minMax[1] == Double.POSITIVE_INFINITY )
             {
                 xLimitsInitialized = true;
                 xmin = x[0];
@@ -2693,13 +2694,13 @@ public class Signal implements WaveDataListener
             increasing_x = xyData.increasingX;
             if(increasing_x)
             {
-                resolutionManager.addRegion(new RegionDescriptor(-Double.MAX_VALUE, Double.MAX_VALUE, 
+                resolutionManager.addRegion(new RegionDescriptor(Double.NEGATIVE_INFINITY , Double.POSITIVE_INFINITY , 
                         NUM_POINTS/(x[x.length - 1] - x[0])));
             }
             if(data.isXLong())
                 xLong = xyData.xLong;
-            xmax = xyData.xMax;
-            xmin = xyData.xMin;
+            curr_xmin = xmin = xyData.xMin;
+            curr_xmax = xmax = xyData.xMax;
             ymax = ymin = y[0];
             for (i = 0; i < x.length; i++)
             {
@@ -2710,8 +2711,6 @@ public class Signal implements WaveDataListener
                if (ymin > y[i])
                    ymin = y[i];
             }
-            curr_xmin = xmin;
-            curr_xmax = xmax;
         }catch(Exception exc)
         {
             System.out.println("Set Axis Exception: "+exc);

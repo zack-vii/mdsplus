@@ -415,13 +415,13 @@ class AsdexDataProvider extends MdsDataProvider
          {
              double x[] = GetXDoubleData();
              float y[] = GetFloatData();
-             return new XYData(x, y, Double.MAX_VALUE);
+             return new XYData(x, y, Double.POSITIVE_INFINITY);
          }
          public XYData getData(int numPoints)throws Exception
          {
              double x[] = GetXDoubleData();
              float y[] = GetFloatData();
-             return new XYData(x, y, Double.MAX_VALUE);
+             return new XYData(x, y, Double.POSITIVE_INFINITY);
          }
 
         public float[] getZ(){System.out.println("BADABUM!!"); return null;}
