@@ -505,16 +505,16 @@ class MdsWaveInterface extends WaveInterface
         String main_shot_str = ( (jScopeWaveContainer) (wave.getParent())).
             getMainShotStr();
         String c_shot_str = containMainShot(this.GetUsedShot(), main_shot_str);
-/* 12-2-2009 
+/* 12-2-2009
         if( !getModified() && in_shot != null && c_shot_str != null)
         {
-        
+
             setModified( !in_shot.equals( c_shot_str ) );
-        
+
             if(! getModified() )
                 return;
         }
- */       
+ */
         error = null;
 
 /*
@@ -878,7 +878,7 @@ Fix bug : shot expression must be always evaluated.
         //GAB 2014
         WaveInterface.WriteLine(out, prompt + "continuous_update: ", isContinuousUpdate?"1":"0");
         /////////
-        
+
         WaveInterface.WriteLine(out, prompt + "title: ", cin_title);
         WaveInterface.WriteLine(out, prompt + "global_defaults: ",
                                 "" + defaults);
@@ -1026,7 +1026,7 @@ Fix bug : shot expression must be always evaluated.
             cin_def_node = pr.getProperty(prompt + ".default_node");
 
             cin_upd_event = pr.getProperty(prompt + ".event");
-            
+
             String continuousUpdateStr = pr.getProperty(prompt + ".continuous_update");
             if(continuousUpdateStr != null && continuousUpdateStr.trim().equals("1"))
                 isContinuousUpdate = true;
@@ -1075,7 +1075,7 @@ Fix bug : shot expression must be always evaluated.
             if (prop != null)
             {
                 colorMap = cmd.getColorMap(prop);
-                
+
                 try
                 {
                     prop = pr.getProperty(prompt + ".bitShift");

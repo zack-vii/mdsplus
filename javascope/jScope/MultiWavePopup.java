@@ -23,13 +23,8 @@ public class MultiWavePopup
     protected JMenuItem legend, remove_legend;
     protected JMenu signalList;
 
-    public MultiWavePopup()
-    {
-        this(null, null);
-    }
-
-    public MultiWavePopup(SetupWaveformParams setup_params,
-                          ProfileDialog profDialog)
+    public MultiWavePopup(){this(null, null);}
+    public MultiWavePopup(SetupWaveformParams setup_params, ProfileDialog profDialog)
     {
         super(setup_params, profDialog);
 
@@ -112,9 +107,7 @@ public class MultiWavePopup
         String s_name[] = wave.GetSignalsName();
         boolean s_state[] = wave.GetSignalsState();
 
-        if (! (s_name != null && s_state != null &&
-               s_name.length > 0 && s_name.length > 0 &&
-               s_name.length == s_state.length))
+        if (! (s_name != null && s_state != null && s_name.length > 0 && s_name.length > 0 && s_name.length == s_state.length))
             return;
 
         boolean state = (wave.mode == Waveform.MODE_POINT ||
@@ -204,7 +197,6 @@ public class MultiWavePopup
         super.SetMenu();
     }
 
-
     protected void SetInterpolate(boolean state)
     {
         wave.SetInterpolate(wave.GetSelectedSignal(), state);
@@ -237,5 +229,4 @@ public class MultiWavePopup
         if (wave.GetColorIdx(wave.GetSelectedSignal()) != idx)
             wave.SetColorIdx(wave.GetSelectedSignal(), idx);
     }
-
 }
