@@ -17,11 +17,11 @@ class W7XDataProvider implements DataProvider
 {
     MdsDataProvider mds;
     String error;
+    final static SignalToolsFactory stf = ArchieToolsFactory.remoteArchive();
     public W7XDataProvider(){mds = new MdsDataProvider();}
     public W7XDataProvider(String provider) throws IOException{mds = new MdsDataProvider(provider);}
     private static SignalReader getReader(String path)
     {
-        final SignalToolsFactory stf = ArchieToolsFactory.remoteArchive();
         final SignalAddressBuilder sab = stf.makeSignalAddressBuilder(new String[0]);
         SignalAddress adr = sab.newBuilder().path(path).build();
         return stf.makeSignalReader(adr);
@@ -194,7 +194,7 @@ class W7XDataProvider implements DataProvider
 
     class SimpleWaveData implements WaveData
     {
-        Signal sig_x, sig_y;
+        public Signal sig_x, sig_y;
         String in_x, in_y;
         long shot,from,upto,orig = 0;
         float xmax, xmin;
@@ -207,62 +207,33 @@ class W7XDataProvider implements DataProvider
         {
             SimpleWaveData swd;
             public UpdateWorker(SimpleWaveData swd){super();this.swd = swd;}
-            boolean enabled = true, requests = false;
+            boolean requests = false;
             void update(){intUpdate();}
             synchronized void intUpdate(){requests = true;notify();}
-            synchronized void enableAsyncUpdate(boolean enabled)
-            {
-                this.enabled = enabled;
-                if(enabled) notify();
-            }
-            boolean stopWorker = false;
-            synchronized void stopUpdateWorker()
-            {
-                stopWorker = true;
-                notify();
-            }
             public void run()
             {
                 if (DEBUG.ON){System.out.println("run()");}
                 this.setName("UpdateWorker");
-                XYData currData;
-                System.out.println("getting Data: "+swd+"  "+swd.getWaveDataListeners().size());
-                try{currData = swd.getData();}
-                catch(Exception e){return;}
-                if(currData==null || currData.nSamples==0 ) return;
-                System.out.println("got Data: "+currData+"  "+swd.getWaveDataListeners().size()+requests);
+                try{swd.getSignals();}
+                catch(Exception e){System.err.println("Unable to get signal: "+swd.in_y+"\n"+e);return;}
                 while(true)
                 {
                     if(requests)
                     {
-                        System.out.println("got Data: "+currData+"  "+swd.getWaveDataListeners().size()+enabled);
-                        requests = false;
-                        if(!enabled) continue;
-                        System.out.println("got Data: "+currData+"  "+swd.getWaveDataListeners().size()+requests);
-                        try{
-                            for(int j = 0; j < swd.getWaveDataListeners().size(); j++)
-                            {
-                                WaveDataListener wdl = swd.getWaveDataListeners().elementAt(j);
-                                if(currData.xLong==null)
-                                    wdl.dataRegionUpdated(currData.x, currData.y, currData.resolution);
-                                else
-                                    wdl.dataRegionUpdated(currData.xLong, currData.y, currData.resolution);
-                                ((jScope.Signal)wdl).Autoscale();
-                                ((jScope.Signal)wdl).fireSignalUpdated(true);
-                            }
+                        for(int j = 0; j < swd.getWaveDataListeners().size(); j++)
+                        try{swd.getWaveDataListeners().elementAt(j).sourceUpdated();
                         }catch(Exception exc){System.err.println("Error in asynchUpdate: "+exc);}
+                        return;
                     }
-                    else
-                        synchronized(this)
-                        {
-                            try{
-                                wait();
-                                if(stopWorker) return;
-                            }catch(InterruptedException exc) {}
-                        }
+                    else synchronized(this)
+                    {
+                        try{
+                            wait();
+                        }catch(InterruptedException exc) {}
+                    }
                 }
             }
-        } //End Inner class UpdateWorker
+        }
         UpdateWorker updateWorker;
 
         public SimpleWaveData(String in_y){this(in_y, null);}
@@ -281,7 +252,6 @@ class W7XDataProvider implements DataProvider
             }catch(Exception e){err.println("W7XDataProvider.SimpleWaveData: "+e);}
             updateWorker = new UpdateWorker(this);
             updateWorker.start();
-//            getDataAsync(0.,0.,0);
         }
         private void getSignals()
         {
@@ -291,9 +261,11 @@ class W7XDataProvider implements DataProvider
             sig_y = W7XDataProvider.getSignal(in_y,ti,ro);
             sig_x = (in_x==null) ? sig_y.getDimensionSignal(0) : W7XDataProvider.getSignal(in_x,ti,ro);
         }
+        public Signal getYSignal(){return sig_y;}
+
         public void setContinuousUpdate(boolean state){continuousUpdate = state;}
         private Vector<WaveDataListener> waveDataListenersV = new Vector<WaveDataListener>();
-        public void addWaveDataListener(WaveDataListener listener){waveDataListenersV.addElement(listener);}
+        public void addWaveDataListener(WaveDataListener listener){waveDataListenersV.addElement(listener);updateWorker.update();}
         public Vector<WaveDataListener> getWaveDataListeners(){return waveDataListenersV;}
         public void getDataAsync(double xmin,double xmax,int numPoints){updateWorker.update();}
         public XYData getData() throws Exception{return getData(-1);}
@@ -301,7 +273,6 @@ class W7XDataProvider implements DataProvider
         public XYData getData(double xmin, double xmax, int numPoints) throws Exception{return getData(xmin,xmax,numPoints,false);}
         public XYData getData(double xmin, double xmax, int numPoints, boolean isXLong) throws Exception
         {
-            getSignals();
             if(in_x==null)
             {
                 long[] x = getX2DLong();
@@ -316,19 +287,19 @@ class W7XDataProvider implements DataProvider
                 }
             }
             if(isXLong())
-            return new XYData(getX2DLong(),getZ(),(double)Long.MAX_VALUE);
+                return new XYData(getX2DLong(),getZ(),Double.POSITIVE_INFINITY);
             else
-                return new XYData(getX2D(),getZ(),Double.MAX_VALUE);
+                return new XYData(getX2D()    ,getZ(),Double.POSITIVE_INFINITY);
         }
         public float[] getZ(){return W7XDataProvider.getFloat(sig_y);}
         public float[] getY2D(){return W7XDataProvider.getFloat(sig_y.getDimensionSignal(1));}
         public double[] getX2D(){return W7XDataProvider.getDouble(sig_x);}
         public long[] getX2DLong(){return W7XDataProvider.getLong(sig_x);}
         public boolean isXLong(){return orig==0;}
-        public String GetTitle()throws IOException{return (sig_y!=null) ? sig_y.getLabel() : "not loaded";}
-        public String GetXLabel()throws IOException{return (in_x!=null) ? ((sig_x!=null) ? sig_x.getUnit() : "not loaded") : (shot<0 ? "time" : "s");}
-        public String GetYLabel()throws IOException{return (sig_y!=null) ? ((getNumDimension()>1) ? sig_y.getDimensionSignal(1).getUnit() : sig_y.getUnit()) : "not loaded";}
-        public String GetZLabel()throws IOException{return (sig_y!=null) ? sig_y.getUnit() : "not loaded";}
+        public String GetTitle()throws IOException{return (sig_y!=null) ? sig_y.getLabel() : null;}
+        public String GetXLabel()throws IOException{return (in_x!=null) ? ((sig_x!=null) ? sig_x.getUnit() : null) : (shot<0 ? "time" : "s");}
+        public String GetYLabel()throws IOException{return (sig_y!=null) ? ((getNumDimension()>1) ? sig_y.getDimensionSignal(1).getUnit() : sig_y.getUnit()) : null;}
+        public String GetZLabel()throws IOException{return (sig_y!=null) ? sig_y.getUnit() : null;}
         public int getNumDimension()throws IOException{return (sig_y!=null) ? sig_y.getDimensionCount() : 0;}
     }
 }
