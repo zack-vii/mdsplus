@@ -25,7 +25,7 @@ public class MdsDataProvider implements DataProvider
     MdsConnection mds;
     String error;
     private boolean use_compression = false;
-    int var_idx = 0;
+    static int var_idx = 0;
 
     boolean is_tunneling = false;
     String tunnel_provider = "127.0.0.1:8000";
@@ -183,13 +183,16 @@ public class MdsDataProvider implements DataProvider
 
             actSegments = endSegment - startSegment;
             // Get Frame Dimension and frames per segment
+            mds.MdsValue("_jscope_seg=*");
             int dims[] = GetIntArray("shape(_jscope_seg=GetSegment("+in_y+", 0))");
-            if(dims.length != 3)
-                throw new IOException("Invalid number of segment dimensions: "+ dims.length);
+            if(dims.length != 3){
+                mds.MdsValue("DEALLOCATE('_jscope_seg')");
+                throw new IOException("Invalid number of segment dimensions: "+ dims.length);}
             dim = new Dimension(dims[0], dims[1]);
             framesPerSegment = dims[2];
             // Get Frame element length in bytes
             ByteArray data = getByteArray("_jscope_seg[0,0,0]");
+            mds.MdsValue("DEALLOCATE('_jscope_seg')");
             if (DEBUG.ON){System.out.println(">> data = "+data);}
             bytesPerPixel  = data.getDataSize();
             mode           = data.getFrameType();
@@ -428,7 +431,7 @@ public class MdsDataProvider implements DataProvider
             if (yc == null)
             {
                 yc = var+"y";
-                String expr = yc+" = ("+in_y+"); KIND( "+yc+" )";
+                String expr = yc+" = EVALUATE("+in_y+"); KIND( "+yc+" )";
                 try {
                     ykind = GetByteArray(expr)[0];
                     if (DEBUG.LV>1){System.out.println(">> tdicache y ( "+expr+" -> "+ykind+" ) )");}
@@ -461,13 +464,13 @@ public class MdsDataProvider implements DataProvider
             }
             return xc;
         }
+        protected void finalize(){mds.MdsValue("DEALLOCATE(['"+xc+"','"+yc+"'])");}
     }
     
      
     class SimpleWaveData implements WaveData
     {
         tdicache c;
-        int v_idx;
         static final int SEGMENTED_YES = 1, SEGMENTED_NO = 2, SEGMENTED_UNKNOWN = 3;
         static final int UNKNOWN = -1;
         int numDimensions = UNKNOWN;
@@ -500,7 +503,6 @@ public class MdsDataProvider implements DataProvider
                 c = new tdicache(in_y,in_x,var_idx++);
             SegmentMode();
         }
-
         private void SegmentMode()
         {
             if (DEBUG.ON){System.out.println("MdsDataProvider.SimpleWaveData.SegmentMode()");}
@@ -1197,19 +1199,14 @@ public class MdsDataProvider implements DataProvider
         int shape[];
         int pixel_size = 8;
         int num_time = 0;
-
-        img = getByteArray("_jScope_img = EVALUATE(" + in_frame + ")");
-        if (img == null)
-            return null;
+        img = getByteArray("_jScope_img = IF_ERROR(EVALUATE(" + in_frame + "),*)");
+        if (img == null) return null;
         if (DEBUG.LV>1){System.out.println(">> MdsDataProvider.getByteArray: " + img.buf.length);}
-        time = GetDoubleArray("D_FLOAT(DIM_OF( _jScope_img ))");
-        if (time == null)
-            return null;
-        if (DEBUG.LV>1){System.out.println(">> MdsDataProvider.GetDoubleArray: " + time.length);}
         shape = GetIntArray("SHAPE( _jScope_img )");
-        if (shape == null)
-            return null;
-
+        time  = GetDoubleArray("D_FLOAT(DIM_OF( _jScope_img ))");
+        mds.MdsValue("DEALLOCATE('_jScope_img')");
+        if (time == null || shape == null) return null;
+        if (DEBUG.LV>1){System.out.println(">> MdsDataProvider.GetDoubleArray: " + time.length);}
         if (shape.length == 3)
         {
             num_time = shape[2];
@@ -1331,7 +1328,6 @@ public class MdsDataProvider implements DataProvider
     {
         if (DEBUG.ON){System.out.println("MdsDataProvider.Update(\""+experiment+"\", "+shot+", "+resetExperiment+")");}
         this.error = null;
-        this.var_idx = 0;
 
         if (resetExperiment)
             this.experiment = null;
