@@ -2464,7 +2464,7 @@ public class Signal implements WaveDataListener
         }
     }
 
-    public void sourceUpdated()
+    public void sourceUpdated(XYData xydata)
     {
         long startTime;
         if (DEBUG.D){startTime = System.nanoTime();}
@@ -2473,7 +2473,6 @@ public class Signal implements WaveDataListener
         if(this.ylabel==null)               try{this.ylabel = data.GetYLabel();}catch(Exception e){}
         if(this.zlabel==null&&type==TYPE_2D)try{this.zlabel = data.GetZLabel();}catch(Exception e){}
         try{
-        XYData xydata = data.getData(Double.NEGATIVE_INFINITY,Double.POSITIVE_INFINITY,Integer.MAX_VALUE);
         x = xydata.x;
         xLong = xydata.xLong;
         y = xydata.y;

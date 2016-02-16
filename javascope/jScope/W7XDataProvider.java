@@ -212,15 +212,16 @@ class W7XDataProvider implements DataProvider
             synchronized void intUpdate(){requests = true;notify();}
             public void run()
             {
-                this.setName("UpdateWorker");
+                this.setName(swd.in_y);
                 try{swd.getSignals();}
                 catch(Exception e){System.err.println("Unable to get signal: "+swd.in_y+"\n"+e);return;}
                 while(true)
                 {
                     if(requests)
                     {
+                        try{XYData xydata = swd.getData(Double.NEGATIVE_INFINITY,Double.POSITIVE_INFINITY,Integer.MAX_VALUE);
                         for(int j = 0; j < swd.getWaveDataListeners().size(); j++)
-                        try{swd.getWaveDataListeners().elementAt(j).sourceUpdated();
+                            swd.getWaveDataListeners().elementAt(j).sourceUpdated(xydata);
                         }catch(Exception exc){System.err.println("Error in asynchUpdate: "+exc);}
                         return;
                     }
