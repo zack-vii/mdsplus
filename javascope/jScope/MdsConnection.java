@@ -84,14 +84,14 @@ public class MdsConnection
 
             public void SetEventid(int id)
             {
-                    if (DEBUG.ON){System.out.println("Received Event ID " + id);}
+                    if (DEBUG.M){System.out.println("Received Event ID " + id);}
                     eventId = id;
                     eventName = null;
             }
 
             public void SetEventName(String name)
             {
-                    if (DEBUG.ON){System.out.println("Received Event Name " + name);}
+                    if (DEBUG.M){System.out.println("Received Event Name " + name);}
                     eventId = -1;
                     eventName = name;
             }
@@ -319,7 +319,7 @@ public class MdsConnection
     public              Descriptor MdsValue(String expr, Vector<Descriptor> args){return MdsValue(expr, args, true);}
     public synchronized Descriptor MdsValue(String expr, Vector<Descriptor> args, boolean wait)
     {
-        if (DEBUG.ON){System.out.println("MdsConnection.MdsValue(\""+expr+"\", "+args+", "+wait+")");}
+        if (DEBUG.M){System.out.println("MdsConnection.MdsValue(\""+expr+"\", "+args+", "+wait+")");}
         if (args==null) args = new Vector<Descriptor>();
         StringBuffer cmd = new StringBuffer(expr);
         int n_args = args.size();
@@ -371,7 +371,7 @@ public class MdsConnection
     // Read either a string or a float array
     public synchronized Descriptor MdsValue(String expr)
     {
-        if (DEBUG.ON){System.out.println("MdsConnection.MdsValue(\""+expr+"\")");}
+        if (DEBUG.M){System.out.println("MdsConnection.MdsValue(\""+expr+"\")");}
         try {
             MdsMessage message = new MdsMessage(expr);
             pending_count++;

@@ -39,7 +39,7 @@ public class LocalDataProvider extends MdsDataProvider /* implements DataProvide
         @Override
         public int hashCode()
         {
-            if (DEBUG.ON){System.out.println("# hashCode() is not defined for LocalDataProvider.EventDescriptor");}
+            if (DEBUG.M){System.out.println("# hashCode() is not defined for LocalDataProvider.EventDescriptor");}
             return listener.hashCode();
         }
     } //EventDescriptor
@@ -81,8 +81,8 @@ public class LocalDataProvider extends MdsDataProvider /* implements DataProvide
         @SuppressWarnings("fallthrough")
         private byte[] mygetAllFrames(String nodeName, int startIdx, int endIdx) throws IOException
         {
-            if (DEBUG.ON){System.out.println("LocalDataProvider.LocalFrameData.mygetAllFrames(\""+nodeName+"\", "+startIdx+", "+endIdx+")");}
-            if (DEBUG.ON){System.out.println(">> "+width+"x"+height+"x"+pixelSize);}
+            if (DEBUG.M){System.out.println("LocalDataProvider.LocalFrameData.mygetAllFrames(\""+nodeName+"\", "+startIdx+", "+endIdx+")");}
+            if (DEBUG.M){System.out.println(">> "+width+"x"+height+"x"+pixelSize);}
             int size = width*height;
             int maxpages;
             switch(pixelSize)
@@ -148,7 +148,7 @@ public class LocalDataProvider extends MdsDataProvider /* implements DataProvide
 
         void configure(String _nodeName, String timeName, float timeMin, float timeMax) throws IOException
         {
-            if (DEBUG.ON){System.out.println("LocalDataProvider.LocalFrameData.configure(\""+nodeName+"\", \""+timeName+"\", "+timeMin+", "+timeMax+")");}
+            if (DEBUG.M){System.out.println("LocalDataProvider.LocalFrameData.configure(\""+nodeName+"\", \""+timeName+"\", "+timeMin+", "+timeMax+")");}
             nodeName = _nodeName;
             isSegmented = isSegmentedNode(nodeName);
             if(isSegmented)
@@ -167,7 +167,7 @@ public class LocalDataProvider extends MdsDataProvider /* implements DataProvide
                 }catch(Exception exc){System.out.println("# error "+exc);}
             }
             LocalDataProviderInfo info = getInfo(nodeName, isSegmented);
-            if (DEBUG.ON){System.out.println("LocalDataProvider.getAllTimes.getInfo() info="+info);}
+            if (DEBUG.M){System.out.println("LocalDataProvider.getAllTimes.getInfo() info="+info);}
             if(info == null) throw new IOException(LocalDataProvider.this.ErrorString());
             width = info.dims[0];
             height = info.dims[1];
@@ -209,7 +209,7 @@ public class LocalDataProvider extends MdsDataProvider /* implements DataProvide
       */
         public int GetFrameType() throws IOException
         {
-            if (DEBUG.ON){System.out.println("LocalDataProvider.LocalFrameData.GetFrameType()");}
+            if (DEBUG.M){System.out.println("LocalDataProvider.LocalFrameData.GetFrameType()");}
             switch(pixelSize) {
                 case 1:
                      return FrameData.BITMAP_IMAGE_8;
@@ -231,7 +231,7 @@ public class LocalDataProvider extends MdsDataProvider /* implements DataProvide
      */
         public int GetNumFrames() throws IOException
         {
-            if (DEBUG.ON){System.out.println("LocalDataProvider.LocalFrameData.GetNumFrames()");}
+            if (DEBUG.M){System.out.println("LocalDataProvider.LocalFrameData.GetNumFrames()");}
             if (DEBUG.LV>1){System.out.println(">> NumFrames = "+times.length);}
             return times.length;
         }
@@ -269,7 +269,7 @@ public class LocalDataProvider extends MdsDataProvider /* implements DataProvide
      */
         public byte[] GetFrameAt(int idx) throws IOException
         {
-            if (DEBUG.ON){System.out.println("LocalDataProvider.LocalFrameData.GetFrameAt("+idx+")");}
+            if (DEBUG.M){System.out.println("LocalDataProvider.LocalFrameData.GetFrameAt("+idx+")");}
             if(isSegmented)
             {
                 if(frames[idx] == null)
@@ -305,7 +305,7 @@ public class LocalDataProvider extends MdsDataProvider /* implements DataProvide
 
     public void Update(String exp, long s)
     {
-        if (DEBUG.ON){System.out.println("LocalDataProvider.Update(\""+exp+"\", "+s+")");}
+        if (DEBUG.M){System.out.println("LocalDataProvider.Update(\""+exp+"\", "+s+")");}
         var_idx = 0;
         UpdateNative(exp, s);
     }
@@ -313,7 +313,7 @@ public class LocalDataProvider extends MdsDataProvider /* implements DataProvide
 
     public synchronized double GetFloat(String in) throws IOException
     {
-        if (DEBUG.ON){System.out.println("LocalDataProvider.GetFloat(\""+in+"\")");}
+        if (DEBUG.M){System.out.println("LocalDataProvider.GetFloat(\""+in+"\")");}
         error = null;
 
         try {
@@ -350,7 +350,7 @@ public class LocalDataProvider extends MdsDataProvider /* implements DataProvide
 
     public long[] GetShots(String in)
     {
-        if (DEBUG.ON){System.out.println("LocalDataProvider.GetShots(\""+in+"\")");}
+        if (DEBUG.M){System.out.println("LocalDataProvider.GetShots(\""+in+"\")");}
         try {
             int shots[] =  GetIntArray(in.trim());
             long lshots[] = new long[shots.length];
@@ -372,7 +372,7 @@ public class LocalDataProvider extends MdsDataProvider /* implements DataProvide
 
     public void AddUpdateEventListener(UpdateEventListener l, String event)
     {
-        if (DEBUG.ON){System.out.println("LocalDataProvider.AddUpdateEventListener("+l+", \""+event+"\")");}
+        if (DEBUG.M){System.out.println("LocalDataProvider.AddUpdateEventListener("+l+", \""+event+"\")");}
         int evId;
         int idx;
         try {
@@ -388,7 +388,7 @@ public class LocalDataProvider extends MdsDataProvider /* implements DataProvide
     }
     public void RemoveUpdateEventListener(UpdateEventListener l, String event)
     {
-        if (DEBUG.ON){System.out.println("LocalDataProvider.RemoveUpdateEventListener("+l+", \""+event+"\")");}
+        if (DEBUG.M){System.out.println("LocalDataProvider.RemoveUpdateEventListener("+l+", \""+event+"\")");}
         int idx = listeners.indexOf(new EventDescriptor(l, event, 0));
         if(idx != -1)
         {
@@ -411,7 +411,7 @@ public class LocalDataProvider extends MdsDataProvider /* implements DataProvide
 
     public FrameData GetFrameData(String in_y, String in_x, float time_min, float time_max) throws IOException
     {
-        if (DEBUG.ON){System.out.println("LocalDataProvider.GetFrameData(\""+in_y+"\", \""+in_x+"\", "+time_min+", "+time_max+")");}
+        if (DEBUG.M){System.out.println("LocalDataProvider.GetFrameData(\""+in_y+"\", \""+in_x+"\", "+time_min+", "+time_max+")");}
         LocalFrameData frameData = new LocalFrameData();
         frameData.configure(in_y, in_x, time_min, time_max);
         return frameData;
@@ -430,7 +430,7 @@ public class LocalDataProvider extends MdsDataProvider /* implements DataProvide
 
     int getEventId(String event) throws Exception
     {
-        if (DEBUG.ON){System.out.println("LocalDataProvider.getEventId(\""+event+"\")");}
+        if (DEBUG.M){System.out.println("LocalDataProvider.getEventId(\""+event+"\")");}
         for(int idx = 0; idx < listeners.size(); idx++)
         {
             EventDescriptor evDescr = listeners.elementAt(idx);
@@ -442,7 +442,7 @@ public class LocalDataProvider extends MdsDataProvider /* implements DataProvide
 
     public void fireEvent(int nameIdx)
     {
-        if (DEBUG.ON){System.out.println("LocalDataProvider.fireEvent("+nameIdx+")");}
+        if (DEBUG.M){System.out.println("LocalDataProvider.fireEvent("+nameIdx+")");}
         String event = eventNames.elementAt(nameIdx);
         for(int idx = 0; idx < listeners.size(); idx++)
         {
@@ -457,7 +457,7 @@ public class LocalDataProvider extends MdsDataProvider /* implements DataProvide
 
     void setResampleLimits(double min, double max)
     {
-        if (DEBUG.ON){System.out.println("LocalDataProvider.setResampleLimits("+min+", "+max+")");}
+        if (DEBUG.M){System.out.println("LocalDataProvider.setResampleLimits("+min+", "+max+")");}
         String limitsExpr;
         if (Math.abs(min) > RESAMPLE_TRESHOLD ||
             Math.abs(max) > RESAMPLE_TRESHOLD)

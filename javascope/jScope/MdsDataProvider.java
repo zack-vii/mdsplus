@@ -76,7 +76,7 @@ public class MdsDataProvider implements DataProvider
 
     public MdsDataProvider()
     {
-        if (DEBUG.ON){System.out.println("MdsDataProvider()");}
+        if (DEBUG.M){System.out.println("MdsDataProvider()");}
         experiment = null;
         shot = 0;
         open = connected = false;
@@ -88,7 +88,7 @@ public class MdsDataProvider implements DataProvider
 
     public MdsDataProvider(String provider)
     {
-        if (DEBUG.ON){System.out.println("MdsDataProvider(\""+provider+"\")");}
+        if (DEBUG.M){System.out.println("MdsDataProvider(\""+provider+"\")");}
         setProvider(provider);
         experiment = null;
         shot = 0;
@@ -101,7 +101,7 @@ public class MdsDataProvider implements DataProvider
 
     public MdsDataProvider(String exp, int s)
     {
-        if (DEBUG.ON){System.out.println("MdsDataProvider(\""+exp+"\", "+s+")");}
+        if (DEBUG.M){System.out.println("MdsDataProvider(\""+exp+"\", "+s+")");}
         experiment = exp;
         shot = 0; //what's about s
         open = connected = false;
@@ -130,7 +130,7 @@ public class MdsDataProvider implements DataProvider
 
         public SegmentedFrameData(String in_y, String in_x, double time_min, double time_max, int numSegments) throws IOException
         {
-            if (DEBUG.ON){System.out.println("MdsDataProvider.SegmentedFrameData(\""+in_y+"\", \""+in_x+"\", "+time_min+", "+time_max+", "+numSegments+")");}
+            if (DEBUG.M){System.out.println("MdsDataProvider.SegmentedFrameData(\""+in_y+"\", \""+in_x+"\", "+time_min+", "+time_max+", "+numSegments+")");}
             //Find out frames per segment and frame min and max based on time min and time max
             this.in_x = in_x;
             this.in_y = in_y;
@@ -193,7 +193,7 @@ public class MdsDataProvider implements DataProvider
             // Get Frame element length in bytes
             ByteArray data = getByteArray("_jscope_seg[0,0,0]");
             mds.MdsValue("DEALLOCATE('_jscope_seg')");
-            if (DEBUG.ON){System.out.println(">> data = "+data);}
+            if (DEBUG.M){System.out.println(">> data = "+data);}
             bytesPerPixel  = data.getDataSize();
             mode           = data.getFrameType();
             // Get Frame times
@@ -219,7 +219,7 @@ public class MdsDataProvider implements DataProvider
 
         public byte[] GetFrameAt(int idx) throws IOException
         {
-            if (DEBUG.ON){System.out.println("MdsDataProvider.SegmentedFrameData.GetFrameAt("+idx+")");}
+            if (DEBUG.M){System.out.println("MdsDataProvider.SegmentedFrameData.GetFrameAt("+idx+")");}
             int segmentIdx = startSegment + idx / framesPerSegment;
             int segmentOffset = (idx % framesPerSegment) * dim.width * dim.height * bytesPerPixel;
             byte[] segment = GetByteArray("GetSegment("+ in_y+","+segmentIdx+")");
@@ -252,7 +252,7 @@ public class MdsDataProvider implements DataProvider
 
         public SimpleFrameData(String in_y, String in_x, double time_min, double time_max) throws Exception
         {
-            if (DEBUG.ON){System.out.println("MdsDataProvider.SimpleFrameData(\""+in_y+"\", \""+in_x+"\", "+time_min+", "+time_max+")");}
+            if (DEBUG.M){System.out.println("MdsDataProvider.SimpleFrameData(\""+in_y+"\", \""+in_x+"\", "+time_min+", "+time_max+")");}
             int i;
             double t;
             double all_times[] = null;
@@ -331,7 +331,7 @@ public class MdsDataProvider implements DataProvider
 
         public int GetFrameType() throws IOException
         {
-            if (DEBUG.ON){System.out.println("MdsDataProvider.SimpleFrameData.GetFrameType()");}
+            if (DEBUG.M){System.out.println("MdsDataProvider.SimpleFrameData.GetFrameType()");}
             if (mode != -1)
                 return mode;
             int i;
@@ -348,7 +348,7 @@ public class MdsDataProvider implements DataProvider
 
         public byte[] GetFrameAt(int idx) throws IOException
         {
-            if (DEBUG.ON){System.out.println("MdsDataProvider.SimpleFrameData.GetFrameAt("+idx+")");}
+            if (DEBUG.M){System.out.println("MdsDataProvider.SimpleFrameData.GetFrameAt("+idx+")");}
             byte[] b_img = null;
 
             if (mode == BITMAP_IMAGE_8 || mode == BITMAP_IMAGE_16 || mode == BITMAP_IMAGE_32 || mode == BITMAP_IMAGE_FLOAT)
@@ -366,7 +366,7 @@ public class MdsDataProvider implements DataProvider
 
                 if( d.available() < img_size )
                 {
-                    if (DEBUG.ON){System.err.println("# >> insufficient bytes: "+d.available()+"/"+img_size);}
+                    if (DEBUG.M){System.err.println("# >> insufficient bytes: "+d.available()+"/"+img_size);}
                     return null;
                 }
 
@@ -494,7 +494,7 @@ public class MdsDataProvider implements DataProvider
 
         public SimpleWaveData(String in_y, String in_x, String experiment, long shot)
         {
-            if (DEBUG.ON){System.out.println("MdsDataProvider.SimpleWaveData(\""+in_y+"\", \""+in_x+"\", \""+experiment+"\", "+shot+")");}
+            if (DEBUG.M){System.out.println("MdsDataProvider.SimpleWaveData(\""+in_y+"\", \""+in_x+"\", \""+experiment+"\", "+shot+")");}
             wd_experiment = experiment;
             wd_shot = shot;
             if(checkForAsynchRequest(in_y))
@@ -505,7 +505,7 @@ public class MdsDataProvider implements DataProvider
         }
         private void SegmentMode()
         {
-            if (DEBUG.ON){System.out.println("MdsDataProvider.SimpleWaveData.SegmentMode()");}
+            if (DEBUG.M){System.out.println("MdsDataProvider.SimpleWaveData.SegmentMode()");}
             if(segmentMode == SEGMENTED_UNKNOWN)
             {
                 try {//fast using in_y as NumSegments is a node property
@@ -518,7 +518,7 @@ public class MdsDataProvider implements DataProvider
                         segmentMode = SEGMENTED_NO;
                 }catch(Exception exc)
                 {// numSegments==null should not get here anymore
-                    if (DEBUG.ON){System.err.println("# MdsDataProvider.SimpleWaveData.SegmentMode: "+exc);}
+                    if (DEBUG.M){System.err.println("# MdsDataProvider.SimpleWaveData.SegmentMode: "+exc);}
                     error = null;
                     segmentMode = SEGMENTED_UNKNOWN;
                 }
@@ -529,7 +529,7 @@ public class MdsDataProvider implements DataProvider
         //in case get an implemenation of AsynchDataSource
         boolean checkForAsynchRequest(String expression)
         {
-            if (DEBUG.ON){System.out.println("MdsDataProvider.SimpleWaveData.checkForAsynchRequest(\""+expression+"\")");}
+            if (DEBUG.M){System.out.println("MdsDataProvider.SimpleWaveData.checkForAsynchRequest(\""+expression+"\")");}
             if(expression.startsWith("ASYNCH::"))
             {
                  asynchSource = getAsynchSource();
@@ -544,13 +544,13 @@ public class MdsDataProvider implements DataProvider
 
         public void setContinuousUpdate(boolean continuousUpdate)
         {
-            if (DEBUG.ON){System.out.println("MdsDataProvider.SimpleWaveData.setContinuousUpdate("+continuousUpdate+")");}
+            if (DEBUG.M){System.out.println("MdsDataProvider.SimpleWaveData.setContinuousUpdate("+continuousUpdate+")");}
             this.continuousUpdate = continuousUpdate;
         }
 
         public int getNumDimension() throws IOException
         {
-            if (DEBUG.ON){System.out.println("MdsDataProvider.SimpleWaveData.getNumDimension()");}
+            if (DEBUG.M){System.out.println("MdsDataProvider.SimpleWaveData.getNumDimension()");}
             if(numDimensions != UNKNOWN)
                 return numDimensions;
             String expr;
@@ -579,7 +579,7 @@ public class MdsDataProvider implements DataProvider
 
         public String GetTitle() throws IOException
         {
-            if (DEBUG.ON){System.out.println("MdsDataProvider.SimpleWaveData.GetTitle()");}
+            if (DEBUG.M){System.out.println("MdsDataProvider.SimpleWaveData.GetTitle()");}
             if(!titleEvaluated)
             {
                 titleEvaluated = true;
@@ -590,7 +590,7 @@ public class MdsDataProvider implements DataProvider
 
         public String GetXLabel() throws IOException
         {
-            if (DEBUG.ON){System.out.println("MdsDataProvider.SimpleWaveData.GetXLabel()");}
+            if (DEBUG.M){System.out.println("MdsDataProvider.SimpleWaveData.GetXLabel()");}
             if(!xLabelEvaluated)
             {
                 xLabelEvaluated = true;
@@ -602,7 +602,7 @@ public class MdsDataProvider implements DataProvider
 
         public String GetYLabel() throws IOException
         {
-            if (DEBUG.ON){System.out.println("MdsDataProvider.SimpleWaveData.GetYLabel()");}
+            if (DEBUG.M){System.out.println("MdsDataProvider.SimpleWaveData.GetYLabel()");}
             if(!yLabelEvaluated)
             {
                 yLabelEvaluated = true;
@@ -626,7 +626,7 @@ public class MdsDataProvider implements DataProvider
 
         public String GetZLabel() throws IOException
         {
-            if (DEBUG.ON){System.out.println("MdsDataProvider.SimpleWaveData.GetZLabel()");}
+            if (DEBUG.M){System.out.println("MdsDataProvider.SimpleWaveData.GetZLabel()");}
             return GetStringValue("Units("+c.y()+")");
         }
 
@@ -637,7 +637,7 @@ public class MdsDataProvider implements DataProvider
         }
         public XYData getData(double xmin, double xmax, int numPoints, boolean isLong) throws Exception
         {
-            if (DEBUG.ON){System.out.println("MdsDataProvider.SimpleWaveData.XYData("+xmin+", "+xmax+", "+numPoints+", "+isLong+")");}
+            if (DEBUG.M){System.out.println("MdsDataProvider.SimpleWaveData.XYData("+xmin+", "+xmax+", "+numPoints+", "+isLong+")");}
             if (!CheckOpen(this.wd_experiment, this.wd_shot))
               return null;
 
@@ -664,7 +664,7 @@ public class MdsDataProvider implements DataProvider
                     return getXYSignal(xmin, xmax, numPoints, isLong, setTimeContext);
                 }catch(Exception exc)
                 {// causes the next mdsvalue to fail raising: %TDI-E-SYNTAX, Bad punctuation or misspelled word or number
-                   if (DEBUG.ON){System.err.println("# MdsMisc->GetXYSignal() is not available on the server: "+exc);}
+                   if (DEBUG.M){System.err.println("# MdsMisc->GetXYSignal() is not available on the server: "+exc);}
                    mds.MdsValue("1");
                 }
 
@@ -688,7 +688,7 @@ public class MdsDataProvider implements DataProvider
         }
         private String getTimeContext(double xmin, double xmax, boolean isLong)throws Exception
         {
-            if (DEBUG.ON){System.out.println("MdsDataProvider.SimpleWaveData.setTimeContext("+xmin+", "+xmax+", "+isLong+")");}
+            if (DEBUG.M){System.out.println("MdsDataProvider.SimpleWaveData.setTimeContext("+xmin+", "+xmax+", "+isLong+")");}
             String res;
             try{
                 if(xmin == Double.NEGATIVE_INFINITY && xmax == Double.POSITIVE_INFINITY)
@@ -717,17 +717,17 @@ public class MdsDataProvider implements DataProvider
             }
             catch(Exception exc)
             {
-                if (DEBUG.ON){System.err.println("# MdsDataProvider.SimpleWaveData.setTimeContext: "+exc);}
+                if (DEBUG.M){System.err.println("# MdsDataProvider.SimpleWaveData.setTimeContext: "+exc);}
                 res = "";
             }
             return res;
         }
         private XYData getXYSignal(double xmin, double xmax, int numPoints, boolean isLong, String setTimeContext)throws Exception
         {
-            if (DEBUG.ON){System.out.println("MdsDataProvider.SimpleWaveData.getXYSignal("+xmin+", "+xmax+", "+numPoints+", "+isLong+", \""+setTimeContext+"\")");}
-            //If the requeated number of mounts is Integer.MAX_VALUE, force the old way of getting data
-            if(numPoints == Integer.MAX_VALUE)
-                throw new Exception("Use Old Method for getting data");
+            if (DEBUG.M){System.out.println("MdsDataProvider.SimpleWaveData.getXYSignal("+xmin+", "+xmax+", "+numPoints+", "+isLong+", \""+setTimeContext+"\")");}
+            //If the requeated number of mounts is Integer.MAX_VALUE, force the old way of getting data  
+            if(numPoints == Integer.MAX_VALUE)  
+                throw new Exception("Use Old Method for getting data");  
             XYData res = null;
             double maxX = 0;
             Vector<Descriptor> args = new Vector<Descriptor>();
@@ -858,13 +858,13 @@ public class MdsDataProvider implements DataProvider
 
          public XYData getData(int numPoints)throws Exception
          {
-            if (DEBUG.ON){System.out.println("MdsDataProvider.SimpleWaveData.getData("+numPoints+")");}
+            if (DEBUG.M){System.out.println("MdsDataProvider.SimpleWaveData.getData("+numPoints+")");}
              return getData(Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, numPoints);
          }
 
         public float[] getZ()
         {
-            if (DEBUG.ON){System.out.println("MdsDataProvider.SimpleWaveData.getZ()");}
+            if (DEBUG.M){System.out.println("MdsDataProvider.SimpleWaveData.getZ()");}
             try {
                 return GetFloatArray(c.y());
             }catch(Exception exc){return null;}
@@ -873,7 +873,7 @@ public class MdsDataProvider implements DataProvider
         private long x2DLong[];
         public double[] getX2D()
         {
-            if (DEBUG.ON){System.out.println("MdsDataProvider.SimpleWaveData.getX2D()");}
+            if (DEBUG.M){System.out.println("MdsDataProvider.SimpleWaveData.getX2D()");}
             try {
                 RealArray realArray = GetRealArray("DIM_OF("+c.y()+", 0)");
                 if( realArray.isLong )
@@ -892,13 +892,13 @@ public class MdsDataProvider implements DataProvider
         }
         public long[] getX2DLong()
         {
-            if (DEBUG.ON){System.out.println("MdsDataProvider.SimpleWaveData.getX2DLong()");}
+            if (DEBUG.M){System.out.println("MdsDataProvider.SimpleWaveData.getX2DLong()");}
             return x2DLong;
         }
 
         public float[] getY2D()
         {
-            if (DEBUG.ON){System.out.println("MdsDataProvider.SimpleWaveData.getY2D()");}
+            if (DEBUG.M){System.out.println("MdsDataProvider.SimpleWaveData.getY2D()");}
             try {
                 return GetFloatArray("DIM_OF("+c.y()+", 1)");
             }catch(Exception exc){return null;}
@@ -908,21 +908,21 @@ public class MdsDataProvider implements DataProvider
 
         public float[] getX_Z()
         {
-            if (DEBUG.ON){System.out.println("MdsDataProvider.SimpleWaveData.getX_Z()");}
+            if (DEBUG.M){System.out.println("MdsDataProvider.SimpleWaveData.getX_Z()");}
             try {
                 return GetFloatArray("("+c.x()+")");
             }catch(Exception exc){return null;}
         }
         public float[] getX_X2D()
         {
-            if (DEBUG.ON){System.out.println("MdsDataProvider.SimpleWaveData.getX_X2D()");}
+            if (DEBUG.M){System.out.println("MdsDataProvider.SimpleWaveData.getX_X2D()");}
             try {
                 return GetFloatArray("DIM_OF("+c.x()+", 0)");
             }catch(Exception exc){return null;}
         }
         public float[] getX_Y2D()
         {
-            if (DEBUG.ON){System.out.println("MdsDataProvider.SimpleWaveData.getX_Y2D()");}
+            if (DEBUG.M){System.out.println("MdsDataProvider.SimpleWaveData.getX_Y2D()");}
             try {
                 return GetFloatArray("DIM_OF("+c.x()+", 1)");
             }catch(Exception exc){return null;}
@@ -940,14 +940,14 @@ public class MdsDataProvider implements DataProvider
 
         public void addWaveDataListener(WaveDataListener listener)
         {
-            if (DEBUG.ON){System.out.println("MdsDataProvider.SimpleWaveData.addWaveDataListener()");}
+            if (DEBUG.M){System.out.println("MdsDataProvider.SimpleWaveData.addWaveDataListener()");}
             waveDataListenersV.addElement(listener);
             if(asynchSource != null)
                 asynchSource.addDataListener(listener);
         }
         public void getDataAsync(double lowerBound, double upperBound, int numPoints)
         {
-            if (DEBUG.ON){System.out.println("MdsDataProvider.SimpleWaveData.getDataAsync("+lowerBound+", "+upperBound+", "+numPoints+")");}
+            if (DEBUG.M){System.out.println("MdsDataProvider.SimpleWaveData.getDataAsync("+lowerBound+", "+upperBound+", "+numPoints+")");}
             updateWorker.updateInfo(lowerBound, upperBound, numPoints, waveDataListenersV, this, isXLong);
         }
     } //END Inner Class SimpleWaveData
@@ -1027,7 +1027,7 @@ public class MdsDataProvider implements DataProvider
 
         public void run()
         {
-            if (DEBUG.ON){System.out.println("run()");}
+            if (DEBUG.M){System.out.println("run()");}
             this.setName("UpdateWorker");
 
             while(true)
@@ -1068,7 +1068,7 @@ public class MdsDataProvider implements DataProvider
                         }catch(Exception exc)
                         {
                             Date d = new Date();
-                            if (DEBUG.ON){System.err.println(d+" Error in asynchUpdate: "+exc);}
+                            if (DEBUG.M){System.err.println(d+" Error in asynchUpdate: "+exc);}
                         }
                     }
                     else
@@ -1100,13 +1100,13 @@ public class MdsDataProvider implements DataProvider
 
     protected MdsConnection getConnection()
     {
-        if (DEBUG.ON){System.out.println("MdsDataProvider(\""+provider+"\")");}
+        if (DEBUG.M){System.out.println("MdsDataProvider(\""+provider+"\")");}
         return new MdsConnection();
     }
 
     protected void finalize()
     {
-        if (DEBUG.ON){System.out.println("MdsDataProvider.finalize()");}
+        if (DEBUG.M){System.out.println("MdsDataProvider.finalize()");}
         int status;
         String err = new String("");
         if (open)
@@ -1123,14 +1123,14 @@ public class MdsDataProvider implements DataProvider
 
     public void SetArgument(String arg) throws IOException
     {
-        if (DEBUG.ON){System.out.println("MdsDataProvider.SetArgument("+arg+")");}
+        if (DEBUG.M){System.out.println("MdsDataProvider.SetArgument("+arg+")");}
         setProvider(arg);
         mds.setProvider(provider);
     }
 
     private void setProvider(String arg)
     {
-        if (DEBUG.ON){System.out.println("MdsDataProvider.setProvider("+arg+")");}
+        if (DEBUG.M){System.out.println("MdsDataProvider.setProvider("+arg+")");}
         if (is_tunneling)
             provider = tunnel_provider;
         else
@@ -1144,7 +1144,7 @@ public class MdsDataProvider implements DataProvider
 
     public void SetCompression(boolean state)
     {
-        if (DEBUG.ON){System.out.println("MdsDataProvider.SetCompression("+state+")");}
+        if (DEBUG.M){System.out.println("MdsDataProvider.SetCompression("+state+")");}
         if (connected)
             Dispose();
         use_compression = state;
@@ -1152,7 +1152,7 @@ public class MdsDataProvider implements DataProvider
 
     protected String GetExperimentName(String in_frame)
     {
-        if (DEBUG.ON){System.out.println("MdsDataProvider.GetExperimentName(\""+in_frame+"\")");}
+        if (DEBUG.M){System.out.println("MdsDataProvider.GetExperimentName(\""+in_frame+"\")");}
         String exp;
 
         if (experiment == null)
@@ -1170,7 +1170,7 @@ public class MdsDataProvider implements DataProvider
 
     public FrameData GetFrameData(String in_y, String in_x, float time_min, float time_max) throws IOException
     {
-        if (DEBUG.ON){System.out.println("MdsDataProvider.GetFrameData(\""+in_y+"\", \""+in_x+"\", "+time_min+", "+time_max+")");}
+        if (DEBUG.M){System.out.println("MdsDataProvider.GetFrameData(\""+in_y+"\", \""+in_x+"\", "+time_min+", "+time_max+")");}
         int[] numSegments = null;
         try
         {
@@ -1193,7 +1193,7 @@ public class MdsDataProvider implements DataProvider
 
     public synchronized AllFrames GetAllFrames(String in_frame) throws IOException
     {
-        if (DEBUG.ON){System.out.println("MdsDataProvider.GetAllFrames("+in_frame+")");}
+        if (DEBUG.M){System.out.println("MdsDataProvider.GetAllFrames("+in_frame+")");}
         ByteArray img = null;
         double time[] = null;
         int shape[];
@@ -1230,7 +1230,7 @@ public class MdsDataProvider implements DataProvider
 
     public synchronized double[] GetFrameTimes(String in_frame)
     {
-        if (DEBUG.ON){System.out.println("MdsDataProvider.GetFrameTimes(\""+in_frame+"\")");}
+        if (DEBUG.M){System.out.println("MdsDataProvider.GetFrameTimes(\""+in_frame+"\")");}
         String exp = GetExperimentName(in_frame);
 
         String in = "JavaGetFrameTimes(\"" + exp + "\",\"" + in_frame + "\"," + shot + " )";
@@ -1263,7 +1263,7 @@ public class MdsDataProvider implements DataProvider
 
     public byte[] GetFrameAt(String in_frame, int frame_idx) throws IOException
     {
-        if (DEBUG.ON){System.out.println("MdsDataProvider.GetFrameAt(\""+in_frame+"\", "+frame_idx+")");}
+        if (DEBUG.M){System.out.println("MdsDataProvider.GetFrameAt(\""+in_frame+"\", "+frame_idx+")");}
         String exp = GetExperimentName(in_frame);
         String in = "JavaGetFrameAt(\"" + exp + "\",\" " + in_frame + "\"," + shot + ", " + frame_idx + " )";
         return GetByteArray(in);
@@ -1274,7 +1274,7 @@ public class MdsDataProvider implements DataProvider
     public  synchronized  ByteArray getByteArray(String in) throws IOException {return getByteArray(in, null);}
     public  synchronized  ByteArray getByteArray(String in, Vector<Descriptor> args) throws IOException
     {
-        if (DEBUG.ON){System.out.println("MdsDataProvider.getByteArray(\""+in+"\", "+args+")");}
+        if (DEBUG.M){System.out.println("MdsDataProvider.getByteArray(\""+in+"\", "+args+")");}
         if (!CheckOpen())
             throw new IOException("TreeNotOpen");
         if(DEBUG.LV>1){System.out.println(">> mds = "+mds);}
@@ -1326,7 +1326,7 @@ public class MdsDataProvider implements DataProvider
     public synchronized void Update(String experiment, long shot){Update( experiment,  shot, false);}
     public synchronized void Update(String experiment, long shot, boolean resetExperiment)
     {
-        if (DEBUG.ON){System.out.println("MdsDataProvider.Update(\""+experiment+"\", "+shot+", "+resetExperiment+")");}
+        if (DEBUG.M){System.out.println("MdsDataProvider.Update(\""+experiment+"\", "+shot+", "+resetExperiment+")");}
         this.error = null;
 
         if (resetExperiment)
@@ -1341,7 +1341,7 @@ public class MdsDataProvider implements DataProvider
 
     public synchronized String GetString(String in) throws IOException
     {
-        if (DEBUG.ON){System.out.println("MdsDataProvider.GetString(\""+in+"\")");}
+        if (DEBUG.M){System.out.println("MdsDataProvider.GetString(\""+in+"\")");}
         if (in == null)
             return null;
 
@@ -1376,7 +1376,7 @@ public class MdsDataProvider implements DataProvider
 
     public synchronized void SetEnvironment(String in) throws IOException
     {
-        if (DEBUG.ON){System.out.println("MdsDataProvider.SetEnvironment(\""+in+"\")");}
+        if (DEBUG.M){System.out.println("MdsDataProvider.SetEnvironment(\""+in+"\")");}
         if (in == null || in.length() == 0)
             return;
         Properties pr = new Properties();
@@ -1404,7 +1404,7 @@ public class MdsDataProvider implements DataProvider
 
     void SetEnvironmentSpecific(String in)
     {
-        if (DEBUG.ON){System.out.println("MdsDataProvider.SetEnvironmentSpecific(\""+in+"\")");}
+        if (DEBUG.M){System.out.println("MdsDataProvider.SetEnvironmentSpecific(\""+in+"\")");}
         Descriptor desc = mds.MdsValue(in);
         switch (desc.dtype)
         {
@@ -1420,7 +1420,7 @@ public class MdsDataProvider implements DataProvider
     }
     double GetDate(String in) throws Exception
     {
-        if (DEBUG.ON){System.out.println("MdsDataProvider.GetDate(\""+in+"\")");}
+        if (DEBUG.M){System.out.println("MdsDataProvider.GetDate(\""+in+"\")");}
         Calendar cal = Calendar.getInstance();
         //cal.setTimeZone(TimeZone.getTimeZone("GMT+00"));
         DateFormat df = new SimpleDateFormat("d-MMM-yyyy HH:mm Z");
@@ -1433,7 +1433,7 @@ public class MdsDataProvider implements DataProvider
     }
     double GetNow(String in) throws Exception
     {
-        if (DEBUG.ON){System.out.println("MdsDataProvider.GetNow(\""+in+"\")");}
+        if (DEBUG.M){System.out.println("MdsDataProvider.GetNow(\""+in+"\")");}
         boolean isPlus = true;
         int hours = 0, minutes = 0, seconds = 0;
         String currStr = in.trim().toUpperCase();
@@ -1493,7 +1493,7 @@ public class MdsDataProvider implements DataProvider
 
     public synchronized double GetFloat(String in) throws IOException
     {
-        if (DEBUG.ON){System.out.println("MdsDataProvider.GetFloat(\""+in+"\")");}
+        if (DEBUG.M){System.out.println("MdsDataProvider.GetFloat(\""+in+"\")");}
         error = null;
         //First check Whether this is a date
         try {return GetDate(in);}catch(Exception excD){}
@@ -1558,7 +1558,7 @@ public class MdsDataProvider implements DataProvider
 
     public synchronized RealArray GetRealArray(String in) throws IOException
     {
-        if (DEBUG.ON){System.out.println("MdsDataProvider.GetRealArray(\""+in+"\")");}
+        if (DEBUG.M){System.out.println("MdsDataProvider.GetRealArray(\""+in+"\")");}
         ConnectionEvent e = new ConnectionEvent(this, 1, 0);
         DispatchConnectionEvent(e);
 
@@ -1622,7 +1622,7 @@ public class MdsDataProvider implements DataProvider
 
     public long[] GetShots(String in) throws IOException
     {
-        if (DEBUG.ON){System.out.println("MdsDataProvider.GetShots(\""+in+"\")");}
+        if (DEBUG.M){System.out.println("MdsDataProvider.GetShots(\""+in+"\")");}
         //To shot evaluation don't execute check
         //if a pulse file is open
         CheckConnection();
@@ -1631,7 +1631,7 @@ public class MdsDataProvider implements DataProvider
 
     public int[] GetIntArray(String in) throws IOException
     {
-        if (DEBUG.ON){System.out.println("MdsDataProvider.GetIntArray(\""+in+"\")");}
+        if (DEBUG.M){System.out.println("MdsDataProvider.GetIntArray(\""+in+"\")");}
         if (!CheckOpen())
             throw new IOException("Tree not open");
         return GetIntegerArray(in);
@@ -1639,7 +1639,7 @@ public class MdsDataProvider implements DataProvider
 
     public synchronized long[] GetLongArray(String in) throws IOException
     {
-        if (DEBUG.ON){System.out.println("MdsDataProvider.GetLongArray(\""+in+"\")");}
+        if (DEBUG.M){System.out.println("MdsDataProvider.GetLongArray(\""+in+"\")");}
         long out_data[];
 
         Descriptor desc = mds.MdsValue(in);
@@ -1678,7 +1678,7 @@ public class MdsDataProvider implements DataProvider
 
     private synchronized int[] GetIntegerArray(String in) throws IOException
     {
-        if (DEBUG.ON){System.out.println("MdsDataProvider.GetIntegerArray(\""+in+"\")");}
+        if (DEBUG.M){System.out.println("MdsDataProvider.GetIntegerArray(\""+in+"\")");}
         int out_data[];
 
         Descriptor desc = mds.MdsValue(in);
@@ -1709,7 +1709,7 @@ public class MdsDataProvider implements DataProvider
 
     public synchronized void Dispose()
     {
-        if (DEBUG.ON){System.out.println("MdsDataProvider.Dispose()");}
+        if (DEBUG.M){System.out.println("MdsDataProvider.Dispose()");}
 
         if (is_tunneling && ssh_tunneling != null)
            ssh_tunneling.Dispose();
@@ -1733,7 +1733,7 @@ public class MdsDataProvider implements DataProvider
 
     protected synchronized void CheckConnection() throws IOException
     {
-        if (DEBUG.ON){System.out.println("MdsDataProvider.CheckConnection()");}
+        if (DEBUG.M){System.out.println("MdsDataProvider.CheckConnection()");}
         if (!connected)
         {
             if (mds.ConnectToMds(use_compression) == 0)
@@ -1745,7 +1745,7 @@ public class MdsDataProvider implements DataProvider
             }
             else
             {
-            if (DEBUG.ON){System.out.println("connected");}
+            if (DEBUG.M){System.out.println("connected");}
                 connected = true;
                 updateWorker = new UpdateWorker();
                 updateWorker.start();
@@ -1756,7 +1756,7 @@ public class MdsDataProvider implements DataProvider
     protected synchronized boolean CheckOpen() throws IOException{return CheckOpen( this.experiment,  this.shot);}
     protected synchronized boolean CheckOpen(String experiment, long shot) throws IOException
     {
-        if (DEBUG.ON){System.out.println("MdsDataProvider.CheckOpen(\""+experiment+"\", "+shot+")");}
+        if (DEBUG.M){System.out.println("MdsDataProvider.CheckOpen(\""+experiment+"\", "+shot+")");}
         int status;
         if (!connected)
         {
@@ -1826,7 +1826,7 @@ public class MdsDataProvider implements DataProvider
 
     protected boolean NotYetString(String in)
     {
-        if (DEBUG.ON){System.out.println("MdsDataProvider.NotYetString(\""+in+"\")");}
+        if (DEBUG.M){System.out.println("MdsDataProvider.NotYetString(\""+in+"\")");}
         int i;
         if (in.charAt(0) == '\"')
         {
@@ -1842,7 +1842,7 @@ public class MdsDataProvider implements DataProvider
 
     protected boolean NotYetNumber(String in)
     {
-        if (DEBUG.ON){System.out.println("MdsDataProvider.NotYetNumber(\""+in+"\")");}
+        if (DEBUG.M){System.out.println("MdsDataProvider.NotYetNumber(\""+in+"\")");}
         boolean ris;
         ris = false;
         try
@@ -1858,7 +1858,7 @@ public class MdsDataProvider implements DataProvider
 
     public synchronized void AddUpdateEventListener(UpdateEventListener l, String event_name) throws IOException
     {
-        if (DEBUG.ON){System.out.println("MdsDataProvider.AddUpdateEventListener("+l+","+event_name+")");}
+        if (DEBUG.M){System.out.println("MdsDataProvider.AddUpdateEventListener("+l+","+event_name+")");}
         int eventid;
         String error;
 
@@ -1870,7 +1870,7 @@ public class MdsDataProvider implements DataProvider
 
     public synchronized void RemoveUpdateEventListener(UpdateEventListener l, String event_name) throws IOException
     {
-        if (DEBUG.ON){System.out.println("MdsDataProvider.RemoveUpdateEventListener("+l+","+event_name+")");}
+        if (DEBUG.M){System.out.println("MdsDataProvider.RemoveUpdateEventListener("+l+","+event_name+")");}
         int eventid;
         String error;
 
@@ -1882,7 +1882,7 @@ public class MdsDataProvider implements DataProvider
 
     public synchronized void AddConnectionListener(ConnectionListener l)
     {
-        if (DEBUG.ON){System.out.println("MdsDataProvider.AddConnectionListener("+l+")");}
+        if (DEBUG.M){System.out.println("MdsDataProvider.AddConnectionListener("+l+")");}
         if (mds == null)
         {
             return;
@@ -1892,7 +1892,7 @@ public class MdsDataProvider implements DataProvider
 
     public synchronized void RemoveConnectionListener(ConnectionListener l)
     {
-        if (DEBUG.ON){System.out.println("MdsDataProvider.RemoveConnectionListener("+l+")");}
+        if (DEBUG.M){System.out.println("MdsDataProvider.RemoveConnectionListener("+l+")");}
         if (mds == null)
         {
             return;
@@ -1902,7 +1902,7 @@ public class MdsDataProvider implements DataProvider
 
     protected void DispatchConnectionEvent(ConnectionEvent e)
     {
-        if (DEBUG.ON){System.out.println("MdsDataProvider.DispatchConnectionEvent("+e+")");}
+        if (DEBUG.M){System.out.println("MdsDataProvider.DispatchConnectionEvent("+e+")");}
         if (mds == null)
         {
             return;
@@ -1918,7 +1918,7 @@ public class MdsDataProvider implements DataProvider
 
     public int InquireCredentials(JFrame f, DataServerItem server_item)
     {
-        if (DEBUG.ON){System.out.println("MdsDataProvider.InquireCredentials("+f+", "+server_item+")");}
+        if (DEBUG.M){System.out.println("MdsDataProvider.InquireCredentials("+f+", "+server_item+")");}
         mds.setUser(server_item.user);
         is_tunneling = false;
         if (server_item.tunnel_port != null &&
@@ -1961,7 +1961,7 @@ public class MdsDataProvider implements DataProvider
 
     protected String GetStringValue(String expression) throws IOException
     {
-        if (DEBUG.ON){System.out.println("MdsDataProvider.GetStringValue(\""+expression+"\")");}
+        if (DEBUG.M){System.out.println("MdsDataProvider.GetStringValue(\""+expression+"\")");}
         String out = GetString(expression);
         if (out == null || out.length() == 0 || error != null)
         {
@@ -1976,7 +1976,7 @@ public class MdsDataProvider implements DataProvider
 
     protected int[] GetNumDimensions(String expression) throws IOException
     {
-        if (DEBUG.ON){System.out.println("MdsDataProvider.GetNumDimensions(\""+expression+"\")");}
+        if (DEBUG.M){System.out.println("MdsDataProvider.GetNumDimensions(\""+expression+"\")");}
         //return GetIntArray(in_y);
         //Gabriele June 2013: reduce dimension if one component is 1
         int [] fullDims = GetIntArray("SHAPE( "+expression+" )");
@@ -2011,7 +2011,7 @@ public class MdsDataProvider implements DataProvider
 
         RealArray(float[] floatArray)
         {
-            if (DEBUG.ON){System.out.println("MdsDataProvider.RealArray("+floatArray+")");}
+            if (DEBUG.M){System.out.println("MdsDataProvider.RealArray("+floatArray+")");}
             this.floatArray = floatArray;
             isDouble = false;
             isLong = false;
@@ -2019,7 +2019,7 @@ public class MdsDataProvider implements DataProvider
 
         RealArray(double[] doubleArray)
         {
-            if (DEBUG.ON){System.out.println("MdsDataProvider.RealArray("+doubleArray+")");}
+            if (DEBUG.M){System.out.println("MdsDataProvider.RealArray("+doubleArray+")");}
             this.doubleArray = doubleArray;
             isDouble = true;
             isLong = false;
@@ -2027,7 +2027,7 @@ public class MdsDataProvider implements DataProvider
 
         RealArray(long[] longArray)
         {
-            if (DEBUG.ON){System.out.println("MdsDataProvider.RealArray("+longArray+")");}
+            if (DEBUG.M){System.out.println("MdsDataProvider.RealArray("+longArray+")");}
             this.longArray = longArray;
             for(int i = 0; i < longArray.length; i++)
                 longArray[i] = jScopeFacade.convertFromSpecificTime(longArray[i]);
@@ -2038,7 +2038,7 @@ public class MdsDataProvider implements DataProvider
 
         float[] getFloatArray()
         {
-            if (DEBUG.ON){System.out.println("MdsDataProvider.RealArray.getFloatArray()");}
+            if (DEBUG.M){System.out.println("MdsDataProvider.RealArray.getFloatArray()");}
             if(isLong) return null;
 
             if (isDouble && floatArray == null && doubleArray != null)
@@ -2052,7 +2052,7 @@ public class MdsDataProvider implements DataProvider
 
         double[] getDoubleArray()
         {
-            if (DEBUG.ON){System.out.println("MdsDataProvider.RealArray.getDoubleArray()");}
+            if (DEBUG.M){System.out.println("MdsDataProvider.RealArray.getDoubleArray()");}
             if (DEBUG.LV>1){System.out.println(">> "+isLong+isDouble+(floatArray!=null)+(doubleArray!=null));}
 
             if(isLong) return null;
@@ -2068,7 +2068,7 @@ public class MdsDataProvider implements DataProvider
 
         long[] getLongArray()
         {
-            if (DEBUG.ON){System.out.println("MdsDataProvider.RealArray.getLongArray()");}
+            if (DEBUG.M){System.out.println("MdsDataProvider.RealArray.getLongArray()");}
             if(isDouble) return null;
             return longArray;
         }

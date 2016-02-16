@@ -5,6 +5,9 @@ public final class DEBUG
     //unreachable code
     public static final int LV = 0;
     public static final boolean ON = LV>0;
+    public static final boolean D  = (LV&1)>0;
+    public static final boolean M  = (LV&4)>0;
+    public static final boolean A  = (LV&8)>0;
     public static void printDoubleArray(double[] buf, int width, int height, int pages)
     {
         int i = 0;

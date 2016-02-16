@@ -212,7 +212,6 @@ class W7XDataProvider implements DataProvider
             synchronized void intUpdate(){requests = true;notify();}
             public void run()
             {
-                if (DEBUG.ON){System.out.println("run()");}
                 this.setName("UpdateWorker");
                 try{swd.getSignals();}
                 catch(Exception e){System.err.println("Unable to get signal: "+swd.in_y+"\n"+e);return;}
@@ -255,11 +254,14 @@ class W7XDataProvider implements DataProvider
         }
         private void getSignals()
         {
+            long starttime;
+            if(DEBUG.D){starttime = System.nanoTime();}
             if(sig_y!=null && sig_x!=null) return;
             TimeInterval ti = getTimeInterval(from,upto);
             ReadOptions ro = ReadOptions.fetchAll();
             sig_y = W7XDataProvider.getSignal(in_y,ti,ro);
             sig_x = (in_x==null) ? sig_y.getDimensionSignal(0) : W7XDataProvider.getSignal(in_x,ti,ro);
+            if(DEBUG.D){System.out.println("getSignals took "+(System.nanoTime() - starttime)/1E9+"s");}
         }
         public Signal getYSignal(){return sig_y;}
 

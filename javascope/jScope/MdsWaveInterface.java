@@ -32,14 +32,14 @@ class MdsWaveInterface extends WaveInterface
     public MdsWaveInterface(Waveform wave, DataProvider dp, jScopeDefaultValues def_vals, boolean enable_cache)
     {
         super(dp);
-        if (DEBUG.ON){System.out.println("MdsWaveInterface("+wave+", "+dp+", "+def_vals+", "+enable_cache+")");}
+        if (DEBUG.M){System.out.println("MdsWaveInterface("+wave+", "+dp+", "+def_vals+", "+enable_cache+")");}
         setDefaultsValues(def_vals);
         EnableCache(enable_cache);
         this.wave = wave;
     }
     public MdsWaveInterface(MdsWaveInterface wi)
     {
-        if (DEBUG.ON){System.out.println("MdsWaveInterface("+wi+")");}
+        if (DEBUG.M){System.out.println("MdsWaveInterface("+wi+")");}
         previous_shot = wi.previous_shot;
         cache_enabled = wi.cache_enabled;
         provider = wi.provider;
@@ -260,7 +260,7 @@ class MdsWaveInterface extends WaveInterface
 
     public void setDefaultsValues(jScopeDefaultValues def_vals)
     {
-        if (DEBUG.ON){System.out.println("MdsWaveInterface.setDefaultsValues("+def_vals+")");}
+        if (DEBUG.M){System.out.println("MdsWaveInterface.setDefaultsValues("+def_vals+")");}
         this.def_vals = def_vals;
         default_is_update = false;
         this.def_vals.setIsEvaluated(false);
@@ -268,7 +268,7 @@ class MdsWaveInterface extends WaveInterface
 
     public String GetDefaultValue(int i, boolean def_flag)
     {
-        if (DEBUG.ON){System.out.println("MdsWaveInterface.GetDefaultValue("+i+", "+def_flag+")");}
+        if (DEBUG.M){System.out.println("MdsWaveInterface.GetDefaultValue("+i+", "+def_flag+")");}
         String out = null;
 
         switch (i)
@@ -321,7 +321,7 @@ class MdsWaveInterface extends WaveInterface
 
     public void UpdateDefault()
     {
-        if (DEBUG.ON){System.out.println("MdsWaveInterface.UpdateDefault()");}
+        if (DEBUG.M){System.out.println("MdsWaveInterface.UpdateDefault()");}
         boolean def_flag;
         int bit;
 
@@ -405,7 +405,7 @@ class MdsWaveInterface extends WaveInterface
 
     public int GetShotIdx()
     {
-        if (DEBUG.ON){System.out.println("MdsWaveInterface.GetShotIdx()");}
+        if (DEBUG.M){System.out.println("MdsWaveInterface.GetShotIdx()");}
         String main_shot_str = ( (jScopeWaveContainer) (wave.getParent())).
             getMainShotStr();
         if (UseDefaultShot())
@@ -421,7 +421,7 @@ class MdsWaveInterface extends WaveInterface
 
     public String GetUsedShot()
     {
-        if (DEBUG.ON){System.out.println("MdsWaveInterface.GetUsedShot()");}
+        if (DEBUG.M){System.out.println("MdsWaveInterface.GetUsedShot()");}
         String out = null;
 
         switch (GetShotIdx())
@@ -442,7 +442,7 @@ class MdsWaveInterface extends WaveInterface
 
     public String Update() throws IOException
     {
-        if (DEBUG.ON){System.out.println("MdsWaveInterface.Update()");}
+        if (DEBUG.M){System.out.println("MdsWaveInterface.Update()");}
         int mode = this.wave.GetMode();
 
         try
@@ -482,7 +482,7 @@ class MdsWaveInterface extends WaveInterface
 
     static public String containMainShot(String in_shot, String m_shot)
     {
-        if (DEBUG.ON){System.out.println("MdsWaveInterface.containMainShot(\""+in_shot+"\", \""+m_shot+"\")");}
+        if (DEBUG.M){System.out.println("MdsWaveInterface.containMainShot(\""+in_shot+"\", \""+m_shot+"\")");}
         int idx;
         String out = in_shot;
         if ( (in_shot != null) && (idx = in_shot.indexOf("#")) != -1)
@@ -499,7 +499,7 @@ class MdsWaveInterface extends WaveInterface
 
     public void UpdateShot() throws IOException
     {
-        if (DEBUG.ON){System.out.println("MdsWaveInterface.UpdateShot()");}
+        if (DEBUG.M){System.out.println("MdsWaveInterface.UpdateShot()");}
         long curr_shots[] = null;
 
         String main_shot_str = ( (jScopeWaveContainer) (wave.getParent())).
@@ -570,13 +570,13 @@ Fix bug : shot expression must be always evaluated.
 
     public boolean UseDefaultShot()
     {
-        if (DEBUG.ON){System.out.println("MdsWaveInterface.UseDefaultShot()");}
+        if (DEBUG.M){System.out.println("MdsWaveInterface.UseDefaultShot()");}
         return ( (defaults & (1 << B_shot)) != 0);
     }
 
     public String getErrorString() //boolean brief_error)
     {
-        if (DEBUG.ON){System.out.println("MdsWaveInterface.getErrorString()");}
+        if (DEBUG.M){System.out.println("MdsWaveInterface.getErrorString()");}
         String full_error = null;
 
         if (w_error == null || w_error.length == 0)
@@ -643,14 +643,14 @@ Fix bug : shot expression must be always evaluated.
     public void SetDataProvider(DataProvider _dp)
     {
         super.SetDataProvider(_dp);
-        if (DEBUG.ON){System.out.println("MdsWaveInterface.SetDataProvider("+_dp+")");}
+        if (DEBUG.M){System.out.println("MdsWaveInterface.SetDataProvider("+_dp+")");}
         default_is_update = false;
         previous_shot = "";
     }
 
     public synchronized void refresh() throws Exception
     {
-        if (DEBUG.ON){System.out.println("MdsWaveInterface.refresh()");}
+        if (DEBUG.M){System.out.println("MdsWaveInterface.refresh()");}
         try
         {
             error = Update();
@@ -675,7 +675,7 @@ Fix bug : shot expression must be always evaluated.
     public void Erase()
     {
         super.Erase();
-        if (DEBUG.ON){System.out.println("MdsWaveInterface.Erase()");}
+        if (DEBUG.M){System.out.println("MdsWaveInterface.Erase()");}
         in_def_node = null;
         in_upd_event = null;
         last_upd_event = null;
@@ -701,7 +701,7 @@ Fix bug : shot expression must be always evaluated.
 
     public void CreateVector()
     {
-        if (DEBUG.ON){System.out.println("MdsWaveInterface.CreateVector()");}
+        if (DEBUG.M){System.out.println("MdsWaveInterface.CreateVector()");}
         in_label = new String[num_waves];
         shots = new long[num_waves];
         in_y = new String[num_waves];
@@ -728,7 +728,7 @@ Fix bug : shot expression must be always evaluated.
 
     public void AddEvent(UpdateEventListener w) throws IOException
     {
-        if (DEBUG.ON){System.out.println("MdsWaveInterface.AddEvent("+w+")");}
+        if (DEBUG.M){System.out.println("MdsWaveInterface.AddEvent("+w+")");}
         int bit = MdsWaveInterface.B_event;
         boolean def_flag = ( (defaults & (1 << bit)) == 1 << bit);
         String new_event = GetDefaultValue(bit, def_flag);
@@ -740,7 +740,7 @@ Fix bug : shot expression must be always evaluated.
 
     public void RemoveEvent(UpdateEventListener w) throws IOException
     {
-        if (DEBUG.ON){System.out.println("MdsWaveInterface.RemoveEvent("+w+")");}
+        if (DEBUG.M){System.out.println("MdsWaveInterface.RemoveEvent("+w+")");}
         if (in_upd_event != null)
         {
             dp.RemoveUpdateEventListener(w, in_upd_event);
@@ -750,13 +750,13 @@ Fix bug : shot expression must be always evaluated.
 
     public void RemoveEvent(UpdateEventListener w, String event) throws IOException
     {
-        if (DEBUG.ON){System.out.println("MdsWaveInterface.RemoveEvent("+w+", \""+event+"\")");}
+        if (DEBUG.M){System.out.println("MdsWaveInterface.RemoveEvent("+w+", \""+event+"\")");}
         dp.RemoveUpdateEventListener(w, event);
     }
 
     public void AddEvent(UpdateEventListener w, String event) throws IOException
     {
-        if (DEBUG.ON){System.out.println("MdsWaveInterface.AddEvent("+w+", \""+event+"\")");}
+        if (DEBUG.M){System.out.println("MdsWaveInterface.AddEvent("+w+", \""+event+"\")");}
         if (in_upd_event != null && in_upd_event.length() != 0)
         {
             if (event == null || event.length() == 0)
@@ -785,7 +785,7 @@ Fix bug : shot expression must be always evaluated.
 
     public void ToFile(PrintWriter out, String prompt) throws IOException
     {
-        if (DEBUG.ON){System.out.println("MdsWaveInterface.ToFile("+out+", \""+prompt+"\")");}
+        if (DEBUG.M){System.out.println("MdsWaveInterface.ToFile("+out+", \""+prompt+"\")");}
         int exp, exp_n, sht, sht_n, cnum_shot, eval_shot = 1;
 
         cnum_shot = num_shot;
@@ -935,7 +935,7 @@ Fix bug : shot expression must be always evaluated.
 
     public String mode1DCodeToString(int code)
     {
-        if (DEBUG.ON){System.out.println("MdsWaveInterface.mode1DCodeToString("+code+")");}
+        if (DEBUG.M){System.out.println("MdsWaveInterface.mode1DCodeToString("+code+")");}
         switch (code)
         {
             case Signal.MODE_LINE:
@@ -950,7 +950,7 @@ Fix bug : shot expression must be always evaluated.
 
     public int mode1DStringToCode(String mode)
     {
-        if (DEBUG.ON){System.out.println("MdsWaveInterface.mode1DStringToCode(\""+mode+"\")");}
+        if (DEBUG.M){System.out.println("MdsWaveInterface.mode1DStringToCode(\""+mode+"\")");}
         if (mode.equals("Line"))
             return Signal.MODE_LINE;
         if (mode.equals("Noline"))
@@ -962,7 +962,7 @@ Fix bug : shot expression must be always evaluated.
 
     public String mode2DCodeToString(int code)
     {
-        if (DEBUG.ON){System.out.println("MdsWaveInterface.mode2DCodeToString("+code+")");}
+        if (DEBUG.M){System.out.println("MdsWaveInterface.mode2DCodeToString("+code+")");}
         switch (code)
         {
             case Signal.MODE_XZ:
@@ -977,7 +977,7 @@ Fix bug : shot expression must be always evaluated.
 
     public int mode2DStringToCode(String mode)
     {
-        if (DEBUG.ON){System.out.println("MdsWaveInterface.mode2DStringToCode(\""+mode+"\")");}
+        if (DEBUG.M){System.out.println("MdsWaveInterface.mode2DStringToCode(\""+mode+"\")");}
         if (mode.equals("xz(y)"))
             return Signal.MODE_XZ;
         if (mode.equals("yz(x)"))
@@ -989,7 +989,7 @@ Fix bug : shot expression must be always evaluated.
 
     public void FromFile(Properties pr, String prompt, ColorMapDialog cmd) throws IOException
     {
-        if (DEBUG.ON){System.out.println("MdsWaveInterface.mode2DStringToCode("+pr+", \""+prompt+"\", "+cmd+")");}
+        if (DEBUG.M){System.out.println("MdsWaveInterface.mode2DStringToCode("+pr+", \""+prompt+"\", "+cmd+")");}
         String prop = null;
         int len, pos, num_expr = 0;
 
@@ -1363,7 +1363,7 @@ Fix bug : shot expression must be always evaluated.
 
     public void mapColorIndex(int colorMap[])
     {
-        if (DEBUG.ON){System.out.println("MdsWaveInterface.mapColorIndex("+colorMap+")");}
+        if (DEBUG.M){System.out.println("MdsWaveInterface.mapColorIndex("+colorMap+")");}
         if (colorMap == null)
             return;
         try
@@ -1380,7 +1380,7 @@ Fix bug : shot expression must be always evaluated.
     public void setExperiment(String experiment)
     {
         super.setExperiment(experiment);
-        if (DEBUG.ON){System.out.println("MdsWaveInterface.setExperiment(\""+experiment+"\")");}
+        if (DEBUG.M){System.out.println("MdsWaveInterface.setExperiment(\""+experiment+"\")");}
         cexperiment = experiment;
         //Remove default
         defaults &= ~(1 << MdsWaveInterface.B_exp);

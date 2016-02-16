@@ -1247,7 +1247,7 @@ public class MultiWaveform extends Waveform
 
     public void Autoscale()
     {
-        if (DEBUG.ON){System.out.println("MultiWaveform.Autoscale()");}
+        if (DEBUG.M){System.out.println("MultiWaveform.Autoscale()");}
         if (is_image && frames != null)
         {
             super.Autoscale();

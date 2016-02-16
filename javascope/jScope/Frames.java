@@ -54,14 +54,14 @@ class Frames extends Canvas
     Frames()
     {
         super();
-        if (DEBUG.ON){System.out.println("Frames()");}
+        if (DEBUG.M){System.out.println("Frames()");}
         cache = new FrameCache();
     }
 
     Frames(Frames frames)
     {
         super();
-        if (DEBUG.ON){System.out.println("Frames("+frames+")");}
+        if (DEBUG.M){System.out.println("Frames("+frames+")");}
         Image img;
         img_width = frames.img_width;
         img_height = frames.img_height;
@@ -103,7 +103,7 @@ class Frames extends Canvas
 
         public FrameCache()
         {
-            if (DEBUG.ON){System.out.println("Frames.FrameCache()");}
+            if (DEBUG.M){System.out.println("Frames.FrameCache()");}
             this.fd = fd;
             recentFrames = new Hashtable<Integer,FrameDescriptor>();
             colorMap = new ColorMap();
@@ -111,7 +111,7 @@ class Frames extends Canvas
         }
         FrameCache(FrameCache fc)
         {
-            if (DEBUG.ON){System.out.println("Frames.FrameCache("+fc+")");}
+            if (DEBUG.M){System.out.println("Frames.FrameCache("+fc+")");}
             fd = fc.fd;
             colorMap = new ColorMap();
             recentFrames = new Hashtable<Integer,FrameDescriptor>();
@@ -127,7 +127,7 @@ class Frames extends Canvas
 
         void setFrameData(FrameData fd)
         {
-            if (DEBUG.ON){System.out.println("Frames.FrameCache.setFrameData("+fd+")");}
+            if (DEBUG.M){System.out.println("Frames.FrameCache.setFrameData("+fd+")");}
             this.fd = fd;
             try {
                 numFrames = fd.GetNumFrames();
@@ -136,7 +136,7 @@ class Frames extends Canvas
 
         public void setBitShift(int bitShift, boolean bitClip)
         {
-            if (DEBUG.ON){System.out.println("Frames.FrameCache.setBitShift("+bitShift+", "+bitClip+")");}
+            if (DEBUG.M){System.out.println("Frames.FrameCache.setBitShift("+bitShift+", "+bitClip+")");}
             this.bitShift = bitShift;
             this.bitClip  = bitClip;
             updateCount++;
@@ -144,7 +144,7 @@ class Frames extends Canvas
 
         void loadFrame(int idx) throws Exception
         {
-            if (DEBUG.ON){System.out.println("Frames.FrameCache.loadFrame("+idx+")");}
+            if (DEBUG.M){System.out.println("Frames.FrameCache.loadFrame("+idx+")");}
             bitShift = colorMap.bitShift;
             bitClip  = colorMap.bitClip;
             frameType = fd.GetFrameType();
@@ -160,7 +160,7 @@ class Frames extends Canvas
             {
                 case FrameData.BITMAP_IMAGE_8  :
                 {
-                    if (DEBUG.ON){System.out.println("Frames.FrameData.BITMAP_IMAGE_8");}
+                    if (DEBUG.M){System.out.println("Frames.FrameData.BITMAP_IMAGE_8");}
                     pixelSize = 8;
                     bytesPerPixel = 1;
                     //FlipFrame(buf, frameDim, 1);
@@ -172,7 +172,7 @@ class Frames extends Canvas
                 }
                 case FrameData.BITMAP_IMAGE_16 :
                 {
-                    if (DEBUG.ON){System.out.println("Frames.FrameData.BITMAP_IMAGE_16");}
+                    if (DEBUG.M){System.out.println("Frames.FrameData.BITMAP_IMAGE_16");}
                     pixelSize = 16;
                     bytesPerPixel = 2;
                     ColorModel colorModel = colorMap.getIndexColorModel(16);
@@ -185,7 +185,7 @@ class Frames extends Canvas
                 }
                 case FrameData.BITMAP_IMAGE_32 :
                 {
-                    if (DEBUG.ON){System.out.println("Frames.FrameData.BITMAP_IMAGE_32");}
+                    if (DEBUG.M){System.out.println("Frames.FrameData.BITMAP_IMAGE_32");}
                     pixelSize = 32;
                     bytesPerPixel = 4;
                     int n_pix = frameDim.width*frameDim.height;
@@ -205,7 +205,7 @@ class Frames extends Canvas
                 }
                 case FrameData.BITMAP_IMAGE_FLOAT:
                 {
-                    if (DEBUG.ON){System.out.println("Frames.FrameData.BITMAP_IMAGE_FLOAT");}
+                    if (DEBUG.M){System.out.println("Frames.FrameData.BITMAP_IMAGE_FLOAT");}
                     pixelSize = 32;
                     bytesPerPixel = 4;
                     int n_pix = frameDim.width*frameDim.height;
@@ -232,7 +232,7 @@ class Frames extends Canvas
                     break;
                 }
                 case FrameData.AWT_IMAGE :
-                    if (DEBUG.ON){System.out.println("Frames.FrameData.AWT_IMAGE");}
+                    if (DEBUG.M){System.out.println("Frames.FrameData.AWT_IMAGE");}
                     img = (BufferedImage)Toolkit.getDefaultToolkit().createImage(buf);
                     break;
                 default:
@@ -256,7 +256,7 @@ class Frames extends Canvas
 
         Image getImageAt(int idx) throws IOException
         {
-            if (DEBUG.ON){System.out.println("Frames.FrameCache.getImageAt("+idx+")");}
+            if (DEBUG.M){System.out.println("Frames.FrameCache.getImageAt("+idx+")");}
             FrameDescriptor fDesc = recentFrames.get(new Integer(idx));
             if(fDesc == null)
             {
@@ -295,7 +295,7 @@ class Frames extends Canvas
         private void doBitShift(BufferedImage bi, byte[] buffer) throws Exception
         {
             if(frameType != FrameData.BITMAP_IMAGE_16){return;}
-            if (DEBUG.ON){System.out.println("Frames.FrameCache.doBitShift("+bi+","+buffer+"["+buffer.length+"])");}
+            if (DEBUG.M){System.out.println("Frames.FrameCache.doBitShift("+bi+","+buffer+"["+buffer.length+"])");}
             ByteArrayInputStream b = new ByteArrayInputStream(buffer);
             DataInputStream din = new DataInputStream(b);
 
@@ -318,7 +318,7 @@ class Frames extends Canvas
 
         byte [] getBufferAt(int idx)
         {
-            if (DEBUG.ON){System.out.println("Frames.FrameCache.getBufferAt("+idx+")");}
+            if (DEBUG.M){System.out.println("Frames.FrameCache.getBufferAt("+idx+")");}
             FrameDescriptor fDescr = recentFrames.get(new Integer(idx));
             if(fDescr == null)
                 try { loadFrame(idx);
@@ -331,7 +331,7 @@ class Frames extends Canvas
 
         float[] getValuesAt(int idx)
         {
-            if (DEBUG.ON){System.out.println("Frames.FrameCache.getValuesAt("+idx+")");}
+            if (DEBUG.M){System.out.println("Frames.FrameCache.getValuesAt("+idx+")");}
             FrameDescriptor fDescr = recentFrames.get(new Integer(idx));
             if(fDescr == null)
                 try { loadFrame(idx);
@@ -378,7 +378,7 @@ class Frames extends Canvas
 
         void setColorMap(ColorMap colorMap)
         {
-            if (DEBUG.ON){System.out.println("Frames.FrameCache.setColorMap("+colorMap+")");}
+            if (DEBUG.M){System.out.println("Frames.FrameCache.setColorMap("+colorMap+")");}
             this.colorMap = colorMap;
             updateCount++;
         }
@@ -396,7 +396,7 @@ class Frames extends Canvas
 
     static int DecodeImageType(byte buf[])
     {
-        if (DEBUG.ON){System.out.println("Frames.DecodeImageType("+buf+")");}
+        if (DEBUG.M){System.out.println("Frames.DecodeImageType("+buf+")");}
         String s = new String(buf, 0, 20);
         if(s.indexOf("GIF") == 0)
             return FrameData.AWT_IMAGE;
@@ -409,14 +409,14 @@ class Frames extends Canvas
 
     public void setColorMap(ColorMap colorMap)
     {
-        if (DEBUG.ON){System.out.println("Frames.setColorMap("+colorMap+")");}
+        if (DEBUG.M){System.out.println("Frames.setColorMap("+colorMap+")");}
         if(colorMap == null) return;
         cache.setColorMap(colorMap);
     }
 
     public void SetFrameData(FrameData fd) throws Exception
     {
-        if (DEBUG.ON){System.out.println("Frames.SetFrameData("+fd+")");}
+        if (DEBUG.M){System.out.println("Frames.SetFrameData("+fd+")");}
         cache.setFrameData(fd);
         curr_frame_idx = 0;
         double t[] = fd.GetFrameTimes();
@@ -426,14 +426,14 @@ class Frames extends Canvas
 
     public void applyColorModel(ColorMap colorMap)
     {
-        if (DEBUG.ON){System.out.println("Frames.applyColorModel("+colorMap+")");}
+        if (DEBUG.M){System.out.println("Frames.applyColorModel("+colorMap+")");}
         if(colorMap == null) return;
         cache.setColorMap(colorMap);
     }
 
     public void FlipFrame(byte buf[], Dimension d, int num_byte_pixel)
     {
-        if (DEBUG.ON){System.out.println("Frames.FlipFrame("+buf+", "+d+", "+num_byte_pixel+")");}
+        if (DEBUG.M){System.out.println("Frames.FlipFrame("+buf+", "+d+", "+num_byte_pixel+")");}
         if(!vertical_flip && !horizontal_flip)
             return;
 
@@ -454,7 +454,7 @@ class Frames extends Canvas
 
     public void flipFrames(byte buf[])
     {
-        if (DEBUG.ON){System.out.println("Frames.flipFrames("+buf+")");}
+        if (DEBUG.M){System.out.println("Frames.flipFrames("+buf+")");}
         if(!vertical_flip && !horizontal_flip)
             return;
 
@@ -491,7 +491,7 @@ class Frames extends Canvas
     }
     protected int[] getPixelArray(int idx, int x, int y, int img_w, int img_h)
     {
-        if (DEBUG.ON){System.out.println("Frames.getPixelArray("+idx+", "+x+", "+y+", "+img_w+", "+img_h+")");}
+        if (DEBUG.M){System.out.println("Frames.getPixelArray("+idx+", "+x+", "+y+", "+img_w+", "+img_h+")");}
         Image img;
         try {
             img =  cache.getImageAt(idx);
@@ -519,7 +519,7 @@ class Frames extends Canvas
 
     protected float[] getValueArray(int idx, int x, int y, int img_w, int img_h)
     {
-        if (DEBUG.ON){System.out.println("Frames.getValueArray("+idx+", "+x+", "+y+", "+img_w+", "+img_h+")");}
+        if (DEBUG.M){System.out.println("Frames.getValueArray("+idx+", "+x+", "+y+", "+img_w+", "+img_h+")");}
         float values[];
         Image img;
         try {
@@ -545,7 +545,7 @@ class Frames extends Canvas
 
     protected void grabFrame()
     {
-        if (DEBUG.ON){System.out.println("Frames.grabFrame()");}
+        if (DEBUG.M){System.out.println("Frames.grabFrame()");}
         if(curr_frame_idx != curr_grab_frame || pixel_array == null)
         {
             if( (pixel_array = getPixelArray(curr_frame_idx, 0, 0, -1, -1)) != null)
@@ -558,7 +558,7 @@ class Frames extends Canvas
 
     public boolean isInImage(int idx, int x, int y)
     {
-        if (DEBUG.ON){System.out.println("Frames.isInImage("+idx+", "+x+", "+y+")");}
+        if (DEBUG.M){System.out.println("Frames.isInImage("+idx+", "+x+", "+y+")");}
         Dimension d = this.GetFrameDim(idx);
         Rectangle r = new Rectangle(0,0,d.width,d.height);
         return r.contains(x,y);
@@ -571,7 +571,7 @@ class Frames extends Canvas
 
     private Point getImageBufferPoint( int x, int y )
     {
-        if (DEBUG.ON){System.out.println("Frames.getImageBufferPoint("+x+", "+y+")");}
+        if (DEBUG.M){System.out.println("Frames.getImageBufferPoint("+x+", "+y+")");}
         Point p = new Point();
 
         p.x = x;
@@ -586,7 +586,7 @@ class Frames extends Canvas
 
     public int getPixel(int idx, int x, int y)
     {
-        if (DEBUG.ON){System.out.println("Frames.getPixel("+idx+", "+x+", "+y+")");}
+        if (DEBUG.M){System.out.println("Frames.getPixel("+idx+", "+x+", "+y+")");}
         if(!isInImage(idx, x, y))
             return -1;
         //curr_grab_frame = idx;
@@ -602,7 +602,7 @@ class Frames extends Canvas
 
     public float getPointValue(int idx, int x, int y)
     {
-        if (DEBUG.ON){System.out.println("Frames.getPointValue("+idx+", "+x+", "+y+")");}
+        if (DEBUG.M){System.out.println("Frames.getPointValue("+idx+", "+x+", "+y+")");}
         if(!isInImage(idx, x, y))
             return -1;
 
@@ -616,7 +616,7 @@ class Frames extends Canvas
 
     public int getStartPixelX()
     {
-        if (DEBUG.ON){System.out.println("Frames.getStartPixelX()");}
+        if (DEBUG.M){System.out.println("Frames.getStartPixelX()");}
         if(zoom_rect != null)
             return zoom_rect.x;
         else
@@ -625,7 +625,7 @@ class Frames extends Canvas
 
     public int getStartPixelY()
     {
-        if (DEBUG.ON){System.out.println("Frames.getStartPixelY()");}
+        if (DEBUG.M){System.out.println("Frames.getStartPixelY()");}
         if(zoom_rect != null)
             return zoom_rect.y;
         else
@@ -634,7 +634,7 @@ class Frames extends Canvas
 
     public int[] getPixelsLine(int st_x, int st_y, int end_x, int end_y)
     {
-        if (DEBUG.ON){System.out.println("Frames.getValueArray("+st_x+", "+st_y+", "+end_x+", "+end_y+")");}
+        if (DEBUG.M){System.out.println("Frames.getValueArray("+st_x+", "+st_y+", "+end_x+", "+end_y+")");}
         Point p;
         int n_point = (int) (Math.sqrt( Math.pow((double)(st_x - end_x), 2.0) + Math.pow((double)(st_y - end_y), 2.0)) + 0.5);
         int e_x, s_x, x, y;
@@ -664,7 +664,7 @@ class Frames extends Canvas
 
     public float[] getValuesLine(int st_x, int st_y, int end_x, int end_y)
     {
-        if (DEBUG.ON){System.out.println("Frames.getValuesLine("+st_x+", "+st_y+", "+end_x+", "+end_y+")");}
+        if (DEBUG.M){System.out.println("Frames.getValuesLine("+st_x+", "+st_y+", "+end_x+", "+end_y+")");}
         Point p;
         int n_point = (int) (Math.sqrt( Math.pow((double)(st_x - end_x), 2.0) + Math.pow((double)(st_y - end_y), 2.0)) + 0.5);
         int e_x, s_x, x, y;
@@ -694,7 +694,7 @@ class Frames extends Canvas
 
     public int[] getPixelsX(int y)
     {
-        if (DEBUG.ON){System.out.println("Frames.getPixelsX("+y+")");}
+        if (DEBUG.M){System.out.println("Frames.getPixelsX("+y+")");}
         Point p;
         int pixels_x[] = null;
         int st, end;
@@ -724,7 +724,7 @@ class Frames extends Canvas
 
     public float[] getValuesX(int y)
     {
-        if (DEBUG.ON){System.out.println("Frames.getValuesX("+y+")");}
+        if (DEBUG.M){System.out.println("Frames.getValuesX("+y+")");}
         Point p;
         float values_x[] = null;
         int st, end;
@@ -755,7 +755,7 @@ class Frames extends Canvas
 
     public int[] getPixelsY(int x)
     {
-        if (DEBUG.ON){System.out.println("Frames.getPixelsY("+x+")");}
+        if (DEBUG.M){System.out.println("Frames.getPixelsY("+x+")");}
         Point p;
         int pixels_y[] = null;
         int st, end;
@@ -785,7 +785,7 @@ class Frames extends Canvas
 
     public float[] getValuesY(int x)
     {
-        if (DEBUG.ON){System.out.println("Frames.getValuesY("+x+")");}
+        if (DEBUG.M){System.out.println("Frames.getValuesY("+x+")");}
         Point p;
         float values_y[] = null;
         int st, end;
@@ -816,7 +816,7 @@ class Frames extends Canvas
 
     public int[] getPixelsSignal(int x, int y)
     {
-        if (DEBUG.ON){System.out.println("Frames.getPixelsSignal("+x+", "+y+")");}
+        if (DEBUG.M){System.out.println("Frames.getPixelsSignal("+x+", "+y+")");}
         int pixels_signal[] = null;
         if(frames_pixel_array == null || !frames_pixel_roi.contains(x, y))
         {
@@ -856,7 +856,7 @@ class Frames extends Canvas
 
     public float[] getValuesSignal(int x, int y)
     {
-        if (DEBUG.ON){System.out.println("Frames.getValuesSignal("+x+", "+y+")");}
+        if (DEBUG.M){System.out.println("Frames.getValuesSignal("+x+", "+y+")");}
         float values_signal[] = null;
         if(frames_value_array == null || !frames_pixel_roi.contains(x, y))
         {
@@ -897,7 +897,7 @@ class Frames extends Canvas
 
     public float[] getFramesTime()
     {
-        if (DEBUG.ON){System.out.println("Frames.getFramesTime()");}
+        if (DEBUG.M){System.out.println("Frames.getFramesTime()");}
         if(frame_time == null || frame_time.size() == 0)
             return null;
 
@@ -915,7 +915,7 @@ class Frames extends Canvas
 
     public float GetFrameTime()
     {
-        if (DEBUG.ON){System.out.println("Frames.GetFrameTime()");}
+        if (DEBUG.M){System.out.println("Frames.GetFrameTime()");}
         float t_out = 0;
         if(curr_frame_idx != -1 && frame_time.size() != 0)
         {
@@ -927,7 +927,7 @@ class Frames extends Canvas
     //return point position in the frame shows
     public Point getImagePoint(Point p, Dimension d)
     {
-        if (DEBUG.ON){System.out.println("Frames.getImagePoint()");}
+        if (DEBUG.M){System.out.println("Frames.getImagePoint()");}
         Point p_out = new Point(0, 0);
 
         if(curr_frame_idx != -1 && cache.getNumFrames() != 0)
@@ -976,13 +976,13 @@ class Frames extends Canvas
 
     public void setFramePoint(Point sel_point, Dimension d)
     {
-        if (DEBUG.ON){System.out.println("Frames.setFramePoint("+sel_point+", "+d+")");}
+        if (DEBUG.M){System.out.println("Frames.setFramePoint("+sel_point+", "+d+")");}
         this.sel_point = getFramePoint(new Point(sel_point.x, sel_point.y), d);
     }
 
     public Point getFramePoint(Dimension d)
     {
-        if (DEBUG.ON){System.out.println("Frames.setFramePoint("+d+")");}
+        if (DEBUG.M){System.out.println("Frames.setFramePoint("+d+")");}
         if(sel_point != null)
            return getImagePoint(new Point(sel_point.x, sel_point.y), d);
         else
@@ -994,7 +994,7 @@ class Frames extends Canvas
     //Argument point is fit to frame dimension
     public Point getFramePoint(Point p, Dimension d)
     {
-        if (DEBUG.ON){System.out.println("Frames.setFramePoint("+p+", "+d+")");}
+        if (DEBUG.M){System.out.println("Frames.setFramePoint("+p+", "+d+")");}
         Point p_out = new Point(0, 0);
         if(p.x < 0) p.x = 0;
         if(p.y < 0) p.y = 0;
@@ -1039,7 +1039,7 @@ class Frames extends Canvas
 
     public boolean contain(Point p, Dimension d)
     {
-        if (DEBUG.ON){System.out.println("Frames.contain("+sel_point+", "+d+")");}
+        if (DEBUG.M){System.out.println("Frames.contain("+sel_point+", "+d+")");}
         Dimension fr_dim = getFrameSize(curr_frame_idx, d);
         if(p.x > fr_dim.width || p.y > fr_dim.height)
             return false;
@@ -1049,14 +1049,14 @@ class Frames extends Canvas
 
     public float GetTime(int frame_idx)
     {
-        if (DEBUG.ON){System.out.println("Frames.GetTime("+frame_idx+")");}
+        if (DEBUG.M){System.out.println("Frames.GetTime("+frame_idx+")");}
         if(frame_idx > cache.getNumFrames() - 1 || frame_idx < 0) return (float)0.0;
         return frame_time.elementAt(frame_idx).floatValue();
     }
 
     public int GetFrameIdxAtTime(float t)
     {
-        if (DEBUG.ON){System.out.println("Frames.GetFrameIdxAtTime("+t+")");}
+        if (DEBUG.M){System.out.println("Frames.GetFrameIdxAtTime("+t+")");}
         int idx = -1;
         float dt;
         int numFrames = cache.getNumFrames();
@@ -1092,7 +1092,7 @@ class Frames extends Canvas
 
     protected Dimension GetFrameDim(int idx)
     {
-        if (DEBUG.ON){System.out.println("Frames.GetFrameDim("+idx+")");}
+        if (DEBUG.M){System.out.println("Frames.GetFrameDim("+idx+")");}
         return cache.getFrameDimension();
 /*       return  new Dimension( ((Image)frame.elementAt(idx)).getWidth(this),
                               ((Image)frame.elementAt(idx)).getHeight(this));
@@ -1101,7 +1101,7 @@ class Frames extends Canvas
     /*return frame image pixel dimension*/
     public Dimension getFrameSize(int idx, Dimension d)
     {
-        if (DEBUG.ON){System.out.println("Frames.getFrameSize("+idx+", "+d+")");}
+        if (DEBUG.M){System.out.println("Frames.getFrameSize("+idx+", "+d+")");}
         int width, height;
         //Border image pixel
         Dimension dim_b = new Dimension(d.width-1,d.height-1);
@@ -1136,7 +1136,7 @@ class Frames extends Canvas
 
     public void setMeasurePoint(int x_pixel, int y_pixel, Dimension d)
     {
-        if (DEBUG.ON){System.out.println("Frames.setMeasurePoint("+x_pixel+", "+y_pixel+", "+d+")");}
+        if (DEBUG.M){System.out.println("Frames.setMeasurePoint("+x_pixel+", "+y_pixel+", "+d+")");}
         Point mp = getFramePoint(new Point(x_pixel, y_pixel), d);
         x_measure_pixel = mp.x;
         y_measure_pixel = mp.y;
@@ -1144,13 +1144,13 @@ class Frames extends Canvas
 
     public Point getMeasurePoint(Dimension d)
     {
-        if (DEBUG.ON){System.out.println("Frames.setMeasurePoint("+d+")");}
+        if (DEBUG.M){System.out.println("Frames.setMeasurePoint("+d+")");}
         return getImagePoint(new Point(x_measure_pixel, y_measure_pixel), d);
     }
 
     public void SetZoomRegion(int idx, Dimension d, Rectangle r)
     {
-        if (DEBUG.ON){System.out.println("Frames.setMeasurePoint("+idx+", "+d+", "+r+")");}
+        if (DEBUG.M){System.out.println("Frames.setMeasurePoint("+idx+", "+d+", "+r+")");}
         int numFrames = cache.getNumFrames();
         if(idx > numFrames - 1)// || frame.elementAt(idx) == null )
             return;
@@ -1184,13 +1184,13 @@ class Frames extends Canvas
 
     public Rectangle GetZoomRect()
     {
-        if (DEBUG.ON){System.out.println("Frames.GetZoomRect()");}
+        if (DEBUG.M){System.out.println("Frames.GetZoomRect()");}
         return zoom_rect;
     }
 
     public void SetViewRect(int start_x, int start_y, int end_x, int end_y)
     {
-        if (DEBUG.ON){System.out.println("Frames.SetViewRect("+start_x+", "+start_y+", "+end_y+", "+end_y+")");}
+        if (DEBUG.M){System.out.println("Frames.SetViewRect("+start_x+", "+start_y+", "+end_y+", "+end_y+")");}
         view_rect = null;
         if(start_x == -1 && start_y == -1 && end_x == -1 && end_y == -1)
             return;
@@ -1222,7 +1222,7 @@ class Frames extends Canvas
 
     public int getNextFrameIdx()
     {
-        if (DEBUG.ON){System.out.println("Frames.getNextFrameIdx()");}
+        if (DEBUG.M){System.out.println("Frames.getNextFrameIdx()");}
         if(curr_frame_idx + 1 == getNumFrame())
             return curr_frame_idx;
         else
@@ -1231,7 +1231,7 @@ class Frames extends Canvas
 
     public int getLastFrameIdx()
     {
-        if (DEBUG.ON){System.out.println("Frames.getLastFrameIdx()");}
+        if (DEBUG.M){System.out.println("Frames.getLastFrameIdx()");}
         if(curr_frame_idx - 1 < 0)
             return 0;
         else
@@ -1240,19 +1240,19 @@ class Frames extends Canvas
 
     public int GetFrameIdx()
     {
-        if (DEBUG.ON){System.out.println("Frames.GetFrameIdx()");}
+        if (DEBUG.M){System.out.println("Frames.GetFrameIdx()");}
         return curr_frame_idx;
     }
 
     public Object GetFrame(int idx, Dimension d)
     {
-        if (DEBUG.ON){System.out.println("Frames.GetFrame("+idx+", "+d+")");}
+        if (DEBUG.M){System.out.println("Frames.GetFrame("+idx+", "+d+")");}
         return GetFrame(idx);
     }
 
     public Object GetFrame(int idx)
     {
-        if (DEBUG.ON){System.out.println("Frames.GetFrame("+idx+")");}
+        if (DEBUG.M){System.out.println("Frames.GetFrame("+idx+")");}
         if(idx < 0) return null;
         int numFrames = cache.getNumFrames();
         if(idx >= numFrames)

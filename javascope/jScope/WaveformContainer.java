@@ -942,7 +942,7 @@ public class WaveformContainer extends RowColumnContainer implements WaveformMan
 
     public void PrintAll(Graphics g, int st_x, int st_y, int height, int width)
     {
-        if (DEBUG.ON){System.out.println("WaveformContainer.PrintAll()");}
+        if (DEBUG.M){System.out.println("WaveformContainer.PrintAll()");}
         Waveform w;
         int i, j, k = 0;
         int pix = 1;
