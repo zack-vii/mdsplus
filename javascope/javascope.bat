@@ -80,7 +80,7 @@ jScope\WaveformEditor.java jScope\WaveformEditorListener.java jScope\WaveformEve
 jScope\Waveform.java jScope\WaveformListener.java jScope\WaveformManager.java ^
 jScope\WaveformMetrics.java jScope\WaveInterface.java jScope\WavePopup.java ^
 jScope\XYData.java jScope\XYWaveData.java jScope\WaveDataListener.java ^
-jScope\W7XDataProvider.java
+jScope\W7XDataProvider.java jScope\W7XBrowseSignals.java 
 
 SET WAVEDISPLAY_SRC=
 
