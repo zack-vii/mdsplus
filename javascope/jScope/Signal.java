@@ -2467,6 +2467,27 @@ public class Signal implements WaveDataListener
             fireSignalUpdated(false);
         }
     }
+
+    public void sourceUpdated()
+    {
+        if(this.title==null)                try{this.title  = data.GetTitle();}catch(Exception e){}
+        if(this.xlabel==null)               try{this.xlabel = (x_data==null) ? data.GetXLabel() : x_data.GetYLabel();}catch(Exception e){}
+        if(this.ylabel==null)               try{this.ylabel = data.GetYLabel();}catch(Exception e){}
+        if(this.zlabel==null&&type==TYPE_2D)try{this.zlabel = data.GetZLabel();}catch(Exception e){}
+        try{
+        XYData xydata = data.getData(Double.NEGATIVE_INFINITY,Double.POSITIVE_INFINITY,Integer.MAX_VALUE);
+        x = xydata.x;
+        xLong = xydata.xLong;
+        y = xydata.y;
+        Autoscale();
+        saved_xmin = curr_xmin = xmin;
+        saved_xmax = curr_xmax = xmax;
+        saved_ymin = ymin;
+        saved_ymax = ymax;
+        }catch(Exception e){}
+        fireSignalUpdated(true);
+    }
+
     public  void dataRegionUpdated(long []regX, float []regY, double resolution)
     {
         if(regX == null || regX.length == 0) return;

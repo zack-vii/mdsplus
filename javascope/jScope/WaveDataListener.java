@@ -12,7 +12,8 @@ package jScope;
 */
 public interface WaveDataListener 
 {
-    void dataRegionUpdated(double []x, float []y, double resolution);
-    void dataRegionUpdated(long []x, float []y, double resolution);
-    void legendUpdated(String name);
+    public void dataRegionUpdated(double []x, float []y, double resolution);
+    public void dataRegionUpdated(long []x, float []y, double resolution);
+    public void sourceUpdated();
+    public void legendUpdated(String name);
 }
