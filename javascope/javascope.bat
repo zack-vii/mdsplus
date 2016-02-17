@@ -99,7 +99,7 @@ jScope\FontPanel.class ^
 jScope\ServerDialog*.class ^
 jScope\WindowDialog.class
 
-SET CLASSPATH=-classpath ".;I:\Projects\archive\java\archive_java\signalaccessFull-1.0.21.jar;%MDSPLUS_DIR%\java\classes\MindTerm.jar"
+SET CLASSPATH=-classpath ".;I:\Projects\archive\java\archive_java\signalaccessFull.jar;%MDSPLUS_DIR%\java\classes\MindTerm.jar"
 SET JAVAC="%JDK_HOME%\bin\javac.exe"
 SET JCFLAGS= ||rem -Xlint -deprecation
 SET MANIFEST=%CD%\jScopeManifest.mf

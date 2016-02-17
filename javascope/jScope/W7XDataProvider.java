@@ -17,14 +17,21 @@ class W7XDataProvider implements DataProvider
 {
     MdsDataProvider mds;
     String error;
-    final static SignalToolsFactory stf = ArchieToolsFactory.remoteArchive();
     public W7XDataProvider(){mds = new MdsDataProvider();}
     public W7XDataProvider(String provider) throws IOException{mds = new MdsDataProvider(provider);}
     private static SignalReader getReader(String path)
     {
+        if(path.toUpperCase().startsWith("/TEST/"))
+        {
+            final SignalToolsFactory stf_test = ArchieToolsFactory.remoteArchive("Test");
+            final SignalAddressBuilder sab_test = stf_test.makeSignalAddressBuilder(new String[0]);
+            return stf_test.makeSignalReader(sab_test.newBuilder().path(path.substring(5)).build());
+        }
+        if(path.toUpperCase().startsWith("/ARCHIVEDB/"))
+            path = path.substring(10);
+        final SignalToolsFactory stf = ArchieToolsFactory.remoteArchive();
         final SignalAddressBuilder sab = stf.makeSignalAddressBuilder(new String[0]);
-        SignalAddress adr = sab.newBuilder().path(path).build();
-        return stf.makeSignalReader(adr);
+        return stf.makeSignalReader(sab.newBuilder().path(path).build());
     }
     private static TimeInterval getTimeInterval(long from, long upto){return TimeInterval.ALL.withStart(from).withEnd(upto);}
     private static Signal getSignal(String path,TimeInterval ti,ReadOptions ro)
