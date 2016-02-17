@@ -1903,14 +1903,10 @@ public class Signal implements WaveDataListener
     {
         if(freezeMode != NOT_FREEZED) //If adding samples when freezed
         {
-            if(xmin >= this.xmin && xmax <= this.xmax)
-            {
-                this.xmin = xmin;
-                this.xmax = xmax;
-            }
+            this.xmin = xmin;
+            this.xmax = xmax;
             return;
         }
-
         xLimitsInitialized = true;
         if(xmin != Double.NEGATIVE_INFINITY )
         {
@@ -1930,14 +1926,12 @@ public class Signal implements WaveDataListener
             if((mode & FIXED_LIMIT)!= 0)
                 fix_xmax = true;
         }
-
         double actXMin = xmin;
         if(actXMin == Double.NEGATIVE_INFINITY )
             actXMin = this.xmin;
         double actXMax = xmax;
         if(actXMax == Double.POSITIVE_INFINITY )
             actXMax = this.xmax;
-
         /*Enlarge by 1/20 */
         double enlargeFactor = 40;
         actXMax += (actXMax - actXMin)/enlargeFactor;
@@ -1948,7 +1942,6 @@ public class Signal implements WaveDataListener
             return; //Dynamic resampling only for "classical" signas
         if(up_errorData != null || low_errorData != null)
             return; //Dynamic resampling only without error bars
-
         Vector<RegionDescriptor> lowResRegions = resolutionManager.getLowerResRegions(actXMin, actXMax, actResolution);
         for(int i = 0; i < lowResRegions.size(); i++)
         {
