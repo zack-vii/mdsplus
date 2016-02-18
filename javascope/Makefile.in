@@ -464,7 +464,8 @@ EXTRA_DIST = $(MINDTERM) $(am__append_1) colors1.tbl
 CLEANFILES = $(java_DATA) $(am__append_2) $(JSCOPE_CLASS) \
 	$(WAVEDISPLAY_CLASS) $(EXTRA_CLASS)
 MINDTERM = $(srcdir)/MindTerm.jar
-CLASSPATH_ENV = CLASSPATH=$(MINDTERM)
+W7XDATAPROVIDER = $(srcdir)/W7XDataProvider.jar
+CLASSPATH_ENV = CLASSPATH="$(MINDTERM):$(W7XDATAPROVIDER)"
 @MINGW_FALSE@bin_SCRIPTS = scripts/jScope
 
 # Create the shell script that runs the program
@@ -473,7 +474,7 @@ CLASSPATH_ENV = CLASSPATH=$(MINDTERM)
 # Documentation
 dist_docs_DATA = $(DOCS)
 docsdir = $(exec_prefix)/java/classes/jdocs
-dist_java_DATA = jScope.properties MindTerm.jar
+dist_java_DATA = jScope.properties MindTerm.jar W7XDataProvider.jar
 java_DATA = jScope.jar WaveDisplay.jar
 javadir = $(exec_prefix)/java/classes
 dist_java_JAVA = $(JSCOPE_SRC) $(WAVEDISPLAY_SRC) $(COMMON_SRC)
@@ -545,7 +546,8 @@ COMMON_SRC = \
 	jScope/WaveformEditor.java            jScope/WaveformEditorListener.java  jScope/WaveformEvent.java         \
 	jScope/Waveform.java                  jScope/WaveformListener.java        jScope/WaveformManager.java       \
 	jScope/WaveformMetrics.java           jScope/WaveInterface.java           jScope/WavePopup.java             \
-        jScope/XYData.java		      jScope/XYWaveData.java		  jScope/WaveDataListener.java
+        jScope/XYData.java		      jScope/XYWaveData.java		  jScope/WaveDataListener.java      \
+        jScope/W7XDataProvider.java
 
 WAVEDISPLAY_SRC =
 JSCOPE_SRC = \
@@ -557,7 +559,8 @@ JSCOPE_SRC = \
 	jScope/MdsIOException.java       \
 	jScope/MdsPlusBrowseSignals.java \
 	jScope/TextorBrowseSignals.java \
-	jScope/DEBUG.java
+        jScope/W7XBrowseSignals.java \
+        jScope/DEBUG.java
 
 EXTRA_CLASS = \
         jScope/FakeTWUProperties.class \
@@ -897,7 +900,7 @@ $(java_DATA): classjava.stamp
 jScope.jar: colors1.tbl
 	$(MKDIR_P) @builddir@/jdocs
 	cp $(addprefix @srcdir@/,$(SUBDOCS)) @builddir@/jdocs
-	$(JAR) c0f $@ $(addprefix @srcdir@/,$(TOPDOCS)) $(JSCOPE_CLASS) @builddir@/jdocs $<
+	$(JAR) c0mf $(addprefix @srcdir@/,jScopeManifest.mf) $@ $(addprefix @srcdir@/,$(TOPDOCS)) $(JSCOPE_CLASS) @builddir@/jdocs $<
 	rm -Rf @builddir@/jdocs
 
 WaveDisplay.jar:

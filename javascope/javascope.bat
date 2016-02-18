@@ -101,9 +101,9 @@ jScope\FontPanel.class ^
 jScope\ServerDialog*.class ^
 jScope\WindowDialog.class
 
-SET CLASSPATH=-classpath ".;MindTerm.jar;.\W7XDataProvider\signalaccessFull.jar"
+SET CLASSPATH=-classpath ".;MindTerm.jar;W7XDataProvider.jar"
 SET JAVAC="%JDK_HOME%\bin\javac.exe"
-SET JCFLAGS= ||rem-Xlint -deprecation
+SET JCFLAGS=-O -g:none||rem-Xlint -deprecation
 SET MANIFEST=%CD%\jScopeManifest.mf
 SET JAR="%JDK_HOME%\bin\jar.exe"
 SET JARDIR=..\java\classes
@@ -119,14 +119,14 @@ COPY /Y jScope.properties %JARDIR%\>NUL
 COPY /Y colors1.tbl %JARDIR%\>NUL
 MKDIR  %JARDIR%\docs 2>NUL
 FOR %%F IN (%DOCS%) DO COPY /Y %%F /D %JARDIR%\docs>NUL
-ROBOCOPY %CD%\W7XDataProvider %JARDIR%>NUL
 COPY %CD%\MindTerm.jar %JARDIR%>NUL
+COPY %CD%\W7XDataProvider.jar %JARDIR%>NUL
 
 :packjar
 ECHO creating jar packages
 PUSHD %JARDIR%
-%JAR% -c0mf %MANIFEST% "jScope.jar" jScope.class colors1.tbl jScope.properties jScope docs
-%JAR% -c0f "WaveDisplay.jar" %COMMON_SRC:.java=.class%
+%JAR% -cmf %MANIFEST% "jScope.jar" jScope.class colors1.tbl jScope.properties jScope docs
+%JAR% -cf "WaveDisplay.jar" %COMMON_SRC:.java=.class%
 POPD
 
 :cleanup

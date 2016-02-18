@@ -1,9 +1,10 @@
 JAVAROOT = $(builddir)
-EXTRA_DIST = $(MINDTERM)
+EXTRA_DIST = "$(MINDTERM) $(W7XDATAPROVIDER)"
 CLEANFILES = $(java_DATA)
 
 MINDTERM = $(srcdir)/MindTerm.jar
-CLASSPATH_ENV = CLASSPATH=$(MINDTERM)
+W7XDATAPROVIDER = $(srcdir)/W7XDataProvider.jar
+CLASSPATH_ENV = CLASSPATH="$(MINDTERM):$(W7XDATAPROVIDER)"
 
 # Create the shell script that runs the program
 if MINGW
@@ -23,7 +24,7 @@ endif
 dist_docs_DATA = $(DOCS)
 docsdir = $(exec_prefix)/java/classes/jdocs
 
-dist_java_DATA = jScope.properties MindTerm.jar
+dist_java_DATA = jScope.properties MindTerm.jar W7XDataProvider.jar
 
 java_DATA = jScope.jar WaveDisplay.jar
 javadir = $(exec_prefix)/java/classes
@@ -33,7 +34,7 @@ EXTRA_DIST += colors1.tbl
 jScope.jar: colors1.tbl
 	$(MKDIR_P) @builddir@/jdocs
 	cp $(addprefix @srcdir@/,$(SUBDOCS)) @builddir@/jdocs
-	$(JAR) c0f $@ $(addprefix @srcdir@/,$(TOPDOCS)) $(JSCOPE_CLASS) @builddir@/jdocs $<
+	$(JAR) c0mf $@ $(addprefix @srcdir@/,jScopeManifest.mf) $(addprefix @srcdir@/,$(TOPDOCS)) $(JSCOPE_CLASS) @builddir@/jdocs $<
 	rm -Rf @builddir@/jdocs
 
 WaveDisplay.jar:

@@ -1,2 +1,2 @@
 Main-Class: jScope
-Class-Path: MindTerm.jar signalaccessFull.jar
+Class-Path: MindTerm.jar W7XDataProvider.jar
