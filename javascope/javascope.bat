@@ -80,7 +80,7 @@ jScope\WaveformEditor.java jScope\WaveformEditorListener.java jScope\WaveformEve
 jScope\Waveform.java jScope\WaveformListener.java jScope\WaveformManager.java ^
 jScope\WaveformMetrics.java jScope\WaveInterface.java jScope\WavePopup.java ^
 jScope\XYData.java jScope\XYWaveData.java jScope\WaveDataListener.java ^
-jScope\W7XDataProvider.java jScope\W7XBrowseSignals.java 
+jScope\W7XDataProvider.java
 
 SET WAVEDISPLAY_SRC=
 
@@ -91,24 +91,25 @@ jScope\LocalDataProvider.java ^
 jScope\MdsDataClient.java ^
 jScope\MdsIOException.java ^
 jScope\MdsPlusBrowseSignals.java ^
-jScope\TextorBrowseSignals.java
-
+jScope\TextorBrowseSignals.java ^
+jScope\W7XBrowseSignals.java ^
+jScope\DEBUG.java
+ 
 SET EXTRA_CLASS=^
 jScope\FakeTWUProperties.class ^
 jScope\FontPanel.class ^
 jScope\ServerDialog*.class ^
 jScope\WindowDialog.class
 
-SET CLASSPATH=-classpath ".;I:\Projects\archive\java\archive_java\signalaccessFull.jar;%MDSPLUS_DIR%\java\classes\MindTerm.jar"
+SET CLASSPATH=-classpath ".;MindTerm.jar;.\W7XDataProvider\signalaccessFull.jar"
 SET JAVAC="%JDK_HOME%\bin\javac.exe"
-SET JCFLAGS= ||rem -Xlint -deprecation
+SET JCFLAGS= ||rem-Xlint -deprecation
 SET MANIFEST=%CD%\jScopeManifest.mf
 SET JAR="%JDK_HOME%\bin\jar.exe"
 SET JARDIR=..\java\classes
-MKDIR  %JARDIR%\docs 2>NUL
 
 ECHO compiling *.java to *.class . . .
-%JAVAC% %JCFLAGS% -d %JARDIR% %CLASSPATH% %COMMON_SRC% %JSCOPE_SRC% %WAVEDISPLAY_SRC% ||rem jScope/DEBUG.java
+%JAVAC% %JCFLAGS% -d %JARDIR% %CLASSPATH% %COMMON_SRC% %JSCOPE_SRC% %WAVEDISPLAY_SRC%
 SET /A ERROR=%ERRORLEVEL%
 IF %ERROR% NEQ 0 GOTO:cleanup
 
@@ -116,13 +117,16 @@ IF %ERROR% NEQ 0 GOTO:cleanup
 ECHO gathering data
 COPY /Y jScope.properties %JARDIR%\>NUL
 COPY /Y colors1.tbl %JARDIR%\>NUL
-FOR %%F IN (%DOCS%) DO COPY /Y %%F %JARDIR%\docs>NUL
+MKDIR  %JARDIR%\docs 2>NUL
+FOR %%F IN (%DOCS%) DO COPY /Y %%F /D %JARDIR%\docs>NUL
+ROBOCOPY %CD%\W7XDataProvider %JARDIR%>NUL
+COPY %CD%\MindTerm.jar %JARDIR%>NUL
 
 :packjar
 ECHO creating jar packages
 PUSHD %JARDIR%
-%JAR% -cmf %MANIFEST% "jScope.jar" jScope.class colors1.tbl jScope.properties jScope docs
-%JAR% -cf "WaveDisplay.jar" %COMMON_SRC:.java=.class%
+%JAR% -c0mf %MANIFEST% "jScope.jar" jScope.class colors1.tbl jScope.properties jScope docs
+%JAR% -c0f "WaveDisplay.jar" %COMMON_SRC:.java=.class%
 POPD
 
 :cleanup
