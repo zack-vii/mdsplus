@@ -1262,7 +1262,6 @@ public class MultiWaveform extends Waveform
             signals = orig_signals;
             orig_signals = null;
         }
-        this.UpdateLimits(); //otherwise X wont scale
         int i;
         for (i = 0; i < signals.size(); i++)
             if (signals.elementAt(i) != null)
