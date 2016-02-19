@@ -42,7 +42,7 @@ public class MdsDataProvider implements DataProvider
             this.buf  = buf;
             this.dtype= dtype;
         }
-        public short getDataSize(){return Descriptor.getDataSize(dtype,buf);}
+        public int getDataSize(){return Descriptor.getDataSize(dtype,buf);}
         public int getFrameType()
         {
             if (DEBUG.LV>1){System.out.println(">> getFrameType = " + this.dtype);}
@@ -2074,11 +2074,11 @@ public class MdsDataProvider implements DataProvider
         }
     }
     public boolean isPresent(String expression)
-	{
+    {
         try{
-		    String out = GetString("TEXT(PRESENT( "+expression+" ))").trim();
-	        System.out.println(">> "+expression+" present = "+out);
-		    return out=="1";
+            String out = GetString("TEXT(PRESENT( "+expression+" ))").trim();
+            System.out.println(">> "+expression+" present = "+out);
+            return out=="1";
         }catch(IOException exc){return false;}
-	}
+    }
 }

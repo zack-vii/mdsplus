@@ -33,7 +33,7 @@ public class FontSelection extends JDialog implements ActionListener, ItemListen
     public FontSelection(Frame dw, String title) {
         super(dw, title, true);
 
-	    main_scope = (jScopeFacade)dw;
+        main_scope = (jScopeFacade)dw;
 
         getContentPane().setLayout( new BorderLayout(5, 5) );
 
@@ -119,21 +119,21 @@ public class FontSelection extends JDialog implements ActionListener, ItemListen
         fontC.setBackground(Color.white);
         getContentPane().add( BorderLayout.CENTER, fontC);
 
-	      ok = new JButton("Ok");
-	      ok.addActionListener(this);
+          ok = new JButton("Ok");
+          ok.addActionListener(this);
           buttonPanel.add(ok);
 
           apply = new JButton("Apply");
-	      apply.addActionListener(this);
+          apply.addActionListener(this);
           buttonPanel.add(apply);
 
-	      cancel = new JButton("Cancel");
-	      cancel.addActionListener(this);
+          cancel = new JButton("Cancel");
+          cancel.addActionListener(this);
           buttonPanel.add(cancel);
           getContentPane().add( BorderLayout.SOUTH, buttonPanel);
-	      pack();
+          pack();
 
-	      GetPropertiesValue();
+          GetPropertiesValue();
     }
 
     private void setFontChoice()
@@ -160,9 +160,9 @@ public class FontSelection extends JDialog implements ActionListener, ItemListen
         if(js_prop == null) return;
 
         if((prop = js_prop.getProperty("jScope.font.application")) != null)
-	    {
-	         main_scope.SetApplicationFonts(StringToFont(prop));
-	    }
+        {
+             main_scope.SetApplicationFonts(StringToFont(prop));
+        }
 
 
 
@@ -171,12 +171,12 @@ public class FontSelection extends JDialog implements ActionListener, ItemListen
         if(prop == null)
             font = StringToFont(getFont().toString());
         else
-	        font = StringToFont(prop);
+            font = StringToFont(prop);
 
-	    if(font != null) {
-	        setFontChoice();
-	        fontC.changeFont(font);
-	    }
+        if(font != null) {
+            setFontChoice();
+            fontC.changeFont(font);
+        }
     }
 
 
@@ -224,25 +224,25 @@ public class FontSelection extends JDialog implements ActionListener, ItemListen
 
     public void fromFile(Properties pr, String prompt) throws IOException
     {
-    	String prop;
+        String prop;
 
 
-	    if((prop = pr.getProperty(prompt)) != null) {
-	         font = StringToFont(prop);
-	    }
+        if((prop = pr.getProperty(prompt)) != null) {
+             font = StringToFont(prop);
+        }
 
-	    if(font != null) {
-	        setFontChoice();
-	        fontC.changeFont(font);
-	    }
+        if(font != null) {
+            setFontChoice();
+            fontC.changeFont(font);
+        }
     }
 
 
     public void toFile(PrintWriter out, String prompt)
     {
         if(font != null)
-	        out.println(prompt +": " + font.toString());
-	    out.println("");
+            out.println(prompt +": " + font.toString());
+        out.println("");
     }
 
 
@@ -271,32 +271,32 @@ public class FontSelection extends JDialog implements ActionListener, ItemListen
     public void actionPerformed(ActionEvent e)
     {
 
-	    Object ob = e.getSource();
-	    int i;
+        Object ob = e.getSource();
+        int i;
 
-	    if (ob == ok || ob == apply)
-	    {
-	        if(waveform_i.isSelected())
-	        {
+        if (ob == ok || ob == apply)
+        {
+            if(waveform_i.isSelected())
+            {
                 font = GetFont();
                 main_scope.UpdateFont();
                 main_scope.RepaintAllWaves();
                 main_scope.setChange(true);
             }
 
-	        if(application_i.isSelected())
-	        {
+            if(application_i.isSelected())
+            {
                 main_scope.SetApplicationFonts(GetFont());
                 //SwingUtilities.updateComponentTreeUI(main_scope);
             }
             if(ob == ok)
-		        setVisible(false);
+                setVisible(false);
         }
 
-	    if (ob == cancel)
-	    {
-	        setVisible(false);
-	    }
+        if (ob == cancel)
+        {
+            setVisible(false);
+        }
     }
 }
 

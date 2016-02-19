@@ -13,7 +13,7 @@ import de.mpg.ipp.codac.signalaccess.objylike.ArchieToolsFactory;
 import de.mpg.ipp.codac.signalaccess.readoptions.ReadOptions;
 import de.mpg.ipp.codac.w7xtime.TimeInterval;
 
-class W7XDataProvider implements DataProvider
+final class W7XDataProvider implements DataProvider
 {
     MdsDataProvider mds;
     String error;
@@ -85,23 +85,23 @@ class W7XDataProvider implements DataProvider
                     signal.getValue(Byte.class,new int[]{index,iw,ih});
             return data;
         }
-        try (ByteArrayOutputStream dosb = new ByteArrayOutputStream()){
-            try(DataOutputStream dos = new DataOutputStream(dosb)){
-                if(frameType==FrameData.BITMAP_IMAGE_16)
-                    for (int iw=0 ; iw<w ; iw++)
-                        for (int ih=0 ; ih<h ; ih++)
-                            dos.writeShort(signal.getValue(Short.class,new int[]{index,iw,ih}));
-                else if(frameType==FrameData.BITMAP_IMAGE_32)
-                    for (int iw=0 ; iw<w ; iw++)
-                        for (int ih=0 ; ih<h ; ih++)
-                            dos.writeInt(signal.getValue(Integer.class,new int[]{index,iw,ih}));
-                else if(frameType==FrameData.BITMAP_IMAGE_FLOAT)
-                    for (int iw=0 ; iw<w ; iw++)
-                        for (int ih=0 ; ih<h ; ih++)
-                            dos.writeFloat(signal.getValue(Float.class,new int[]{index,iw,ih}));
-                return dosb.toByteArray();
-            }
-        }
+        ByteArrayOutputStream dosb = new ByteArrayOutputStream();
+        DataOutputStream dos = new DataOutputStream(dosb);
+        try{
+            if(frameType==FrameData.BITMAP_IMAGE_16)
+                for (int iw=0 ; iw<w ; iw++)
+                    for (int ih=0 ; ih<h ; ih++)
+                        dos.writeShort(signal.getValue(Short.class,new int[]{index,iw,ih}));
+            else if(frameType==FrameData.BITMAP_IMAGE_32)
+                for (int iw=0 ; iw<w ; iw++)
+                    for (int ih=0 ; ih<h ; ih++)
+                        dos.writeInt(signal.getValue(Integer.class,new int[]{index,iw,ih}));
+            else if(frameType==FrameData.BITMAP_IMAGE_FLOAT)
+                for (int iw=0 ; iw<w ; iw++)
+                    for (int ih=0 ; ih<h ; ih++)
+                        dos.writeFloat(signal.getValue(Float.class,new int[]{index,iw,ih}));
+            return dosb.toByteArray();
+        }finally{dos.close();}
     }
     private boolean isW7X(String in){return in.contains("_DATASTREAM");}
     public int []  GetNumDimensions(String in) {return new int[] {1};}

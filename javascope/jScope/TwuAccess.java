@@ -9,7 +9,7 @@ import java.util.*;
 import java.awt.*;
 import java.io.IOException;
 
-public class TwuAccess implements DataAccess
+final public class TwuAccess implements DataAccess
 {
     String ip_addr = null;
     String shot_str = null;

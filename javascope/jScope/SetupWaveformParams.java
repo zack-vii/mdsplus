@@ -12,7 +12,7 @@ import java.lang.Integer;
 import javax.swing.*;
 
 
-public class SetupWaveformParams extends JDialog implements ActionListener
+final public class SetupWaveformParams extends JDialog implements ActionListener
 {
     static final long serialVersionUID = 2324834354383L;
     Waveform          wave;
@@ -26,10 +26,10 @@ public class SetupWaveformParams extends JDialog implements ActionListener
 
     private JTextField    x_grid_lines, y_grid_lines;
     private JTextField    vertical_offset, horizontal_offset;
-    private JComboBox	  grid_mode;
+    private JComboBox      grid_mode;
     private JComboBox     legend_mode;
     private JCheckBox     reversed_b;
-    int	   x_curr_lines_grid = 3,
+    int       x_curr_lines_grid = 3,
            y_curr_lines_grid = 3;
     private boolean is_changed = false;
 
@@ -246,36 +246,36 @@ public class SetupWaveformParams extends JDialog implements ActionListener
 
    public void eraseForm()
    {
-	title.setText("");
-	x_label.setText("");
-	x_max.setText("");
-	x_min.setText("");
-	y_max.setText("");
-	y_min.setText("");
-	y_label.setText("");
-	grid_mode.setSelectedIndex(0);
-	x_grid_lines.setText("3");
-	y_grid_lines.setText("3");
-	horizontal_offset.setText("0");
-	vertical_offset.setText("0");
+    title.setText("");
+    x_label.setText("");
+    x_max.setText("");
+    x_min.setText("");
+    y_max.setText("");
+    y_min.setText("");
+    y_label.setText("");
+    grid_mode.setSelectedIndex(0);
+    x_grid_lines.setText("3");
+    y_grid_lines.setText("3");
+    horizontal_offset.setText("0");
+    vertical_offset.setText("0");
     reversed_b.setSelected(false);
    }
 
    private void setTextValue(JTextField t, String val)
    {
-	if(val != null)
-	{
-	    t.setText(val);
-	}
+    if(val != null)
+    {
+        t.setText(val);
+    }
    }
 
    private void initialize()
    {
-	    eraseForm();
+        eraseForm();
 
-	    if(wave instanceof MultiWaveform && ((MultiWaveform)wave).getWaveInterface() != null)
-	    {
-	        WaveInterface wi = ((MultiWaveform)wave).getWaveInterface();
+        if(wave instanceof MultiWaveform && ((MultiWaveform)wave).getWaveInterface() != null)
+        {
+            WaveInterface wi = ((MultiWaveform)wave).getWaveInterface();
 
             if(wi.in_xmax != null) x_max.setText(wi.in_xmax);
             if(wi.in_xmin != null) x_min.setText(wi.in_xmin);
@@ -290,27 +290,27 @@ public class SetupWaveformParams extends JDialog implements ActionListener
             if(wave.ly_min != Float.NEGATIVE_INFINITY) y_min.setText(""+wave.ly_min);
         }
 
-	    setTextValue(title, wave.GetTitle());
-	    setTextValue(x_label, wave.GetXLabel());
-	    setTextValue(y_label, wave.GetYLabel());
+        setTextValue(title, wave.GetTitle());
+        setTextValue(x_label, wave.GetXLabel());
+        setTextValue(y_label, wave.GetYLabel());
 
-	    grid_mode.setSelectedIndex(wave.GetGridMode());
+        grid_mode.setSelectedIndex(wave.GetGridMode());
 
-	    if(wave instanceof MultiWaveform)
-	    {
-	        legend_mode.setVisible(true);
-	        legend_mode.setSelectedIndex(((MultiWaveform)wave).getLegendMode());
-	    }
-	    else
-	        legend_mode.setVisible(false);
+        if(wave instanceof MultiWaveform)
+        {
+            legend_mode.setVisible(true);
+            legend_mode.setSelectedIndex(((MultiWaveform)wave).getLegendMode());
+        }
+        else
+            legend_mode.setVisible(false);
 
-	    setTextValue(x_grid_lines, ""+wave.GetGridStepX());
-	    setTextValue(y_grid_lines, ""+wave.GetGridStepX());
+        setTextValue(x_grid_lines, ""+wave.GetGridStepX());
+        setTextValue(y_grid_lines, ""+wave.GetGridStepX());
 
-	    reversed_b.setSelected(wave.IsReversed());
+        reversed_b.setSelected(wave.IsReversed());
 
-	    horizontal_offset.setText(""+Waveform.GetHorizontalOffset());
-	    vertical_offset.setText(""+Waveform.GetVerticalOffset());
+        horizontal_offset.setText(""+Waveform.GetHorizontalOffset());
+        vertical_offset.setText(""+Waveform.GetVerticalOffset());
    }
 
 
@@ -323,8 +323,8 @@ public class SetupWaveformParams extends JDialog implements ActionListener
 
 
         if(wave instanceof MultiWaveform && ((MultiWaveform)wave).getWaveInterface() != null)
-	    {
-	        WaveInterface wi = ((MultiWaveform)wave).getWaveInterface();
+        {
+            WaveInterface wi = ((MultiWaveform)wave).getWaveInterface();
 
             wi.in_xmax = x_max.getText();
             wi.in_xmin = x_min.getText();
@@ -346,59 +346,59 @@ public class SetupWaveformParams extends JDialog implements ActionListener
         }
 
 
-	    wave.SetGridMode(grid_mode.getSelectedIndex(), true, true);
+        wave.SetGridMode(grid_mode.getSelectedIndex(), true, true);
 
-	    if(wave instanceof MultiWaveform)
-	    {
-	        ((MultiWaveform)wave).setLegendMode(legend_mode.getSelectedIndex());
-	    }
-	    wave.SetReversed(reversed_b.getModel().isSelected());
+        if(wave instanceof MultiWaveform)
+        {
+            ((MultiWaveform)wave).setLegendMode(legend_mode.getSelectedIndex());
+        }
+        wave.SetReversed(reversed_b.getModel().isSelected());
 
       int h_ofs = 0, v_ofs = 0;
-	  try
-	  {
-	    h_ofs = new Integer(horizontal_offset.getText().trim()).intValue();
-	  }
-	  catch (NumberFormatException exc)
-	  {
-	    h_ofs = 0;
-	  }
-	  Waveform.SetHorizontalOffset(h_ofs);
-	  horizontal_offset.setText(""+h_ofs);
-
-	  try
-	  {
-	    v_ofs = new Integer(vertical_offset.getText().trim()).intValue();
-	  }
-	  catch (NumberFormatException exc)
-	  {
-	    v_ofs = 0;
-	  }
-	  Waveform.SetVerticalOffset(v_ofs);
-	  vertical_offset.setText(""+v_ofs);
-
-
-	  try
-	  {
-	    x_curr_lines_grid = new Integer(x_grid_lines.getText().trim()).intValue();
-	  }
-	  catch (NumberFormatException exc)
-	  {
-	    x_curr_lines_grid = 3;
-	  }
-	  if(x_curr_lines_grid > Grid.MAX_GRID)
-	    x_curr_lines_grid = Grid.MAX_GRID;
-
-	  try
-	  {
-	    y_curr_lines_grid = new Integer(y_grid_lines.getText().trim()).intValue();
+      try
+      {
+        h_ofs = new Integer(horizontal_offset.getText().trim()).intValue();
       }
-	  catch (NumberFormatException exc)
-	  {
-	    y_curr_lines_grid = 3;
-	  }
-	  if(y_curr_lines_grid > Grid.MAX_GRID)
-	    y_curr_lines_grid = Grid.MAX_GRID;
+      catch (NumberFormatException exc)
+      {
+        h_ofs = 0;
+      }
+      Waveform.SetHorizontalOffset(h_ofs);
+      horizontal_offset.setText(""+h_ofs);
+
+      try
+      {
+        v_ofs = new Integer(vertical_offset.getText().trim()).intValue();
+      }
+      catch (NumberFormatException exc)
+      {
+        v_ofs = 0;
+      }
+      Waveform.SetVerticalOffset(v_ofs);
+      vertical_offset.setText(""+v_ofs);
+
+
+      try
+      {
+        x_curr_lines_grid = new Integer(x_grid_lines.getText().trim()).intValue();
+      }
+      catch (NumberFormatException exc)
+      {
+        x_curr_lines_grid = 3;
+      }
+      if(x_curr_lines_grid > Grid.MAX_GRID)
+        x_curr_lines_grid = Grid.MAX_GRID;
+
+      try
+      {
+        y_curr_lines_grid = new Integer(y_grid_lines.getText().trim()).intValue();
+      }
+      catch (NumberFormatException exc)
+      {
+        y_curr_lines_grid = 3;
+      }
+      if(y_curr_lines_grid > Grid.MAX_GRID)
+        y_curr_lines_grid = Grid.MAX_GRID;
 
         wave.SetGridSteps(x_curr_lines_grid, y_curr_lines_grid);
 
@@ -447,7 +447,7 @@ public class SetupWaveformParams extends JDialog implements ActionListener
         {
         SaveParameters();
         if(ob == ok)
-	        setVisible(false);
+            setVisible(false);
         }
 
         if(ob == reset) {}

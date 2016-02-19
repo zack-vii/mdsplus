@@ -6,14 +6,11 @@ import java.io.*;
 import java.awt.*;
 import javax.swing.*;
 import java.awt.event.*;
-
 import java.util.Properties;
 import java.net.Socket;
-
 import com.mindbright.jca.security.SecureRandom;
 import com.mindbright.util.SecureRandomAndPad;
 import com.mindbright.util.RandomSeed;
-
 import com.mindbright.ssh2.SSH2Transport;
 import com.mindbright.ssh2.SSH2Connection;
 import com.mindbright.ssh2.SSH2Interactor;
@@ -22,19 +19,15 @@ import com.mindbright.ssh2.SSH2Listener;
 import com.mindbright.ssh2.SSH2ConnectionEventAdapter;
 import com.mindbright.ssh2.SSH2Channel;
 
-public class SshTunneling
-    extends Thread
+final public class SshTunneling extends Thread
 {
     String server;
     String remotePort;
     String localPort;
-
     SSH2SimpleClient client;
     SSH2Listener sshListener;
     SSH2Transport transport;
-
     DataProvider da;
-
     JDialog inquiry_dialog;
     JTextField user_text;
     JPasswordField passwd_text;
@@ -61,26 +54,19 @@ public class SshTunneling
 
     boolean CheckPasswd(String server, String username, String passwd)
     {
-        try
-        {
+        try{
             Socket serverSocket = new Socket(server, 22);
             transport = new SSH2Transport(serverSocket, createSecureRandom());
             client = new SSH2SimpleClient(transport, username, passwd);
             return true;
-        }
-        catch (Exception exc)
-        {
-            error_string = exc.getMessage();
-            return false;
-        }
+        }catch (Exception exc){error_string = exc.getMessage();}
+        return false;
     }
 
     private int credentialsDialog(JFrame f, String user)
     {
-
         login_status = DataProvider.LOGIN_OK;
         inquiry_dialog = new JDialog(f, "SSH login on node : " + server, true);
-
         inquiry_dialog.getContentPane().setLayout(new BorderLayout());
         JPanel p = new JPanel();
         p.add(new JLabel("Username: "));
@@ -164,8 +150,7 @@ public class SshTunneling
         return login_status;
     }
 
-    SshTunneling(JFrame f, DataProvider da, String ip, String remotePort,
-                 String user, String localPort) throws IOException
+    SshTunneling(JFrame f, DataProvider da, String ip, String remotePort, String user, String localPort) throws IOException
     {
         this.da = da;
         this.server = ip;
@@ -187,14 +172,11 @@ public class SshTunneling
         sshListener.stop();
     }
 
-    public void finalize()
-    {
-    }
+    public void finalize(){}
 
     public void run()
     {
-        try
-        {
+        try{
             SSH2Connection con = client.getConnection();
             /*
                   System.out.println("127.0.0.1:" +
@@ -218,9 +200,7 @@ public class SshTunneling
                 }
 
             });
-        }
-        catch (Exception e)
-        {
+        }catch(Exception e){
             JOptionPane.showMessageDialog(f,
                 "Exception starting ssh port forward process! " + e,
                                           "alert", JOptionPane.ERROR_MESSAGE);

@@ -5,7 +5,7 @@ import java.io.*;
  *
  * MdsProtocolWrapper handles mdstcpip management for protocol plugin
  */
-public class MdsIpProtocolWrapper
+final public class MdsIpProtocolWrapper
 {
     static {
         try
@@ -33,7 +33,7 @@ public class MdsIpProtocolWrapper
             if(connectionIdx == -1)  throw new IOException("Not Connected");
             byte [] readBuf = recv(connectionIdx, buf.length);
             if(readBuf == null) throw new IOException("Cannot Read Data");
-	    System.arraycopy(readBuf, 0, buf, 0, buf.length);
+        System.arraycopy(readBuf, 0, buf, 0, buf.length);
             return buf.length;
         }
         public int read(byte buf[], int offset, int len) throws IOException
@@ -41,7 +41,7 @@ public class MdsIpProtocolWrapper
             if(connectionIdx == -1)  throw new IOException("Not Connected");
             byte [] readBuf = recv(connectionIdx, len);
             if(readBuf == null || readBuf.length == 0) throw new IOException("Cannot Read Data");
-	    System.arraycopy(readBuf, 0, buf, offset, readBuf.length);
+        System.arraycopy(readBuf, 0, buf, offset, readBuf.length);
             return readBuf.length;
         }
 

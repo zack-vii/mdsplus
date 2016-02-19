@@ -1,7 +1,7 @@
 package jScope;
 
 /* $Id$ */
-class Base64
+final class Base64
 {
     static byte []Base64Alphabet = new String("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=").getBytes();
     byte decodingTable[] = new byte[256];
@@ -117,15 +117,7 @@ class Base64
         }
         return new String(out_s).getBytes();
     }
-
-
-
-
-
-
-
-
- }
+}
 
 /*
 

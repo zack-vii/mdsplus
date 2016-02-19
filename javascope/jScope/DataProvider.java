@@ -79,9 +79,9 @@ public interface DataProvider
          * the WaveData interface. The WaveData interface defines the following methods:
          *
          * <br>- int GetNumDimensions() returns the number of dimensions. Currently only signals (dimension=1)
-         * 		are supported.
+         *         are supported.
          * <br>- float[] GetFloatData() returns the Y axis of the signal as a float array. For bidimensional
-         * 	signals (not yet supported) the array is organized in row order;
+         *     signals (not yet supported) the array is organized in row order;
          * <br>- float[] GetXData() returns the X axis of the signal;
          * <br>- float[] GetYData()  returns the Y axis for a bidimensional signal;
          * <br>- String GetTitle()   returns the associated title (if no title is defined in the setup data popup dialog);
@@ -167,11 +167,11 @@ public interface DataProvider
          * is returned by means of an object implementing the FramesData interface.
          * The methods defined in the FrameData interface are the following:
          * <br>- int GetFrameType() returning the type of the corresponding frames, as returned by GetFrameAt, which can be:
-         * <br>	-FramesData.BITMAP if the frames are returned by method GetFrameAt as a byte matrix
-         * <br>	-FrameData.AWT_IMAGE   if the frames are returned by method GetFrameAt as the
-         * <br>	content of a gif or jpg file
-         * <br>	-FrameData.JAI_IMAGE  if the frames are returned by method GetFrameAt as the content of
-         * 	every other file format supported by JAI.
+         * <br>    -FramesData.BITMAP if the frames are returned by method GetFrameAt as a byte matrix
+         * <br>    -FrameData.AWT_IMAGE   if the frames are returned by method GetFrameAt as the
+         * <br>    content of a gif or jpg file
+         * <br>    -FrameData.JAI_IMAGE  if the frames are returned by method GetFrameAt as the content of
+         *     every other file format supported by JAI.
          *
          * <br>- int GetNumFrames() returning the number of frames in the sequence
          * <br>- Dimension GetFrameDimension() returning the dimension of the single frame
@@ -207,9 +207,9 @@ public interface DataProvider
          * implementation calls ConnectionListener's method processConnectionEvent, passing an istance of
          * ConnectionEvent as argument.
          * Class ConnectionEvent defines the following information:
-         * <br>	- int    total_size: total size of the data to be transferred
-         * <br>	- int    current_size: the size of the data transferred so far
-         * <br>	- String info: an additional information string which is displayed by jScope
+         * <br>    - int    total_size: total size of the data to be transferred
+         * <br>    - int    current_size: the size of the data transferred so far
+         * <br>    - String info: an additional information string which is displayed by jScope
          * <br>
          * If the DataProvider implementation does not support transfer notification, method AddConnectionListener
          * is empty.
@@ -235,10 +235,10 @@ public interface DataProvider
          * on this kind of information it is up to the DataProvider implementation to realize such a form
          * (if any). For this reason jScope calls method InquireCredential passingf as argument the container JFrame.
          * InquireCredentials may return:
-         * <br>	-DataProvider.LOGIN_OK if the DataProvider has been succesfully validated
-         * <br>	-DataProvider.LOGIN_ERROR if the DataProvided did not succeed in validation
-         * <br>	-DataProvider.LOGIN_CANCEL if the login proess has been aborted by user (usually pressing
-         * <br>	a canel button)
+         * <br>    -DataProvider.LOGIN_OK if the DataProvider has been succesfully validated
+         * <br>    -DataProvider.LOGIN_ERROR if the DataProvided did not succeed in validation
+         * <br>    -DataProvider.LOGIN_CANCEL if the login proess has been aborted by user (usually pressing
+         * <br>    a canel button)
          * <br>
          * Only in the first case jScope will proceede with the usega of the DataProvider implementation. In the
          * secon case a warning dialog is shown, and in the third case the DataProvider is simply discarded.

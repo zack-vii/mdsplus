@@ -121,6 +121,7 @@ public class LocalDataProvider extends MdsDataProvider /* implements DataProvide
                     else
                         for ( int i=0 ; i<buf.length ; i++ )
                             dos.writeInt(buf[i]);
+                    dos.close();
                     return dosb.toByteArray();
                 }
                 case 8 : //Double & (double)Float
@@ -139,6 +140,7 @@ public class LocalDataProvider extends MdsDataProvider /* implements DataProvide
                     DataOutputStream dos = new DataOutputStream(dosb);
                     for ( int i=0 ; i<buf.length ; i++ )
                         dos.writeFloat(buf[i]);
+                    dos.close();
                     return dosb.toByteArray();
                 }
                 default:

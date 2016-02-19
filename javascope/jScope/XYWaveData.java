@@ -10,7 +10,7 @@ import java.util.*;
  * @author manduchi
  * Basic version of WaveData which keeps arrays for X and Y (old style)
  */
-public class XYWaveData implements WaveData
+final public class XYWaveData implements WaveData
 {
     int type;
     boolean isLong = false;

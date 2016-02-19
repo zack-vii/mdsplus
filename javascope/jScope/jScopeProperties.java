@@ -15,7 +15,7 @@ import java.util.Properties;
 
 
 
-public class jScopeProperties extends Properties
+final public class jScopeProperties extends Properties
 {
     static final long serialVersionUID = 153764867658348L;
     private static final String keyValueSeparators = "=: \t\r\n\f";
@@ -29,7 +29,7 @@ public class jScopeProperties extends Properties
     public synchronized void load(InputStream inStream) throws IOException {
 
         BufferedReader in = new BufferedReader(new InputStreamReader(inStream, "8859_1"));
-	while (true) {
+    while (true) {
             // Get next line
             String line = in.readLine();
             if(line == null)
@@ -98,7 +98,7 @@ public class jScopeProperties extends Properties
                     put(key, value);
                 }
             }
-	}
+    }
     }
 
     /*

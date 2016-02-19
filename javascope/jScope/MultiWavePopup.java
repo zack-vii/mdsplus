@@ -15,8 +15,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JPanel;
 import javax.swing.BoxLayout;
 
-public class MultiWavePopup
-    extends WavePopup
+public class MultiWavePopup extends WavePopup
 {
     static final long serialVersionUID = 864135413574153L;
     protected MultiWaveform wave = null;

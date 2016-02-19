@@ -37,8 +37,8 @@ class ImageTransferable implements Transferable, ClipboardOwner
     public void lostOwnership(Clipboard clipboard, Transferable contents)
     {
         /*
-	    System.out.println ("ImageTransferable lost ownership of "  +clipboard.getName());
-	    System.out.println ("data: " + contents);
-	    */
+        System.out.println ("ImageTransferable lost ownership of "  +clipboard.getName());
+        System.out.println ("data: " + contents);
+        */
     }
 }

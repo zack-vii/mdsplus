@@ -228,8 +228,8 @@ public class Grid
             curr_min = ymin - 0.1 * yrange;
 
             step = (ymax - ymin) / grid_step;
-//	    if(step < 10e-10)
-//		step = 10e-10;
+//        if(step < 10e-10)
+//        step = 10e-10;
             is_log = ylog;
 
         }
@@ -392,7 +392,7 @@ public class Grid
             }
             if (y_label != null)
                 label_width += fm.getHeight();
-//	        label_width -= fm.charWidth(' ');
+//            label_width -= fm.charWidth(' ');
         }
 
         prev_col = g.getColor();

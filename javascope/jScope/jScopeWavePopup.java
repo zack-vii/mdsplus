@@ -17,8 +17,7 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import javax.swing.*;
 
-class jScopeWavePopup
-    extends MultiWavePopup
+final class jScopeWavePopup extends MultiWavePopup
 {
     static final long serialVersionUID = 8641687468351L;
     private SetupDataDialog setup_dialog;

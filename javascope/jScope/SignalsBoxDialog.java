@@ -9,7 +9,7 @@ import javax.swing.*;
 import javax.swing.table.*;
 
 
-public class SignalsBoxDialog extends JDialog
+final public class SignalsBoxDialog extends JDialog
 {
     static final long serialVersionUID = 4362345435764563L;
     jScopeFacade scope;
@@ -96,7 +96,7 @@ public class SignalsBoxDialog extends JDialog
         {
             public void actionPerformed(ActionEvent e)
             {
-                dispose();	
+                dispose();    
             }
         });
 
@@ -104,7 +104,7 @@ public class SignalsBoxDialog extends JDialog
 
         getContentPane().add("South",p);
 
-        pack();	
+        pack();    
         setLocationRelativeTo(f);
     }
 

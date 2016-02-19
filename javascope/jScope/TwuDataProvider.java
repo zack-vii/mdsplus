@@ -29,8 +29,7 @@ import java.awt.event.*;
 import java.lang.InterruptedException;
 
 
-class TwuDataProvider
-    implements DataProvider
+final class TwuDataProvider implements DataProvider
 {
     private   String experiment;
     protected long   shot;

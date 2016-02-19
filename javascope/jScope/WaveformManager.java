@@ -147,13 +147,13 @@ public interface  WaveformManager
      */
     public void     SetCopySource(Waveform w);
 
-	/**
-	 * Perform copy operation
-	 *
-	 * @param dest destination waveform
-	 * @param source source waveform
-	 */
-	public void     NotifyChange(Waveform dest, Waveform source);
+    /**
+     * Perform copy operation
+     *
+     * @param dest destination waveform
+     * @param source source waveform
+     */
+    public void     NotifyChange(Waveform dest, Waveform source);
 
     /**
      * Enable or disable measure mode

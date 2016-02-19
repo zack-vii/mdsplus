@@ -8,7 +8,7 @@ import javax.swing.event.*;
 
 import java.io.*;
 
-public class ColorMapDialog extends JDialog
+final public class ColorMapDialog extends JDialog
 {
     static final long serialVersionUID = 476237696543563L;
     private Vector<ActionListener> colorMapListener = new Vector<ActionListener>();

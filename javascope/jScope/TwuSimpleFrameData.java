@@ -118,7 +118,7 @@ class TwuSimpleFrameData
 
     public double[] GetFrameTimes()
     {
-		double dtimes[] = new double[times.length];
+        double dtimes[] = new double[times.length];
         for(int i = 0; i < times.length; i++)
           dtimes[i] = (double)times[i];
         return dtimes;

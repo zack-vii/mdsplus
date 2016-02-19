@@ -7,7 +7,7 @@ import java.awt.image.*;
 import java.awt.color.*;
 import java.util.*;
 
-class Frames extends Canvas
+final class Frames extends Canvas
 {
     static final long serialVersionUID = 345323264578461L;
     static final int ROI = 20;
@@ -305,7 +305,7 @@ class Frames extends Canvas
             if(nPixels != frameDim.width * frameDim.height)
                 throw new Exception("INTERNAL ERRROR: Inconsistend frame dimension when getting frame");
             int val;
-			int rot32 = (-bitShift) % 32;
+            int rot32 = (-bitShift) % 32;
             for(int j = 0; j < nPixels; j++)
             {
                 val = Integer.rotateRight(din.readShort(),rot32) & 0xFFFF;

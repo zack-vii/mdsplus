@@ -10,7 +10,7 @@ import java.io.*;
 import javax.swing.*;
 import javax.swing.event.*;
 
-class ColorDialog extends JDialog implements ActionListener, ItemListener
+final class ColorDialog extends JDialog implements ActionListener, ItemListener
 {
     static final long serialVersionUID = 4766785678461L;
     JList colorList;
@@ -31,11 +31,10 @@ class ColorDialog extends JDialog implements ActionListener, ItemListener
     int colorMapIndex[] = null;
     private boolean reversed = false;
 
-    static class Item
+    final static class Item
     {
         String name;
         Color color;
-
         Item(String n, Color c)
         {
             name = new String(n);
@@ -59,13 +58,12 @@ class ColorDialog extends JDialog implements ActionListener, ItemListener
         c.insets = new Insets(4, 4, 4, 4);
         c.fill = GridBagConstraints.BOTH;
 
-
         c.gridwidth = GridBagConstraints.REMAINDER;
         label = new JLabel("Color list customization");
         gridbag.setConstraints(label, c);
         getContentPane().add(label);
 
-//	Panel p0 = new Panel();
+//    Panel p0 = new Panel();
 //      p0.setLayout(new FlowLayout(FlowLayout.LEFT));
 
         c.gridwidth = GridBagConstraints.BOTH;
@@ -76,12 +74,12 @@ class ColorDialog extends JDialog implements ActionListener, ItemListener
         colorName = new JTextField(15);
         colorName.addKeyListener(
             new KeyAdapter()
-        {
-            public void keyPressed(KeyEvent e)
             {
-                keyPressedAction(e);
-            }
-        });
+                public void keyPressed(KeyEvent e)
+                {
+                    keyPressedAction(e);
+                }
+            });
         gridbag.setConstraints(colorName, c);
         getContentPane().add(colorName);
 
@@ -101,7 +99,7 @@ class ColorDialog extends JDialog implements ActionListener, ItemListener
 
         c.gridwidth = GridBagConstraints.REMAINDER;
         color_test = new Canvas();
-//	color_test.setBounds(10,10,10,10);
+//    color_test.setBounds(10,10,10,10);
         color_test.setBackground(Color.black);
         gridbag.setConstraints(color_test, c);
         getContentPane().add(color_test);
@@ -113,26 +111,26 @@ class ColorDialog extends JDialog implements ActionListener, ItemListener
         colorList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         colorList.addListSelectionListener(
             new ListSelectionListener()
-        {
-            public void valueChanged(ListSelectionEvent e)
             {
-                int color_idx = ( (JList) e.getSource()).getSelectedIndex();
-                if (color_idx >= 0 && color_idx < color_set.size())
+                public void valueChanged(ListSelectionEvent e)
                 {
-                    Item c_item = color_set.elementAt(color_idx);
-                    ColorDialog.this.SetSliderToColor(c_item.color);
-                    ColorDialog.this.colorName.setText(c_item.name);
+                    int color_idx = ( (JList) e.getSource()).getSelectedIndex();
+                    if (color_idx >= 0 && color_idx < color_set.size())
+                    {
+                        Item c_item = color_set.elementAt(color_idx);
+                        ColorDialog.this.SetSliderToColor(c_item.color);
+                        ColorDialog.this.colorName.setText(c_item.name);
+                    }
                 }
-            }
-        });
+            });
         colorList.addKeyListener(
             new KeyAdapter()
-        {
-            public void keyPressed(KeyEvent e)
             {
-                keyPressedAction(e);
-            }
-        });
+                public void keyPressed(KeyEvent e)
+                {
+                    keyPressedAction(e);
+                }
+            });
         gridbag.setConstraints(scrollColorList, c);
         getContentPane().add(scrollColorList);
 
@@ -159,12 +157,12 @@ class ColorDialog extends JDialog implements ActionListener, ItemListener
         red.setBorder(BorderFactory.createEmptyBorder(0, 0, 20, 0));
         red.addChangeListener(
             new ChangeListener()
-        {
-            public void stateChanged(ChangeEvent e)
             {
-                ColorDialog.this.colorValueChanged(e);
-            }
-        });
+                public void stateChanged(ChangeEvent e)
+                {
+                    ColorDialog.this.colorValueChanged(e);
+                }
+            });
         gridbag.setConstraints(red, c);
         getContentPane().add(red);
 
@@ -184,12 +182,12 @@ class ColorDialog extends JDialog implements ActionListener, ItemListener
         green.setBorder(BorderFactory.createEmptyBorder(0, 0, 20, 0));
         green.addChangeListener(
             new ChangeListener()
-        {
-            public void stateChanged(ChangeEvent e)
             {
-                ColorDialog.this.colorValueChanged(e);
-            }
-        });
+                public void stateChanged(ChangeEvent e)
+                {
+                    ColorDialog.this.colorValueChanged(e);
+                }
+            });
         gridbag.setConstraints(green, c);
         getContentPane().add(green);
 
@@ -209,12 +207,12 @@ class ColorDialog extends JDialog implements ActionListener, ItemListener
         blue.setBorder(BorderFactory.createEmptyBorder(0, 0, 20, 0));
         blue.addChangeListener(
             new ChangeListener()
-        {
-            public void stateChanged(ChangeEvent e)
             {
-                ColorDialog.this.colorValueChanged(e);
-            }
-        });
+                public void stateChanged(ChangeEvent e)
+                {
+                    ColorDialog.this.colorValueChanged(e);
+                }
+            });
         gridbag.setConstraints(blue, c);
         getContentPane().add(blue);
 
@@ -249,21 +247,15 @@ class ColorDialog extends JDialog implements ActionListener, ItemListener
     private void GetPropertiesValue()
     {
         Properties js_prop = main_scope.js_prop;
-        String prop;
-        int i = 0, len;
-
         if (js_prop == null)
             return;
-        while (true)
+        for(int i=0 ; true ; i++)
         {
-            prop = js_prop.getProperty("jScope.item_color_" + i);
-            if (prop == null)
-                break;
+            int len;
+            String prop = js_prop.getProperty("jScope.item_color_" + i);
+            if (prop == null) break;
             String name = new String(prop.substring(0, len = prop.indexOf(",")));
-            Color cr = StringToColor(new String(prop.substring(len + 2,
-                prop.length())));
-            InsertItemAt(name, cr, i);
-            i++;
+            InsertItemAt(name, StringToColor(new String(prop.substring(len + 2, prop.length()))), i);
         }
     }
 
@@ -278,7 +270,7 @@ class ColorDialog extends JDialog implements ActionListener, ItemListener
     public void ShowColorDialog(Component f)
     {
         setColorItemToList();
-//	color_set_clone = (Vector)color_set.clone();
+//    color_set_clone = (Vector)color_set.clone();
         color_set_clone = CopyColorItemsVector(color_set);
         pack();
         this.setLocationRelativeTo(f);
@@ -287,104 +279,65 @@ class ColorDialog extends JDialog implements ActionListener, ItemListener
 
     public void SetReversed(boolean reversed)
     {
-        if (this.reversed != reversed)
-        {
-            this.reversed = reversed;
-            ReversedColor(color_name, color_vector);
-            SetColorVector();
-            GetColorsName();
-        }
+        if (this.reversed == reversed)
+            return;
+        this.reversed = reversed;
+        ReversedColor(color_name, color_vector);
+        SetColorVector();
+        GetColorsName();
     }
 
     private void ReversedColor(String[] color_name, Color[] colors)
     {
         for (int i = 0; i < color_name.length; i++)
-        {
-            if (reversed)
+            if (colors[i].equals(reversed ? Color.black : Color.white))
             {
-                if (colors[i].equals(Color.black))
-                {
-                    Item c_item = new Item("White", Color.white);
-                    color_set.setElementAt(c_item, i);
-                    break;
-                }
+                if (reversed)
+                    color_set.setElementAt(new Item("White", Color.white),i);
+                else
+                    color_set.setElementAt(new Item("Black", Color.black),i);
+                return;
             }
-            else
-            {
-                if (colors[i].equals(Color.white))
-                {
-                    Item c_item = new Item("Black", Color.black);
-                    color_set.setElementAt(c_item, i);
-                    break;
-                }
-            }
-        }
     }
 
     public void ColorSetItems(String[] color_name, Color[] colors)
     {
         for (int i = 0; i < color_name.length; i++)
-        {
-            if (reversed)
+            if (colors[i].equals(reversed ? Color.black : Color.white))
             {
-                if (colors[i].equals(Color.black))
-                {
-                    Item c_item = new Item("White", Color.white);
-                    color_set.addElement(c_item);
-                    continue;
-                }
+                if (reversed)
+                    color_set.addElement(new Item("White", Color.white));
+                else
+                    color_set.addElement(new Item("Black", Color.black));
             }
             else
-            {
-                if (colors[i].equals(Color.white))
-                {
-                    Item c_item = new Item("Black", Color.black);
-                    color_set.addElement(c_item);
-                    continue;
-                }
-            }
-
-            Item c_item = new Item(color_name[i], colors[i]);
-            color_set.addElement(c_item);
-        }
+                color_set.addElement(new Item(color_name[i], colors[i]));
     }
 
     public Color GetColorAt(int idx)
     {
         if (idx >= 0 && idx < color_set.size())
-        {
-            Color color = color_set.elementAt(idx).color;
-            return color;
-        }
+            return color_set.elementAt(idx).color;
         return null;
     }
 
     public String GetNameAt(int idx)
     {
         if (idx >= 0 && idx < color_set.size())
-        {
-            String name = color_set.elementAt(idx).name;
-            return name;
-        }
+            return color_set.elementAt(idx).name;
         return null;
     }
 
-    public int GetNumColor()
-    {
-        return color_set.size();
-    }
+    public int GetNumColor(){return color_set.size();}
 
     public String[] GetColorsName()
     {
         color_name = null;
-
         if (color_set.size() > 0)
         {
             color_name = new String[color_set.size()];
             for (int i = 0; i < color_set.size(); i++)
-            {
                 color_name[i] = color_set.elementAt(i).name;
-            }
         }
         return color_name;
     }
@@ -397,7 +350,6 @@ class ColorDialog extends JDialog implements ActionListener, ItemListener
             int color_idx = color.getSelectedIndex();
             colorName.setText(Waveform.COLOR_NAME[color_idx]);
             SetSliderToColor(Waveform.COLOR_SET[color_idx]);
-
         }
     }
 
@@ -412,7 +364,6 @@ class ColorDialog extends JDialog implements ActionListener, ItemListener
         int i;
         String ext = "";
         int extIdx = 1;
-
         for (i = 0; i < color_set.size(); i++)
         {
             if ( color_set.elementAt(i).name.equals(name + ext) )
@@ -423,41 +374,24 @@ class ColorDialog extends JDialog implements ActionListener, ItemListener
             if ( color_set.elementAt(i).color.equals(color) )
                 return i;
         }
-
         Item c_item = new Item(name + ext, color);
         color_set.insertElementAt(c_item, i);
         return i;
     }
 
-    public void InsertItemAt(String name, Color color, int idx)
-    {
-        Item c_item = new Item(name, color);
-        color_set.insertElementAt(c_item, idx);
-    }
-
-    private Color getColor()
-    {
-        return new Color(red.getValue(), green.getValue(), blue.getValue());
-    }
+    public void InsertItemAt(String name, Color color, int idx){color_set.insertElementAt(new Item(name, color), idx);}
+    private Color getColor(){return new Color(red.getValue(), green.getValue(), blue.getValue());}
 
     public Color[] SetColorVector()
     {
         color_vector = new Color[color_set.size()];
-
         for (int i = 0; i < color_set.size(); i++)
             color_vector[i] = color_set.elementAt(i).color;
         return color_vector;
     }
 
-    public Color[] GetColors()
-    {
-        return color_vector;
-    }
-
-    public int[] getColorMapIndex()
-    {
-        return colorMapIndex;
-    }
+    public Color[] GetColors(){return color_vector;}
+    public int[] getColorMapIndex(){return colorMapIndex;}
 
     private void SetSliderToColor(Color c)
     {
@@ -473,12 +407,9 @@ class ColorDialog extends JDialog implements ActionListener, ItemListener
         int i;
         if (name == null || name.length() == 0)
             return;
-
         Item c_item = new Item(name, color);
         String c_name[] = GetColorsName();
-        for (i = 0;
-             c_name != null && i < c_name.length && !c_name[i].equals(name); i++)
-            ;
+        for (i = 0; c_name!=null && i<c_name.length && !c_name[i].equals(name); i++);
         if (c_name == null || i == c_name.length)
         {
             color_set.addElement(c_item);
@@ -549,7 +480,7 @@ class ColorDialog extends JDialog implements ActionListener, ItemListener
         String prop;
         int idx = 0;
         Vector<Integer> newColorMap = new Vector<Integer>();
-	removeAllColorItems();
+    removeAllColorItems();
 
          //Syntax  Scope.color_x: <name>,java.awt.Color[r=xxx,g=xxx,b=xxx]
 
@@ -584,9 +515,7 @@ class ColorDialog extends JDialog implements ActionListener, ItemListener
     public void toFile(PrintWriter out, String prompt)
     {
         for (int i = 0; i < GetNumColor(); i++)
-        {
             out.println(prompt + i + ": " + GetNameAt(i) + "," + GetColorAt(i));
-        }
         out.println("");
     }
 
@@ -595,7 +524,6 @@ class ColorDialog extends JDialog implements ActionListener, ItemListener
 
         Object ob = e.getSource();
         int i;
-
         if (ob == ok)
         {
             if (ob == ok)
@@ -611,10 +539,7 @@ class ColorDialog extends JDialog implements ActionListener, ItemListener
         }
 
         if (ob == add)
-        {
             AddUpdateItem(colorName.getText(), getColor());
-        }
-
         if (ob == erase)
         {
             colorName.setText("");
@@ -624,14 +549,12 @@ class ColorDialog extends JDialog implements ActionListener, ItemListener
             AddUpdateItem(Waveform.COLOR_NAME[0], Waveform.COLOR_SET[0]);
             SetColorVector();
         }
-
         if (ob == reset)
         {
             color_set = CopyColorItemsVector(color_set_clone);
             setColorItemToList();
             SetColorVector();
         }
-
         if (ob == cancel)
         {
             color_set = CopyColorItemsVector(color_set_clone);

@@ -6,7 +6,7 @@ import java.io.*;
 import java.awt.*;
 import java.util.*;
 
-class MdsWaveInterface extends WaveInterface
+final class MdsWaveInterface extends WaveInterface
 {
     public String in_upd_event, last_upd_event;
 

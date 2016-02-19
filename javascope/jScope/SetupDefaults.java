@@ -11,9 +11,9 @@ import java.lang.Integer;
 import javax.swing.*;
 
 
-public class SetupDefaults extends JDialog implements ActionListener
+final public class SetupDefaults extends JDialog implements ActionListener
 {
-    static final long serialVersionUID = 476237743535423L;
+   static final long serialVersionUID = 476237743535423L;
    JTextField        title, shot, experiment;
    JTextField        x_max, x_min, x_label;
    JTextField        y_max, y_min, y_label;
@@ -29,12 +29,12 @@ public class SetupDefaults extends JDialog implements ActionListener
 
    private JTextField    x_grid_lines, y_grid_lines;
    private JTextField    vertical_offset, horizontal_offset;
-   private JComboBox	 grid_mode;
+   private JComboBox     grid_mode;
    private JComboBox     legend_mode;
    private JCheckBox     reversed_b;
    private JComboBox     auto_color_mode;
    private JCheckBox     upd_limits;
-   int	   curr_grid_mode = 0,
+   int       curr_grid_mode = 0,
            x_curr_lines_grid = 3,
            y_curr_lines_grid = 3,
            curr_legend_mode = 0;
@@ -48,7 +48,7 @@ public class SetupDefaults extends JDialog implements ActionListener
 
       main_scope = (jScopeFacade)fw;
 
-	  GetPropertiesValue();
+      GetPropertiesValue();
 
       GridBagLayout gridbag = new GridBagLayout();
       GridBagConstraints c = new GridBagConstraints();
@@ -327,142 +327,142 @@ public class SetupDefaults extends JDialog implements ActionListener
 
    public void eraseForm()
    {
-	title.setText("");
-	x_label.setText("");
-	x_max.setText("");
-	x_min.setText("");
-	y_max.setText("");
-	y_min.setText("");
-	y_label.setText("");
-	experiment.setText("");
-	shot.setText("");
-	upd_event.setText("");
-	def_node.setText("");
-	grid_mode.setSelectedIndex(0);
-	x_grid_lines.setText("3");
-	y_grid_lines.setText("3");
-	horizontal_offset.setText("0");
-	vertical_offset.setText("0");
+    title.setText("");
+    x_label.setText("");
+    x_max.setText("");
+    x_min.setText("");
+    y_max.setText("");
+    y_min.setText("");
+    y_label.setText("");
+    experiment.setText("");
+    shot.setText("");
+    upd_event.setText("");
+    def_node.setText("");
+    grid_mode.setSelectedIndex(0);
+    x_grid_lines.setText("3");
+    y_grid_lines.setText("3");
+    horizontal_offset.setText("0");
+    vertical_offset.setText("0");
     reversed_b.setSelected(false);
     upd_limits.setSelected(true);
    }
 
    private void setTextValue(JTextField t, String val)
    {
-	if(val != null)
-	{
-	    t.setText(val);
-	}
+    if(val != null)
+    {
+        t.setText(val);
+    }
    }
 
    private void initialize()
    {
-	    eraseForm();
-	    setTextValue(title, def_vals.title_str);
-	    setTextValue(y_label, def_vals.ylabel);
-	    setTextValue(x_label, def_vals.xlabel);
+        eraseForm();
+        setTextValue(title, def_vals.title_str);
+        setTextValue(y_label, def_vals.ylabel);
+        setTextValue(x_label, def_vals.xlabel);
         setTextValue(y_max, def_vals.ymax);
         setTextValue(y_min, def_vals.ymin);
         setTextValue(x_max, def_vals.xmax);
         setTextValue(x_min, def_vals.xmin);
-	    setTextValue(experiment, def_vals.experiment_str);
-	    setTextValue(shot, def_vals.shot_str);
-	    setTextValue(upd_event, def_vals.upd_event_str);
-	    setTextValue(def_node, def_vals.def_node_str);
-	    upd_limits.setSelected(def_vals.upd_limits);
-	    grid_mode.setSelectedIndex(curr_grid_mode);
-	    legend_mode.setSelectedIndex(curr_legend_mode);
-	    x_grid_lines.setText(""+x_curr_lines_grid);
-	    y_grid_lines.setText(""+y_curr_lines_grid);
-	    reversed_b.setSelected(reversed);
-	    horizontal_offset.setText(""+Waveform.GetHorizontalOffset());
-	    vertical_offset.setText(""+Waveform.GetVerticalOffset());
+        setTextValue(experiment, def_vals.experiment_str);
+        setTextValue(shot, def_vals.shot_str);
+        setTextValue(upd_event, def_vals.upd_event_str);
+        setTextValue(def_node, def_vals.def_node_str);
+        upd_limits.setSelected(def_vals.upd_limits);
+        grid_mode.setSelectedIndex(curr_grid_mode);
+        legend_mode.setSelectedIndex(curr_legend_mode);
+        x_grid_lines.setText(""+x_curr_lines_grid);
+        y_grid_lines.setText(""+y_curr_lines_grid);
+        reversed_b.setSelected(reversed);
+        horizontal_offset.setText(""+Waveform.GetHorizontalOffset());
+        vertical_offset.setText(""+Waveform.GetVerticalOffset());
    }
 
    public void SaveDefaultConfiguration(jScopeDefaultValues def_vals)
    {
 
-      def_vals.experiment_str	= new String(experiment.getText());
-      def_vals.shot_str		    = new String(shot.getText());
-      def_vals.xmax		        = new String(x_max.getText());
-      def_vals.xmin		        = new String(x_min.getText());
-      def_vals.ymax		        = new String(y_max.getText());
-      def_vals.ymin		        = new String(y_min.getText());
-      def_vals.title_str		= new String(title.getText());
-      def_vals.xlabel		    = new String(x_label.getText());
-      def_vals.ylabel		    = new String(y_label.getText());
-      def_vals.upd_event_str  	= new String(upd_event.getText());
-      def_vals.def_node_str	    = new String(def_node.getText());
+      def_vals.experiment_str    = new String(experiment.getText());
+      def_vals.shot_str            = new String(shot.getText());
+      def_vals.xmax                = new String(x_max.getText());
+      def_vals.xmin                = new String(x_min.getText());
+      def_vals.ymax                = new String(y_max.getText());
+      def_vals.ymin                = new String(y_min.getText());
+      def_vals.title_str        = new String(title.getText());
+      def_vals.xlabel            = new String(x_label.getText());
+      def_vals.ylabel            = new String(y_label.getText());
+      def_vals.upd_event_str      = new String(upd_event.getText());
+      def_vals.def_node_str        = new String(def_node.getText());
       def_vals.upd_limits       = upd_limits.isSelected();
-	  curr_grid_mode      = grid_mode.getSelectedIndex();
-	  curr_legend_mode    = legend_mode.getSelectedIndex();
-	  reversed            = reversed_b.getModel().isSelected();
+      curr_grid_mode      = grid_mode.getSelectedIndex();
+      curr_legend_mode    = legend_mode.getSelectedIndex();
+      reversed            = reversed_b.getModel().isSelected();
 
       int h_ofs = 0, v_ofs = 0;
-	  try
-	  {
-	    h_ofs = new Integer(horizontal_offset.getText().trim()).intValue();
-	  }
-	  catch (NumberFormatException exc)
-	  {
-	    h_ofs = 0;
-	  }
-	  Waveform.SetHorizontalOffset(h_ofs);
-	  horizontal_offset.setText(""+h_ofs);
-
-	  try
-	  {
-	    v_ofs = new Integer(vertical_offset.getText().trim()).intValue();
-	  }
-	  catch (NumberFormatException exc)
-	  {
-	    v_ofs = 0;
-	  }
-	  Waveform.SetVerticalOffset(v_ofs);
-	  vertical_offset.setText(""+v_ofs);
-
-
-
-	  if(auto_color_mode.getSelectedIndex() == 0)
-	    WaveInterface.auto_color_on_expr = false;
-	  else
-	    WaveInterface.auto_color_on_expr = true;
-
-	  try
-	  {
-	    x_curr_lines_grid = new Integer(x_grid_lines.getText().trim()).intValue();
-	  }
-	  catch (NumberFormatException exc)
-	  {
-	    x_curr_lines_grid = 3;
-	  }
-	  if(x_curr_lines_grid > Grid.MAX_GRID)
-	    x_curr_lines_grid = Grid.MAX_GRID;
-	  x_grid_lines.setText(""+x_curr_lines_grid);
-
-	  try
-	  {
-	    y_curr_lines_grid = new Integer(y_grid_lines.getText().trim()).intValue();
+      try
+      {
+        h_ofs = new Integer(horizontal_offset.getText().trim()).intValue();
       }
-	  catch (NumberFormatException exc)
-	  {
-	    y_curr_lines_grid = 3;
-	  }
-	  if(y_curr_lines_grid > Grid.MAX_GRID)
-	    y_curr_lines_grid = Grid.MAX_GRID;
-	  y_grid_lines.setText(""+y_curr_lines_grid);
+      catch (NumberFormatException exc)
+      {
+        h_ofs = 0;
+      }
+      Waveform.SetHorizontalOffset(h_ofs);
+      horizontal_offset.setText(""+h_ofs);
 
-	  def_vals.setIsEvaluated(false);
+      try
+      {
+        v_ofs = new Integer(vertical_offset.getText().trim()).intValue();
+      }
+      catch (NumberFormatException exc)
+      {
+        v_ofs = 0;
+      }
+      Waveform.SetVerticalOffset(v_ofs);
+      vertical_offset.setText(""+v_ofs);
+
+
+
+      if(auto_color_mode.getSelectedIndex() == 0)
+        WaveInterface.auto_color_on_expr = false;
+      else
+        WaveInterface.auto_color_on_expr = true;
+
+      try
+      {
+        x_curr_lines_grid = new Integer(x_grid_lines.getText().trim()).intValue();
+      }
+      catch (NumberFormatException exc)
+      {
+        x_curr_lines_grid = 3;
+      }
+      if(x_curr_lines_grid > Grid.MAX_GRID)
+        x_curr_lines_grid = Grid.MAX_GRID;
+      x_grid_lines.setText(""+x_curr_lines_grid);
+
+      try
+      {
+        y_curr_lines_grid = new Integer(y_grid_lines.getText().trim()).intValue();
+      }
+      catch (NumberFormatException exc)
+      {
+        y_curr_lines_grid = 3;
+      }
+      if(y_curr_lines_grid > Grid.MAX_GRID)
+        y_curr_lines_grid = Grid.MAX_GRID;
+      y_grid_lines.setText(""+y_curr_lines_grid);
+
+      def_vals.setIsEvaluated(false);
     }
 
 
    public void  Show(Frame f,  jScopeDefaultValues def_vals)
    {
         this.def_vals = def_vals;
-	    initialize();
- 	    pack();
+        initialize();
+         pack();
         setLocationRelativeTo(f);
-	    setVisible(true);
+        setVisible(true);
    }
 
 
@@ -473,13 +473,13 @@ public class SetupDefaults extends JDialog implements ActionListener
     if(!main_scope.equalsString(upd_event.getText(), def_vals.upd_event_str))    return true;
     if(!main_scope.equalsString(def_node.getText(), def_vals.def_node_str))      return true;
     if(!main_scope.equalsString(title.getText(),   def_vals.title_str))          return true;
-	if(!main_scope.equalsString(x_max.getText(),   def_vals.xmax))               return true;
-	if(!main_scope.equalsString(x_min.getText(),   def_vals.xmin))               return true;
-	if(!main_scope.equalsString(x_label.getText(), def_vals.xlabel))             return true;
-	if(!main_scope.equalsString(y_max.getText(),   def_vals.ymax))               return true;
-	if(!main_scope.equalsString(y_min.getText(),   def_vals.ymin))               return true;
-	if(!main_scope.equalsString(y_label.getText(), def_vals.ylabel))             return true;
-	if(upd_limits.isSelected() != def_vals.upd_limits)                           return true;
+    if(!main_scope.equalsString(x_max.getText(),   def_vals.xmax))               return true;
+    if(!main_scope.equalsString(x_min.getText(),   def_vals.xmin))               return true;
+    if(!main_scope.equalsString(x_label.getText(), def_vals.xlabel))             return true;
+    if(!main_scope.equalsString(y_max.getText(),   def_vals.ymax))               return true;
+    if(!main_scope.equalsString(y_min.getText(),   def_vals.ymin))               return true;
+    if(!main_scope.equalsString(y_label.getText(), def_vals.ylabel))             return true;
+    if(upd_limits.isSelected() != def_vals.upd_limits)                           return true;
     return false;
    }
 
@@ -489,21 +489,21 @@ public class SetupDefaults extends JDialog implements ActionListener
       Object ob = e.getSource();
 
       if(ob == erase)
-	    eraseForm();
+        eraseForm();
 
       if(ob == cancel)
-	    setVisible(false);
+        setVisible(false);
 
       if(ob == apply || ob == ok)
       {
-	    if(ob == ok)
-	        setVisible(false);
-	    main_scope.UpdateDefaultValues();
+        if(ob == ok)
+            setVisible(false);
+        main_scope.UpdateDefaultValues();
       }
 
       if(ob == reset)
       {
-	    initialize();
+        initialize();
       }
    }
 }

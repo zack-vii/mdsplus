@@ -17,7 +17,7 @@ import java.util.*;
  * @see Waveform
  * @see MultiWaveform
  */
-public class Signal implements WaveDataListener
+final public class Signal implements WaveDataListener
 {
     static final int TYPE_1D = 0;
     static final int TYPE_2D = 1;

@@ -8,7 +8,7 @@ package jScope;
  *
  * @author manduchi
  */
-public class XYData
+final public class XYData
 {
     double resolution; //Number of points/interval
     boolean increasingX = false;

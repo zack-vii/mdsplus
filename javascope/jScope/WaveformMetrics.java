@@ -8,8 +8,7 @@ import java.awt.event.*;
 import java.util.*;
 import java.io.Serializable;
 
-public class WaveformMetrics
-    implements Serializable
+final public class WaveformMetrics implements Serializable
 {
     static final long serialVersionUID = 247232536324574434L;
     static double MAX_VALUE = 10000.; //(double)Integer.MAX_VALUE;
@@ -55,7 +54,7 @@ public class WaveformMetrics
         y_range = (d.height - border_y - 2 * vertical_offset) /
             (double) d.height;
 
-//	x_range = (d.width - start_x)/(double)d.width;
+//    x_range = (d.width - start_x)/(double)d.width;
         x_range = (d.width - start_x - 2 * horizontal_offset) /
             (double) d.width;
         x_offset = start_x / (double) d.width;
@@ -153,11 +152,11 @@ public class WaveformMetrics
 
     final public void ComputeFactors(Dimension d)
     {
-//	OFS_X = x_offset * d.width - xmin*x_range*d.width/xrange + 0.5;
+//    OFS_X = x_offset * d.width - xmin*x_range*d.width/xrange + 0.5;
         OFS_X = x_offset * d.width - xmin * x_range * d.width / xrange +
             horizontal_offset + 0.5;
         FACT_X = x_range * d.width / xrange;
-//	OFS_Y = y_range * ymax*d.height/yrange + 0.5;
+//    OFS_Y = y_range * ymax*d.height/yrange + 0.5;
         OFS_Y = y_range * ymax * d.height / yrange + vertical_offset + 0.5;
         FACT_Y = -y_range * d.height / yrange;
     }

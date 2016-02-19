@@ -42,15 +42,11 @@ import javax.print.attribute.standard.*;
 import java.awt.datatransfer.*;
 import java.awt.image.*;
 import java.awt.geom.*;
-
-
 import javax.swing.plaf.basic.BasicArrowButton;
-
 import java.lang.reflect.Array;
 
 
-
-public class jScopeFacade extends JFrame
+final public class jScopeFacade extends JFrame
     implements ActionListener, ItemListener,
     WindowListener, WaveContainerListener,
     UpdateEventListener, ConnectionListener, Printable
@@ -905,7 +901,7 @@ public class jScopeFacade extends JFrame
         metalMenuItem.setEnabled(isAvailableLookAndFeel(metalClassName));
         group.add(metalMenuItem);
         metalMenuItem.addItemListener(toggleUIListener);
-//	metalMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_1, ActionEvent.ALT_MASK));
+//    metalMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_1, ActionEvent.ALT_MASK));
 
         motifMenuItem = (JRadioButtonMenuItem) look_and_feel_m.add(new
             JRadioButtonMenuItem("Motif Look and Feel"));
@@ -914,7 +910,7 @@ public class jScopeFacade extends JFrame
         motifMenuItem.setEnabled(isAvailableLookAndFeel(motifClassName));
         group.add(motifMenuItem);
         motifMenuItem.addItemListener(toggleUIListener);
-//	motifMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_2, ActionEvent.ALT_MASK));
+//    motifMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_2, ActionEvent.ALT_MASK));
 
         windowsMenuItem = (JRadioButtonMenuItem) look_and_feel_m.add(new
             JRadioButtonMenuItem("Windows Style Look and Feel"));
@@ -923,7 +919,7 @@ public class jScopeFacade extends JFrame
         windowsMenuItem.setEnabled(isAvailableLookAndFeel(windowsClassName));
         group.add(windowsMenuItem);
         windowsMenuItem.addItemListener(toggleUIListener);
-//	windowsMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_3, ActionEvent.ALT_MASK));
+//    windowsMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_3, ActionEvent.ALT_MASK));
 
         macMenuItem = (JRadioButtonMenuItem) look_and_feel_m.add(new
             JRadioButtonMenuItem("Macintosh Look and Feel"));
@@ -932,7 +928,7 @@ public class jScopeFacade extends JFrame
         macMenuItem.setEnabled(isAvailableLookAndFeel(macClassName));
         group.add(macMenuItem);
         macMenuItem.addItemListener(toggleUIListener);
-//	macMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_4, ActionEvent.ALT_MASK));
+//    macMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_4, ActionEvent.ALT_MASK));
 
         pointer_mode_m = new JMenu("Pointer mode");
         mb.add(pointer_mode_m);
@@ -1937,8 +1933,8 @@ public class jScopeFacade extends JFrame
         }
         catch (Exception e)
         {
-			JOptionPane.showMessageDialog(this,
-										  e,
+            JOptionPane.showMessageDialog(this,
+                                          e,
                                           "alert",
                                           JOptionPane.ERROR_MESSAGE);
 
@@ -1980,14 +1976,14 @@ public class jScopeFacade extends JFrame
                     break;
                 case JOptionPane.NO_OPTION:
 
-//		        exitScope();
+//                exitScope();
                     break;
             }
         }
-//	else
-//	{
+//    else
+//    {
 //        exitScope();
-//	}
+//    }
         exitScope();
     }
 
@@ -2220,13 +2216,13 @@ public class jScopeFacade extends JFrame
         }
         catch (PrinterException er)
         {
-			System.out.println(er);
+            System.out.println(er);
             JOptionPane.showMessageDialog(null, "Error on print operation",
                                           "alert PrintAllWaves", JOptionPane.ERROR_MESSAGE);
         }
         catch (PrintException er)
         {
-			System.out.println(er);
+            System.out.println(er);
             JOptionPane.showMessageDialog(null, "Error on print operation",
                                           "alert PrintAllWaves", JOptionPane.ERROR_MESSAGE);
         }
@@ -2513,7 +2509,7 @@ public class jScopeFacade extends JFrame
                     if (returnFlag)
                     {
                         wave_panel.ResetDrawPanel(win_diag.out_row);
-//	                wave_panel.update();
+//                    wave_panel.update();
                         UpdateColors();
                         UpdateFont();
                         setChange(true);
@@ -2674,9 +2670,9 @@ public class jScopeFacade extends JFrame
 
     private void setColor(WaveInterface wi)
     {
-//	if(wi == null || wi.colors_idx == null) return;
-//	for(int i = 0; i < wi.colors_idx.length; i++)
-//	    wi.colors[i] = color_dialog.GetColorAt(wi.colors_idx[i]);
+//    if(wi == null || wi.colors_idx == null) return;
+//    for(int i = 0; i < wi.colors_idx.length; i++)
+//        wi.colors[i] = color_dialog.GetColorAt(wi.colors_idx[i]);
     }
 
      public void itemStateChanged(ItemEvent e)
@@ -2687,7 +2683,7 @@ public class jScopeFacade extends JFrame
         if (ob == brief_error_i)
         {
             WaveInterface.brief_error = brief_error_i.getState();
-//	        wave_panel.SetBriefError(brief_error_i.getState());
+//            wave_panel.SetBriefError(brief_error_i.getState());
         }
 
          if (e.getStateChange() != ItemEvent.SELECTED)
@@ -3348,7 +3344,7 @@ class ServerDialog
     {
         super(_dw, title, true);
         dw = (jScopeFacade) _dw;
-//	    setResizable(false);
+//        setResizable(false);
 
         GridBagLayout gridbag = new GridBagLayout();
         GridBagConstraints c = new GridBagConstraints();
@@ -3618,6 +3614,7 @@ class ServerDialog
     private DataServerItem findServer(DataServerItem dsi)
     {
         DataServerItem found_dsi = null;
+        @SuppressWarnings("unchecked")
         Enumeration<DataServerItem> e = (Enumeration<DataServerItem>)list_model.elements();
         while (e.hasMoreElements())
         {
@@ -3711,13 +3708,12 @@ class ServerDialog
 
     public DataServerItem[] getServerIpList()
     {
-
+        @SuppressWarnings("unchecked")
         Enumeration<DataServerItem> e = (Enumeration<DataServerItem>)list_model.elements();
         DataServerItem out[] = new DataServerItem[list_model.size()];
         for (int i = 0; e.hasMoreElements(); i++)
             out[i] = e.nextElement();
         return out;
-
     }
 
 

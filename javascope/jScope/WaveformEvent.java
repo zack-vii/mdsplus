@@ -7,8 +7,7 @@ import java.awt.Event;
 import java.util.*;
 import java.text.*;
 
-public class WaveformEvent
-    extends AWTEvent
+final public class WaveformEvent extends AWTEvent
 {
     static final long serialVersionUID = 325464327645634L;
     static final int POINT_UPDATE = AWTEvent.RESERVED_ID_MAX + 1;

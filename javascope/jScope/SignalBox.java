@@ -4,10 +4,9 @@ package jScope;
 import java.util.*;
 import javax.swing.*;
 
-public class SignalBox
+final public class SignalBox
 {
-
-    class Sign
+    final class Sign
     {
         String x_expr;
         String y_expr;
@@ -17,7 +16,6 @@ public class SignalBox
             this.x_expr = new String(x_expr == null ? "" : x_expr);
             this.y_expr = new String(y_expr == null ? "" : y_expr);
         }
-
         public String toString()
         {
             return y_expr+" "+x_expr;
@@ -30,7 +28,6 @@ public class SignalBox
      public void AddSignal(String x_expr, String y_expr)
      {
         if(x_expr == null && y_expr == null) return;
-
         String s = x_expr+y_expr;
         if(!signals_name.containsKey(s))
         {
@@ -39,21 +36,13 @@ public class SignalBox
         }
      }
 
-     public String getXexpr(int i)
-     {
-        return ((Sign)obj[i]).x_expr;
-     }
-
-     public String getYexpr(int i)
-     {
-        return ((Sign)obj[i]).y_expr;
-     }
+     public String getXexpr(int i){return ((Sign)obj[i]).x_expr;}
+     public String getYexpr(int i){return ((Sign)obj[i]).y_expr;}
 
      public void removeExpr(int i)
      {
         RemoveSignal(((Sign)obj[i]).x_expr, ((Sign)obj[i]).y_expr);
      }
-
 
      public void RemoveSignal(String x_expr, String y_expr)
      {
@@ -73,5 +62,4 @@ public class SignalBox
             out = out +"\n"+obj[i];
         return out;
      }
-
 }

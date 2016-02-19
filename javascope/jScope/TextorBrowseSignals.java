@@ -7,7 +7,7 @@ import java.util.StringTokenizer;
 import javax.swing.JOptionPane;
 import javax.swing.JEditorPane;
 
-public class TextorBrowseSignals extends jScopeBrowseSignals
+final public class TextorBrowseSignals extends jScopeBrowseSignals
 {
     static final long serialVersionUID = 2434234236534654L;
     String path;

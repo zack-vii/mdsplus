@@ -66,22 +66,22 @@ public class RowColumnContainer extends JComponent
    {
     static final long serialVersionUID = 84352451232653L;
 
-	    Btm()
-	    {
-	        setBackground(Color.lightGray);
-	    }
+        Btm()
+        {
+            setBackground(Color.lightGray);
+        }
 
-	    public void paint(Graphics g)
-	    {
-	        Rectangle d = getBounds();
-	        if(d.width > d.height)
-	            setCursor(new Cursor(Cursor.N_RESIZE_CURSOR));
-	        else
-	            setCursor(new Cursor(Cursor.W_RESIZE_CURSOR));
-	        g.draw3DRect(0, 0, d.width-1, d.height-1, true);
-	    }
-	    public void print(Graphics g){}
-	    public void printAll(Graphics g){}
+        public void paint(Graphics g)
+        {
+            Rectangle d = getBounds();
+            if(d.width > d.height)
+                setCursor(new Cursor(Cursor.N_RESIZE_CURSOR));
+            else
+                setCursor(new Cursor(Cursor.W_RESIZE_CURSOR));
+            g.draw3DRect(0, 0, d.width-1, d.height-1, true);
+        }
+        public void print(Graphics g){}
+        public void printAll(Graphics g){}
     }
 
     /**
@@ -127,8 +127,8 @@ public class RowColumnContainer extends JComponent
       Btm b;
       for(i = 0; i < num_component - 1; i++)
       {
-	     add(b = new Btm());
-	     setListener(b);
+         add(b = new Btm());
+         setListener(b);
       }
 
       if(c != null)
@@ -148,43 +148,43 @@ public class RowColumnContainer extends JComponent
    private void setListener(Component b)
    {
 
-	   b.addMouseListener(new MouseAdapter()
-	   {
+       b.addMouseListener(new MouseAdapter()
+       {
                 public  void mouseReleased(MouseEvent e)
                 {
                     Component ob = e.getComponent();
-                    int	 m_button = e.getModifiers();
+                    int     m_button = e.getModifiers();
 
                     if(ob instanceof Btm)
-	                    if(!((m_button & MouseEvent.BUTTON2_MASK) == MouseEvent.BUTTON2_MASK))
-	                        row_col_layout.ResizeRowColumn(ob, e.getPoint().x, e.getPoint().y);
+                        if(!((m_button & MouseEvent.BUTTON2_MASK) == MouseEvent.BUTTON2_MASK))
+                            row_col_layout.ResizeRowColumn(ob, e.getPoint().x, e.getPoint().y);
                 }
 
                 public  void mouseClicked(MouseEvent e)
                 {
                     Component ob = e.getComponent();
-                    int	 m_button = e.getModifiers();
+                    int     m_button = e.getModifiers();
 
                     if(ob instanceof Btm)
                     {
-	                    if((m_button & MouseEvent.BUTTON2_MASK) == MouseEvent.BUTTON2_MASK)
-	                    {
-	                        row_col_layout.ResizeRowColumn(ob);
-	                    }
+                        if((m_button & MouseEvent.BUTTON2_MASK) == MouseEvent.BUTTON2_MASK)
+                        {
+                            row_col_layout.ResizeRowColumn(ob);
+                        }
                     }
                 }
-	   });
-	   b.addMouseMotionListener(new MouseMotionAdapter()
-	   {
+       });
+       b.addMouseMotionListener(new MouseMotionAdapter()
+       {
                 public  void mouseDragged(MouseEvent e)
                 {
                     Component ob = e.getComponent();
-                    int	 m_button = e.getModifiers();
+                    int     m_button = e.getModifiers();
 
-	                if(!((m_button & MouseEvent.BUTTON2_MASK) == MouseEvent.BUTTON2_MASK))
+                    if(!((m_button & MouseEvent.BUTTON2_MASK) == MouseEvent.BUTTON2_MASK))
                         row_col_layout.DrawResize(ob, e.getPoint().x, e.getPoint().y);
                 }
-	   });
+       });
    }
 
    /**
@@ -203,11 +203,11 @@ public class RowColumnContainer extends JComponent
 
       for(i = 0, k = 0; i < rows.length; i++)
       {
-	    for(j = 0; j < rows[i]; j++)
-	    {
-	       super.add(c[k]);
-	       k++;
-	    }
+        for(j = 0; j < rows[i]; j++)
+        {
+           super.add(c[k]);
+           k++;
+        }
       }
    }
 
@@ -342,11 +342,11 @@ public class RowColumnContainer extends JComponent
             rows[col-1]++;
         }
         if(cmp_idx >= 0)
-	        super.add(c, cmp_idx);
-	    else
-	        super.add(c);
-	    super.add(b = new Btm(), 0);
-	    setListener(b);
+            super.add(c, cmp_idx);
+        else
+            super.add(c);
+        super.add(b = new Btm(), 0);
+        setListener(b);
 
         if(rrow != row || rcol != col)
           setRealPosition(new Point(col, row), new Point(rcol, rrow));
@@ -484,16 +484,16 @@ public class RowColumnContainer extends JComponent
      int cmp_xxx_idx;
      public Component getGridComponent(int n)
     {
-	cmp_xxx_idx = n;
-	try {
+    cmp_xxx_idx = n;
+    try {
         SwingUtilities.invokeAndWait(new Runnable() {
                 public void run() {
-	           System.out.println( " get grid component e in dispatcher thread "+SwingUtilities.isEventDispatchThread());
+               System.out.println( " get grid component e in dispatcher thread "+SwingUtilities.isEventDispatchThread());
                     cmp_xxx = getComponent(getGridComponentCount() - 1 + cmp_xxx_idx);
                 }
             });
-	} catch(InterruptedException e){}
-	  catch(InvocationTargetException  e){}
+    } catch(InterruptedException e){}
+      catch(InvocationTargetException  e){}
           return cmp_xxx;
      }
     */
@@ -564,12 +564,12 @@ public class RowColumnContainer extends JComponent
 
     public int getComponentIndex(Component c)
     {
-	    int idx;
-	    for(idx = 0; idx < getGridComponentCount() &&  getGridComponent(idx) != c; idx++);
-	    if(idx < getGridComponentCount())
-	        return idx + 1;
-	    else
-	        return -1;
+        int idx;
+        for(idx = 0; idx < getGridComponentCount() &&  getGridComponent(idx) != c; idx++);
+        if(idx < getGridComponentCount())
+            return idx + 1;
+        else
+            return -1;
     }
 
     /**
@@ -581,20 +581,20 @@ public class RowColumnContainer extends JComponent
      */
     public Point getComponentPosition(Component c)
     {
-	    int col = 0, row = 0;
+        int col = 0, row = 0;
 
-	    if(c == null) return null;
+        if(c == null) return null;
 
-	    int idx = getComponentIndex(c);
+        int idx = getComponentIndex(c);
 
-	    for(col = 0; col < rows.length; col++)
-	    {
-	        for(row = 0; row < rows[col] && idx != 0; row++)
-		        idx--;
-	        if(idx == 0) break;
-	    }
-	    Point p = new Point(col + 1, row);
-	    return p;
+        for(col = 0; col < rows.length; col++)
+        {
+            for(row = 0; row < rows[col] && idx != 0; row++)
+                idx--;
+            if(idx == 0) break;
+        }
+        Point p = new Point(col + 1, row);
+        return p;
     }
 
 
@@ -640,9 +640,9 @@ public class RowColumnContainer extends JComponent
                 {
                     for(int k = 0; k < rows[i]; k++)
                     {
-	                    add(b = new Btm(), 0);
-	                    setListener(b);
-	                    add(c[idx++]);
+                        add(b = new Btm(), 0);
+                        setListener(b);
+                        add(c[idx++]);
                     }
                 } else {
                     if(curr_rows[i] > rows[i])
@@ -659,10 +659,10 @@ public class RowColumnContainer extends JComponent
                         idx_w += curr_rows[i];
                         for(int k = curr_rows[i]; k < rows[i]; k++)
                         {
-	                        add(c[idx++], idx_w);
-	                        add(b = new Btm(), 0);
-	                        setListener(b);
-	                        idx_w++;
+                            add(c[idx++], idx_w);
+                            add(b = new Btm(), 0);
+                            setListener(b);
+                            idx_w++;
                         }
                     }
                 }
@@ -760,10 +760,10 @@ public class RowColumnContainer extends JComponent
      */
     public int getComponentNumber()
     {
-	    int num = 0;
-	    for(int i = 0; i < rows.length && rows[i] != 0; i++)
-	        num += rows[i];
-	    return num;
+        int num = 0;
+        for(int i = 0; i < rows.length && rows[i] != 0; i++)
+            num += rows[i];
+        return num;
     }
 
     /**
@@ -863,7 +863,7 @@ public class RowColumnContainer extends JComponent
     public void repaintAll()
     {
         for(int i = 0; i < getGridComponentCount(); i++)
-	        getGridComponent(i).repaint();
+            getGridComponent(i).repaint();
     }
 
 }

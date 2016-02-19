@@ -6,7 +6,7 @@ import java.awt.event.*;
 import javax.swing.*;
 
 
-public class PropertiesEditor extends JDialog
+final public class PropertiesEditor extends JDialog
 {
     static final long serialVersionUID = 34724623452341L;
     JEditorPane text;

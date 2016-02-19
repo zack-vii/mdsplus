@@ -18,7 +18,7 @@ package jScope;
 // For the modification history, see the CVS log.
 // -------------------------------------------------------------------------------------------------
 
-public class TWUFetchOptions
+final public class TWUFetchOptions
 {
     private int start =  0 ;
     private int step  =  1 ;

@@ -228,8 +228,8 @@ class JetDataProvider implements DataProvider
                     passwd = new String(passwd_text.getPassword());
                     if(!CheckPasswd(username, passwd))
                     {
- 		                JOptionPane.showMessageDialog(inquiry_dialog, "Login ERROR : " + ((error_string != null) ? error_string : "no further information"),
-		                                "alert", JOptionPane.ERROR_MESSAGE);
+                         JOptionPane.showMessageDialog(inquiry_dialog, "Login ERROR : " + ((error_string != null) ? error_string : "no further information"),
+                                        "alert", JOptionPane.ERROR_MESSAGE);
                         login_status = DataProvider.LOGIN_ERROR;
                     } else {
                         inquiry_dialog.setVisible(false);
@@ -259,14 +259,14 @@ class JetDataProvider implements DataProvider
         {
             Rectangle r = f.getBounds();
             inquiry_dialog.setLocation(r.x + r.width/2 - inquiry_dialog.getBounds().width/2,
-			    r.y + r.height/2 - inquiry_dialog.getBounds().height/2);
-		}
-		else
-		{
-		   Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-	       inquiry_dialog.setLocation(screenSize.width/2 - inquiry_dialog.getSize().width/2,
-				                      screenSize.height/2 - inquiry_dialog.getSize().height/2);
-		}
+                r.y + r.height/2 - inquiry_dialog.getBounds().height/2);
+        }
+        else
+        {
+           Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+           inquiry_dialog.setLocation(screenSize.width/2 - inquiry_dialog.getSize().width/2,
+                                      screenSize.height/2 - inquiry_dialog.getSize().height/2);
+        }
         inquiry_dialog.setVisible(true);
         return login_status;
     }
@@ -503,17 +503,17 @@ class JetDataProvider implements DataProvider
 
     public void AddConnectionListener(ConnectionListener l)
     {
-	    if (l == null) {
-	        return;
-	    }
+        if (l == null) {
+            return;
+        }
         connection_listener.addElement(l);
     }
 
     public void RemoveConnectionListener(ConnectionListener l)
     {
-	    if (l == null) {
-	        return;
-	    }
+        if (l == null) {
+            return;
+        }
         connection_listener.removeElement(l);
     }
 

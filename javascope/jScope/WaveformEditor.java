@@ -6,7 +6,7 @@ import java.awt.event.*;
 import java.awt.*;
 import java.util.*;
 
-public class WaveformEditor extends Waveform
+final public class WaveformEditor extends Waveform
 {
     static final long serialVersionUID = 23457567346312L;
     float[] currentX, currentY;

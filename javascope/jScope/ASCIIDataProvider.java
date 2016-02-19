@@ -271,8 +271,6 @@ class ASCIIDataProvider implements DataProvider
 
         private float[] decodeTimes(String val)
         {
-            float out[] = null;
-            StringTokenizer st;
             try
             {
                 if(val == null)
@@ -280,8 +278,7 @@ class ASCIIDataProvider implements DataProvider
                     error = "File syntax error";
                     return null;
                 }
-
-                st = new StringTokenizer(val,":");
+                StringTokenizer st = new StringTokenizer(val,":");
                 if(st.countTokens() > 1)
                 {
                     st = new StringTokenizer(val,";");
@@ -299,17 +296,14 @@ class ASCIIDataProvider implements DataProvider
                         for(float t = start; t <= end; t += dt)
                             dos.writeFloat(t);
                     }
-                    out =  byteArrayToFloat(aos.toByteArray());
-                } else {
-                    out = decodeValues(val);
+                    dos.close();
+                    return byteArrayToFloat(aos.toByteArray());
                 }
+                return decodeValues(val);
+            }catch(Exception exc){
+                error = "File syntax error: " + exc.getMessage();
+                return null;
             }
-            catch(Exception exc)
-            {
-                error = "File sintax error : " + exc.getMessage();
-                out = null;
-            }
-            return out;
         }
 
         private float[] byteArrayToFloat(byte a[])

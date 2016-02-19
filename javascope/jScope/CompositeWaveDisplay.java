@@ -14,7 +14,7 @@ import java.awt.print.*;
 
 
 
-public class CompositeWaveDisplay extends JApplet implements WaveContainerListener
+final public class CompositeWaveDisplay extends JApplet implements WaveContainerListener
 {
     static final long serialVersionUID = 68434384573454L;
     public class myQueue

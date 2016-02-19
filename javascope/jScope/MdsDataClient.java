@@ -3,7 +3,7 @@ package jScope;
 /* $Id$ */
 import java.util.Vector;
 
-public class MdsDataClient extends MdsConnection
+final public class MdsDataClient extends MdsConnection
 {
     private String  experiment;
     private int     shot;
@@ -37,7 +37,7 @@ public class MdsDataClient extends MdsConnection
             throw new MdsIOException(error);
     }
 
-	    /**
+        /**
      * Open an MdsPlus experiment in read only access mode
      *
      * @param experiment Experiment name
@@ -46,15 +46,15 @@ public class MdsDataClient extends MdsConnection
      */
     public void open(String experiment, int shot) throws MdsIOException
     {
-		open(experiment, shot, 1);
-	}
+        open(experiment, shot, 1);
+    }
 
     /**
      * Open an MdsPlus experiment
      *
      * @param experiment Experiment name
      * @param shot Shot number
-    * @param readOnly  access mode 1 for read only	
+    * @param readOnly  access mode 1 for read only    
      * @exception MdsIOException if an I/0 error occurs
      */
     public void open(String experiment, int shot, int readOnly) throws MdsIOException
@@ -64,17 +64,17 @@ public class MdsDataClient extends MdsConnection
 
         this.experiment = experiment;
         this.shot = shot;
-	    Descriptor descr = MdsValue("JavaOpen(\""+experiment+"\"," + shot + ","+ readOnly +")");
-	    if(!(descr.dtype != Descriptor.DTYPE_CSTRING
-		   && descr.dtype == Descriptor.DTYPE_LONG && descr.int_data != null
-		   && descr.int_data.length > 0 && (descr.int_data[0]%2 == 1)))
-		{
-	        if(error != null)
-		        throw new MdsIOException("Cannot open experiment " + experiment + " shot "+
-		                            shot + " : "+ error);
-	        else
-		       throw new MdsIOException("Cannot open experiment " + experiment + " shot "+ shot);
-		}
+        Descriptor descr = MdsValue("JavaOpen(\""+experiment+"\"," + shot + ","+ readOnly +")");
+        if(!(descr.dtype != Descriptor.DTYPE_CSTRING
+           && descr.dtype == Descriptor.DTYPE_LONG && descr.int_data != null
+           && descr.int_data.length > 0 && (descr.int_data[0]%2 == 1)))
+        {
+            if(error != null)
+                throw new MdsIOException("Cannot open experiment " + experiment + " shot "+
+                                    shot + " : "+ error);
+            else
+               throw new MdsIOException("Cannot open experiment " + experiment + " shot "+ shot);
+        }
     }
 
     /**
@@ -104,52 +104,52 @@ public class MdsDataClient extends MdsConnection
 
         switch(desc.dtype)
         {
-	        case Descriptor.DTYPE_FLOAT:
-	            throw new MdsIOException("Evaluated expression not a matrix");
-	        case Descriptor.DTYPE_LONG:
-	            if(desc.int_data.length != 2)
-	                throw new MdsIOException("Can be read only bi-dimensional matrix");
+            case Descriptor.DTYPE_FLOAT:
+                throw new MdsIOException("Evaluated expression not a matrix");
+            case Descriptor.DTYPE_LONG:
+                if(desc.int_data.length != 2)
+                    throw new MdsIOException("Can be read only bi-dimensional matrix");
                 col = desc.int_data[0];
                 row = desc.int_data[1];
-	            break;
-	        case Descriptor.DTYPE_BYTE:
-	            throw new MdsIOException("Evaluated expression not a matrix");
-	        case Descriptor.DTYPE_CSTRING:
-	            if((desc.status & 1) == 0)
-	                throw new MdsIOException(desc.error);
-	        default:
-	            throw new MdsIOException("Evaluated expression not a matrix");
+                break;
+            case Descriptor.DTYPE_BYTE:
+                throw new MdsIOException("Evaluated expression not a matrix");
+            case Descriptor.DTYPE_CSTRING:
+                if((desc.status & 1) == 0)
+                    throw new MdsIOException(desc.error);
+            default:
+                throw new MdsIOException("Evaluated expression not a matrix");
         }
 
         desc = MdsValue(expr);
 
         switch(desc.dtype)
         {
-	        case Descriptor.DTYPE_FLOAT:
-	            out = new float[row][col];
-	            for(int i = 0, k = 0; i < row; i++)
-	                for(int j = 0; j < col; j++)
-		                out[i][j] = desc.float_data[k++];
-		        return out;
-	        case Descriptor.DTYPE_LONG:
-	            out = new float[row][col];
-	            for(int i = 0, k = 0; i < row; i++)
-	                for(int j = 0; j < col; j++)
-		                out[i][j] = (float)desc.int_data[k++];
-		        return out;
-	        case Descriptor.DTYPE_DOUBLE:
-	            out = new float[row][col];
-	            for(int i = 0, k = 0; i < row; i++)
-	                for(int j = 0; j < col; j++)
-		                out[i][j] = (float)desc.double_data[k++];
-		        return out;
-	        case Descriptor.DTYPE_BYTE:
-	            throw new MdsIOException("Cannot convert a string to float array");
-	        case Descriptor.DTYPE_CSTRING:
-	            if((desc.status & 1) == 0)
-	                throw new MdsIOException(desc.error);
-	        default:
-	            throw new MdsIOException("Data type code "+ desc.dtype+" unsupported");
+            case Descriptor.DTYPE_FLOAT:
+                out = new float[row][col];
+                for(int i = 0, k = 0; i < row; i++)
+                    for(int j = 0; j < col; j++)
+                        out[i][j] = desc.float_data[k++];
+                return out;
+            case Descriptor.DTYPE_LONG:
+                out = new float[row][col];
+                for(int i = 0, k = 0; i < row; i++)
+                    for(int j = 0; j < col; j++)
+                        out[i][j] = (float)desc.int_data[k++];
+                return out;
+            case Descriptor.DTYPE_DOUBLE:
+                out = new float[row][col];
+                for(int i = 0, k = 0; i < row; i++)
+                    for(int j = 0; j < col; j++)
+                        out[i][j] = (float)desc.double_data[k++];
+                return out;
+            case Descriptor.DTYPE_BYTE:
+                throw new MdsIOException("Cannot convert a string to float array");
+            case Descriptor.DTYPE_CSTRING:
+                if((desc.status & 1) == 0)
+                    throw new MdsIOException(desc.error);
+            default:
+                throw new MdsIOException("Data type code "+ desc.dtype+" unsupported");
          }
     }
 
@@ -172,52 +172,52 @@ public class MdsDataClient extends MdsConnection
 
         switch(desc.dtype)
         {
-	        case Descriptor.DTYPE_FLOAT:
-	            throw new MdsIOException("Evaluated expression not a matrix");
-	        case Descriptor.DTYPE_LONG:
-	            if(desc.int_data.length != 2)
-	                throw new MdsIOException("Can be read only bi-dimensional matrix");
+            case Descriptor.DTYPE_FLOAT:
+                throw new MdsIOException("Evaluated expression not a matrix");
+            case Descriptor.DTYPE_LONG:
+                if(desc.int_data.length != 2)
+                    throw new MdsIOException("Can be read only bi-dimensional matrix");
                 col = desc.int_data[0];
                 row = desc.int_data[1];
-	            break;
-	        case Descriptor.DTYPE_BYTE:
-	            throw new MdsIOException("Evaluated expression not a matrix");
-	        case Descriptor.DTYPE_CSTRING:
-	            if((desc.status & 1) == 0)
-	                throw new MdsIOException(desc.error);
-	        default:
-	            throw new MdsIOException("Evaluated expression not a matrix");
+                break;
+            case Descriptor.DTYPE_BYTE:
+                throw new MdsIOException("Evaluated expression not a matrix");
+            case Descriptor.DTYPE_CSTRING:
+                if((desc.status & 1) == 0)
+                    throw new MdsIOException(desc.error);
+            default:
+                throw new MdsIOException("Evaluated expression not a matrix");
         }
 
         desc = MdsValue(expr);
 
         switch(desc.dtype)
         {
-	        case Descriptor.DTYPE_FLOAT:
-	            out = new double[row][col];
-	            for(int i = 0, k = 0; i < row; i++)
-	                for(int j = 0; j < col; j++)
-		                out[i][j] = (double)desc.float_data[k++];
-		        return out;
-	        case Descriptor.DTYPE_LONG:
-	            out = new double[row][col];
-	            for(int i = 0, k = 0; i < row; i++)
-	                for(int j = 0; j < col; j++)
-		                out[i][j] = (double)desc.int_data[k++];
-		        return out;
-	        case Descriptor.DTYPE_DOUBLE:
-	            out = new double[row][col];
-	            for(int i = 0, k = 0; i < row; i++)
-	                for(int j = 0; j < col; j++)
-		                out[i][j] = desc.double_data[k++];
-		        return out;
-	        case Descriptor.DTYPE_BYTE:
-	            throw new MdsIOException("Cannot convert a string to float array");
-	        case Descriptor.DTYPE_CSTRING:
-	            if((desc.status & 1) == 0)
-	                throw new MdsIOException(desc.error);
-	        default:
-	            throw new MdsIOException("Data type code "+ desc.dtype+" unsupported");
+            case Descriptor.DTYPE_FLOAT:
+                out = new double[row][col];
+                for(int i = 0, k = 0; i < row; i++)
+                    for(int j = 0; j < col; j++)
+                        out[i][j] = (double)desc.float_data[k++];
+                return out;
+            case Descriptor.DTYPE_LONG:
+                out = new double[row][col];
+                for(int i = 0, k = 0; i < row; i++)
+                    for(int j = 0; j < col; j++)
+                        out[i][j] = (double)desc.int_data[k++];
+                return out;
+            case Descriptor.DTYPE_DOUBLE:
+                out = new double[row][col];
+                for(int i = 0, k = 0; i < row; i++)
+                    for(int j = 0; j < col; j++)
+                        out[i][j] = desc.double_data[k++];
+                return out;
+            case Descriptor.DTYPE_BYTE:
+                throw new MdsIOException("Cannot convert a string to float array");
+            case Descriptor.DTYPE_CSTRING:
+                if((desc.status & 1) == 0)
+                    throw new MdsIOException(desc.error);
+            default:
+                throw new MdsIOException("Data type code "+ desc.dtype+" unsupported");
          }
     }
 
@@ -238,28 +238,28 @@ public class MdsDataClient extends MdsConnection
 
         switch(desc.dtype)
         {
-	        case Descriptor.DTYPE_FLOAT:
-	            out = desc.float_data;
-	            break;
-	        case Descriptor.DTYPE_LONG:
-	            out_data = new float[desc.int_data.length];
-	            for(int i = 0; i < desc.int_data.length; i++)
-		            out_data[i] = (float)desc.int_data[i];
-		        out = out_data;
-	            break;
-	        case Descriptor.DTYPE_DOUBLE:
-	            out_data = new float[desc.double_data.length];
-	            for(int i = 0; i < desc.double_data.length; i++)
-		            out_data[i] = (float)desc.double_data[i];
-		        out = out_data;
-	            break;
-	        case Descriptor.DTYPE_BYTE:
-	            throw new MdsIOException("Cannot convert a string to float array");
-	        case Descriptor.DTYPE_CSTRING:
-	            if((desc.status & 1) == 0)
-	                throw new MdsIOException(desc.error);
-	        default:
-	            throw new MdsIOException("Data type code "+ desc.dtype+" unsupported");
+            case Descriptor.DTYPE_FLOAT:
+                out = desc.float_data;
+                break;
+            case Descriptor.DTYPE_LONG:
+                out_data = new float[desc.int_data.length];
+                for(int i = 0; i < desc.int_data.length; i++)
+                    out_data[i] = (float)desc.int_data[i];
+                out = out_data;
+                break;
+            case Descriptor.DTYPE_DOUBLE:
+                out_data = new float[desc.double_data.length];
+                for(int i = 0; i < desc.double_data.length; i++)
+                    out_data[i] = (float)desc.double_data[i];
+                out = out_data;
+                break;
+            case Descriptor.DTYPE_BYTE:
+                throw new MdsIOException("Cannot convert a string to float array");
+            case Descriptor.DTYPE_CSTRING:
+                if((desc.status & 1) == 0)
+                    throw new MdsIOException(desc.error);
+            default:
+                throw new MdsIOException("Data type code "+ desc.dtype+" unsupported");
          }
 
          return out;
@@ -281,19 +281,19 @@ public class MdsDataClient extends MdsConnection
 
         switch(desc.dtype)
         {
-	        case Descriptor.DTYPE_BYTE:
-	        case Descriptor.DTYPE_UBYTE:
-	            out_data = new byte[desc.byte_data.length];
-	            for(int i = 0; i < desc.byte_data.length; i++)
-		            out_data[i] = desc.byte_data[i];
-		        out = out_data;
+            case Descriptor.DTYPE_BYTE:
+            case Descriptor.DTYPE_UBYTE:
+                out_data = new byte[desc.byte_data.length];
+                for(int i = 0; i < desc.byte_data.length; i++)
+                    out_data[i] = desc.byte_data[i];
+                out = out_data;
                 break;
-	        case Descriptor.DTYPE_CSTRING:
-	            if((desc.status & 1) == 0)
-	                throw new MdsIOException(desc.error);
-	            out = desc.strdata.getBytes();
-	        default:
-	            throw new MdsIOException("Data type code "+ desc.dtype+" unsupported");
+            case Descriptor.DTYPE_CSTRING:
+                if((desc.status & 1) == 0)
+                    throw new MdsIOException(desc.error);
+                out = desc.strdata.getBytes();
+            default:
+                throw new MdsIOException("Data type code "+ desc.dtype+" unsupported");
          }
 
          return out;
@@ -352,28 +352,28 @@ public class MdsDataClient extends MdsConnection
 
         switch(desc.dtype)
         {
-	        case Descriptor.DTYPE_FLOAT:
-	            out_data = new double[desc.float_data.length];
-	            for(int i = 0; i < desc.float_data.length; i++)
-		            out_data[i] = (double)desc.float_data[i];
-		        out = out_data;
-	            break;
-	        case Descriptor.DTYPE_LONG:
-	            out_data = new double[desc.int_data.length];
-	            for(int i = 0; i < desc.int_data.length; i++)
-		            out_data[i] = (double)desc.int_data[i];
-		        out = out_data;
-	            break;
-	        case Descriptor.DTYPE_DOUBLE:
-	            out = desc.double_data;
-	            break;
-	        case Descriptor.DTYPE_BYTE:
-	            throw new MdsIOException("Cannot convert a string to float array");
-	        case Descriptor.DTYPE_CSTRING:
-	            if((desc.status & 1) == 0)
-	                throw new MdsIOException(desc.error);
-	        default:
-	            throw new MdsIOException("Data type code "+ desc.dtype+" unsupported");
+            case Descriptor.DTYPE_FLOAT:
+                out_data = new double[desc.float_data.length];
+                for(int i = 0; i < desc.float_data.length; i++)
+                    out_data[i] = (double)desc.float_data[i];
+                out = out_data;
+                break;
+            case Descriptor.DTYPE_LONG:
+                out_data = new double[desc.int_data.length];
+                for(int i = 0; i < desc.int_data.length; i++)
+                    out_data[i] = (double)desc.int_data[i];
+                out = out_data;
+                break;
+            case Descriptor.DTYPE_DOUBLE:
+                out = desc.double_data;
+                break;
+            case Descriptor.DTYPE_BYTE:
+                throw new MdsIOException("Cannot convert a string to float array");
+            case Descriptor.DTYPE_CSTRING:
+                if((desc.status & 1) == 0)
+                    throw new MdsIOException(desc.error);
+            default:
+                throw new MdsIOException("Data type code "+ desc.dtype+" unsupported");
          }
 
          return out;
@@ -391,23 +391,23 @@ public class MdsDataClient extends MdsConnection
     public float getFloat(String expr) throws MdsIOException
     {
 
-	    Descriptor desc = MdsValue(expr);
-	    switch (desc.dtype)
-	    {
-		    case Descriptor.DTYPE_FLOAT:
-		        return desc.float_data[0];
-		    case Descriptor.DTYPE_LONG:
-		        return (float)desc.int_data[0];
-	        case Descriptor.DTYPE_DOUBLE:
-	            return (float)desc.double_data[0];
-		    case Descriptor.DTYPE_BYTE:
-		        throw new MdsIOException("Cannot convert a string to float");
-		    case Descriptor.DTYPE_CSTRING:
-		        if((desc.status & 1) == 0)
-		            throw new MdsIOException(desc.error);
-	        default:
-	            throw new MdsIOException("Data type code "+ desc.dtype+" unsupported");
-	    }
+        Descriptor desc = MdsValue(expr);
+        switch (desc.dtype)
+        {
+            case Descriptor.DTYPE_FLOAT:
+                return desc.float_data[0];
+            case Descriptor.DTYPE_LONG:
+                return (float)desc.int_data[0];
+            case Descriptor.DTYPE_DOUBLE:
+                return (float)desc.double_data[0];
+            case Descriptor.DTYPE_BYTE:
+                throw new MdsIOException("Cannot convert a string to float");
+            case Descriptor.DTYPE_CSTRING:
+                if((desc.status & 1) == 0)
+                    throw new MdsIOException(desc.error);
+            default:
+                throw new MdsIOException("Data type code "+ desc.dtype+" unsupported");
+        }
     }
 
     /**
@@ -421,23 +421,23 @@ public class MdsDataClient extends MdsConnection
     public double getDouble(String expr) throws MdsIOException
     {
 
-	    Descriptor desc = MdsValue(expr);
-	    switch (desc.dtype)
-	    {
-		    case Descriptor.DTYPE_FLOAT:
-		        return (double)desc.float_data[0];
-		    case Descriptor.DTYPE_LONG:
-		        return (double)desc.int_data[0];
-	            case Descriptor.DTYPE_DOUBLE:
-	            return desc.double_data[0];
-		    case Descriptor.DTYPE_BYTE:
-		        throw new MdsIOException("Cannot convert a string to float");
-		    case Descriptor.DTYPE_CSTRING:
-		        if((desc.status & 1) == 0)
-		            throw new MdsIOException(desc.error);
-	        default:
-	            throw new MdsIOException("Data type code "+ desc.dtype+" unsupported");
-	    }
+        Descriptor desc = MdsValue(expr);
+        switch (desc.dtype)
+        {
+            case Descriptor.DTYPE_FLOAT:
+                return (double)desc.float_data[0];
+            case Descriptor.DTYPE_LONG:
+                return (double)desc.int_data[0];
+                case Descriptor.DTYPE_DOUBLE:
+                return desc.double_data[0];
+            case Descriptor.DTYPE_BYTE:
+                throw new MdsIOException("Cannot convert a string to float");
+            case Descriptor.DTYPE_CSTRING:
+                if((desc.status & 1) == 0)
+                    throw new MdsIOException(desc.error);
+            default:
+                throw new MdsIOException("Data type code "+ desc.dtype+" unsupported");
+        }
     }
 
 
@@ -452,25 +452,25 @@ public class MdsDataClient extends MdsConnection
     public int getInt(String expr) throws MdsIOException
     {
 
-	    Descriptor desc = MdsValue(expr);
-	    switch (desc.dtype)
-	    {
+        Descriptor desc = MdsValue(expr);
+        switch (desc.dtype)
+        {
                     case Descriptor.DTYPE_UBYTE:
                     case Descriptor.DTYPE_BYTE:
                         return (int)desc.byte_data[0];
-		    case Descriptor.DTYPE_FLOAT:
-		        return (int)desc.float_data[0];
+            case Descriptor.DTYPE_FLOAT:
+                return (int)desc.float_data[0];
                     case Descriptor.DTYPE_SHORT:
                     case Descriptor.DTYPE_USHORT:
                         return (int)desc.short_data[0];
-		    case Descriptor.DTYPE_LONG:
-		        return desc.int_data[0];
-		    case Descriptor.DTYPE_CSTRING:
-		        if((desc.status & 1) == 0)
-		            throw new MdsIOException(desc.error);
-	        default:
-	            throw new MdsIOException("Data type code "+ desc.dtype+" unsupported");
-	    }
+            case Descriptor.DTYPE_LONG:
+                return desc.int_data[0];
+            case Descriptor.DTYPE_CSTRING:
+                if((desc.status & 1) == 0)
+                    throw new MdsIOException(desc.error);
+            default:
+                throw new MdsIOException("Data type code "+ desc.dtype+" unsupported");
+        }
     }
 
 
@@ -555,23 +555,23 @@ public class MdsDataClient extends MdsConnection
     @SuppressWarnings("fallthrough")
     public long getLong(String expr) throws MdsIOException
     {
-	    Descriptor desc = MdsValue(expr);
+        Descriptor desc = MdsValue(expr);
         switch (desc.dtype)
-	    {
-		    case Descriptor.DTYPE_FLOAT:
-		        return (long)desc.float_data[0];
-		    case Descriptor.DTYPE_LONG:
-		        return (long)desc.int_data[0];
-		    case Descriptor.DTYPE_ULONG:
-		        return desc.long_data[0];
-		    case Descriptor.DTYPE_BYTE:
-		        throw new MdsIOException("Cannot convert a string to float");
-		    case Descriptor.DTYPE_CSTRING:
-		        if((desc.status & 1) == 0)
-		            throw new MdsIOException(desc.error);
-	        default:
-	            throw new MdsIOException("Data type code "+ desc.dtype+" unsupported");
-	    }
+        {
+            case Descriptor.DTYPE_FLOAT:
+                return (long)desc.float_data[0];
+            case Descriptor.DTYPE_LONG:
+                return (long)desc.int_data[0];
+            case Descriptor.DTYPE_ULONG:
+                return desc.long_data[0];
+            case Descriptor.DTYPE_BYTE:
+                throw new MdsIOException("Cannot convert a string to float");
+            case Descriptor.DTYPE_CSTRING:
+                if((desc.status & 1) == 0)
+                    throw new MdsIOException(desc.error);
+            default:
+                throw new MdsIOException("Data type code "+ desc.dtype+" unsupported");
+        }
     }
 
 
@@ -585,50 +585,50 @@ public class MdsDataClient extends MdsConnection
      */
     public String getString(String expr) throws MdsIOException
     {
-	    Descriptor desc = MdsValue(expr);
-	    switch(desc.dtype)
-	    {
+        Descriptor desc = MdsValue(expr);
+        switch(desc.dtype)
+        {
                 case Descriptor.DTYPE_UBYTE:
-	        case Descriptor.DTYPE_BYTE:
-		        return new String(desc.byte_data);
+            case Descriptor.DTYPE_BYTE:
+                return new String(desc.byte_data);
                 case Descriptor.DTYPE_LONG:
-		        throw new MdsIOException("Cannot convert a integer to string");
-	        case Descriptor.DTYPE_FLOAT:
-		        throw new MdsIOException("Cannot convert a float to string");
-	        case Descriptor.DTYPE_CSTRING:
-	            if((desc.status & 1) == 1)
-		            return desc.strdata;
-	            else
-		            throw new MdsIOException(desc.error);
-	        default:
-	            throw new MdsIOException("Data type code "+ desc.dtype+" unsupported");
-	    }
+                throw new MdsIOException("Cannot convert a integer to string");
+            case Descriptor.DTYPE_FLOAT:
+                throw new MdsIOException("Cannot convert a float to string");
+            case Descriptor.DTYPE_CSTRING:
+                if((desc.status & 1) == 1)
+                    return desc.strdata;
+                else
+                    throw new MdsIOException(desc.error);
+            default:
+                throw new MdsIOException("Data type code "+ desc.dtype+" unsupported");
+        }
     }
 
     public Object evaluate(String expr, Vector<Descriptor> args) throws MdsIOException
     {
-	    Descriptor desc = MdsValue(expr, args);
+        Descriptor desc = MdsValue(expr, args);
             //return desc;
 
-	    switch (desc.dtype)
-	    {
-		    case Descriptor.DTYPE_FLOAT:
-		        return new Float(desc.float_data[0]);
-		    case Descriptor.DTYPE_LONG:
-		        return new Integer(desc.int_data[0]);
-	            case Descriptor.DTYPE_DOUBLE:
-	                return new Double(desc.double_data[0]);
-		    case Descriptor.DTYPE_ULONG:
-		        return new Long(desc.long_data[0]);
-		    case Descriptor.DTYPE_BYTE:
-		        return new Character((char)desc.byte_data[0]);
-		    case Descriptor.DTYPE_CSTRING:
-		        if((desc.status & 1) == 0)
-		            throw new MdsIOException(desc.error);
-		        return new String( desc.strdata );
-	        default:
-	            throw new MdsIOException("Data type code "+ desc.dtype+" unsupported");
-	    }
+        switch (desc.dtype)
+        {
+            case Descriptor.DTYPE_FLOAT:
+                return new Float(desc.float_data[0]);
+            case Descriptor.DTYPE_LONG:
+                return new Integer(desc.int_data[0]);
+                case Descriptor.DTYPE_DOUBLE:
+                    return new Double(desc.double_data[0]);
+            case Descriptor.DTYPE_ULONG:
+                return new Long(desc.long_data[0]);
+            case Descriptor.DTYPE_BYTE:
+                return new Character((char)desc.byte_data[0]);
+            case Descriptor.DTYPE_CSTRING:
+                if((desc.status & 1) == 0)
+                    throw new MdsIOException(desc.error);
+                return new String( desc.strdata );
+            default:
+                throw new MdsIOException("Data type code "+ desc.dtype+" unsupported");
+        }
 
     }
 

@@ -26,7 +26,7 @@ import javax.swing.TransferHandler;
  Class MultiWaveform extends the capability of class Waveform to deal with multiple
  waveforms.
  */
-public class jScopeMultiWave extends MultiWaveform implements UpdateEventListener
+final public class jScopeMultiWave extends MultiWaveform implements UpdateEventListener
 {
     static final long serialVersionUID = 86131468442245L;
     String eventName;

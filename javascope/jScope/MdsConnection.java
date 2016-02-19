@@ -17,8 +17,6 @@ public class MdsConnection
         static public int    DEFAULT_PORT = 8000;
         static public String DEFAULT_USER = "JAVA_USER";
         static final  int    MAX_NUM_EVENTS = 256;
-
-
         protected String provider;
         protected String user;
         protected String host;
@@ -31,18 +29,13 @@ public class MdsConnection
         MRT receiveThread;
         public boolean connected;
         int pending_count = 0;
-
         transient Vector<ConnectionListener> connection_listener = new Vector<ConnectionListener>();
         transient Vector<EventItem> event_list = new Vector<EventItem>();
         transient boolean event_flags[] = new boolean[MAX_NUM_EVENTS];
-
         transient Hashtable< String, EventItem > hashEventName = new Hashtable< String, EventItem >();
         transient Hashtable< Integer, EventItem > hashEventId = new Hashtable< Integer, EventItem >();
-
         //ProcessUdpEvent processUdpEvent = null;
-
         public String getProvider() { return provider;}
-
 
         static class EventItem
         {
@@ -98,65 +91,65 @@ public class MdsConnection
         }//end PMET class
 
 
-	class MRT extends Thread // Mds Receive Thread
-	{
+    class MRT extends Thread // Mds Receive Thread
+    {
             MdsMessage message;
             boolean    pending = false;
             boolean    killed = false;
 
-	    public void run()
-	    {
+        public void run()
+        {
                 setName("Mds Receive Thread");
-    	        MdsMessage curr_message;
-	        try {
-	            while(true)
-	            {
-         	        curr_message = new MdsMessage("", MdsConnection.this.connection_listener);
-	                curr_message.Receive(dis);
+                MdsMessage curr_message;
+            try {
+                while(true)
+                {
+                     curr_message = new MdsMessage("", MdsConnection.this.connection_listener);
+                    curr_message.Receive(dis);
 
-	                if(curr_message.dtype == Descriptor.DTYPE_EVENT)
-	                {
+                    if(curr_message.dtype == Descriptor.DTYPE_EVENT)
+                    {
                             PMET PMdsEvent = new PMET();
                             PMdsEvent.SetEventid(curr_message.body[12]);
                             PMdsEvent.start();
-	                } else {
-	                    pending_count--;
-	                    synchronized (this)
-	                    {
-	                        message = curr_message;
-	                        if(pending_count == 0) notify();
-	                    }
+                    } else {
+                        pending_count--;
+                        synchronized (this)
+                        {
+                            message = curr_message;
+                            if(pending_count == 0) notify();
+                        }
 
-	                    curr_message = null;
-	                    //if(pending_count == 0)
-	                    //    MdsConnection.this.NotifyMessage();
-	                }
-        	    }
-	        }
-	        //catch(IOException e) CESARE 14/9/2015
-	        catch(Exception e)
-	        {
+                        curr_message = null;
+                        //if(pending_count == 0)
+                        //    MdsConnection.this.NotifyMessage();
+                    }
+                }
+            }
+            //catch(IOException e) CESARE 14/9/2015
+            catch(Exception e)
+            {
                 synchronized(this)
-                {		
+                {        
                     killed = true;
                     notifyAll();
                 }
-	            if(connected)
-	            {
-	                message = null;
-	                connected = false;
-	                //ConnectionEvent ce = new ConnectionEvent(MdsConnection.this, ConnectionEvent.LOST_CONNECTION, "Lost connection from : "+provider);
-			        (new Thread() {
-				        public void run() {
-				            ConnectionEvent ce = new ConnectionEvent(MdsConnection.this, ConnectionEvent.LOST_CONNECTION, "Lost connection from : "+provider);
-				            dispatchConnectionEvent(ce);
+                if(connected)
+                {
+                    message = null;
+                    connected = false;
+                    //ConnectionEvent ce = new ConnectionEvent(MdsConnection.this, ConnectionEvent.LOST_CONNECTION, "Lost connection from : "+provider);
+                    (new Thread() {
+                        public void run() {
+                            ConnectionEvent ce = new ConnectionEvent(MdsConnection.this, ConnectionEvent.LOST_CONNECTION, "Lost connection from : "+provider);
+                            dispatchConnectionEvent(ce);
                         }
-				    }).start();
-	                //MdsConnection.this.dispatchConnectionEvent(ce);
-	                //MdsConnection.this.NotifyMessage();
-	            }
-	        }
-	    }
+                    }).start();
+                    //MdsConnection.this.dispatchConnectionEvent(ce);
+                    //MdsConnection.this.NotifyMessage();
+                }
+            }
+        }
 
         public synchronized void waitExited()
         {
@@ -166,10 +159,10 @@ public class MdsConnection
                 }catch(InterruptedException exc){}
         }
 
-	    public synchronized MdsMessage GetMessage()
-	    {
+        public synchronized MdsMessage GetMessage()
+        {
                 //System.out.println("Get Message");
-	        while(!killed && message == null)
+            while(!killed && message == null)
                     try {
                             wait();
                     }catch(InterruptedException exc){}
@@ -177,14 +170,14 @@ public class MdsConnection
                 MdsMessage msg = message;
                 message = null;
                 return msg;
-	    }
-	} // End MRT class
+        }
+    } // End MRT class
 
-	private synchronized void NotifyMessage()
-	{
-	    notify();
+    private synchronized void NotifyMessage()
+    {
+        notify();
             System.out.printf("-- Notify");
-	}
+    }
 
     public MdsConnection ()
     {
@@ -315,8 +308,8 @@ public class MdsConnection
         return out;
     }
 
-    public      Descriptor MdsValueStraight(String expr, Vector<Descriptor> args){return MdsValue(expr, args, false);}
-    public              Descriptor MdsValue(String expr, Vector<Descriptor> args){return MdsValue(expr, args, true);}
+    public   Descriptor MdsValueStraight(String expr, Vector<Descriptor> args){return MdsValue(expr, args, false);}
+    public           Descriptor MdsValue(String expr, Vector<Descriptor> args){return MdsValue(expr, args, true);}
     public synchronized Descriptor MdsValue(String expr, Vector<Descriptor> args, boolean wait)
     {
         if (DEBUG.M){System.out.println("MdsConnection.MdsValue(\""+expr+"\", "+args+", "+wait+")");}
@@ -347,11 +340,11 @@ public class MdsConnection
 
             pending_count++;
             if(wait)
-	        {
+            {
                 out = getAnswer();
-		        if(out == null)
-		            out = new Descriptor("Could not get IO for "+provider);
-	        }
+                if(out == null)
+                    out = new Descriptor("Could not get IO for "+provider);
+            }
             else
                 out = new Descriptor();
         }catch(IOException e)
@@ -375,45 +368,45 @@ public class MdsConnection
         try {
             MdsMessage message = new MdsMessage(expr);
             pending_count++;
-	        message.Send(dos);
+            message.Send(dos);
             return getAnswer();
-	    }catch(IOException exc){return new Descriptor("Could not get IO for "+provider+exc);}
+        }catch(IOException exc){return new Descriptor("Could not get IO for "+provider+exc);}
     }
 
     public  int DisconnectFromMds()
     {
-	    try {
+        try {
             if(connection_listener.size() > 0)
                 connection_listener.removeAllElements();
-	    dos.close();
+        dos.close();
             dis.close();
 
             receiveThread.waitExited();
             connected = false;
-	    }
-	    catch(IOException e)
-	        {
-	            error.concat("Could not get IO for "+provider + e);
-	            return 0;
-	        }
+        }
+        catch(IOException e)
+            {
+                error.concat("Could not get IO for "+provider + e);
+                return 0;
+            }
 
-	    return 1;
+        return 1;
     }
 
     public  void QuitFromMds()
     {
-	    try {
+        try {
             if(connection_listener.size() > 0)
                 connection_listener.removeAllElements();
-	        dos.close();
+            dos.close();
             dis.close();
 
             connected = false;
-	    }
-	    catch(IOException e)
-	        {
-	            error.concat("Could not get IO for "+provider + e);
-	        }
+        }
+        catch(IOException e)
+            {
+                error.concat("Could not get IO for "+provider + e);
+            }
 
     }
 
@@ -432,48 +425,32 @@ public class MdsConnection
 
     public synchronized int ConnectToMds(boolean use_compression)
     {
-	    try
-	    {
-	        if(provider != null)
-	        {
+        try{
+            if(provider != null)
+            {
                 connectToServer();
-	            MdsMessage message = new MdsMessage(user);
-	            message.useCompression(use_compression);
-	            message.Send(dos);
-	            message.Receive(dis);
-                    //NOTE Removed check, unsuccessful in UDT
-	            //if((message.status & 1) != 0)
-	            if(true)
-	            {
-	                receiveThread = new MRT();
-	                receiveThread.start();
-	            } else {
-                    error = "Could not get IO for : Host " + host +" Port "+ port + " User " + user;
-                    return 0;
+                MdsMessage message = new MdsMessage(user);
+                message.useCompression(use_compression);
+                message.Send(dos);
+                message.Receive(dis);
+                //NOTE Removed check, unsuccessful in UDT
+                //if((message.status & 1) != 0)
+                if(true)
+                {
+                    receiveThread = new MRT();
+                    receiveThread.start();
+                    connected = true;
+                    return 1;
                 }
-                connected = true;
-            } else {
-                error = "Data provider host:port is <null>";
-                return 0;
+                else
+                    error = "Could not get IO for : Host " + host +" Port "+ port + " User " + user;
             }
-
-	    }
-	    catch(NumberFormatException e)
-	        {
-	            error="Data provider syntax error "+ provider + " (host:port)";
-	            return 0;
-	        }
-	    catch(UnknownHostException e)
-	        {
-	            error="Data provider: "+ host + " port " + port +" unknown";
-	            return 0;
-	        }
-	    catch(IOException e)
-	        {
-	            error = "Could not get IO for " + provider + " " + e;
-	            return 0;
-	        }
-	    return 1;
+            else
+                error = "Data provider host:port is <null>";
+        }catch(NumberFormatException e){error="Data provider syntax error "+ provider + " (host:port)";}
+         catch(UnknownHostException e) {error="Data provider: "+ host + " port " + port +" unknown";}
+         catch(IOException e)          {error="Could not get IO for " + provider + " " + e;}
+        return 0;
     }
 
     private int getEventId()
@@ -489,9 +466,8 @@ public class MdsConnection
 
     public synchronized int AddEvent(UpdateEventListener l, String eventName)
     {
-       int i, eventid = -1;
+       int eventid = -1;
        EventItem eventItem;
-
        if( hashEventName.containsKey(eventName) )
        {
            eventItem = hashEventName.get(eventName);
@@ -510,12 +486,10 @@ public class MdsConnection
 
     public synchronized int RemoveEvent(UpdateEventListener l, String eventName)
     {
-        int i, eventid = -1;
-        EventItem eventItem;
-
+        int eventid = -1;
         if( hashEventName.containsKey(eventName) )
         {
-           eventItem = hashEventName.get(eventName);
+           EventItem eventItem = hashEventName.get(eventName);
            eventItem.listener.remove(l);
            if(eventItem.listener.isEmpty())
            {
@@ -524,7 +498,6 @@ public class MdsConnection
                 hashEventName.remove(eventName);
                 hashEventId.remove( new Integer(eventid) );
            }
-
        }
        return eventid;
     }
@@ -533,19 +506,13 @@ public class MdsConnection
     public synchronized void dispatchUpdateEvent(int eventid)
     {
         if( hashEventId.containsKey(eventid) )
-        {
             dispatchUpdateEvent(hashEventId.get(eventid));
-        }
     }
 
     public synchronized void dispatchUpdateEvent(String eventName)
     {
-
-
         if( hashEventName.containsKey(eventName) )
-        {
             dispatchUpdateEvent(hashEventName.get(eventName));
-        }
     }
 
     private void dispatchUpdateEvent(EventItem eventItem)
@@ -554,77 +521,47 @@ public class MdsConnection
         UpdateEvent e = new UpdateEvent(this, eventItem.name);
         for(int i = 0; i < eventListener.size(); i++)
             eventListener.elementAt(i).processUpdateEvent(e);
-
     }
-
 
     public synchronized void MdsSetEvent(UpdateEventListener l, String event)
     {
-         int eventid;
-         if((eventid = AddEvent(l, event)) == -1)
-              return;
-	   try {
-            sendArg((byte)0, Descriptor.DTYPE_CSTRING,
-                        (byte)3, null,
-                        MdsMessage.EVENTASTREQUEST.getBytes());
-
-            sendArg((byte)1, Descriptor.DTYPE_CSTRING,
-                         (byte)3, null, event.getBytes());
-
-
-            byte data[] = {(byte)(eventid)};
-
-            sendArg((byte)2, Descriptor.DTYPE_UBYTE, (byte)3, null, data);
-
-       } catch(IOException e) {error = new String("Could not get IO for "+provider + e);}
+        int eventid;
+        if((eventid = AddEvent(l, event)) == -1)
+            return;
+        try {
+            sendArg((byte)0, Descriptor.DTYPE_CSTRING, (byte)3, null, MdsMessage.EVENTASTREQUEST.getBytes());
+            sendArg((byte)1, Descriptor.DTYPE_CSTRING, (byte)3, null, event.getBytes());
+            sendArg((byte)2, Descriptor.DTYPE_UBYTE,   (byte)3, null, new byte[]{(byte)(eventid)});
+        }catch(IOException e){error = new String("Could not get IO for "+provider + e);}
     }
-
 
     public synchronized void MdsRemoveEvent(UpdateEventListener l, String event)
     {
-           int eventid;
-           if((eventid = RemoveEvent(l, event)) == -1)
-                return;
-	   try {
-            sendArg((byte)0, Descriptor.DTYPE_CSTRING,
-                        (byte)2, null,
-                        MdsMessage.EVENTCANREQUEST.getBytes());
-
-            byte data[] = {(byte)eventid};
-
-            sendArg((byte)1, Descriptor.DTYPE_CSTRING,
-                        (byte)2, null, data);
-      } catch(IOException e) {error = new String("Could not get IO for "+provider + e);}
+        int eventid;
+        if((eventid = RemoveEvent(l, event)) == -1)
+            return;
+        try{
+            sendArg((byte)0, Descriptor.DTYPE_CSTRING, (byte)2, null, MdsMessage.EVENTCANREQUEST.getBytes());
+            sendArg((byte)1, Descriptor.DTYPE_CSTRING, (byte)2, null, new byte[]{(byte)eventid});
+        } catch(IOException e){error = new String("Could not get IO for "+provider + e);}
     }
-
 
     public synchronized void addConnectionListener(ConnectionListener l)
     {
-	    if (l == null) {
-	        return;
-	    }
+        if (l == null) return;
         connection_listener.addElement(l);
     }
 
     public synchronized void removeConnectionListener(ConnectionListener l)
     {
-	    if (l == null) {
-	        return;
-	    }
+        if (l == null) return;
         connection_listener.removeElement(l);
     }
 
     protected void dispatchConnectionEvent(ConnectionEvent e)
     {
         if (connection_listener != null)
-        {
             for(int i = 0; i < connection_listener.size(); i++)
-            {
                 connection_listener.elementAt(i).processConnectionEvent(e);
-            }
-        }
-
     }
-
-  }
-
+}

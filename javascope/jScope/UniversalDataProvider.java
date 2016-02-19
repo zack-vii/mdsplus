@@ -15,7 +15,7 @@ import java.io.*;
 import javax.swing.JFrame;
 import java.util.*;
 
-class UniversalDataProvider implements DataProvider
+final class UniversalDataProvider implements DataProvider
 {
     String error = "Unknown experiment";
     MdsDataProvider rfx;

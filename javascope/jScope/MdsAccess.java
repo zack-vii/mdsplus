@@ -15,10 +15,10 @@ public class MdsAccess implements DataAccess
     MdsDataProvider np = null;
     String error = null;
     String encoded_credentials = null;
-	
-	String prevUrl = null;
+    
+    String prevUrl = null;
 
-	 public static void main(String[] paramArrayOfString)
+     public static void main(String[] paramArrayOfString)
   {
     MdsAccess localMdsAccess = new MdsAccess();
 
@@ -195,7 +195,7 @@ public class MdsAccess implements DataAccess
         return np.GetFloatArray(signal);
     }
 
-	public String getExpression(String paramString) throws IOException
+    public String getExpression(String paramString) throws IOException
    {
     System.out.println("Expr URL = " + paramString);
     setProvider(paramString);
@@ -211,7 +211,7 @@ public class MdsAccess implements DataAccess
          float y[] = getY(url);
         float x[] = getX(url);
 
-		System.out.println("URL = " + url);
+        System.out.println("URL = " + url);
 
         if(x == null || y == null)
         {

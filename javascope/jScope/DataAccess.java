@@ -52,7 +52,7 @@ public interface DataAccess
      *
      * Signal getSignal(String url)
      * {
-     * 	return new Signal(getX(url), getY(url));
+     *     return new Signal(getX(url), getY(url));
      * }
      *
      * @param url The signal URL

@@ -29,9 +29,7 @@ import java.awt.print.*;
 import java.awt.*;
 import java.awt.event.*;
 
-class jScopeWaveContainer
-    extends WaveformContainer
-    implements Printable
+final class jScopeWaveContainer extends WaveformContainer implements Printable
 {
     static final long serialVersionUID = 4326578978461L;
     private static final int MAX_COLUMN = 4;
@@ -1558,7 +1556,7 @@ remove 28/06/2005
                 w = (jScopeMultiWave) getGridComponent(k);
                 wi = (MdsWaveInterface) w.wi;
                 out.println("\n");
-//		        WaveInterface.WriteLine(out, prompt + "plot_" + r + "_" + c + ".height: "          , ""+w.getSize().height );
+//                WaveInterface.WriteLine(out, prompt + "plot_" + r + "_" + c + ".height: "          , ""+w.getSize().height );
                 WaveInterface.WriteLine(out,
                                         prompt + "plot_" + r + "_" + c +
                                         ".height: ",
@@ -1578,7 +1576,7 @@ remove 28/06/2005
         for (int i = 1, k = 0, pos = 0; i < getColumns(); i++)
         {
             // w = (jScopeMultiWave)getGridComponent(k);
-            //	wi = (MdsWaveInterface)w.wi;
+            //    wi = (MdsWaveInterface)w.wi;
             // pos += (int)(((float)w.getSize().width/ getSize().width) * 1000.);
             pos += (int) (normWidth[i - 1] * 1000.);
             WaveInterface.WriteLine(out, prompt + "vpane_" + i + ": ", "" + pos);
@@ -1640,7 +1638,7 @@ remove 28/06/2005
         Vector<jScopeMultiWave> panel = new Vector<jScopeMultiWave>();
         MdsWaveInterface wi;
         jScopeMultiWave wave;
-	
+    
         if (!all &&
             (w == null || w.wi == null || w.wi.signals == null ||
              w.wi.signals.length == 0))
@@ -1761,7 +1759,7 @@ remove 28/06/2005
                                 for (int u = 0; u < 52 - s.length(); u++)
                                     space.append(' ');
                                 out.write(space.toString());
-				                s="";
+                                s="";
                             }
                         }
                         out.newLine();

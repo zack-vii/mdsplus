@@ -7,10 +7,7 @@ import javax.swing.JFrame;
 
 class AsdexDataProvider extends MdsDataProvider
 {
-
-
-    class SimpleWaveData
-        implements WaveData
+    class SimpleWaveData implements WaveData
     {
         String in_x, in_y;
         float xmax, xmin;
@@ -121,31 +118,22 @@ class AsdexDataProvider extends MdsDataProvider
             try
             {
                 double t0 = GetFloat("dscptr(window_of(dim_of(" + expr + ")),2)");
-                int startIdx[] = GetIntArray("begin_of(window_of(dim_of(" +
-                                             expr + ")))");
-                int endIdx[] = GetIntArray("end_of(window_of(dim_of(" + expr +
-                                           ")))");
-
+                int startIdx[] = GetIntArray("begin_of(window_of(dim_of("+expr+")))");
+                int endIdx[] = GetIntArray("end_of(window_of(dim_of("+expr+")))");
                 if (startIdx.length != 1 || endIdx.length != 1)
                     return null;
-
                 int numPoint = endIdx[0] - startIdx[0] + 1;
-                double delta[] = GetDoubleArray("slope_of(axis_of(dim_of(" +
-                                                expr + ")))");
+                double delta[] = GetDoubleArray("slope_of(axis_of(dim_of("+expr+")))");
                 double begin[] = null;
                 double end[] = null;
                 double curr;
-                double firstTime[] = GetDoubleArray("i_to_x(dim_of(" + expr +
-                    ")," + startIdx[0] + ")");
+                double firstTime[] = GetDoubleArray("i_to_x(dim_of("+expr+"),"+startIdx[0]+")");
                 try
                 {
-                    begin = GetDoubleArray("begin_of(axis_of(dim_of(" + expr +
-                                           ")))");
-                    end = GetDoubleArray("end_of(axis_of(dim_of(" + expr +
-                                         ")))");
+                    begin = GetDoubleArray("begin_of(axis_of(dim_of("+expr+")))");
+                    end = GetDoubleArray("end_of(axis_of(dim_of("+expr+")))");
                 }
-                catch (IOException e)
-                {}
+                catch (IOException e){}
 
                 if (delta.length == 1 && numPoint > 1)
                 {
@@ -154,7 +142,6 @@ class AsdexDataProvider extends MdsDataProvider
 
                     for (i = j = 0, curr = firstTime[0]; i < numPoint; i++, j++)
                         out[i] = curr + j * delta[0];
-
                     return out;
                 }
 
@@ -179,15 +166,10 @@ class AsdexDataProvider extends MdsDataProvider
 
                 }
             }
-            catch (Exception exc)
-            {}
-            ; //System.out.println(exc.getMessage());}
+            catch (Exception exc){System.err.println(exc.getMessage());}
             return null;
-
         }
-
         RealArray currXData = null;
-
         public double[] GetXDoubleData()
         {
             try
@@ -296,8 +278,7 @@ class AsdexDataProvider extends MdsDataProvider
             else
             {
                 _jscope_set = true;
-                expr = "( _jscope_" + v_idx + " = (" + in_y +
-                    "), dim_of(_jscope_" + v_idx + ", 1))";
+                expr = "( _jscope_" + v_idx + " = (" + in_y + "), dim_of(_jscope_" + v_idx + ", 1))";
                 var_idx++;
             }
             return GetFloatArray(expr);
@@ -313,8 +294,7 @@ class AsdexDataProvider extends MdsDataProvider
             else
             {
                 _jscope_set = true;
-                expr = "( _jscope_" + v_idx + " = (" + in_y +
-                    "), help_of(_jscope_" + v_idx + "))";
+                expr = "( _jscope_" + v_idx + " = (" + in_y + "), help_of(_jscope_" + v_idx + "))";
                 var_idx++;
             }
 
@@ -456,29 +436,29 @@ class AsdexDataProvider extends MdsDataProvider
     }
 
     public synchronized void Update(String exp, long s)
-	{
-	    error = null;
-	    shot = s;
-	}
+    {
+        error = null;
+        shot = s;
+    }
 
-	protected String ParseExpression(String in)
-	{
-	    if(in.startsWith("DIM_OF("))
-	        return in;
-	    StringTokenizer st = new StringTokenizer(in, ":");
+    protected String ParseExpression(String in)
+    {
+        if(in.startsWith("DIM_OF("))
+            return in;
+        StringTokenizer st = new StringTokenizer(in, ":");
         String res;
-	    try{
-	        String diag = st.nextToken();
-	        String name = st.nextToken();
-	        res = "augsignal("+ shot + ",\"" + diag + "\",\"" +name + "\")";
-	    }catch(Exception e)
-	    {
-	        error = "Wrong signal format: must be <diagnostic>:<signal>";
-	        return null;
-	    }
-	    System.out.println(res);
-	    return res;
-	}
+        try{
+            String diag = st.nextToken();
+            String name = st.nextToken();
+            res = "augsignal("+ shot + ",\"" + diag + "\",\"" +name + "\")";
+        }catch(Exception e)
+        {
+            error = "Wrong signal format: must be <diagnostic>:<signal>";
+            return null;
+        }
+        System.out.println(res);
+        return res;
+    }
 
     public synchronized int[] GetIntArray(String in) throws IOException
     {
@@ -500,16 +480,16 @@ class AsdexDataProvider extends MdsDataProvider
 //        String parsed = ParseExpression(in);
         String parsed = in;
           if(parsed == null) return null;
-	    error= null;
-	    float [] out_array = super.GetFloatArray(parsed);
-	    if(out_array == null&& error == null)
-	        error = "Cannot evaluate " + in + " for shot " + shot;
-	    if(out_array != null && out_array.length <= 1)
-	    {
-	        error = "Cannot evaluate " + in + " for shot " + shot;
-	        return null;
-	    }
-	    return out_array;
+        error= null;
+        float [] out_array = super.GetFloatArray(parsed);
+        if(out_array == null&& error == null)
+            error = "Cannot evaluate " + in + " for shot " + shot;
+        if(out_array != null && out_array.length <= 1)
+        {
+            error = "Cannot evaluate " + in + " for shot " + shot;
+            return null;
+        }
+        return out_array;
     }
 
 

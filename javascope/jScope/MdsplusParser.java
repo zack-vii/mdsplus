@@ -2,7 +2,7 @@ package jScope;
 
 import java.util.*;
 
-class MdsplusParser
+final class MdsplusParser
 {
     static String keywords[] = {
         "ARG_OF", "ARRAY","ASIN","ASIND","AS_IS","ATAN","ATAN2","ATAN2D","ATAND","ATANH","AXIS_OF","BREAK",
@@ -44,9 +44,7 @@ class MdsplusParser
         for(int i = 0; i < keywords.length; i++)
             if(upStr.equals(keywords[i]))
                 return true;
-        if(str.startsWith("_")) //TDI variable
-          return true;
-        return false;
+        return str.startsWith("_");
     }
 
     //Parses a TDI expression substituting each occurrence of name (which is not a keyword)
@@ -69,7 +67,6 @@ class MdsplusParser
                     outExpr += currToken;
             }
         }
-       // System.out.println(outExpr);
         return outExpr;
     }
 }
