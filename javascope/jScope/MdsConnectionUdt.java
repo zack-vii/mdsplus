@@ -14,13 +14,13 @@ import java.io.IOException;
 public class MdsConnectionUdt extends MdsConnection{
     @Override
     public void connectToServer() throws IOException {
-        if(provider != null){
-            host = getProviderHost();
-            port = getProviderPort();
-            user = getProviderUser();
-            MdsIpProtocolWrapper mipw = new MdsIpProtocolWrapper("udt://" + host + ":" + port);
-            dis = mipw.getInputStream();
-            dos = new DataOutputStream(mipw.getOutputStream());
+        if(this.provider != null){
+            this.host = this.getProviderHost();
+            this.port = this.getProviderPort();
+            this.user = this.getProviderUser();
+            final MdsIpProtocolWrapper mipw = new MdsIpProtocolWrapper("udt://" + this.host + ":" + this.port);
+            this.dis = mipw.getInputStream();
+            this.dos = new DataOutputStream(mipw.getOutputStream());
         }
     }
 }

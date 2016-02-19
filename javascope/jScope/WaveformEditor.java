@@ -2,6 +2,7 @@ package jScope;
 
 import java.awt.Event;
 import java.awt.Graphics;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
@@ -11,237 +12,237 @@ import java.util.Vector;
 import javax.swing.JFrame;
 
 final public class WaveformEditor extends Waveform{
-    static final long              serialVersionUID = 23457567346312L;
-    float[]                        currentX, currentY;
-    float                          minY, maxY;
-    int                            closestIdx       = -1;
-    public static final float      MIN_STEP         = 1E-6F;
-    Vector<WaveformEditorListener> listeners        = new Vector<WaveformEditorListener>();
-    protected boolean              editable         = false;
-    static float[]                 copyX, copyY;
+    static float[]            copyX, copyY;
+    public static final float MIN_STEP         = 1E-6F;
+    static final long         serialVersionUID = 23457567346312L;
 
-    public WaveformEditor(){
-        super();
-        setupCopyPaste();
-    }
-
-    public WaveformEditor(float[] x, float[] y, float minY, float maxY){
-        super(new Signal(x, y, x.length, x[0], x[x.length - 1], minY, maxY));
-        SetMarker(1);
-        currentX = x;
-        currentY = y;
-        this.minY = minY;
-        this.maxY = maxY;
-        setupCopyPaste();
-    }
-
-    public void setWaveform(float[] x, float[] y, float minY, float maxY) {
-        Signal sig = new Signal(x, y, x.length, x[0], x[x.length - 1], minY, maxY);
-        sig.setMarker(1);
-        currentX = new float[x.length];
-        currentY = new float[y.length];
-        for(int i = 0; i < x.length; i++){
-            currentX[i] = x[i];
-            currentY[i] = y[i];
-        }
-        this.minY = minY;
-        this.maxY = maxY;
-        Update(sig);
-    }
-
-    protected void setupCopyPaste() {
-        // enableEvents(AWTEvent.KEY_EVENT_MASK);
-        addMouseListener(new MouseAdapter(){
-            @Override
-            public void mousePressed(MouseEvent e) {
-                requestFocus();
-            }
-        });
-        addKeyListener(new KeyListener(){
-            @Override
-            public void keyPressed(KeyEvent ke) {
-                if((ke.getModifiers() & KeyEvent.CTRL_MASK) != 0 && (ke.getKeyCode() == KeyEvent.VK_C)){
-                    copyX = new float[currentX.length];
-                    copyY = new float[currentY.length];
-                    for(int i = 0; i < currentX.length; i++){
-                        if(i >= currentY.length) break;
-                        copyX[i] = currentX[i];
-                        copyY[i] = currentY[i];
-                    }
-                }
-                if((ke.getModifiers() & KeyEvent.CTRL_MASK) != 0 && (ke.getKeyCode() == KeyEvent.VK_V)){
-                    if(copyX == null) return;
-                    Signal sig = new Signal(copyX, copyY, copyX.length, copyX[0], copyX[copyX.length - 1], minY, maxY);
-                    sig.setMarker(1);
-                    currentX = new float[copyX.length];
-                    currentY = new float[copyY.length];
-                    for(int i = 0; i < copyX.length; i++){
-                        currentX[i] = copyX[i];
-                        currentY[i] = copyY[i];
-                    }
-                    Update(sig);
-                    notifyUpdate(currentX, currentY, currentX.length - 1);
-                }
-            }
-
-            @Override
-            public void keyReleased(KeyEvent ke) {}
-
-            @Override
-            public void keyTyped(KeyEvent ke) {}
-        });
-    }
-
-    int convertXPix(float x) {
-        return wm.XPixel(x, getWaveSize());
-    }
-
-    int convertYPix(float y) {
-        return wm.YPixel(y, getWaveSize());
-    }
-
-    @Override
-    protected void setMouse() {
-        addMouseListener(new MouseAdapter(){
-            @Override
-            public void mousePressed(MouseEvent e) {
-                int newIdx = -1;
-                int currX = e.getX();
-                int currY = e.getY();
-                int minDist = Integer.MAX_VALUE;
-                int prevIdx = -1;
-                for(int i = closestIdx = 0; i < currentX.length; i++){
-                    if(prevIdx == -1 && i < currentX.length - 1 && convertXPix(currentX[i + 1]) > currX) prevIdx = i;
-                    // (float currDist = (float)Math.abs(currX - currentX[i]);
-                    int currentXPix = convertXPix(currentX[i]);
-                    int currentYPix = convertYPix(currentY[i]);
-                    int currDist = (currX - currentXPix) * (currX - currentXPix) + (currY - currentYPix) * (currY - currentYPix);
-                    if(currDist < minDist){
-                        minDist = currDist;
-                        closestIdx = i;
-                    }
-                }
-                notifyUpdate(currentX, currentY, closestIdx);
-                if(!editable) return;
-                if((e.getModifiers() & Event.META_MASK) != 0) // If MB3
-                {
-                    if((e.getModifiers() & Event.SHIFT_MASK) != 0) // Pont deletion
-                    {
-                        if(closestIdx != 0 && closestIdx != currentX.length - 1){
-                            float[] newCurrentX = new float[currentX.length - 1];
-                            float[] newCurrentY = new float[currentY.length - 1];
-                            int j;
-                            for(int i = j = 0; i < closestIdx; i++, j++){
-                                newCurrentX[i] = currentX[i];
-                                newCurrentY[i] = currentY[i];
-                            }
-                            for(int i = closestIdx + 1; i < currentX.length; i++, j++){
-                                newCurrentX[j] = currentX[i];
-                                newCurrentY[j] = currentY[i];
-                            }
-                            currentX = newCurrentX;
-                            currentY = newCurrentY;
-                        }
-                    }else{
-                        float newX = convertX(e.getX());
-                        float[] newCurrentX = new float[currentX.length + 1];
-                        float[] newCurrentY = new float[currentY.length + 1];
-                        int j;
-                        for(int i = j = 0; i <= prevIdx; i++, j++){
-                            newCurrentX[i] = currentX[i];
-                            newCurrentY[i] = currentY[i];
-                        }
-                        newCurrentX[j] = newX;
-                        newCurrentY[j] = currentY[j - 1] + (newX - currentX[j - 1]) * (currentY[j] - currentY[j - 1]) / (currentX[j] - currentX[j - 1]);
-                        j++;
-                        for(int i = prevIdx + 1; i < currentX.length; i++, j++){
-                            newCurrentX[j] = currentX[i];
-                            newCurrentY[j] = currentY[i];
-                        }
-                        currentX = newCurrentX;
-                        currentY = newCurrentY;
-                        newIdx = prevIdx + 1;
-                    }
-                    Signal newSig = new Signal(currentX, currentY, currentX.length, currentX[0], currentX[currentX.length - 1], minY, maxY);
-                    newSig.setMarker(1);
-                    Update(newSig);
-                    notifyUpdate(currentX, currentY, newIdx);
-                }
-            }
-
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                closestIdx = -1;
-            }
-        });
-        addMouseMotionListener(new MouseMotionAdapter(){
-            @Override
-            public void mouseDragged(MouseEvent e) {
-                if(!editable) return;
-                synchronized(WaveformEditor.this){
-                    if(closestIdx == -1) return;
-                    float currX;
-                    float currY;
-                    try{
-                        currX = convertX(e.getX());
-                        currY = convertY(e.getY());
-                    }catch(Exception exc){
-                        return;
-                    }
-                    if(closestIdx > 0 && closestIdx < currentX.length - 1){
-                        if(currX < currentX[closestIdx - 1] + MIN_STEP) currX = currentX[closestIdx - 1] + MIN_STEP;
-                        if(currX > currentX[closestIdx + 1] - MIN_STEP) currX = currentX[closestIdx + 1] - MIN_STEP;
-                    }else currX = currentX[closestIdx];
-                    currentX[closestIdx] = currX;
-                    if(currY < minY) currY = minY;
-                    if(currY > maxY) currY = maxY;
-                    currentY[closestIdx] = currY;
-                    Signal newSig = new Signal(currentX, currentY, currentX.length, currentX[0], currentX[currentX.length - 1], minY, maxY);
-                    newSig.setMarker(1);
-                    Update(newSig);
-                    notifyUpdate(currentX, currentY, -1);
-                }
-            }
-        });
-    }
-
-    public synchronized void addWaveformEditorListener(WaveformEditorListener listener) {
-        listeners.add(listener);
-    }
-
-    public synchronized void removeWaveformEditorListener(WaveformEditorListener listener) {
-        listeners.remove(listener);
-    }
-
-    public synchronized void notifyUpdate(float[] waveX, float[] waveY, int newIdx) {
-        for(int i = 0; i < listeners.size(); i++)
-            listeners.elementAt(i).waveformUpdated(waveX, waveY, newIdx);
-    }
-
-    public void setEditable(boolean editable) {
-        this.editable = editable;
-    }
-
-    @Override
-    public void print(Graphics g) {
-        System.out.println("WAVE PRINT");
-        paint(g, getSize(), 1);
-    }
-
-    public static void main(String args[]) {
-        float x[] = new float[10];
-        float y[] = new float[10];
+    public static void main(final String args[]) {
+        final float x[] = new float[10];
+        final float y[] = new float[10];
         for(int i = 0; i < 10; i++){
             x[i] = (float)(i / 10.);
             y[i] = 0;
         }
-        WaveformEditor we = new WaveformEditor();
+        final WaveformEditor we = new WaveformEditor();
         // WaveformEditor we = new WaveformEditor(x,y, -10F, 20F);
         we.setWaveform(x, y, -10F, 20F);
-        JFrame frame = new JFrame("Test WaveformEditor");
+        final JFrame frame = new JFrame("Test WaveformEditor");
         frame.setSize(400, 300);
         frame.getContentPane().add(we);
         frame.pack();
         frame.setVisible(true);
+    }
+    int                            closestIdx = -1;
+    float[]                        currentX, currentY;
+    protected boolean              editable   = false;
+    Vector<WaveformEditorListener> listeners  = new Vector<WaveformEditorListener>();
+    float                          minY, maxY;
+
+    public WaveformEditor(){
+        super();
+        this.setupCopyPaste();
+    }
+
+    public WaveformEditor(final float[] x, final float[] y, final float minY, final float maxY){
+        super(new Signal(x, y, x.length, x[0], x[x.length - 1], minY, maxY));
+        this.SetMarker(1);
+        this.currentX = x;
+        this.currentY = y;
+        this.minY = minY;
+        this.maxY = maxY;
+        this.setupCopyPaste();
+    }
+
+    public synchronized void addWaveformEditorListener(final WaveformEditorListener listener) {
+        this.listeners.add(listener);
+    }
+
+    int convertXPix(final float x) {
+        return this.wm.XPixel(x, this.getWaveSize());
+    }
+
+    int convertYPix(final float y) {
+        return this.wm.YPixel(y, this.getWaveSize());
+    }
+
+    public synchronized void notifyUpdate(final float[] waveX, final float[] waveY, final int newIdx) {
+        for(int i = 0; i < this.listeners.size(); i++)
+            this.listeners.elementAt(i).waveformUpdated(waveX, waveY, newIdx);
+    }
+
+    @Override
+    public void print(final Graphics g) {
+        System.out.println("WAVE PRINT");
+        this.paint(g, this.getSize(), 1);
+    }
+
+    public synchronized void removeWaveformEditorListener(final WaveformEditorListener listener) {
+        this.listeners.remove(listener);
+    }
+
+    public void setEditable(final boolean editable) {
+        this.editable = editable;
+    }
+
+    @Override
+    protected void setMouse() {
+        this.addMouseListener(new MouseAdapter(){
+            @Override
+            public void mousePressed(final MouseEvent e) {
+                int newIdx = -1;
+                final int currX = e.getX();
+                final int currY = e.getY();
+                int minDist = Integer.MAX_VALUE;
+                int prevIdx = -1;
+                for(int i = WaveformEditor.this.closestIdx = 0; i < WaveformEditor.this.currentX.length; i++){
+                    if(prevIdx == -1 && i < WaveformEditor.this.currentX.length - 1 && WaveformEditor.this.convertXPix(WaveformEditor.this.currentX[i + 1]) > currX) prevIdx = i;
+                    // (float currDist = (float)Math.abs(currX - currentX[i]);
+                    final int currentXPix = WaveformEditor.this.convertXPix(WaveformEditor.this.currentX[i]);
+                    final int currentYPix = WaveformEditor.this.convertYPix(WaveformEditor.this.currentY[i]);
+                    final int currDist = (currX - currentXPix) * (currX - currentXPix) + (currY - currentYPix) * (currY - currentYPix);
+                    if(currDist < minDist){
+                        minDist = currDist;
+                        WaveformEditor.this.closestIdx = i;
+                    }
+                }
+                WaveformEditor.this.notifyUpdate(WaveformEditor.this.currentX, WaveformEditor.this.currentY, WaveformEditor.this.closestIdx);
+                if(!WaveformEditor.this.editable) return;
+                if((e.getModifiers() & Event.META_MASK) != 0) // If MB3
+                {
+                    if((e.getModifiers() & Event.SHIFT_MASK) != 0) // Pont deletion
+                    {
+                        if(WaveformEditor.this.closestIdx != 0 && WaveformEditor.this.closestIdx != WaveformEditor.this.currentX.length - 1){
+                            final float[] newCurrentX = new float[WaveformEditor.this.currentX.length - 1];
+                            final float[] newCurrentY = new float[WaveformEditor.this.currentY.length - 1];
+                            int j;
+                            for(int i = j = 0; i < WaveformEditor.this.closestIdx; i++, j++){
+                                newCurrentX[i] = WaveformEditor.this.currentX[i];
+                                newCurrentY[i] = WaveformEditor.this.currentY[i];
+                            }
+                            for(int i = WaveformEditor.this.closestIdx + 1; i < WaveformEditor.this.currentX.length; i++, j++){
+                                newCurrentX[j] = WaveformEditor.this.currentX[i];
+                                newCurrentY[j] = WaveformEditor.this.currentY[i];
+                            }
+                            WaveformEditor.this.currentX = newCurrentX;
+                            WaveformEditor.this.currentY = newCurrentY;
+                        }
+                    }else{
+                        final float newX = WaveformEditor.this.convertX(e.getX());
+                        final float[] newCurrentX = new float[WaveformEditor.this.currentX.length + 1];
+                        final float[] newCurrentY = new float[WaveformEditor.this.currentY.length + 1];
+                        int j;
+                        for(int i = j = 0; i <= prevIdx; i++, j++){
+                            newCurrentX[i] = WaveformEditor.this.currentX[i];
+                            newCurrentY[i] = WaveformEditor.this.currentY[i];
+                        }
+                        newCurrentX[j] = newX;
+                        newCurrentY[j] = WaveformEditor.this.currentY[j - 1] + (newX - WaveformEditor.this.currentX[j - 1]) * (WaveformEditor.this.currentY[j] - WaveformEditor.this.currentY[j - 1]) / (WaveformEditor.this.currentX[j] - WaveformEditor.this.currentX[j - 1]);
+                        j++;
+                        for(int i = prevIdx + 1; i < WaveformEditor.this.currentX.length; i++, j++){
+                            newCurrentX[j] = WaveformEditor.this.currentX[i];
+                            newCurrentY[j] = WaveformEditor.this.currentY[i];
+                        }
+                        WaveformEditor.this.currentX = newCurrentX;
+                        WaveformEditor.this.currentY = newCurrentY;
+                        newIdx = prevIdx + 1;
+                    }
+                    final Signal newSig = new Signal(WaveformEditor.this.currentX, WaveformEditor.this.currentY, WaveformEditor.this.currentX.length, WaveformEditor.this.currentX[0], WaveformEditor.this.currentX[WaveformEditor.this.currentX.length - 1], WaveformEditor.this.minY, WaveformEditor.this.maxY);
+                    newSig.setMarker(1);
+                    WaveformEditor.this.Update(newSig);
+                    WaveformEditor.this.notifyUpdate(WaveformEditor.this.currentX, WaveformEditor.this.currentY, newIdx);
+                }
+            }
+
+            @Override
+            public void mouseReleased(final MouseEvent e) {
+                WaveformEditor.this.closestIdx = -1;
+            }
+        });
+        this.addMouseMotionListener(new MouseMotionAdapter(){
+            @Override
+            public void mouseDragged(final MouseEvent e) {
+                if(!WaveformEditor.this.editable) return;
+                synchronized(WaveformEditor.this){
+                    if(WaveformEditor.this.closestIdx == -1) return;
+                    float currX;
+                    float currY;
+                    try{
+                        currX = WaveformEditor.this.convertX(e.getX());
+                        currY = WaveformEditor.this.convertY(e.getY());
+                    }catch(final Exception exc){
+                        return;
+                    }
+                    if(WaveformEditor.this.closestIdx > 0 && WaveformEditor.this.closestIdx < WaveformEditor.this.currentX.length - 1){
+                        if(currX < WaveformEditor.this.currentX[WaveformEditor.this.closestIdx - 1] + WaveformEditor.MIN_STEP) currX = WaveformEditor.this.currentX[WaveformEditor.this.closestIdx - 1] + WaveformEditor.MIN_STEP;
+                        if(currX > WaveformEditor.this.currentX[WaveformEditor.this.closestIdx + 1] - WaveformEditor.MIN_STEP) currX = WaveformEditor.this.currentX[WaveformEditor.this.closestIdx + 1] - WaveformEditor.MIN_STEP;
+                    }else currX = WaveformEditor.this.currentX[WaveformEditor.this.closestIdx];
+                    WaveformEditor.this.currentX[WaveformEditor.this.closestIdx] = currX;
+                    if(currY < WaveformEditor.this.minY) currY = WaveformEditor.this.minY;
+                    if(currY > WaveformEditor.this.maxY) currY = WaveformEditor.this.maxY;
+                    WaveformEditor.this.currentY[WaveformEditor.this.closestIdx] = currY;
+                    final Signal newSig = new Signal(WaveformEditor.this.currentX, WaveformEditor.this.currentY, WaveformEditor.this.currentX.length, WaveformEditor.this.currentX[0], WaveformEditor.this.currentX[WaveformEditor.this.currentX.length - 1], WaveformEditor.this.minY, WaveformEditor.this.maxY);
+                    newSig.setMarker(1);
+                    WaveformEditor.this.Update(newSig);
+                    WaveformEditor.this.notifyUpdate(WaveformEditor.this.currentX, WaveformEditor.this.currentY, -1);
+                }
+            }
+        });
+    }
+
+    protected void setupCopyPaste() {
+        // enableEvents(AWTEvent.KEY_EVENT_MASK);
+        this.addMouseListener(new MouseAdapter(){
+            @Override
+            public void mousePressed(final MouseEvent e) {
+                WaveformEditor.this.requestFocus();
+            }
+        });
+        this.addKeyListener(new KeyListener(){
+            @Override
+            public void keyPressed(final KeyEvent ke) {
+                if((ke.getModifiers() & InputEvent.CTRL_MASK) != 0 && (ke.getKeyCode() == KeyEvent.VK_C)){
+                    WaveformEditor.copyX = new float[WaveformEditor.this.currentX.length];
+                    WaveformEditor.copyY = new float[WaveformEditor.this.currentY.length];
+                    for(int i = 0; i < WaveformEditor.this.currentX.length; i++){
+                        if(i >= WaveformEditor.this.currentY.length) break;
+                        WaveformEditor.copyX[i] = WaveformEditor.this.currentX[i];
+                        WaveformEditor.copyY[i] = WaveformEditor.this.currentY[i];
+                    }
+                }
+                if((ke.getModifiers() & InputEvent.CTRL_MASK) != 0 && (ke.getKeyCode() == KeyEvent.VK_V)){
+                    if(WaveformEditor.copyX == null) return;
+                    final Signal sig = new Signal(WaveformEditor.copyX, WaveformEditor.copyY, WaveformEditor.copyX.length, WaveformEditor.copyX[0], WaveformEditor.copyX[WaveformEditor.copyX.length - 1], WaveformEditor.this.minY, WaveformEditor.this.maxY);
+                    sig.setMarker(1);
+                    WaveformEditor.this.currentX = new float[WaveformEditor.copyX.length];
+                    WaveformEditor.this.currentY = new float[WaveformEditor.copyY.length];
+                    for(int i = 0; i < WaveformEditor.copyX.length; i++){
+                        WaveformEditor.this.currentX[i] = WaveformEditor.copyX[i];
+                        WaveformEditor.this.currentY[i] = WaveformEditor.copyY[i];
+                    }
+                    WaveformEditor.this.Update(sig);
+                    WaveformEditor.this.notifyUpdate(WaveformEditor.this.currentX, WaveformEditor.this.currentY, WaveformEditor.this.currentX.length - 1);
+                }
+            }
+
+            @Override
+            public void keyReleased(final KeyEvent ke) {}
+
+            @Override
+            public void keyTyped(final KeyEvent ke) {}
+        });
+    }
+
+    public void setWaveform(final float[] x, final float[] y, final float minY, final float maxY) {
+        final Signal sig = new Signal(x, y, x.length, x[0], x[x.length - 1], minY, maxY);
+        sig.setMarker(1);
+        this.currentX = new float[x.length];
+        this.currentY = new float[y.length];
+        for(int i = 0; i < x.length; i++){
+            this.currentX[i] = x[i];
+            this.currentY[i] = y[i];
+        }
+        this.minY = minY;
+        this.maxY = maxY;
+        this.Update(sig);
     }
 }

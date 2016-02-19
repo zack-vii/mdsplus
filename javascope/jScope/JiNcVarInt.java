@@ -4,27 +4,28 @@ package jScope;
 import java.io.IOException;
 
 class JiNcVarInt extends JiNcVarImp{
-    public JiNcVarInt(RandomAccessData in, JiNcVar parent, long offset){
+    public JiNcVarInt(final RandomAccessData in, final JiNcVar parent, final long offset){
         super(in, parent, offset);
     }
 
     @Override
-    public Object read(JiDim[] dims) throws IOException {
-        return readInt(dims);
+    public Object read(final JiDim[] dims) throws IOException {
+        return this.readInt(dims);
     }
 
-    public int[] readInt(JiDim[] dims) throws IOException {
+    @Override
+    public int[] readInt(final JiDim[] dims) throws IOException {
         int[] rval = null;
-        mParent.validateDims(dims);
-        JiSlabIterator itr = new JiSlabIterator((JiNcSource)mParent.getSource(), mParent, dims);
-        int size = itr.size();
+        this.mParent.validateDims(dims);
+        final JiSlabIterator itr = new JiSlabIterator((JiNcSource)this.mParent.getSource(), this.mParent, dims);
+        final int size = itr.size();
         rval = new int[size];
         JiSlab slab;
         int counter = 0;
         while((slab = itr.next()) != null){
-            mRFile.seek(mOffset + slab.mOffset);
+            this.mRFile.seek(this.mOffset + slab.mOffset);
             for(int i = 0; i < slab.mSize; ++i){
-                rval[counter++] = mRFile.readInt();
+                rval[counter++] = this.mRFile.readInt();
             }
         }
         return rval;

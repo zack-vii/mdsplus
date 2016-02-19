@@ -11,8 +11,15 @@ import java.io.IOException;
 class ImageTransferable implements Transferable, ClipboardOwner{
     BufferedImage ri;
 
-    ImageTransferable(BufferedImage img){
-        ri = img;
+    ImageTransferable(final BufferedImage img){
+        this.ri = img;
+    }
+
+    @Override
+    public Object getTransferData(final DataFlavor flavor) throws IOException, UnsupportedFlavorException {
+        if(this.ri == null) return null;
+        if(!this.isDataFlavorSupported(flavor)){ throw new UnsupportedFlavorException(flavor); }
+        return this.ri;
     }
 
     @Override
@@ -21,22 +28,15 @@ class ImageTransferable implements Transferable, ClipboardOwner{
     }
 
     @Override
-    public boolean isDataFlavorSupported(DataFlavor flavor) {
+    public boolean isDataFlavorSupported(final DataFlavor flavor) {
         return DataFlavor.imageFlavor.equals(flavor);
     }
 
     @Override
-    public Object getTransferData(DataFlavor flavor) throws IOException, UnsupportedFlavorException {
-        if(ri == null) return null;
-        if(!isDataFlavorSupported(flavor)){ throw new UnsupportedFlavorException(flavor); }
-        return ri;
-    }
-
-    @Override
-    public void lostOwnership(Clipboard clipboard, Transferable contents) {
+    public void lostOwnership(final Clipboard clipboard, final Transferable contents) {
         /*
         System.out.println ("ImageTransferable lost ownership of "  +clipboard.getName());
         System.out.println ("data: " + contents);
-        */
+         */
     }
 }

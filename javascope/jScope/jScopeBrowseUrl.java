@@ -2,8 +2,6 @@ package jScope;
 
 /* $Id$ */
 import java.awt.BorderLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -24,161 +22,149 @@ import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLFrameHyperlinkEvent;
 
 public class jScopeBrowseUrl extends JDialog{
-    static final long serialVersionUID = 156468466436846L;
-    JEditorPane       html;
-    URLConnection     url_con;
-    String            mime_type;
-    Vector<URL>       url_list         = new Vector<URL>();
-    JButton           back;
-    JButton           forward;
-    JButton           home;
-    int               curr_url         = 0;
-    JPanel            p;
-    boolean           connected        = false;
+    static final long   serialVersionUID = 156468466436846L;
+    final static String u_agent          = "jScopeBrowseUrl.java ($Revision$) for " + jScopeFacade.VERSION;
+    JButton             back;
+    boolean             connected        = false;
+    int                 curr_url         = 0;
+    JButton             forward;
+    JButton             home;
+    JEditorPane         html;
+    String              mime_type;
+    JPanel              p;
+    URLConnection       url_con;
+    Vector<URL>         url_list         = new Vector<URL>();
 
-    public jScopeBrowseUrl(JFrame owner){
+    public jScopeBrowseUrl(final JFrame owner){
         super(owner);
-        html = new JEditorPane();
-        html.setEditable(false);
-        html.addHyperlinkListener(createHyperLinkListener());
-        JScrollPane scroller = new JScrollPane();
-        JViewport vp = scroller.getViewport();
-        vp.add(html);
-        getContentPane().add(scroller, BorderLayout.CENTER);
-        p = new JPanel();
-        back = new JButton("Back");
-        back.setSelected(true);
-        p.add(back);
-        back.addActionListener(new ActionListener(){
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if(curr_url - 1 >= 0){
-                    try{
-                        curr_url--;
-                        // html.setPage((URL)url_list.elementAt(curr_url));
-                        setPage(url_list.elementAt(curr_url));
-                    }catch(IOException ioe){
-                        System.out.println("IOE: " + ioe);
-                    }
+        this.html = new JEditorPane();
+        this.html.setEditable(false);
+        this.html.addHyperlinkListener(this.createHyperLinkListener());
+        final JScrollPane scroller = new JScrollPane();
+        final JViewport vp = scroller.getViewport();
+        vp.add(this.html);
+        this.getContentPane().add(scroller, BorderLayout.CENTER);
+        this.p = new JPanel();
+        this.back = new JButton("Back");
+        this.back.setSelected(true);
+        this.p.add(this.back);
+        this.back.addActionListener(e -> {
+            if(jScopeBrowseUrl.this.curr_url - 1 >= 0){
+                try{
+                    jScopeBrowseUrl.this.curr_url--;
+                    // html.setPage((URL)url_list.elementAt(curr_url));
+                    jScopeBrowseUrl.this.setPage(jScopeBrowseUrl.this.url_list.elementAt(jScopeBrowseUrl.this.curr_url));
+                }catch(final IOException ioe){
+                    System.out.println("IOE: " + ioe);
                 }
             }
         });
-        forward = new JButton("Forward");
-        back.setSelected(true);
-        p.add(forward);
-        forward.addActionListener(new ActionListener(){
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if(curr_url + 1 < url_list.size()){
-                    try{
-                        curr_url++;
-                        html.setPage(url_list.elementAt(curr_url));
-                    }catch(IOException ioe){
-                        System.out.println("IOE: " + ioe);
-                    }
+        this.forward = new JButton("Forward");
+        this.back.setSelected(true);
+        this.p.add(this.forward);
+        this.forward.addActionListener(e -> {
+            if(jScopeBrowseUrl.this.curr_url + 1 < jScopeBrowseUrl.this.url_list.size()){
+                try{
+                    jScopeBrowseUrl.this.curr_url++;
+                    jScopeBrowseUrl.this.html.setPage(jScopeBrowseUrl.this.url_list.elementAt(jScopeBrowseUrl.this.curr_url));
+                }catch(final IOException ioe){
+                    System.out.println("IOE: " + ioe);
                 }
             }
         });
-        home = new JButton("Home");
-        home.setSelected(true);
-        p.add(home);
-        home.addActionListener(new ActionListener(){
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if(url_list.size() != 0){
-                    try{
-                        curr_url = 0;
-                        html.setPage(url_list.elementAt(0));
-                    }catch(IOException ioe){
-                        System.out.println("IOE: " + ioe);
-                    }
+        this.home = new JButton("Home");
+        this.home.setSelected(true);
+        this.p.add(this.home);
+        this.home.addActionListener(e -> {
+            if(jScopeBrowseUrl.this.url_list.size() != 0){
+                try{
+                    jScopeBrowseUrl.this.curr_url = 0;
+                    jScopeBrowseUrl.this.html.setPage(jScopeBrowseUrl.this.url_list.elementAt(0));
+                }catch(final IOException ioe){
+                    System.out.println("IOE: " + ioe);
                 }
             }
         });
-        getContentPane().add(p, BorderLayout.NORTH);
-        pack();
-        setSize(680, 700);
-    }
-    final static String u_agent = "jScopeBrowseUrl.java ($Revision$) for " + jScopeFacade.VERSION;
-
-    protected void setPage(URL url) throws IOException {
-        url_con = url.openConnection();
-        url_con.setRequestProperty("User-Agent", u_agent);
-        mime_type = url_con.getContentType();
-        // Assume (like browsers) that missing mime-type indicates text/html.
-        if(mime_type == null || mime_type.indexOf("text") != -1) html.setPage(url);
-        else{
-            String path = "TWU_image_message.html";
-            URL u = getClass().getClassLoader().getResource(path);
-            html.setPage(u);
-        }
+        this.getContentPane().add(this.p, BorderLayout.NORTH);
+        this.pack();
+        this.setSize(680, 700);
     }
 
-    public void connectToBrowser(URL url) throws Exception {
-        if(DEBUG.M){
-            System.out.println("connectToBrowser(" + url + ")");
-        }
-        if(url != null){
-            url_list.addElement(url);
-            setPage(url);
-        }
-    }
-
-    public boolean isConnected() {
-        return connected;
-    }
-
-    public void connectToBrowser(String url_path) throws Exception {
+    public void connectToBrowser(final String url_path) throws Exception {
         try{
             URL url = null;
             url = new URL(url_path);
-            connectToBrowser(url);
-            connected = true;
-        }catch(Exception e){
-            connected = false;
+            this.connectToBrowser(url);
+            this.connected = true;
+        }catch(final Exception e){
+            this.connected = false;
             throw(new IOException("Unable to locate the signal server " + url_path + " : " + e.getMessage()));
         }
     }
 
+    public void connectToBrowser(final URL url) throws Exception {
+        if(DEBUG.M){
+            System.out.println("connectToBrowser(" + url + ")");
+        }
+        if(url != null){
+            this.url_list.addElement(url);
+            this.setPage(url);
+        }
+    }
+
     public HyperlinkListener createHyperLinkListener() {
-        return new HyperlinkListener(){
-            @Override
-            public void hyperlinkUpdate(HyperlinkEvent e) {
-                if(e.getEventType() == HyperlinkEvent.EventType.ACTIVATED){
-                    if(e instanceof HTMLFrameHyperlinkEvent){
-                        ((HTMLDocument)html.getDocument()).processHTMLFrameHyperlinkEvent((HTMLFrameHyperlinkEvent)e);
-                    }else{
-                        try{
-                            URL u = e.getURL();
-                            // To fix JVM 1.1 Bug
-                            if(u == null){
-                                HTMLDocument hdoc = (HTMLDocument)html.getDocument();
-                                try{
-                                    StringTokenizer st = new StringTokenizer(hdoc.getBase().toString(), "/");
-                                    int num_token = st.countTokens();
-                                    String base = st.nextToken() + "//";
-                                    for(int i = 0; i < num_token - 2; i++)
-                                        base = base + st.nextToken() + "/";
-                                    if(jScopeFacade.is_debug) System.out.println("JDK1.1 url = " + base + e.getDescription());
-                                    u = new URL(base + e.getDescription());
-                                }catch(MalformedURLException m){
-                                    u = null;
-                                }
+        return e -> {
+            if(e.getEventType() == HyperlinkEvent.EventType.ACTIVATED){
+                if(e instanceof HTMLFrameHyperlinkEvent){
+                    ((HTMLDocument)jScopeBrowseUrl.this.html.getDocument()).processHTMLFrameHyperlinkEvent((HTMLFrameHyperlinkEvent)e);
+                }else{
+                    try{
+                        URL u = e.getURL();
+                        // To fix JVM 1.1 Bug
+                        if(u == null){
+                            final HTMLDocument hdoc = (HTMLDocument)jScopeBrowseUrl.this.html.getDocument();
+                            try{
+                                final StringTokenizer st = new StringTokenizer(hdoc.getBase().toString(), "/");
+                                final int num_token = st.countTokens();
+                                String base = st.nextToken() + "//";
+                                for(int i1 = 0; i1 < num_token - 2; i1++)
+                                    base = base + st.nextToken() + "/";
+                                if(jScopeFacade.is_debug) System.out.println("JDK1.1 url = " + base + e.getDescription());
+                                u = new URL(base + e.getDescription());
+                            }catch(final MalformedURLException m){
+                                u = null;
                             }
-                            // end fix bug JVM 1.1
-                            // html.setPage(u);
-                            setPage(u);
-                            int sz = url_list.size();
-                            for(int i = curr_url + 1; i < sz; i++)
-                                url_list.removeElementAt(curr_url + 1);
-                            url_list.addElement(u);
-                            curr_url++;
-                        }catch(IOException ioe){
-                            JOptionPane.showMessageDialog(jScopeBrowseUrl.this, "IOE: " + ioe, "alert", JOptionPane.ERROR_MESSAGE);
                         }
+                        // end fix bug JVM 1.1
+                        // html.setPage(u);
+                        jScopeBrowseUrl.this.setPage(u);
+                        final int sz = jScopeBrowseUrl.this.url_list.size();
+                        for(int i2 = jScopeBrowseUrl.this.curr_url + 1; i2 < sz; i2++)
+                            jScopeBrowseUrl.this.url_list.removeElementAt(jScopeBrowseUrl.this.curr_url + 1);
+                        jScopeBrowseUrl.this.url_list.addElement(u);
+                        jScopeBrowseUrl.this.curr_url++;
+                    }catch(final IOException ioe){
+                        JOptionPane.showMessageDialog(jScopeBrowseUrl.this, "IOE: " + ioe, "alert", JOptionPane.ERROR_MESSAGE);
                     }
                 }
             }
         };
+    }
+
+    public boolean isConnected() {
+        return this.connected;
+    }
+
+    protected void setPage(final URL url) throws IOException {
+        this.url_con = url.openConnection();
+        this.url_con.setRequestProperty("User-Agent", jScopeBrowseUrl.u_agent);
+        this.mime_type = this.url_con.getContentType();
+        // Assume (like browsers) that missing mime-type indicates text/html.
+        if(this.mime_type == null || this.mime_type.indexOf("text") != -1) this.html.setPage(url);
+        else{
+            final String path = "TWU_image_message.html";
+            final URL u = this.getClass().getClassLoader().getResource(path);
+            this.html.setPage(u);
+        }
     }
 }

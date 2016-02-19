@@ -13,164 +13,13 @@ import java.io.Serializable;
 import java.util.Vector;
 
 final public class WaveformMetrics implements Serializable{
-    static final long serialVersionUID = 247232536324574434L;
-    static double     MAX_VALUE        = 10000.;             // (double)Integer.MAX_VALUE;
-    static double     MIN_VALUE        = -10000.;            // (double)Integer.MIN_VALUE;
-    static int        INT_MAX_VALUE    = (int)MAX_VALUE;
-    static int        INT_MIN_VALUE    = (int)MIN_VALUE;
-    double            xmax, xmin, ymax, ymin;
-    double            xrange, yrange;                        // xmax - xmin , ymax - ymin
-    double            y_range;
-    boolean           x_log, y_log;
-    double            x_offset;
-    double            x_range;
-    int               start_x;
-    double            FACT_X, FACT_Y, OFS_X, OFS_Y;
-    int               horizontal_offset, vertical_offset;
+    static int          INT_MAX_VALUE    = (int)WaveformMetrics.MAX_VALUE;
+    static int          INT_MIN_VALUE    = (int)WaveformMetrics.MIN_VALUE;
     // static IndexColorModel cm = null;
-    static final double LOG10 = 2.302585092994, MIN_LOG = 10E-100;
-
-    public WaveformMetrics(double _xmax, double _xmin, double _ymax, double _ymin, Rectangle limits, Dimension d, boolean _x_log, boolean _y_log, int horizontal_offset, int vertical_offset){
-        int ylabel_width = limits.width, xlabel_height = limits.height;
-        double delta_x, delta_y;
-        int border_y;
-        this.horizontal_offset = horizontal_offset;
-        this.vertical_offset = vertical_offset;
-        if(_ymin > _ymax) _ymin = _ymax;
-        if(_xmin > _xmax) _xmin = _xmax;
-        start_x = ylabel_width;
-        x_log = _x_log;
-        y_log = _y_log;
-        border_y = xlabel_height;
-        // y_range = (d.height - border_y)/(double)d.height;
-        y_range = (d.height - border_y - 2 * vertical_offset) / (double)d.height;
-        // x_range = (d.width - start_x)/(double)d.width;
-        x_range = (d.width - start_x - 2 * horizontal_offset) / (double)d.width;
-        x_offset = start_x / (double)d.width;
-        if(x_log){
-            if(_xmax < MIN_LOG) _xmax = MIN_LOG;
-            if(_xmin < MIN_LOG) _xmin = MIN_LOG;
-            xmax = Math.log(_xmax) / LOG10;
-            xmin = Math.log(_xmin) / LOG10;
-        }else{
-            xmax = _xmax;
-            xmin = _xmin;
-        }
-        delta_x = xmax - xmin;
-        xmax += delta_x / 100.;
-        xmin -= delta_x / 100.;
-        if(y_log){
-            if(_ymax < MIN_LOG) _ymax = MIN_LOG;
-            if(_ymin < MIN_LOG) _ymin = MIN_LOG;
-            ymax = Math.log(_ymax) / LOG10;
-            ymin = Math.log(_ymin) / LOG10;
-        }else{
-            ymax = _ymax;
-            ymin = _ymin;
-        }
-        delta_y = ymax - ymin;
-        ymax += delta_y / 50;
-        ymin -= delta_y / 50.;
-        xrange = xmax - xmin;
-        yrange = ymax - ymin;
-        if(xrange <= 0){
-            xrange = 1E-10;
-            x_offset = 0.5;
-        }
-        if(yrange <= 0){
-            yrange = 1E-10;
-        }
-    }
-
-    final public double XMax() {
-        return xmax;
-    }
-
-    final public double YMax() {
-        return ymax;
-    }
-
-    final public double XMin() {
-        return xmin;
-    }
-
-    final public double YMin() {
-        return ymin;
-    }
-
-    final public double XRange() {
-        return xmax - xmin;
-    }
-
-    final public double YRange() {
-        return ymax - ymin;
-    }
-
-    final public boolean XLog() {
-        return x_log;
-    }
-
-    final public boolean YLog() {
-        return y_log;
-    }
-
-    final public void ComputeFactors(Dimension d) {
-        // OFS_X = x_offset * d.width - xmin*x_range*d.width/xrange + 0.5;
-        OFS_X = x_offset * d.width - xmin * x_range * d.width / xrange + horizontal_offset + 0.5;
-        FACT_X = x_range * d.width / xrange;
-        // OFS_Y = y_range * ymax*d.height/yrange + 0.5;
-        OFS_Y = y_range * ymax * d.height / yrange + vertical_offset + 0.5;
-        FACT_Y = -y_range * d.height / yrange;
-    }
-
-    final public int XPixel(double x) {
-        double xpix = x * FACT_X + OFS_X;
-        if(xpix >= MAX_VALUE) return INT_MAX_VALUE;
-        if(xpix <= MIN_VALUE) return INT_MIN_VALUE;
-        return (int)xpix;
-    }
-
-    final public int YPixel(double y) {
-        double ypix = y * FACT_Y + OFS_Y;
-        if(ypix >= MAX_VALUE) return INT_MAX_VALUE;
-        if(ypix <= MIN_VALUE) return INT_MIN_VALUE;
-        return (int)ypix;
-    }
-
-    final public int XPixel(double x, Dimension d) {
-        double ris;
-        if(x_log){
-            if(x < MIN_LOG) x = MIN_LOG;
-            x = Math.log(x) / LOG10;
-        }
-        ris = (x_offset + x_range * (x - xmin) / xrange) * d.width + 0.5;
-        if(ris > 20000) ris = 20000;
-        if(ris < -20000) ris = -20000;
-        return (int)ris;
-    }
-
-    final public int YPixel(double y, Dimension d) {
-        if(y_log){
-            if(y < MIN_LOG) y = MIN_LOG;
-            y = Math.log(y) / LOG10;
-        }
-        double ris = (y_range * (ymax - y) / yrange) * d.height + 0.5;
-        if(ris > 20000) ris = 20000;
-        if(ris < -20000) ris = -20000;
-        return (int)ris;
-    }
-
-    final public double XValue(int x, Dimension d) {
-        double ris = (((x - 0.5) / d.width - x_offset) * xrange / x_range + xmin);
-        if(x_log) return Math.exp(LOG10 * ris);
-        return ris;
-    }
-
-    final public double YValue(int y, Dimension d) {
-        double ris = (ymax - ((y - 0.5) / d.height) * yrange / y_range);
-        if(y_log) return Math.exp(LOG10 * ris);
-        return ris;
-    }
+    static final double LOG10            = 2.302585092994, MIN_LOG = 10E-100;
+    static double       MAX_VALUE        = 10000.;                           // (double)Integer.MAX_VALUE;
+    static double       MIN_VALUE        = -10000.;                          // (double)Integer.MIN_VALUE;
+    static final long   serialVersionUID = 247232536324574434L;
 
     /*
         private IndexColorModel getColorModel() {
@@ -180,31 +29,101 @@ final public class WaveformMetrics implements Serializable{
             return new IndexColorModel(8, 256, rgb, rgb, rgb);
         }
      */
-    private static void drawRectagle(Graphics g, IndexColorModel cm, int x, int y, int w, int h, int cIdx) {
+    private static void drawRectagle(final Graphics g, final IndexColorModel cm, final int x, final int y, final int w, final int h, final int cIdx) {
         g.setColor(new Color(cm.getRed(cIdx), cm.getGreen(cIdx), cm.getBlue(cIdx), cm.getAlpha(cIdx)));
         g.fillRect(x, y, w, h);
     }
+    double FACT_X, FACT_Y, OFS_X, OFS_Y;
+    int    horizontal_offset, vertical_offset;
+    int    start_x;
+    boolean x_log, y_log;
+    double  x_offset;
+    double  x_range;
+    double  xmax, xmin, ymax, ymin;
+    double  xrange, yrange;        // xmax - xmin , ymax - ymin
+    double  y_range;
 
-    public void ToImage(Signal s, Image img, Dimension d, ColorMap colorMap) {
+    public WaveformMetrics(double _xmax, double _xmin, double _ymax, double _ymin, final Rectangle limits, final Dimension d, final boolean _x_log, final boolean _y_log, final int horizontal_offset, final int vertical_offset){
+        final int ylabel_width = limits.width, xlabel_height = limits.height;
+        double delta_x, delta_y;
+        int border_y;
+        this.horizontal_offset = horizontal_offset;
+        this.vertical_offset = vertical_offset;
+        if(_ymin > _ymax) _ymin = _ymax;
+        if(_xmin > _xmax) _xmin = _xmax;
+        this.start_x = ylabel_width;
+        this.x_log = _x_log;
+        this.y_log = _y_log;
+        border_y = xlabel_height;
+        // y_range = (d.height - border_y)/(double)d.height;
+        this.y_range = (d.height - border_y - 2 * vertical_offset) / (double)d.height;
+        // x_range = (d.width - start_x)/(double)d.width;
+        this.x_range = (d.width - this.start_x - 2 * horizontal_offset) / (double)d.width;
+        this.x_offset = this.start_x / (double)d.width;
+        if(this.x_log){
+            if(_xmax < WaveformMetrics.MIN_LOG) _xmax = WaveformMetrics.MIN_LOG;
+            if(_xmin < WaveformMetrics.MIN_LOG) _xmin = WaveformMetrics.MIN_LOG;
+            this.xmax = Math.log(_xmax) / WaveformMetrics.LOG10;
+            this.xmin = Math.log(_xmin) / WaveformMetrics.LOG10;
+        }else{
+            this.xmax = _xmax;
+            this.xmin = _xmin;
+        }
+        delta_x = this.xmax - this.xmin;
+        this.xmax += delta_x / 100.;
+        this.xmin -= delta_x / 100.;
+        if(this.y_log){
+            if(_ymax < WaveformMetrics.MIN_LOG) _ymax = WaveformMetrics.MIN_LOG;
+            if(_ymin < WaveformMetrics.MIN_LOG) _ymin = WaveformMetrics.MIN_LOG;
+            this.ymax = Math.log(_ymax) / WaveformMetrics.LOG10;
+            this.ymin = Math.log(_ymin) / WaveformMetrics.LOG10;
+        }else{
+            this.ymax = _ymax;
+            this.ymin = _ymin;
+        }
+        delta_y = this.ymax - this.ymin;
+        this.ymax += delta_y / 50;
+        this.ymin -= delta_y / 50.;
+        this.xrange = this.xmax - this.xmin;
+        this.yrange = this.ymax - this.ymin;
+        if(this.xrange <= 0){
+            this.xrange = 1E-10;
+            this.x_offset = 0.5;
+        }
+        if(this.yrange <= 0){
+            this.yrange = 1E-10;
+        }
+    }
+
+    final public void ComputeFactors(final Dimension d) {
+        // OFS_X = x_offset * d.width - xmin*x_range*d.width/xrange + 0.5;
+        this.OFS_X = this.x_offset * d.width - this.xmin * this.x_range * d.width / this.xrange + this.horizontal_offset + 0.5;
+        this.FACT_X = this.x_range * d.width / this.xrange;
+        // OFS_Y = y_range * ymax*d.height/yrange + 0.5;
+        this.OFS_Y = this.y_range * this.ymax * d.height / this.yrange + this.vertical_offset + 0.5;
+        this.FACT_Y = -this.y_range * d.height / this.yrange;
+    }
+
+    public void ToImage(final Signal s, final Image img, final Dimension d, final ColorMap colorMap) {
         int xSt, xEt, ySt, yEt;
-        Graphics2D g2 = (Graphics2D)img.getGraphics();
-        IndexColorModel cm = colorMap.getIndexColorModel(8);
-        ComputeFactors(d);
+        final Graphics2D g2 = (Graphics2D)img.getGraphics();
+        final IndexColorModel cm = colorMap.getIndexColorModel(8);
+        this.ComputeFactors(d);
         g2.setColor(Color.white);
         g2.fillRect(0, 0, d.width - 1, d.height - 1);
-        double[] x2D = s.getX2D();
-        float[] y2D = s.getY2D();
-        float[] z2D = s.getZ();
+        final double[] x2D = s.getX2D();
+        final float[] y2D = s.getY2D();
+        final float[] z2D = s.getZ();
         float z2D_min, z2D_max;
         z2D_min = z2D_max = z2D[0];
-        for(int idx = 0; idx < z2D.length; idx++){
-            if(z2D[idx] < z2D_min) z2D_min = z2D[idx];
-            if(z2D[idx] > z2D_max) z2D_max = z2D[idx];
+        for(final float element : z2D){
+            if(element < z2D_min) z2D_min = element;
+            if(element > z2D_max) z2D_max = element;
         }
-        for(xSt = 0; xSt < x2D.length && x2D[xSt] < xmin; xSt++);
-        for(xEt = 0; xEt < x2D.length && x2D[xEt] < xmax; xEt++);
-        for(ySt = 0; ySt < y2D.length && y2D[ySt] < ymin; ySt++);
-        for(yEt = 0; yEt < y2D.length && y2D[yEt] < ymax; yEt++);
+        for(xSt = 0; xSt < x2D.length && x2D[xSt] < this.xmin; xSt++);
+        for(xEt = 0; xEt < x2D.length && x2D[xEt] < this.xmax; xEt++);
+        for(ySt = 0; ySt < y2D.length && y2D[ySt] < this.ymin; ySt++);
+        for(yEt = 0; yEt < y2D.length && y2D[yEt] < this.ymax; yEt++);
         if(yEt == 0) return;
         int p = 0;
         int h = 0;
@@ -215,8 +134,8 @@ final public class WaveformMetrics implements Serializable{
         int xPix1;
         int pix;
         try{
-            yPix1 = (YPixel(y2D[ySt + 1]) + YPixel(y2D[ySt])) / 2;
-            yPix1 = 2 * YPixel(y2D[ySt]) - yPix1;
+            yPix1 = (this.YPixel(y2D[ySt + 1]) + this.YPixel(y2D[ySt])) / 2;
+            yPix1 = 2 * this.YPixel(y2D[ySt]) - yPix1;
             float currMax = z2D_min, currMin = z2D_max;
             for(int y = ySt; y < yEt; y++){
                 p = y * x2D.length + xSt;
@@ -229,22 +148,22 @@ final public class WaveformMetrics implements Serializable{
             for(int y = ySt; y < yEt; y++){
                 yPix0 = yPix1;
                 try{
-                    yPix1 = (YPixel(y2D[y + 1]) + YPixel(y2D[y])) / 2;
+                    yPix1 = (this.YPixel(y2D[y + 1]) + this.YPixel(y2D[y])) / 2;
                     h = Math.abs(yPix0 - yPix1) + 2;
-                }catch(Exception e){
-                    yPix1 = 2 * YPixel(y2D[yEt - 1]) - yPix1;
+                }catch(final Exception e){
+                    yPix1 = 2 * this.YPixel(y2D[yEt - 1]) - yPix1;
                     h = Math.abs(yPix0 - yPix1) + 2;
                 }
                 p = y * x2D.length + xSt;
-                xPix1 = (XPixel(x2D[xSt]) + XPixel(x2D[xSt + 1])) / 2;
-                xPix1 = 2 * XPixel(x2D[xSt]) - xPix1;
+                xPix1 = (this.XPixel(x2D[xSt]) + this.XPixel(x2D[xSt + 1])) / 2;
+                xPix1 = 2 * this.XPixel(x2D[xSt]) - xPix1;
                 for(int x = xSt; x < xEt && p < z2D.length; x++){
                     xPix0 = xPix1;
                     try{
-                        xPix1 = (XPixel(x2D[x + 1]) + XPixel(x2D[x])) / 2;
+                        xPix1 = (this.XPixel(x2D[x + 1]) + this.XPixel(x2D[x])) / 2;
                         w = Math.abs(xPix1 - xPix0);
-                    }catch(Exception e){
-                        w = 2 * (XPixel(x2D[xEt - 1]) - xPix1);
+                    }catch(final Exception e){
+                        w = 2 * (this.XPixel(x2D[xEt - 1]) - xPix1);
                     }
                     /*
                      * pix = (int) (255 * (z2D[p++] - z2D_min) / (z2D_max - z2D_min));
@@ -252,13 +171,27 @@ final public class WaveformMetrics implements Serializable{
                     pix = (int)(255 * (z2D[p++] - currMin) / (currMax - currMin));
                     pix = (pix > 255) ? 255 : pix;
                     pix = (pix < 0) ? 0 : pix;
-                    drawRectagle(g2, cm, xPix0, yPix1, w, h, pix);
+                    WaveformMetrics.drawRectagle(g2, cm, xPix0, yPix1, w, h, pix);
                 }
             }
-        }catch(Exception exc){};
+        }catch(final Exception exc){};
     }
 
-    public Vector<Polygon> ToPolygonsDoubleX(Signal sig, Dimension d) {
+    public Vector<Polygon> ToPolygons(final Signal sig, final Dimension d) {
+        return this.ToPolygons(sig, d, false);
+    }
+
+    public Vector<Polygon> ToPolygons(final Signal sig, final Dimension d, final boolean appendMode) {
+        try{
+            // System.out.println("ToPolygons "+sig.name+" "+appendMode);
+            return this.ToPolygonsDoubleX(sig, d);
+        }catch(final Exception exc){
+            exc.printStackTrace();
+        }
+        return null;
+    }
+
+    public Vector<Polygon> ToPolygonsDoubleX(final Signal sig, final Dimension d) {
         int i, j, curr_num_points, start_x;
         double max_y, min_y, curr_y;
         Vector<Polygon> curr_vect = new Vector<Polygon>(5);
@@ -273,18 +206,18 @@ final public class WaveformMetrics implements Serializable{
         curr_num_points = 0;
         i = j = 0;
         int end_point = sig.getNumPoints();
-        if(x_log || y_log){
-            double xmin_nolog = Math.pow(10, xmin);
+        if(this.x_log || this.y_log){
+            final double xmin_nolog = Math.pow(10, this.xmin);
             double first_y, last_y;
             for(i = 0; i < sig.getNumPoints() && sig.getX(i) < xmin_nolog; i++);
             if(i > 0) i--;
             min_y = max_y = sig.getY(i);
             j = i + 1;
-            start_x = XPixel(sig.getX(i), d);
+            start_x = this.XPixel(sig.getX(i), d);
             first_y = last_y = sig.getY(i);
             while(j < end_point) // sig.getNumPoints() && sig.x_double[j] < xmax_nolog)
             {
-                for(j = i + 1; j < sig.getNumPoints() && (pol_idx >= sig.getNumNaNs() || j != sig.getNaNs()[pol_idx]) && (XPixel(sig.getX(j), d)) == start_x; j++){
+                for(j = i + 1; j < sig.getNumPoints() && (pol_idx >= sig.getNumNaNs() || j != sig.getNaNs()[pol_idx]) && (this.XPixel(sig.getX(j), d)) == start_x; j++){
                     last_y = curr_y = sig.getY(j);
                     if(curr_y < min_y) min_y = curr_y;
                     if(curr_y > max_y) max_y = curr_y;
@@ -292,21 +225,21 @@ final public class WaveformMetrics implements Serializable{
                 if(max_y > min_y){
                     if(first_y != min_y){
                         xpoints[curr_num_points] = start_x;
-                        ypoints[curr_num_points] = YPixel(first_y, d);
+                        ypoints[curr_num_points] = this.YPixel(first_y, d);
                         curr_num_points++;
                     }
                     xpoints[curr_num_points] = xpoints[curr_num_points + 1] = start_x;
-                    ypoints[curr_num_points] = YPixel(min_y, d);
-                    ypoints[curr_num_points + 1] = YPixel(max_y, d);
+                    ypoints[curr_num_points] = this.YPixel(min_y, d);
+                    ypoints[curr_num_points + 1] = this.YPixel(max_y, d);
                     curr_num_points += 2;
                     if(last_y != max_y){
                         xpoints[curr_num_points] = start_x;
-                        ypoints[curr_num_points] = YPixel(last_y, d);
+                        ypoints[curr_num_points] = this.YPixel(last_y, d);
                         curr_num_points++;
                     }
                 }else{
                     xpoints[curr_num_points] = start_x;
-                    ypoints[curr_num_points] = YPixel(max_y, d);
+                    ypoints[curr_num_points] = this.YPixel(max_y, d);
                     curr_num_points++;
                 }
                 if(j == sig.getNumPoints() || j == end_point || Double.isNaN(sig.getY(j))) // || sig.x_double[j] >= xmax_nolog)
@@ -323,30 +256,30 @@ final public class WaveformMetrics implements Serializable{
                 }
                 if(j < end_point) // sig.getNumPoints())
                 {
-                    start_x = XPixel(sig.getX(j), d);
+                    start_x = this.XPixel(sig.getX(j), d);
                     max_y = min_y = sig.getY(j);
                     i = j;
-                    if(sig.getX(j) > xmax) end_point = j + 1;
+                    if(sig.getX(j) > this.xmax) end_point = j + 1;
                 }
             }
         }else // Not using logaritmic scales
         {
-            ComputeFactors(d);
+            this.ComputeFactors(d);
             try{
-                double x[] = sig.getX();
-                float y[] = sig.getY();
-                for(i = 0; i < x.length && x[i] < xmin; i++);
+                final double x[] = sig.getX();
+                final float y[] = sig.getY();
+                for(i = 0; i < x.length && x[i] < this.xmin; i++);
                 if(i > 0) i--;
                 min_y = max_y = y[i];
                 j = i + 1;
                 // GAB testare da qua il problema
-                start_x = XPixel(x[i]);
+                start_x = this.XPixel(x[i]);
                 double first_y, last_y;
                 while(j < end_point) // sig.getNumPoints() && sig.x_double[j] < xmax + dt)
                 {
                     first_y = last_y = y[i];
                     for(j = i + 1; j < x.length && // !Float.isNaN(sig.y[j]) &&
-                    (pol_idx >= sig.getNumNaNs() || j != sig.getNaNs()[pol_idx]) && (XPixel(x[j])) == start_x; j++){
+                            (pol_idx >= sig.getNumNaNs() || j != sig.getNaNs()[pol_idx]) && (this.XPixel(x[j])) == start_x; j++){
                         last_y = curr_y = y[j];
                         if(curr_y < min_y) min_y = curr_y;
                         if(curr_y > max_y) max_y = curr_y;
@@ -354,70 +287,70 @@ final public class WaveformMetrics implements Serializable{
                     if(max_y > min_y){
                         if(first_y == min_y){
                             xpoints[curr_num_points] = start_x;
-                            ypoints[curr_num_points] = YPixel(first_y);
+                            ypoints[curr_num_points] = this.YPixel(first_y);
                             curr_num_points++;
                             if(last_y == max_y){
                                 xpoints[curr_num_points] = start_x;
-                                ypoints[curr_num_points] = YPixel(last_y);
+                                ypoints[curr_num_points] = this.YPixel(last_y);
                                 curr_num_points++;
                             }else{
                                 xpoints[curr_num_points] = start_x;
-                                ypoints[curr_num_points] = YPixel(max_y);
+                                ypoints[curr_num_points] = this.YPixel(max_y);
                                 curr_num_points++;
                                 xpoints[curr_num_points] = start_x;
-                                ypoints[curr_num_points] = YPixel(last_y);
+                                ypoints[curr_num_points] = this.YPixel(last_y);
                                 curr_num_points++;
                             }
                         }else if(first_y == max_y){
                             xpoints[curr_num_points] = start_x;
-                            ypoints[curr_num_points] = YPixel(first_y);
+                            ypoints[curr_num_points] = this.YPixel(first_y);
                             curr_num_points++;
                             if(last_y == min_y){
                                 xpoints[curr_num_points] = start_x;
-                                ypoints[curr_num_points] = YPixel(last_y);
+                                ypoints[curr_num_points] = this.YPixel(last_y);
                                 curr_num_points++;
                             }else{
                                 xpoints[curr_num_points] = start_x;
-                                ypoints[curr_num_points] = YPixel(min_y);
+                                ypoints[curr_num_points] = this.YPixel(min_y);
                                 curr_num_points++;
                                 xpoints[curr_num_points] = start_x;
-                                ypoints[curr_num_points] = YPixel(last_y);
+                                ypoints[curr_num_points] = this.YPixel(last_y);
                                 curr_num_points++;
                             }
                         }else // first_y != min_y && first_y != max_y
                         {
                             xpoints[curr_num_points] = start_x;
-                            ypoints[curr_num_points] = YPixel(first_y);
+                            ypoints[curr_num_points] = this.YPixel(first_y);
                             curr_num_points++;
                             if(last_y == min_y){
                                 xpoints[curr_num_points] = start_x;
-                                ypoints[curr_num_points] = YPixel(max_y);
+                                ypoints[curr_num_points] = this.YPixel(max_y);
                                 curr_num_points++;
                                 xpoints[curr_num_points] = start_x;
-                                ypoints[curr_num_points] = YPixel(last_y);
+                                ypoints[curr_num_points] = this.YPixel(last_y);
                                 curr_num_points++;
                             }else if(last_y == max_y){
                                 xpoints[curr_num_points] = start_x;
-                                ypoints[curr_num_points] = YPixel(min_y);
+                                ypoints[curr_num_points] = this.YPixel(min_y);
                                 curr_num_points++;
                                 xpoints[curr_num_points] = start_x;
-                                ypoints[curr_num_points] = YPixel(last_y);
+                                ypoints[curr_num_points] = this.YPixel(last_y);
                                 curr_num_points++;
                             }else{
                                 xpoints[curr_num_points] = start_x;
-                                ypoints[curr_num_points] = YPixel(min_y);
+                                ypoints[curr_num_points] = this.YPixel(min_y);
                                 curr_num_points++;
                                 xpoints[curr_num_points] = start_x;
-                                ypoints[curr_num_points] = YPixel(max_y);
+                                ypoints[curr_num_points] = this.YPixel(max_y);
                                 curr_num_points++;
                                 xpoints[curr_num_points] = start_x;
-                                ypoints[curr_num_points] = YPixel(last_y);
+                                ypoints[curr_num_points] = this.YPixel(last_y);
                                 curr_num_points++;
                             }
                         }
                     }else{
                         xpoints[curr_num_points] = start_x;
-                        ypoints[curr_num_points] = YPixel(max_y);
+                        ypoints[curr_num_points] = this.YPixel(max_y);
                         curr_num_points++;
                     }
                     if(j == x.length || j >= end_point || Double.isNaN(y[j])) // || sig.x_double[j] >= xmax)
@@ -434,24 +367,24 @@ final public class WaveformMetrics implements Serializable{
                     }
                     if(j < end_point) // sig.getNumPoints())
                     {
-                        start_x = XPixel(x[j]);
+                        start_x = this.XPixel(x[j]);
                         max_y = min_y = y[j];
                         i = j;
-                        if(sig.isIncreasingX() && x[j] > xmax) end_point = j + 1;
+                        if(sig.isIncreasingX() && x[j] > this.xmax) end_point = j + 1;
                     }
                 }
-            }catch(Exception exc){
+            }catch(final Exception exc){
                 // Exception is generated when signal is emty
                 // System.out.println("Waveform Metrics exception: " + exc);
             }
         }
         if(sig.getMode1D() == Signal.MODE_STEP){
-            Vector<Polygon> v = new Vector<Polygon>();
+            final Vector<Polygon> v = new Vector<Polygon>();
             int x[];
             int y[];
             for(i = 0; i < curr_vect.size(); i++){
                 curr_polygon = curr_vect.elementAt(i);
-                int np = curr_polygon.npoints * 2 - 1;
+                final int np = curr_polygon.npoints * 2 - 1;
                 x = new int[np];
                 y = new int[np];
                 for(i = 0, j = 0; i < curr_polygon.npoints; i++, j++){
@@ -470,17 +403,84 @@ final public class WaveformMetrics implements Serializable{
         return curr_vect;
     }
 
-    public Vector<Polygon> ToPolygons(Signal sig, Dimension d) {
-        return ToPolygons(sig, d, false);
+    final public boolean XLog() {
+        return this.x_log;
     }
 
-    public Vector<Polygon> ToPolygons(Signal sig, Dimension d, boolean appendMode) {
-        try{
-            // System.out.println("ToPolygons "+sig.name+" "+appendMode);
-            return ToPolygonsDoubleX(sig, d);
-        }catch(Exception exc){
-            exc.printStackTrace();
+    final public double XMax() {
+        return this.xmax;
+    }
+
+    final public double XMin() {
+        return this.xmin;
+    }
+
+    final public int XPixel(final double x) {
+        final double xpix = x * this.FACT_X + this.OFS_X;
+        if(xpix >= WaveformMetrics.MAX_VALUE) return WaveformMetrics.INT_MAX_VALUE;
+        if(xpix <= WaveformMetrics.MIN_VALUE) return WaveformMetrics.INT_MIN_VALUE;
+        return (int)xpix;
+    }
+
+    final public int XPixel(double x, final Dimension d) {
+        double ris;
+        if(this.x_log){
+            if(x < WaveformMetrics.MIN_LOG) x = WaveformMetrics.MIN_LOG;
+            x = Math.log(x) / WaveformMetrics.LOG10;
         }
-        return null;
+        ris = (this.x_offset + this.x_range * (x - this.xmin) / this.xrange) * d.width + 0.5;
+        if(ris > 20000) ris = 20000;
+        if(ris < -20000) ris = -20000;
+        return (int)ris;
+    }
+
+    final public double XRange() {
+        return this.xmax - this.xmin;
+    }
+
+    final public double XValue(final int x, final Dimension d) {
+        final double ris = (((x - 0.5) / d.width - this.x_offset) * this.xrange / this.x_range + this.xmin);
+        if(this.x_log) return Math.exp(WaveformMetrics.LOG10 * ris);
+        return ris;
+    }
+
+    final public boolean YLog() {
+        return this.y_log;
+    }
+
+    final public double YMax() {
+        return this.ymax;
+    }
+
+    final public double YMin() {
+        return this.ymin;
+    }
+
+    final public int YPixel(final double y) {
+        final double ypix = y * this.FACT_Y + this.OFS_Y;
+        if(ypix >= WaveformMetrics.MAX_VALUE) return WaveformMetrics.INT_MAX_VALUE;
+        if(ypix <= WaveformMetrics.MIN_VALUE) return WaveformMetrics.INT_MIN_VALUE;
+        return (int)ypix;
+    }
+
+    final public int YPixel(double y, final Dimension d) {
+        if(this.y_log){
+            if(y < WaveformMetrics.MIN_LOG) y = WaveformMetrics.MIN_LOG;
+            y = Math.log(y) / WaveformMetrics.LOG10;
+        }
+        double ris = (this.y_range * (this.ymax - y) / this.yrange) * d.height + 0.5;
+        if(ris > 20000) ris = 20000;
+        if(ris < -20000) ris = -20000;
+        return (int)ris;
+    }
+
+    final public double YRange() {
+        return this.ymax - this.ymin;
+    }
+
+    final public double YValue(final int y, final Dimension d) {
+        final double ris = (this.ymax - ((y - 0.5) / d.height) * this.yrange / this.y_range);
+        if(this.y_log) return Math.exp(WaveformMetrics.LOG10 * ris);
+        return ris;
     }
 }

@@ -14,178 +14,86 @@ import java.util.StringTokenizer;
 import javax.swing.JFrame;
 
 class ASCIIDataProvider implements DataProvider{
-    private boolean xPropertiesFile = false;
-    private boolean yPropertiesFile = false;
-    String          error           = null;
-    String          path_exp        = null;
-    long            curr_shot       = -1;
-    float           time[];
-    float           y[];
-    float           x[];
     /*
      * File structure estensione prop Title= Signal= XLabel= YLabel= ZLabel= Dimension= Time=t_start:t_end:dt;....;t_start:t_end:dt or t1,t2,...,tn Data=y1,y2,y3....,yn X=x1,x2,x3....,xn
      */
     class SimpleWaveData implements WaveData{
-        String     file_x, file_y;
         int        dimension;
+        String     file_x, file_y;
         Properties x_prop = new Properties();
         Properties y_prop = new Properties();
 
+        public SimpleWaveData(final String in_y){
+            this.file_y = this.getPathValue(in_y);
+            ASCIIDataProvider.this.xPropertiesFile = ASCIIDataProvider.this.yPropertiesFile = this.setPropValues(this.file_y, this.y_prop);
+            this.x_prop = this.y_prop;
+            this.file_x = null;
+        }
+
+        public SimpleWaveData(final String in_y, final String in_x){
+            this.file_y = this.getPathValue(in_y);
+            ASCIIDataProvider.this.yPropertiesFile = this.setPropValues(this.file_y, this.y_prop);
+            this.file_x = this.getPathValue(in_x);
+            ASCIIDataProvider.this.xPropertiesFile = this.setPropValues(this.file_x, this.x_prop);
+        }
+
         @Override
-        public void setContinuousUpdate(boolean continuopusUpdate) {}
+        public void addWaveDataListener(final WaveDataListener listener) {}
 
-        public SimpleWaveData(String in_y){
-            file_y = getPathValue(in_y);
-            xPropertiesFile = yPropertiesFile = setPropValues(file_y, y_prop);
-            x_prop = y_prop;
-            file_x = null;
-        }
-
-        public SimpleWaveData(String in_y, String in_x){
-            file_y = getPathValue(in_y);
-            yPropertiesFile = setPropValues(file_y, y_prop);
-            file_x = getPathValue(in_x);
-            xPropertiesFile = setPropValues(file_x, x_prop);
-        }
-
-        private String getPathValue(String in) {
-            String out = "";
-            if(path_exp != null) out = path_exp;
-            if(curr_shot > 0) out = out + File.separatorChar + curr_shot;
-            if(out != null && out.length() > 0) out = out + File.separatorChar + in;
-            else out = in;
+        private float[] byteArrayToFloat(final byte a[]) {
+            final int size = a.length / 4;
+            float out[] = new float[size];
+            final DataInputStream dis = new DataInputStream(new ByteArrayInputStream(a));
+            try{
+                for(int i = 0; i < size; i++)
+                    out[i] = dis.readFloat();
+                dis.close();
+            }catch(final Exception exc){
+                ASCIIDataProvider.this.error = "File sintax error : " + exc.getMessage();
+                out = null;
+            }
             return out;
         }
 
-        private int numElement(String val, String separator) {
-            StringTokenizer st = new StringTokenizer(val, separator);
-            return(st.countTokens());
-        }
-
-        private boolean isPropertiesFile(Properties prop) {
-            String val = prop.getProperty("Time");
-            return !(val == null || numElement(val, ",") < 2);
-        }
-
-        private float[] resizeBuffer(float[] b, int size) {
-            float[] newB = new float[size];
-            System.arraycopy(b, 0, newB, 0, size);
-            return newB;
-        }
-
-        private void loadSignalValues(String in) throws Exception {
-            BufferedReader bufR = new BufferedReader(new FileReader(in));
-            String ln;
-            StringTokenizer st;
-            while((ln = bufR.readLine()) != null){
-                st = new StringTokenizer(ln);
-                int numColumn = st.countTokens();
-                if(numColumn == 2 && st.nextToken().equals("Time") && st.nextToken().equals("Data")){
-                    x = new float[1000];
-                    y = new float[1000];
-                    int count = 0;
-                    int maxCount = 1000;
-                    while((ln = bufR.readLine()) != null){
-                        st = new StringTokenizer(ln);
-                        if(count == maxCount){
-                            x = resizeBuffer(x, x.length + 1000);
-                            y = resizeBuffer(y, y.length + 1000);
-                            maxCount = y.length;
-                        }
-                        x[count] = Float.parseFloat(st.nextToken());
-                        y[count] = Float.parseFloat(st.nextToken());
-                        count++;
+        private float[] decodeTimes(final String val) {
+            try{
+                if(val == null){
+                    ASCIIDataProvider.this.error = "File syntax error";
+                    return null;
+                }
+                StringTokenizer st = new StringTokenizer(val, ":");
+                if(st.countTokens() > 1){
+                    st = new StringTokenizer(val, ";");
+                    final int num_base = st.countTokens();
+                    final ByteArrayOutputStream aos = new ByteArrayOutputStream();
+                    final DataOutputStream dos = new DataOutputStream(aos);
+                    String time_st;
+                    for(int i = 0; i < num_base; i++){
+                        time_st = st.nextToken();
+                        final StringTokenizer st1 = new StringTokenizer(time_st, ":");
+                        final float start = Float.parseFloat(st1.nextToken().trim());
+                        final float end = Float.parseFloat(st1.nextToken().trim());
+                        final float dt = Float.parseFloat(st1.nextToken().trim());
+                        for(float t = start; t <= end; t += dt)
+                            dos.writeFloat(t);
                     }
-                    x = resizeBuffer(x, count);
-                    y = resizeBuffer(y, count);
+                    dos.close();
+                    return this.byteArrayToFloat(aos.toByteArray());
                 }
-            }
-            bufR.close();
-            if(x == null || y == null) throw(new Exception("No data in file or file syntax error"));
-        }
-
-        private boolean setPropValues(String in, Properties prop) {
-            boolean propertiesFile = false;
-            try{
-                prop.load(new FileInputStream(in));
-                propertiesFile = isPropertiesFile(prop);
-                if(!propertiesFile){
-                    loadSignalValues(in);
-                }
-            }catch(Exception exc){
-                error = "File " + in + " error : " + exc.getMessage();
-            }
-            return false;
-        }
-
-        @Override
-        public int getNumDimension() throws IOException {
-            try{
-                dimension = Integer.parseInt(y_prop.getProperty("Dimension"));
-                return dimension;
-            }catch(NumberFormatException exc){
-                return(dimension = 1);
-            }
-        }
-
-        public float[] GetFloatData() throws IOException {
-            if(xPropertiesFile) return decodeValues(x_prop.getProperty("Data"));
-            if(y == null) throw(new IOException(error));
-            return y;
-        }
-
-        public double[] GetXDoubleData() {
-            return null;
-        }
-
-        public long[] GetXLongData() {
-            return null;
-        }
-
-        public float[] GetXData() throws IOException {
-            if(file_x == null){
-                if(yPropertiesFile) return decodeTimes(y_prop.getProperty("Time"));
-                if(x == null) throw(new IOException(error));
-                return x;
-            }else if(xPropertiesFile) return decodeValues(x_prop.getProperty("Data"));
-            if(y == null) throw(new IOException(error));
-            return y;
-        }
-
-        public float[] GetYData() throws IOException {
-            if(xPropertiesFile) return decodeValues(x_prop.getProperty("X"));
-            error = "2D signal in column ASCII file format not yet supported";
-            return null; // throw new IOException(error);
-        }
-
-        @Override
-        public String GetTitle() throws IOException {
-            return y_prop.getProperty("Title");
-        }
-
-        @Override
-        public String GetXLabel() throws IOException {
-            if(file_x == null) return y_prop.getProperty("XLabel");
-            return x_prop.getProperty("YLabel");
-        }
-
-        @Override
-        public String GetYLabel() throws IOException {
-            return y_prop.getProperty("YLabel");
-        }
-
-        @Override
-        public String GetZLabel() throws IOException {
-            return y_prop.getProperty("ZLabel");
-        }
-
-        private float[] decodeValues(String val) {
-            if(val == null){
-                error = "File syntax error";
+                return this.decodeValues(val);
+            }catch(final Exception exc){
+                ASCIIDataProvider.this.error = "File syntax error: " + exc.getMessage();
                 return null;
             }
-            StringTokenizer st = new StringTokenizer(val, ",");
-            int num = st.countTokens();
+        }
+
+        private float[] decodeValues(final String val) {
+            if(val == null){
+                ASCIIDataProvider.this.error = "File syntax error";
+                return null;
+            }
+            final StringTokenizer st = new StringTokenizer(val, ",");
+            final int num = st.countTokens();
             float out[] = new float[num];
             String d_st;
             int i = 0;
@@ -194,55 +102,8 @@ class ASCIIDataProvider implements DataProvider{
                     d_st = st.nextToken().trim();
                     out[i++] = Float.parseFloat(d_st);
                 }
-            }catch(NumberFormatException exc){
-                error = "File syntax error : " + exc.getMessage();
-                out = null;
-            }
-            return out;
-        }
-
-        private float[] decodeTimes(String val) {
-            try{
-                if(val == null){
-                    error = "File syntax error";
-                    return null;
-                }
-                StringTokenizer st = new StringTokenizer(val, ":");
-                if(st.countTokens() > 1){
-                    st = new StringTokenizer(val, ";");
-                    int num_base = st.countTokens();
-                    ByteArrayOutputStream aos = new ByteArrayOutputStream();
-                    DataOutputStream dos = new DataOutputStream(aos);
-                    String time_st;
-                    for(int i = 0; i < num_base; i++){
-                        time_st = st.nextToken();
-                        StringTokenizer st1 = new StringTokenizer(time_st, ":");
-                        float start = Float.parseFloat(st1.nextToken().trim());
-                        float end = Float.parseFloat(st1.nextToken().trim());
-                        float dt = Float.parseFloat(st1.nextToken().trim());
-                        for(float t = start; t <= end; t += dt)
-                            dos.writeFloat(t);
-                    }
-                    dos.close();
-                    return byteArrayToFloat(aos.toByteArray());
-                }
-                return decodeValues(val);
-            }catch(Exception exc){
-                error = "File syntax error: " + exc.getMessage();
-                return null;
-            }
-        }
-
-        private float[] byteArrayToFloat(byte a[]) {
-            int size = a.length / 4;
-            float out[] = new float[size];
-            DataInputStream dis = new DataInputStream(new ByteArrayInputStream(a));
-            try{
-                for(int i = 0; i < size; i++)
-                    out[i] = dis.readFloat();
-                dis.close();
-            }catch(Exception exc){
-                error = "File sintax error : " + exc.getMessage();
+            }catch(final NumberFormatException exc){
+                ASCIIDataProvider.this.error = "File syntax error : " + exc.getMessage();
                 out = null;
             }
             return out;
@@ -250,23 +111,50 @@ class ASCIIDataProvider implements DataProvider{
 
         // GAB JULY 2014 NEW WAVEDATA INTERFACE RAFFAZZONATA
         @Override
-        public XYData getData(double xmin, double xmax, int numPoints) throws Exception {
-            double x[] = GetXDoubleData();
-            float y[] = GetFloatData();
+        public XYData getData(final double xmin, final double xmax, final int numPoints) throws Exception {
+            final double x[] = this.GetXDoubleData();
+            final float y[] = this.GetFloatData();
             return new XYData(x, y, Double.POSITIVE_INFINITY);
         }
 
         @Override
-        public XYData getData(int numPoints) throws Exception {
-            double x[] = GetXDoubleData();
-            float y[] = GetFloatData();
+        public XYData getData(final int numPoints) throws Exception {
+            final double x[] = this.GetXDoubleData();
+            final float y[] = this.GetFloatData();
             return new XYData(x, y, Double.POSITIVE_INFINITY);
         }
 
         @Override
-        public float[] getZ() {
-            System.out.println("BADABUM!!");
-            return null;
+        public void getDataAsync(final double lowerBound, final double upperBound, final int numPoints) {}
+
+        public float[] GetFloatData() throws IOException {
+            if(ASCIIDataProvider.this.xPropertiesFile) return this.decodeValues(this.x_prop.getProperty("Data"));
+            if(ASCIIDataProvider.this.y == null) throw(new IOException(ASCIIDataProvider.this.error));
+            return ASCIIDataProvider.this.y;
+        }
+
+        @Override
+        public int getNumDimension() throws IOException {
+            try{
+                this.dimension = Integer.parseInt(this.y_prop.getProperty("Dimension"));
+                return this.dimension;
+            }catch(final NumberFormatException exc){
+                return(this.dimension = 1);
+            }
+        }
+
+        private String getPathValue(final String in) {
+            String out = "";
+            if(ASCIIDataProvider.this.path_exp != null) out = ASCIIDataProvider.this.path_exp;
+            if(ASCIIDataProvider.this.curr_shot > 0) out = out + File.separatorChar + ASCIIDataProvider.this.curr_shot;
+            if(out != null && out.length() > 0) out = out + File.separatorChar + in;
+            else out = in;
+            return out;
+        }
+
+        @Override
+        public String GetTitle() throws IOException {
+            return this.y_prop.getProperty("Title");
         }
 
         @Override
@@ -281,10 +169,24 @@ class ASCIIDataProvider implements DataProvider{
             return null;
         }
 
-        @Override
-        public float[] getY2D() {
-            System.out.println("BADABUM!!");
+        public float[] GetXData() throws IOException {
+            if(this.file_x == null){
+                if(ASCIIDataProvider.this.yPropertiesFile) return this.decodeTimes(this.y_prop.getProperty("Time"));
+                if(ASCIIDataProvider.this.x == null) throw(new IOException(ASCIIDataProvider.this.error));
+                return ASCIIDataProvider.this.x;
+            }else if(ASCIIDataProvider.this.xPropertiesFile) return this.decodeValues(this.x_prop.getProperty("Data"));
+            if(ASCIIDataProvider.this.y == null) throw(new IOException(ASCIIDataProvider.this.error));
+            return ASCIIDataProvider.this.y;
+        }
+
+        public double[] GetXDoubleData() {
             return null;
+        }
+
+        @Override
+        public String GetXLabel() throws IOException {
+            if(this.file_x == null) return this.y_prop.getProperty("XLabel");
+            return this.x_prop.getProperty("YLabel");
         }
 
         public double[] getXLimits() {
@@ -297,162 +199,143 @@ class ASCIIDataProvider implements DataProvider{
             return null;
         }
 
+        public long[] GetXLongData() {
+            return null;
+        }
+
+        @Override
+        public float[] getY2D() {
+            System.out.println("BADABUM!!");
+            return null;
+        }
+
+        public float[] GetYData() throws IOException {
+            if(ASCIIDataProvider.this.xPropertiesFile) return this.decodeValues(this.x_prop.getProperty("X"));
+            ASCIIDataProvider.this.error = "2D signal in column ASCII file format not yet supported";
+            return null; // throw new IOException(error);
+        }
+
+        @Override
+        public String GetYLabel() throws IOException {
+            return this.y_prop.getProperty("YLabel");
+        }
+
+        @Override
+        public float[] getZ() {
+            System.out.println("BADABUM!!");
+            return null;
+        }
+
+        @Override
+        public String GetZLabel() throws IOException {
+            return this.y_prop.getProperty("ZLabel");
+        }
+
+        private boolean isPropertiesFile(final Properties prop) {
+            final String val = prop.getProperty("Time");
+            return !(val == null || this.numElement(val, ",") < 2);
+        }
+
         @Override
         public boolean isXLong() {
             return false;
         }
 
-        @Override
-        public void addWaveDataListener(WaveDataListener listener) {}
+        private void loadSignalValues(final String in) throws Exception {
+            final BufferedReader bufR = new BufferedReader(new FileReader(in));
+            String ln;
+            StringTokenizer st;
+            while((ln = bufR.readLine()) != null){
+                st = new StringTokenizer(ln);
+                final int numColumn = st.countTokens();
+                if(numColumn == 2 && st.nextToken().equals("Time") && st.nextToken().equals("Data")){
+                    ASCIIDataProvider.this.x = new float[1000];
+                    ASCIIDataProvider.this.y = new float[1000];
+                    int count = 0;
+                    int maxCount = 1000;
+                    while((ln = bufR.readLine()) != null){
+                        st = new StringTokenizer(ln);
+                        if(count == maxCount){
+                            ASCIIDataProvider.this.x = this.resizeBuffer(ASCIIDataProvider.this.x, ASCIIDataProvider.this.x.length + 1000);
+                            ASCIIDataProvider.this.y = this.resizeBuffer(ASCIIDataProvider.this.y, ASCIIDataProvider.this.y.length + 1000);
+                            maxCount = ASCIIDataProvider.this.y.length;
+                        }
+                        ASCIIDataProvider.this.x[count] = Float.parseFloat(st.nextToken());
+                        ASCIIDataProvider.this.y[count] = Float.parseFloat(st.nextToken());
+                        count++;
+                    }
+                    ASCIIDataProvider.this.x = this.resizeBuffer(ASCIIDataProvider.this.x, count);
+                    ASCIIDataProvider.this.y = this.resizeBuffer(ASCIIDataProvider.this.y, count);
+                }
+            }
+            bufR.close();
+            if(ASCIIDataProvider.this.x == null || ASCIIDataProvider.this.y == null) throw(new Exception("No data in file or file syntax error"));
+        }
+
+        private int numElement(final String val, final String separator) {
+            final StringTokenizer st = new StringTokenizer(val, separator);
+            return(st.countTokens());
+        }
+
+        private float[] resizeBuffer(final float[] b, final int size) {
+            final float[] newB = new float[size];
+            System.arraycopy(b, 0, newB, 0, size);
+            return newB;
+        }
 
         @Override
-        public void getDataAsync(double lowerBound, double upperBound, int numPoints) {}
-    }
+        public void setContinuousUpdate(final boolean continuopusUpdate) {}
 
-    @Override
-    public WaveData GetWaveData(String in) {
-        return new SimpleWaveData(in);
-    }
-
-    @Override
-    public WaveData GetWaveData(String in_y, String in_x) {
-        return new SimpleWaveData(in_y, in_x);
-    }
-
-    public static WaveData GetResampledWaveData(String in, double start, double end, int n_points) {
-        return null;
-    }
-
-    public static WaveData GetResampledWaveData(String in_y, String in_x, double start, double end, int n_points) {
-        return null;
-    }
-
-    @Override
-    public void Dispose() {}
-
-    public static boolean SupportsCompression() {
-        return false;
-    }
-
-    public void SetCompression(boolean state) {}
-
-    public static boolean SupportsContinuous() {
-        return false;
-    }
-
-    @Override
-    public int InquireCredentials(JFrame f, DataServerItem server_item) {
-        return DataProvider.LOGIN_OK;
-    }
-
-    public static boolean SupportsFastNetwork() {
-        return false;
-    }
-
-    @Override
-    public void SetArgument(String arg) {}
-
-    @Override
-    public boolean SupportsTunneling() {
-        return false;
+        private boolean setPropValues(final String in, final Properties prop) {
+            boolean propertiesFile = false;
+            try{
+                prop.load(new FileInputStream(in));
+                propertiesFile = this.isPropertiesFile(prop);
+                if(!propertiesFile){
+                    this.loadSignalValues(in);
+                }
+            }catch(final Exception exc){
+                ASCIIDataProvider.this.error = "File " + in + " error : " + exc.getMessage();
+            }
+            return false;
+        }
     }
 
     public static boolean DataPending() {
         return false;
     }
 
-    @Override
-    public void SetEnvironment(String exp) {
-        error = null;
+    public static byte[] GetAllFrames(final String in_frame) {
+        return null;
     }
 
-    @Override
-    public void Update(String exp, long s) {
-        error = null;
-        path_exp = exp;
-        curr_shot = s;
-    }
-
-    @Override
-    public String GetString(String in) {
-        error = null;
-        return new String(in);
-    }
-
-    @Override
-    public double GetFloat(String in) {
-        error = null;
-        Double f = new Double(in);
-        return f.doubleValue();
-    }
-
-    @Override
-    public long[] GetShots(String in) throws IOException {
-        error = null;
-        long[] result;
-        String curr_in = in.trim();
-        if(curr_in.startsWith("[", 0)){
-            if(curr_in.endsWith("]")){
-                curr_in = curr_in.substring(1, curr_in.length() - 1);
-                StringTokenizer st = new StringTokenizer(curr_in, ",", false);
-                result = new long[st.countTokens()];
-                int i = 0;
-                try{
-                    while(st.hasMoreTokens())
-                        result[i++] = Long.parseLong(st.nextToken());
-                    return result;
-                }catch(Exception e){}
-            }
+    public static byte[] GetFrameAt(final String in_expr, final int frame_idx) {
+        String n;
+        byte buf[] = null;
+        long size = 0;
+        final int i = frame_idx;
+        String in, ext;
+        in = in_expr.substring(0, in_expr.indexOf("."));
+        ext = in_expr.substring(in_expr.indexOf("."), in_expr.length());
+        if(i < 10) n = in + "_00" + (i) + ext;
+        else n = in + "_0" + (i) + ext;
+        final File f = new File(n);
+        if(f.exists()){
+            System.out.println("Esiste " + n);
+            try{
+                final FileInputStream bin = new FileInputStream(n);
+                size = f.length();
+                buf = new byte[(int)size];
+                if(buf != null) bin.read(buf);
+                bin.close();
+            }catch(final IOException e){}
         }else{
-            if(curr_in.indexOf(":") != -1){
-                StringTokenizer st = new StringTokenizer(curr_in, ":");
-                int start, end;
-                if(st.countTokens() == 2){
-                    try{
-                        start = Integer.parseInt(st.nextToken());
-                        end = Integer.parseInt(st.nextToken());
-                        if(end < start) end = start;
-                        result = new long[end - start + 1];
-                        for(int i = 0; i < end - start + 1; i++)
-                            result[i] = start + i;
-                        return result;
-                    }catch(Exception e){}
-                }
-            }else{
-                result = new long[1];
-                try{
-                    result[0] = Long.parseLong(curr_in);
-                    return result;
-                }catch(Exception e){}
-            }
+            System.out.println("Non Esiste " + n);
         }
-        error = "Error parsing shot number(s)";
-        throw(new IOException(error));
+        return buf;
     }
 
-    @Override
-    public String ErrorString() {
-        return error;
-    }
-
-    @Override
-    public void AddUpdateEventListener(UpdateEventListener l, String event) {}
-
-    @Override
-    public void RemoveUpdateEventListener(UpdateEventListener l, String event) {}
-
-    @Override
-    public void AddConnectionListener(ConnectionListener l) {}
-
-    @Override
-    public void RemoveConnectionListener(ConnectionListener l) {}
-
-    @Override
-    public FrameData GetFrameData(String in_y, String in_x, float time_min, float time_max) throws IOException {
-        throw(new IOException("Frames visualization on DemoDataProvider not implemented"));
-    }
-
-    public static float[] GetFrameTimes(String in_expr) {
+    public static float[] GetFrameTimes(final String in_expr) {
         int cnt = 0;
         String n;
         File f;
@@ -474,44 +357,161 @@ class ASCIIDataProvider implements DataProvider{
         return out;
     }
 
-    public static byte[] GetAllFrames(String in_frame) {
+    public static WaveData GetResampledWaveData(final String in, final double start, final double end, final int n_points) {
         return null;
     }
 
-    public static byte[] GetFrameAt(String in_expr, int frame_idx) {
-        String n;
-        byte buf[] = null;
-        long size = 0;
-        int i = frame_idx;
-        String in, ext;
-        in = in_expr.substring(0, in_expr.indexOf("."));
-        ext = in_expr.substring(in_expr.indexOf("."), in_expr.length());
-        if(i < 10) n = in + "_00" + (i) + ext;
-        else n = in + "_0" + (i) + ext;
-        File f = new File(n);
-        if(f.exists()){
-            System.out.println("Esiste " + n);
-            try{
-                FileInputStream bin = new FileInputStream(n);
-                size = f.length();
-                buf = new byte[(int)size];
-                if(buf != null) bin.read(buf);
-                bin.close();
-            }catch(IOException e){}
-        }else{
-            System.out.println("Non Esiste " + n);
-        }
-        return buf;
+    public static WaveData GetResampledWaveData(final String in_y, final String in_x, final double start, final double end, final int n_points) {
+        return null;
     }
 
-    public void enableAsyncUpdate(boolean enable) {}
-
-    public void getDataAsync(double lowerBound, double upperBound, double resolution) {}
-
-    public void setContinuousUpdate(boolean continuousUpdate) {}
-
-    public static void main(String args[]) {
-        ASCIIDataProvider p = new ASCIIDataProvider();
+    public static void main(final String args[]) {
+        final ASCIIDataProvider p = new ASCIIDataProvider();
         p.GetWaveData("c:\\test.txt");
+    }
+
+    public static boolean SupportsCompression() {
+        return false;
+    }
+
+    public static boolean SupportsContinuous() {
+        return false;
+    }
+
+    public static boolean SupportsFastNetwork() {
+        return false;
+    }
+    long            curr_shot       = -1;
+    String          error           = null;
+    String          path_exp        = null;
+    float           time[];
+    float           x[];
+    private boolean xPropertiesFile = false;
+    float           y[];
+    private boolean yPropertiesFile = false;
+
+    @Override
+    public void AddConnectionListener(final ConnectionListener l) {}
+
+    @Override
+    public void AddUpdateEventListener(final UpdateEventListener l, final String event) {}
+
+    @Override
+    public void Dispose() {}
+
+    public void enableAsyncUpdate(final boolean enable) {}
+
+    @Override
+    public String ErrorString() {
+        return this.error;
+    }
+
+    public void getDataAsync(final double lowerBound, final double upperBound, final double resolution) {}
+
+    @Override
+    public double GetFloat(final String in) {
+        this.error = null;
+        final Double f = new Double(in);
+        return f.doubleValue();
+    }
+
+    @Override
+    public FrameData GetFrameData(final String in_y, final String in_x, final float time_min, final float time_max) throws IOException {
+        throw(new IOException("Frames visualization on DemoDataProvider not implemented"));
+    }
+
+    @Override
+    public long[] GetShots(final String in) throws IOException {
+        this.error = null;
+        long[] result;
+        String curr_in = in.trim();
+        if(curr_in.startsWith("[", 0)){
+            if(curr_in.endsWith("]")){
+                curr_in = curr_in.substring(1, curr_in.length() - 1);
+                final StringTokenizer st = new StringTokenizer(curr_in, ",", false);
+                result = new long[st.countTokens()];
+                int i = 0;
+                try{
+                    while(st.hasMoreTokens())
+                        result[i++] = Long.parseLong(st.nextToken());
+                    return result;
+                }catch(final Exception e){}
+            }
+        }else{
+            if(curr_in.indexOf(":") != -1){
+                final StringTokenizer st = new StringTokenizer(curr_in, ":");
+                int start, end;
+                if(st.countTokens() == 2){
+                    try{
+                        start = Integer.parseInt(st.nextToken());
+                        end = Integer.parseInt(st.nextToken());
+                        if(end < start) end = start;
+                        result = new long[end - start + 1];
+                        for(int i = 0; i < end - start + 1; i++)
+                            result[i] = start + i;
+                        return result;
+                    }catch(final Exception e){}
+                }
+            }else{
+                result = new long[1];
+                try{
+                    result[0] = Long.parseLong(curr_in);
+                    return result;
+                }catch(final Exception e){}
+            }
+        }
+        this.error = "Error parsing shot number(s)";
+        throw(new IOException(this.error));
+    }
+
+    @Override
+    public String GetString(final String in) {
+        this.error = null;
+        return new String(in);
+    }
+
+    @Override
+    public WaveData GetWaveData(final String in) {
+        return new SimpleWaveData(in);
+    }
+
+    @Override
+    public WaveData GetWaveData(final String in_y, final String in_x) {
+        return new SimpleWaveData(in_y, in_x);
+    }
+
+    @Override
+    public int InquireCredentials(final JFrame f, final DataServerItem server_item) {
+        return DataProvider.LOGIN_OK;
+    }
+
+    @Override
+    public void RemoveConnectionListener(final ConnectionListener l) {}
+
+    @Override
+    public void RemoveUpdateEventListener(final UpdateEventListener l, final String event) {}
+
+    @Override
+    public void SetArgument(final String arg) {}
+
+    public void SetCompression(final boolean state) {}
+
+    public void setContinuousUpdate(final boolean continuousUpdate) {}
+
+    @Override
+    public void SetEnvironment(final String exp) {
+        this.error = null;
+    }
+
+    @Override
+    public boolean SupportsTunneling() {
+        return false;
+    }
+
+    @Override
+    public void Update(final String exp, final long s) {
+        this.error = null;
+        this.path_exp = exp;
+        this.curr_shot = s;
     }
 }

@@ -11,7 +11,7 @@ public interface WaveDataListener{
 
     public void dataRegionUpdated(long[] x, float[] y, double resolution);
 
-    public void sourceUpdated(XYData xydata);
-
     public void legendUpdated(String name);
+
+    public void sourceUpdated(XYData xydata);
 }

@@ -6,34 +6,93 @@ import java.util.StringTokenizer;
 import javax.swing.JFrame;
 
 class FtuDataProvider extends MdsDataProvider{
+    public static boolean DataPending() {
+        return false;
+    }
+
+    protected static String GetDefaultYLabel() throws IOException {
+        return null;
+    }
+
+    private static String GetFirstSignal(final String in_y) {
+        if(in_y == null) return null;
+        String curr_str;
+        final StringTokenizer st = new StringTokenizer(in_y, "\\", true);
+        while(st.hasMoreTokens()){
+            curr_str = st.nextToken();
+            if(curr_str.equals("\\") && st.hasMoreTokens()) return st.nextToken();
+        }
+        return null;
+    }
+
+    public static boolean SupportsCompression() {
+        return false;
+    }
+
+    public static boolean SupportsContinuous() {
+        return false;
+    }
+
+    public static boolean SupportsFastNetwork() {
+        return false;
+    }
+
     public FtuDataProvider(){
         super();
     }
 
-    public FtuDataProvider(String provider) throws IOException{
+    public FtuDataProvider(final String provider) throws IOException{
         super(provider);
-        SetEnvironment("public _IMODE = 0;");
+        this.SetEnvironment("public _IMODE = 0;");
+    }
+
+    protected String GetDefaultTitle(final String in_y) throws IOException {
+        this.error = null;
+        String first_sig = FtuDataProvider.GetFirstSignal(in_y);
+        if(first_sig != null && first_sig.startsWith("$")) first_sig = "_" + first_sig.substring(1);
+        if(first_sig == null) return null;
+        final String parsed = "ftuyl(" + this.shot + ",\"" + first_sig + "\")";
+        // System.out.println(parsed);
+        return this.GetString(parsed);
+    }
+
+    protected String GetDefaultXLabel(final String in_y) throws IOException {
+        this.error = null;
+        String first_sig = FtuDataProvider.GetFirstSignal(in_y);
+        if(first_sig == null) return null;
+        if(first_sig != null && first_sig.startsWith("$")) first_sig = "_" + first_sig.substring(1);
+        return this.GetString("ftuxl(" + this.shot + ",\"" + first_sig + "\")");
     }
 
     @Override
-    public void SetArgument(String arg) throws IOException {
-        mds.setProvider(arg);
-        SetEnvironment("public _IMODE = 0;");
+    public synchronized float[] GetFloatArray(final String in) throws IOException {
+        this.error = null;
+        final float[] out_array = super.GetFloatArray(this.ParseExpression(in));
+        if(out_array == null && this.error == null) this.error = "Cannot evaluate " + in + " for shot " + this.shot;
+        if(out_array != null && out_array.length <= 1){
+            this.error = "Cannot evaluate " + in + " for shot " + this.shot;
+            return null;
+        }
+        return out_array;
     }
 
     @Override
-    public synchronized void Update(String exp, long s) {
-        error = null;
-        shot = s;
+    public synchronized int[] GetIntArray(final String in) throws IOException {
+        return super.GetIntArray(this.ParseExpression(in));
     }
 
-    protected String ParseExpression(String in) {
-        StringTokenizer st = new StringTokenizer(in, "\\", true);
-        StringBuffer parsed = new StringBuffer();
+    @Override
+    public int InquireCredentials(final JFrame f, final DataServerItem server_item) {
+        return DataProvider.LOGIN_OK;
+    }
+
+    protected String ParseExpression(final String in) {
+        final StringTokenizer st = new StringTokenizer(in, "\\", true);
+        final StringBuffer parsed = new StringBuffer();
         int state = 0;
         try{
             while(st.hasMoreTokens()){
-                String curr_str = st.nextToken();
+                final String curr_str = st.nextToken();
                 // System.out.println("Token: "+curr_str);
                 switch(state){
                     case 0:
@@ -45,8 +104,8 @@ class FtuDataProvider extends MdsDataProvider{
                             parsed.append("\\");
                             state = 0;
                         }else{
-                            if(curr_str.startsWith("$")) parsed.append("ftu(" + shot + ",\"_" + curr_str.substring(1));
-                            else parsed.append("ftu(" + shot + ",\"" + curr_str);
+                            if(curr_str.startsWith("$")) parsed.append("ftu(" + this.shot + ",\"_" + curr_str.substring(1));
+                            else parsed.append("ftu(" + this.shot + ",\"" + curr_str);
                             state = 2;
                         }
                         break;
@@ -74,7 +133,7 @@ class FtuDataProvider extends MdsDataProvider{
                         break;
                 }
             }
-        }catch(Exception e){
+        }catch(final Exception e){
             System.out.println(e);
         }
         // System.out.println("parsed: "+ parsed);
@@ -82,76 +141,17 @@ class FtuDataProvider extends MdsDataProvider{
     }
 
     @Override
-    public synchronized int[] GetIntArray(String in) throws IOException {
-        return super.GetIntArray(ParseExpression(in));
+    public void SetArgument(final String arg) throws IOException {
+        this.mds.setProvider(arg);
+        this.SetEnvironment("public _IMODE = 0;");
     }
 
     @Override
-    public synchronized float[] GetFloatArray(String in) throws IOException {
-        error = null;
-        float[] out_array = super.GetFloatArray(ParseExpression(in));
-        if(out_array == null && error == null) error = "Cannot evaluate " + in + " for shot " + shot;
-        if(out_array != null && out_array.length <= 1){
-            error = "Cannot evaluate " + in + " for shot " + shot;
-            return null;
-        }
-        return out_array;
-    }
-
-    private static String GetFirstSignal(String in_y) {
-        if(in_y == null) return null;
-        String curr_str;
-        StringTokenizer st = new StringTokenizer(in_y, "\\", true);
-        while(st.hasMoreTokens()){
-            curr_str = st.nextToken();
-            if(curr_str.equals("\\") && st.hasMoreTokens()) return st.nextToken();
-        }
-        return null;
-    }
-
-    protected String GetDefaultTitle(String in_y) throws IOException {
-        error = null;
-        String first_sig = GetFirstSignal(in_y);
-        if(first_sig != null && first_sig.startsWith("$")) first_sig = "_" + first_sig.substring(1);
-        if(first_sig == null) return null;
-        String parsed = "ftuyl(" + shot + ",\"" + first_sig + "\")";
-        // System.out.println(parsed);
-        return GetString(parsed);
-    }
-
-    protected String GetDefaultXLabel(String in_y) throws IOException {
-        error = null;
-        String first_sig = GetFirstSignal(in_y);
-        if(first_sig == null) return null;
-        if(first_sig != null && first_sig.startsWith("$")) first_sig = "_" + first_sig.substring(1);
-        return GetString("ftuxl(" + shot + ",\"" + first_sig + "\")");
-    }
-
-    protected static String GetDefaultYLabel() throws IOException {
-        return null;
-    }
-
-    public static boolean SupportsCompression() {
-        return false;
-    }
+    public void SetCompression(final boolean state) {}
 
     @Override
-    public void SetCompression(boolean state) {}
-
-    public static boolean SupportsContinuous() {
-        return false;
-    }
-
-    public static boolean DataPending() {
-        return false;
-    }
-
-    @Override
-    public int InquireCredentials(JFrame f, DataServerItem server_item) {
-        return DataProvider.LOGIN_OK;
-    }
-
-    public static boolean SupportsFastNetwork() {
-        return false;
+    public synchronized void Update(final String exp, final long s) {
+        this.error = null;
+        this.shot = s;
     }
 }

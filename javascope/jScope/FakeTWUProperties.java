@@ -1,19 +1,18 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ * To change this template, choose Tools | Templates and open the template in the editor.
  */
 package jScope;
 
 public class FakeTWUProperties extends TWUProperties{
-    public FakeTWUProperties(int len){
+    public FakeTWUProperties(final int len){
         super(null);
-        signalProps.put("TWU.properties.version", "0.7");
-        signalProps.put("Dimensions", "1");
-        signalProps.put("Length.total", String.valueOf(len));
-        signalProps.put("Length.dimension.0", String.valueOf(len));
-        signalProps.put("Equidistant", "Incrementing");
-        signalProps.put("Signal.Minimum", "0.0");
-        signalProps.put("Signal.Maximum", String.valueOf((double)(len - 1)));
+        this.signalProps.put("TWU.properties.version", "0.7");
+        this.signalProps.put("Dimensions", "1");
+        this.signalProps.put("Length.total", String.valueOf(len));
+        this.signalProps.put("Length.dimension.0", String.valueOf(len));
+        this.signalProps.put("Equidistant", "Incrementing");
+        this.signalProps.put("Signal.Minimum", "0.0");
+        this.signalProps.put("Signal.Maximum", String.valueOf((double)(len - 1)));
     }
 
     @Override

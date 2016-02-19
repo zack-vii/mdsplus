@@ -4,42 +4,41 @@ package jScope;
 import java.io.IOException;
 
 public class JiDim{
-    public int    mStart, mCount, mStride;
+    public static JiVar getCoordVar() throws IOException {
+        throw new IOException("JiDim::getCoordVar() : not supported");
+    }
     public String mName;
+    public int    mStart, mCount, mStride;
 
-    public JiDim(String name, int start, int count){
-        mName = name;
-        mStart = start;
-        mCount = count;
-        mStride = 1;
+    public JiDim(final String name, final int start, final int count){
+        this.mName = name;
+        this.mStart = start;
+        this.mCount = count;
+        this.mStride = 1;
     }
 
-    public JiDim(String name, int start, int count, int stride){
-        mName = name;
-        mStart = start;
-        mCount = count;
-        mStride = stride;
+    public JiDim(final String name, final int start, final int count, final int stride){
+        this.mName = name;
+        this.mStart = start;
+        this.mCount = count;
+        this.mStride = stride;
     }
 
     @Override
     protected Object clone() {
-        return new JiDim(mName, mStart, mCount, mStride);
+        return new JiDim(this.mName, this.mStart, this.mCount, this.mStride);
     }
 
     public JiDim copy() {
-        return (JiDim)clone();
-    }
-
-    public static JiVar getCoordVar() throws IOException {
-        throw new IOException("JiDim::getCoordVar() : not supported");
+        return (JiDim)this.clone();
     }
 
     public String getName() {
-        return mName;
+        return this.mName;
     }
 
     @Override
     public String toString() {
-        return "(" + mName + "," + mStart + "," + mCount + "," + mStride + ")";
+        return "(" + this.mName + "," + this.mStart + "," + this.mCount + "," + this.mStride + ")";
     }
 }

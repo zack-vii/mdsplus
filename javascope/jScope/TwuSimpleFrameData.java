@@ -16,20 +16,20 @@ import java.util.StringTokenizer;
 
 // -------------------------------------------------------------------------------------------------
 class TwuSimpleFrameData implements FrameData{
-    String                  in_x, in_y;
-    float                   time_max, time_min;
-    int                     mode            = -1;
-    int                     pixel_size;
-    int                     first_frame_idx = -1;
     byte                    buf[];
+    private final Dimension dim             = null;
     String                  error;
-    private int             st_idx          = -1, end_idx = -1;
+    int                     first_frame_idx = -1;
+    String                  in_x, in_y;
+    int                     mode            = -1;
     private int             n_frames        = 0;
-    private float           times[]         = null;
-    private Dimension       dim             = null;
+    int                     pixel_size;
     private TwuDataProvider provider        = null;
+    private int             st_idx          = -1, end_idx = -1;
+    float                   time_max, time_min;
+    private float           times[]         = null;
 
-    public TwuSimpleFrameData(TwuDataProvider dp, String in_y, String in_x, float time_min, float time_max) throws IOException{
+    public TwuSimpleFrameData(final TwuDataProvider dp, final String in_y, final String in_x, final float time_min, final float time_max) throws IOException{
         int i;
         float t;
         float all_times[] = null;
@@ -40,7 +40,7 @@ class TwuSimpleFrameData implements FrameData{
         this.time_max = time_max;
         /* Da modificare per multi frame */
         if(in_x == null || in_x.length() == 0) all_times = new float[352 / 3];
-        else all_times = provider.GetFloatArray(in_x);
+        else all_times = this.provider.GetFloatArray(in_x);
         for(i = 0; i < all_times.length; i++)
             all_times[i] = (float)(-0.1 + 0.06 * i);
         // if(all_times == null){ throw(new IOException("Frame time evaluation error")); }
@@ -48,67 +48,36 @@ class TwuSimpleFrameData implements FrameData{
             t = all_times[i];
             if(t > time_max) break;
             if(t >= time_min){
-                if(st_idx == -1) st_idx = i;
+                if(this.st_idx == -1) this.st_idx = i;
             }
         }
-        end_idx = i;
-        if(st_idx == -1) throw(new IOException("No frames found between " + time_min + " - " + time_max));
-        n_frames = end_idx - st_idx;
-        times = new float[n_frames];
+        this.end_idx = i;
+        if(this.st_idx == -1) throw(new IOException("No frames found between " + time_min + " - " + time_max));
+        this.n_frames = this.end_idx - this.st_idx;
+        this.times = new float[this.n_frames];
         int j = 0;
-        for(i = st_idx; i < end_idx; i++)
-            times[j++] = all_times[i];
-    }
-
-    @Override
-    public int GetFrameType() throws IOException {
-        if(mode != -1) return mode;
-        int i;
-        for(i = 0; i < n_frames; i++){
-            buf = GetFrameAt(i);
-            if(buf != null) break;
-        }
-        first_frame_idx = i;
-        mode = Frames.DecodeImageType(buf);
-        return mode;
-    }
-
-    @Override
-    public int GetNumFrames() {
-        return n_frames;
-    }
-
-    @Override
-    public Dimension GetFrameDimension() {
-        return dim;
-    }
-
-    @Override
-    public double[] GetFrameTimes() {
-        double dtimes[] = new double[times.length];
-        for(int i = 0; i < times.length; i++)
-            dtimes[i] = times[i];
-        return dtimes;
+        for(i = this.st_idx; i < this.end_idx; i++)
+            this.times[j++] = all_times[i];
     }
 
     @Override
     public byte[] GetFrameAt(int idx) throws IOException {
-        if(idx == first_frame_idx && buf != null) return buf;
+        if(idx == this.first_frame_idx && this.buf != null) return this.buf;
         // b_img = MdsDataProvider.this.GetFrameAt(in_y, st_idx+idx);
         // Da modificare per leggere i frames
         idx *= 3;
-        ConnectionEvent ce = new ConnectionEvent(this, "Loading Image " + idx, 0, 0);
-        provider.DispatchConnectionEvent(ce);
-        StringTokenizer st = new StringTokenizer(in_y, "/", true);
+        final ConnectionEvent ce = new ConnectionEvent(this, "Loading Image " + idx, 0, 0);
+        this.provider.DispatchConnectionEvent(ce);
+        final StringTokenizer st = new StringTokenizer(this.in_y, "/", true);
         String str = new String();
-        int nt = st.countTokens();
+        final int nt = st.countTokens();
         for(int i = 0; i < nt - 1; i++)
             str = str + st.nextToken();
         String img_name = "00000" + idx;
         img_name = img_name.substring(img_name.length() - 6, img_name.length());
         str = str + img_name + ".jpg";
-        URL url = new URL(str);
-        URLConnection url_con = url.openConnection();
+        final URL url = new URL(str);
+        final URLConnection url_con = url.openConnection();
         int size = url_con.getContentLength();
         /* Sometimes size < 0 and an exception is thrown */
         /* Taliercio 27/02/2003 */
@@ -117,7 +86,7 @@ class TwuSimpleFrameData implements FrameData{
             int offset = 0, num_read = 0;
             // byte b_img[] = new byte[size];
             b_img = new byte[size];
-            InputStream is = url_con.getInputStream();
+            final InputStream is = url_con.getInputStream();
             while(size > 0 && num_read != -1){
                 num_read = is.read(b_img, offset, size);
                 size -= num_read;
@@ -125,6 +94,37 @@ class TwuSimpleFrameData implements FrameData{
             }
         }
         return b_img;
+    }
+
+    @Override
+    public Dimension GetFrameDimension() {
+        return this.dim;
+    }
+
+    @Override
+    public double[] GetFrameTimes() {
+        final double dtimes[] = new double[this.times.length];
+        for(int i = 0; i < this.times.length; i++)
+            dtimes[i] = this.times[i];
+        return dtimes;
+    }
+
+    @Override
+    public int GetFrameType() throws IOException {
+        if(this.mode != -1) return this.mode;
+        int i;
+        for(i = 0; i < this.n_frames; i++){
+            this.buf = this.GetFrameAt(i);
+            if(this.buf != null) break;
+        }
+        this.first_frame_idx = i;
+        this.mode = Frames.DecodeImageType(this.buf);
+        return this.mode;
+    }
+
+    @Override
+    public int GetNumFrames() {
+        return this.n_frames;
     }
 }
 // -------------------------------------------------------------------------------------------------

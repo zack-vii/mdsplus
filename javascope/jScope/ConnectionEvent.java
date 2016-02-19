@@ -13,12 +13,8 @@ import java.awt.AWTEvent;
  * @see DataProvider
  */
 public class ConnectionEvent extends AWTEvent{
-    static final long       serialVersionUID = 47623776584563L;
     public static final int LOST_CONNECTION  = AWTEvent.RESERVED_ID_MAX + 1;
-    /**
-     * Total size of the data to be transferred.
-     */
-    int                     total_size;
+    static final long       serialVersionUID = 47623776584563L;
     /**
      * Number ofbytes transferred so far.
      */
@@ -27,8 +23,29 @@ public class ConnectionEvent extends AWTEvent{
      * Additional string information, shown in the status bar of jScope.
      */
     String                  info;
+    /**
+     * Total size of the data to be transferred.
+     */
+    int                     total_size;
 
-    public ConnectionEvent(Object source, String info, int total_size, int current_size){
+    public ConnectionEvent(final Object source, final int total_size, final int current_size){
+        super(source, 0);
+        this.total_size = total_size;
+        this.current_size = current_size;
+        this.info = null;
+    }
+
+    public ConnectionEvent(final Object source, final int event_id, final String info){
+        super(source, event_id);
+        this.info = new String(info);
+    }
+
+    public ConnectionEvent(final Object source, final String info){
+        super(source, 0);
+        this.info = new String(info);
+    }
+
+    public ConnectionEvent(final Object source, final String info, final int total_size, final int current_size){
         super(source, 0);
         this.total_size = total_size;
         this.current_size = current_size;
@@ -36,23 +53,6 @@ public class ConnectionEvent extends AWTEvent{
     }
 
     public String getInfo() {
-        return info;
-    }
-
-    public ConnectionEvent(Object source, int total_size, int current_size){
-        super(source, 0);
-        this.total_size = total_size;
-        this.current_size = current_size;
-        this.info = null;
-    }
-
-    public ConnectionEvent(Object source, String info){
-        super(source, 0);
-        this.info = new String(info);
-    }
-
-    public ConnectionEvent(Object source, int event_id, String info){
-        super(source, event_id);
-        this.info = new String(info);
+        return this.info;
     }
 }

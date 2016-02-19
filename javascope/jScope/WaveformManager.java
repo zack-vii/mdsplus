@@ -11,6 +11,46 @@ import java.awt.Point;
  */
 public interface WaveformManager{
     /**
+     * Set the same scale factor of the argument waveform to all waveform
+     *
+     * @param curr_w
+     *            a waveform
+     * @see Waveform
+     * @see MultiWaveform
+     */
+    public void AllSameScale(Waveform curr_w);
+
+    /**
+     * Set x scale factor of all waveform equals to argument waveform
+     *
+     * @param curr_w
+     *            a waveform
+     * @see Waveform
+     * @see MultiWaveform
+     */
+    public void AllSameXScale(Waveform curr_w);
+
+    /**
+     * Autoscale y axis and set x axis equals to argument waveform
+     *
+     * @param curr_w
+     *            a waveform
+     * @see Waveform
+     * @see MultiWaveform
+     */
+    public void AllSameXScaleAutoY(Waveform curr_w);
+
+    /**
+     * Set y scale factor of all waveform equals to argument waveform
+     *
+     * @param curr_w
+     *            a waveform
+     * @see Waveform
+     * @see MultiWaveform
+     */
+    public void AllSameYScale(Waveform curr_w);
+
+    /**
      * Autoscale operation on all waveforms
      *
      * @see Waveform
@@ -35,60 +75,21 @@ public interface WaveformManager{
     public void AutoscaleAllY();
 
     /**
-     * Set the same scale factor of the argument waveform to all waveform
-     *
-     * @param curr_w
-     *            a waveform
-     * @see Waveform
-     * @see MultiWaveform
-     */
-    public void AllSameScale(Waveform curr_w);
-
-    /**
-     * Autoscale y axis and set x axis equals to argument waveform
-     *
-     * @param curr_w
-     *            a waveform
-     * @see Waveform
-     * @see MultiWaveform
-     */
-    public void AllSameXScaleAutoY(Waveform curr_w);
-
-    /**
-     * Set y scale factor of all waveform equals to argument waveform
-     *
-     * @param curr_w
-     *            a waveform
-     * @see Waveform
-     * @see MultiWaveform
-     */
-    public void AllSameYScale(Waveform curr_w);
-
-    /**
-     * Set x scale factor of all waveform equals to argument waveform
-     *
-     * @param curr_w
-     *            a waveform
-     * @see Waveform
-     * @see MultiWaveform
-     */
-    public void AllSameXScale(Waveform curr_w);
-
-    /**
-     * Reset all waveform scale factor.
+     * Deselect waveform.
      *
      * @see Waveform
      * @see MultiWaveform
      */
-    public void ResetAllScales();
+    public void Deselect();
 
     /**
-     * Remove a waveform.
+     * Get current waveform selected as copy source
      *
-     * @param w
-     *            waveform to remove
+     * @return copy source waveform
      */
-    public void removePanel(Waveform w);
+    public Waveform GetCopySource();
+
+    public Component getMaximizeComponent();
 
     /**
      * Get current selected waveform.
@@ -100,24 +101,6 @@ public interface WaveformManager{
     public Waveform GetSelected();
 
     /**
-     * Select a waveform
-     *
-     * @param w
-     *            waveform to select
-     * @see Waveform
-     * @see MultiWaveform
-     */
-    public void Select(Waveform w);
-
-    /**
-     * Deselect waveform.
-     *
-     * @see Waveform
-     * @see MultiWaveform
-     */
-    public void Deselect();
-
-    /**
      * Get the number of waveform in the container
      *
      * @return number of waveform in the container
@@ -125,33 +108,16 @@ public interface WaveformManager{
     public int GetWaveformCount();
 
     /**
-     * Update crosshair position
-     *
-     * @param curr_x
-     *            x axis position
-     * @param w
-     *            a waveform to update cross
-     * @see Waveform
-     * @see MultiWaveform
-     */
-    public void UpdatePoints(double curr_x, Waveform w);
-
-    /**
-     * Get current waveform selected as copy source
-     *
-     * @return copy source waveform
-     */
-    public Waveform GetCopySource();
-
-    /**
-     * Set copy source waveform
+     * Return row, column position on the panel
      *
      * @param w
-     *            copy source waveform
-     * @see Waveform
-     * @see MultiWaveform
+     *            a waveform
      */
-    public void SetCopySource(Waveform w);
+    public Point getWavePosition(Waveform w);
+
+    public boolean isMaximize();
+
+    public void maximizeComponent(Waveform w);
 
     /**
      * Perform copy operation
@@ -164,6 +130,42 @@ public interface WaveformManager{
     public void NotifyChange(Waveform dest, Waveform source);
 
     /**
+     * Remove a waveform.
+     *
+     * @param w
+     *            waveform to remove
+     */
+    public void removePanel(Waveform w);
+
+    /**
+     * Reset all waveform scale factor.
+     *
+     * @see Waveform
+     * @see MultiWaveform
+     */
+    public void ResetAllScales();
+
+    /**
+     * Select a waveform
+     *
+     * @param w
+     *            waveform to select
+     * @see Waveform
+     * @see MultiWaveform
+     */
+    public void Select(Waveform w);
+
+    /**
+     * Set copy source waveform
+     *
+     * @param w
+     *            copy source waveform
+     * @see Waveform
+     * @see MultiWaveform
+     */
+    public void SetCopySource(Waveform w);
+
+    /**
      * Enable or disable measure mode
      *
      * @param state
@@ -174,16 +176,14 @@ public interface WaveformManager{
     public void SetShowMeasure(boolean state);
 
     /**
-     * Return row, column position on the panel
+     * Update crosshair position
      *
+     * @param curr_x
+     *            x axis position
      * @param w
-     *            a waveform
+     *            a waveform to update cross
+     * @see Waveform
+     * @see MultiWaveform
      */
-    public Point getWavePosition(Waveform w);
-
-    public void maximizeComponent(Waveform w);
-
-    public Component getMaximizeComponent();
-
-    public boolean isMaximize();
+    public void UpdatePoints(double curr_x, Waveform w);
 }

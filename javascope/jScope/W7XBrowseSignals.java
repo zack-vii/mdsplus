@@ -3,28 +3,6 @@ package jScope;
 /* $Id$ */
 public class W7XBrowseSignals extends jScopeBrowseSignals{
     static final long serialVersionUID = 7777777L;
-    String            path;
-    String            shot             = "0";
-    final String      tree             = null;
-    final String      server_url       = "http://archive-webapi.ipp-hgw.mpg.de";
-
-    @Override
-    protected String getSignal(String url_name) {
-        String sig_path;
-        String[] parts;
-        try{
-            shot = "0";
-            if(!url_name.startsWith(server_url)) throw new Exception("Wrong server, must be " + server_url);
-            parts = url_name.substring(server_url.length()).split("(_signal\\.html)?\\?", 2);
-            sig_path = getpath(parts[0]);
-            if(parts.length > 1) getshot(parts[1]);
-            System.out.println(sig_path);
-        }catch(Exception exc){
-            System.err.println("Error " + exc);
-            sig_path = null;
-        }
-        return sig_path;
-    }
 
     private static String getpath(String path) {
         final String DS = "_DATASTREAM/";
@@ -35,31 +13,16 @@ public class W7XBrowseSignals extends jScopeBrowseSignals{
         if(parts[parts.length - 1].startsWith("scaled")) path += "/" + parts[parts.length - 1];
         return path;
     }
-
-    private void getshot(String param) {
-        String[] parts = param.split("&");
-        String from = null, upto = null;
-        for(int i = 0; i < parts.length; i++)
-            if(parts[i].startsWith("from=")) from = parts[i].substring(5);
-            else if(parts[i].startsWith("upto=")) upto = parts[i].substring(5);
-        if(from != null && upto != null) shot = "TIME(" + from + "Q," + upto + "Q,0Q);-1";
-        else shot = "0";
-    }
-
-    @Override
-    protected String getTree() {
-        return tree;
-    }
-
-    @Override
-    protected String getShot() {
-        return shot;
-    }
+    String       path;
+    final String server_url = "http://archive-webapi.ipp-hgw.mpg.de";
+    String       shot       = "0";
+    final String tree       = null;
 
     @Override
     protected String getServerAddr() {
-        return server_url;
+        return this.server_url;
     }
+
     /*
         static private boolean reasonableShotNr(String shot) {
             try{
@@ -69,5 +32,42 @@ public class W7XBrowseSignals extends jScopeBrowseSignals{
                 return false;
             }
         }
-    */
+     */
+    private void getshot(final String param) {
+        final String[] parts = param.split("&");
+        String from = null, upto = null;
+        for(final String part : parts)
+            if(part.startsWith("from=")) from = part.substring(5);
+            else if(part.startsWith("upto=")) upto = part.substring(5);
+        if(from != null && upto != null) this.shot = "TIME(" + from + "Q," + upto + "Q,0Q);-1";
+        else this.shot = "0";
+    }
+
+    @Override
+    protected String getShot() {
+        return this.shot;
+    }
+
+    @Override
+    protected String getSignal(final String url_name) {
+        String sig_path;
+        String[] parts;
+        try{
+            this.shot = "0";
+            if(!url_name.startsWith(this.server_url)) throw new Exception("Wrong server, must be " + this.server_url);
+            parts = url_name.substring(this.server_url.length()).split("(_signal\\.html)?\\?", 2);
+            sig_path = W7XBrowseSignals.getpath(parts[0]);
+            if(parts.length > 1) this.getshot(parts[1]);
+            System.out.println(sig_path);
+        }catch(final Exception exc){
+            System.err.println("Error " + exc);
+            sig_path = null;
+        }
+        return sig_path;
+    }
+
+    @Override
+    protected String getTree() {
+        return this.tree;
+    }
 }

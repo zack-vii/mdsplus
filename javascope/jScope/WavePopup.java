@@ -8,7 +8,6 @@ import java.awt.Graphics2D;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
@@ -26,287 +25,9 @@ import javax.swing.JSeparator;
 import javax.swing.KeyStroke;
 
 public class WavePopup extends JPopupMenu implements ItemListener{
-    static final long             serialVersionUID = 247273265246434L;
-    protected Waveform            wave             = null;
-    protected SetupWaveformParams setup_params;
-    protected JSeparator          sep1, sep2, sep3;
-    protected JMenuItem           setup, autoscale, autoscaleY, autoscaleAll, autoscaleAllY, allSameScale, allSameXScale, allSameXScaleAutoY, allSameYScale, resetScales, resetAllScales;
-    protected JMenuItem           playFrame, remove_panel, set_point, undo_zoom, maximize, cb_copy, profile_dialog, colorMap, saveAsText;
-    protected JMenu               markerList, colorList, markerStep, mode_2d, mode_1d;
-    protected JRadioButtonMenuItem plot_y_time, plot_x_y, plot_contour, plot_image;
-    protected JRadioButtonMenuItem plot_line, plot_no_line, plot_step;
-    protected ButtonGroup          markerList_bg, colorList_bg, markerStep_bg, mode_2d_bg, mode_1d_bg;
-    protected int                  curr_x, curr_y;
-    protected Container            parent;
-    private Waveform               profile_source = null;
-    ProfileDialog                  profDialog;
-    ColorMapDialog                 colorMapDialog = null;
+    static final long serialVersionUID = 247273265246434L;
 
-    public WavePopup(){
-        this(null, null);
-    }
-
-    public WavePopup(SetupWaveformParams setup_params, ProfileDialog profDialog){
-        setup = new JMenuItem("Set Limits...");
-        setup.addActionListener(new ActionListener(){
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                ShowDialog();
-            }
-        });
-        this.setup_params = setup_params;
-        this.profDialog = profDialog;
-        remove_panel = new JMenuItem("Remove panel");
-        remove_panel.setEnabled(false);
-        remove_panel.addActionListener(new ActionListener(){
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                Object[] options = {"Yes", "No"};
-                int opt = JOptionPane.showOptionDialog(null, "Are you sure you want to remove this wave panel?", "Warning", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[1]);
-                if(opt == JOptionPane.YES_OPTION) ((WaveformManager)parent).removePanel(wave);
-            }
-        });
-        maximize = new JMenuItem("Maximize Panel");
-        maximize.setEnabled(false);
-        maximize.addActionListener(new ActionListener(){
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if(((WaveformManager)WavePopup.this.parent).isMaximize()) ((WaveformManager)WavePopup.this.parent).maximizeComponent(null);
-                else ((WaveformManager)WavePopup.this.parent).maximizeComponent(wave);
-            }
-        });
-        set_point = new JMenuItem("Set Point");
-        set_point.addActionListener(new ActionListener(){
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                WavePopup.this.SetDeselectPoint(wave);
-            }
-        });
-        markerList = new JMenu("Markers");
-        JRadioButtonMenuItem ob;
-        markerList_bg = new ButtonGroup();
-        for(int i = 0; i < Signal.markerList.length; i++){
-            markerList_bg.add(ob = new JRadioButtonMenuItem(Signal.markerList[i]));
-            ob.getModel().setActionCommand("MARKER " + i);
-            markerList.add(ob);
-            ob.addItemListener(this);
-        }
-        markerList.setEnabled(false);
-        markerStep_bg = new ButtonGroup();
-        markerStep = new JMenu("Marker step");
-        for(int i = 0; i < Signal.markerStepList.length; i++){
-            markerStep_bg.add(ob = new JRadioButtonMenuItem("" + Signal.markerStepList[i]));
-            ob.getModel().setActionCommand("MARKER_STEP " + i);
-            markerStep.add(ob);
-            ob.addItemListener(this);
-        }
-        markerStep.setEnabled(false);
-        colorList = new JMenu("Colors");
-        colorList.setEnabled(false);
-        mode_1d_bg = new ButtonGroup();
-        mode_1d = new JMenu("Mode Plot 1D");
-        mode_1d.add(plot_line = new JRadioButtonMenuItem("Line"));
-        mode_1d_bg.add(plot_line);
-        plot_line.addItemListener(new ItemListener(){
-            @Override
-            public void itemStateChanged(ItemEvent e) {
-                if(e.getStateChange() == ItemEvent.SELECTED) SetMode1D(Signal.MODE_LINE);
-            }
-        });
-        mode_1d.add(plot_no_line = new JRadioButtonMenuItem("No Line"));
-        mode_1d_bg.add(plot_no_line);
-        plot_no_line.addItemListener(new ItemListener(){
-            @Override
-            public void itemStateChanged(ItemEvent e) {
-                if(e.getStateChange() == ItemEvent.SELECTED) SetMode1D(Signal.MODE_NOLINE);
-            }
-        });
-        mode_1d.add(plot_step = new JRadioButtonMenuItem("Step Plot"));
-        mode_1d_bg.add(plot_step);
-        plot_step.addItemListener(new ItemListener(){
-            @Override
-            public void itemStateChanged(ItemEvent e) {
-                if(e.getStateChange() == ItemEvent.SELECTED) SetMode1D(Signal.MODE_STEP);
-                // wave.Update();
-            }
-        });
-        mode_2d_bg = new ButtonGroup();
-        mode_2d = new JMenu("signal 2D");
-        mode_2d.add(plot_y_time = new JRadioButtonMenuItem("Plot xz(y)"));
-        mode_2d_bg.add(plot_y_time);
-        plot_y_time.addItemListener(new ItemListener(){
-            @Override
-            public void itemStateChanged(ItemEvent e) {
-                if(e.getStateChange() == ItemEvent.SELECTED) SetMode2D(Signal.MODE_XZ);
-            }
-        });
-        mode_2d.add(plot_x_y = new JRadioButtonMenuItem("Plot yz(x)"));
-        mode_2d_bg.add(plot_x_y);
-        plot_x_y.addItemListener(new ItemListener(){
-            @Override
-            public void itemStateChanged(ItemEvent e) {
-                if(e.getStateChange() == ItemEvent.SELECTED) SetMode2D(Signal.MODE_YZ);
-            }
-        });
-        mode_2d.add(plot_contour = new JRadioButtonMenuItem("Plot Contour"));
-        mode_2d_bg.add(plot_contour);
-        plot_contour.addItemListener(new ItemListener(){
-            @Override
-            public void itemStateChanged(ItemEvent e) {
-                if(e.getStateChange() == ItemEvent.SELECTED){
-                    SetMode2D(Signal.MODE_CONTOUR);
-                }
-            }
-        });
-        mode_2d.add(plot_image = new JRadioButtonMenuItem("Plot Image"));
-        mode_2d_bg.add(plot_image);
-        plot_image.addItemListener(new ItemListener(){
-            @Override
-            public void itemStateChanged(ItemEvent e) {
-                if(e.getStateChange() == ItemEvent.SELECTED){
-                    wave.setShowSigImage(true);
-                    SetMode2D(Signal.MODE_IMAGE);
-                }else wave.setShowSigImage(false);
-            }
-        });
-        sep1 = new JSeparator();
-        sep2 = new JSeparator();
-        autoscale = new JMenuItem("Autoscale");
-        autoscale.addActionListener(new ActionListener(){
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                wave.Autoscale();
-            }
-        });
-        autoscaleY = new JMenuItem("Autoscale Y");
-        autoscaleY.addActionListener(new ActionListener(){
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                wave.AutoscaleY();
-            }
-        });
-        autoscaleAll = new JMenuItem("Autoscale all");
-        autoscaleAll.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_B, ActionEvent.CTRL_MASK));
-        autoscaleAll.addActionListener(new ActionListener(){
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if(wave.IsImage()) ((WaveformManager)WavePopup.this.parent).AutoscaleAllImages();
-                else ((WaveformManager)WavePopup.this.parent).AutoscaleAll();
-            }
-        });
-        autoscaleAllY = new JMenuItem("Autoscale all Y");
-        autoscaleAllY.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y, ActionEvent.CTRL_MASK));
-        autoscaleAllY.addActionListener(new ActionListener(){
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                ((WaveformManager)WavePopup.this.parent).AutoscaleAllY();
-            }
-        });
-        allSameScale = new JMenuItem("All same scale");
-        allSameScale.addActionListener(new ActionListener(){
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                ((WaveformManager)WavePopup.this.parent).AllSameScale(wave);
-            }
-        });
-        allSameXScale = new JMenuItem("All same X scale");
-        allSameXScale.addActionListener(new ActionListener(){
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                ((WaveformManager)WavePopup.this.parent).AllSameXScale(wave);
-            }
-        });
-        allSameXScaleAutoY = new JMenuItem("All same X scale (auto Y)");
-        allSameXScaleAutoY.addActionListener(new ActionListener(){
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                ((WaveformManager)WavePopup.this.parent).AllSameXScaleAutoY(wave);
-            }
-        });
-        allSameYScale = new JMenuItem("All same Y scale");
-        allSameYScale.addActionListener(new ActionListener(){
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                ((WaveformManager)WavePopup.this.parent).AllSameYScale(wave);
-            }
-        });
-        resetScales = new JMenuItem("Reset scales");
-        resetScales.addActionListener(new ActionListener(){
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                wave.ResetScales();
-            }
-        });
-        resetAllScales = new JMenuItem("Reset all scales");
-        resetAllScales.addActionListener(new ActionListener(){
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                ((WaveformManager)WavePopup.this.parent).ResetAllScales();
-            }
-        });
-        undo_zoom = new JMenuItem("Undo Zoom");
-        undo_zoom.addActionListener(new ActionListener(){
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                wave.undoZoom();
-            }
-        });
-        cb_copy = new JMenuItem("Copy to Clipboard");
-        cb_copy.addActionListener(new ActionListener(){
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if(DEBUG.D) System.out.println("actionPerformed" + e);
-                Dimension dim = wave.getSize();
-                BufferedImage ri = new BufferedImage(dim.width, dim.height, BufferedImage.TYPE_INT_RGB);
-                Graphics2D g2d = (Graphics2D)ri.getGraphics();
-                g2d.setBackground(Color.white);
-                wave.paint(g2d, dim, Waveform.PRINT);
-                try{
-                    ImageTransferable imageTransferable = new ImageTransferable(ri);
-                    Clipboard cli = Toolkit.getDefaultToolkit().getSystemClipboard();
-                    cli.setContents(imageTransferable, imageTransferable);
-                }catch(Exception exc){
-                    System.err.println("Exception " + exc);
-                }
-            }
-        });
-        playFrame = new JMenuItem();
-        playFrame.addActionListener(new ActionListener(){
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if(wave.Playing()) wave.StopFrame();
-                else wave.PlayFrame();
-            }
-        });
-        profile_dialog = new JMenuItem("Show profile dialog");
-        profile_dialog.addActionListener(new ActionListener(){
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                ShowProfileDialog(wave);
-            }
-        });
-        colorMap = new JMenuItem("Color Palette");
-        colorMap.addActionListener(new ActionListener(){
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                ShowColorMapDialog(wave);
-            }
-        });
-        sep3 = new JSeparator();
-        saveAsText = new JMenuItem("Save as text ...");
-        saveAsText.addActionListener(new ActionListener(){
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                ((WaveformContainer)WavePopup.this.parent).SaveAsText(wave, false);
-            }
-        });
-    }
-
-    protected void ShowDialog() {
-        if(setup_params != null) setup_params.Show(wave);
-    }
-
-    protected static void SelectListItem(ButtonGroup bg, int idx) {
+    protected static void SelectListItem(final ButtonGroup bg, final int idx) {
         int i;
         JRadioButtonMenuItem b = null;
         Enumeration<AbstractButton> e;
@@ -314,299 +35,466 @@ public class WavePopup extends JPopupMenu implements ItemListener{
             b = (JRadioButtonMenuItem)e.nextElement();
         if(b != null) bg.setSelected(b.getModel(), true);
     }
+    ColorMapDialog colorMapDialog = null;
+    protected int  curr_x, curr_y;
+    protected JMenu markerList, colorList, markerStep, mode_2d, mode_1d;
+    protected ButtonGroup markerList_bg, colorList_bg, markerStep_bg, mode_2d_bg, mode_1d_bg;
+    protected Container   parent;
+    protected JMenuItem   playFrame, remove_panel, set_point, undo_zoom, maximize, cb_copy, profile_dialog, colorMap, saveAsText;
+    protected JRadioButtonMenuItem plot_line, plot_no_line, plot_step;
+    protected JRadioButtonMenuItem plot_y_time, plot_x_y, plot_contour, plot_image;
+    ProfileDialog                  profDialog;
+    private Waveform               profile_source = null;
+    protected JSeparator           sep1, sep2, sep3;
+    protected JMenuItem            setup, autoscale, autoscaleY, autoscaleAll, autoscaleAllY, allSameScale, allSameXScale, allSameXScaleAutoY, allSameYScale, resetScales, resetAllScales;
+    protected SetupWaveformParams  setup_params;
+    protected Waveform             wave           = null;
+
+    public WavePopup(){
+        this(null, null);
+    }
+
+    public WavePopup(final SetupWaveformParams setup_params, final ProfileDialog profDialog){
+        this.setup = new JMenuItem("Set Limits...");
+        this.setup.addActionListener(e -> WavePopup.this.ShowDialog());
+        this.setup_params = setup_params;
+        this.profDialog = profDialog;
+        this.remove_panel = new JMenuItem("Remove panel");
+        this.remove_panel.setEnabled(false);
+        this.remove_panel.addActionListener(e -> {
+            final Object[] options = {"Yes", "No"};
+            final int opt = JOptionPane.showOptionDialog(null, "Are you sure you want to remove this wave panel?", "Warning", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[1]);
+            if(opt == JOptionPane.YES_OPTION) ((WaveformManager)WavePopup.this.parent).removePanel(WavePopup.this.wave);
+        });
+        this.maximize = new JMenuItem("Maximize Panel");
+        this.maximize.setEnabled(false);
+        this.maximize.addActionListener(e -> {
+            if(((WaveformManager)WavePopup.this.parent).isMaximize()) ((WaveformManager)WavePopup.this.parent).maximizeComponent(null);
+            else ((WaveformManager)WavePopup.this.parent).maximizeComponent(WavePopup.this.wave);
+        });
+        this.set_point = new JMenuItem("Set Point");
+        this.set_point.addActionListener(e -> WavePopup.this.SetDeselectPoint(WavePopup.this.wave));
+        this.markerList = new JMenu("Markers");
+        JRadioButtonMenuItem ob;
+        this.markerList_bg = new ButtonGroup();
+        for(int i = 0; i < Signal.markerList.length; i++){
+            this.markerList_bg.add(ob = new JRadioButtonMenuItem(Signal.markerList[i]));
+            ob.getModel().setActionCommand("MARKER " + i);
+            this.markerList.add(ob);
+            ob.addItemListener(this);
+        }
+        this.markerList.setEnabled(false);
+        this.markerStep_bg = new ButtonGroup();
+        this.markerStep = new JMenu("Marker step");
+        for(int i = 0; i < Signal.markerStepList.length; i++){
+            this.markerStep_bg.add(ob = new JRadioButtonMenuItem("" + Signal.markerStepList[i]));
+            ob.getModel().setActionCommand("MARKER_STEP " + i);
+            this.markerStep.add(ob);
+            ob.addItemListener(this);
+        }
+        this.markerStep.setEnabled(false);
+        this.colorList = new JMenu("Colors");
+        this.colorList.setEnabled(false);
+        this.mode_1d_bg = new ButtonGroup();
+        this.mode_1d = new JMenu("Mode Plot 1D");
+        this.mode_1d.add(this.plot_line = new JRadioButtonMenuItem("Line"));
+        this.mode_1d_bg.add(this.plot_line);
+        this.plot_line.addItemListener(e -> {
+            if(e.getStateChange() == ItemEvent.SELECTED) WavePopup.this.SetMode1D(Signal.MODE_LINE);
+        });
+        this.mode_1d.add(this.plot_no_line = new JRadioButtonMenuItem("No Line"));
+        this.mode_1d_bg.add(this.plot_no_line);
+        this.plot_no_line.addItemListener(e -> {
+            if(e.getStateChange() == ItemEvent.SELECTED) WavePopup.this.SetMode1D(Signal.MODE_NOLINE);
+        });
+        this.mode_1d.add(this.plot_step = new JRadioButtonMenuItem("Step Plot"));
+        this.mode_1d_bg.add(this.plot_step);
+        this.plot_step.addItemListener(e -> {
+            if(e.getStateChange() == ItemEvent.SELECTED) WavePopup.this.SetMode1D(Signal.MODE_STEP);
+            // wave.Update();
+        });
+        this.mode_2d_bg = new ButtonGroup();
+        this.mode_2d = new JMenu("signal 2D");
+        this.mode_2d.add(this.plot_y_time = new JRadioButtonMenuItem("Plot xz(y)"));
+        this.mode_2d_bg.add(this.plot_y_time);
+        this.plot_y_time.addItemListener(e -> {
+            if(e.getStateChange() == ItemEvent.SELECTED) WavePopup.this.SetMode2D(Signal.MODE_XZ);
+        });
+        this.mode_2d.add(this.plot_x_y = new JRadioButtonMenuItem("Plot yz(x)"));
+        this.mode_2d_bg.add(this.plot_x_y);
+        this.plot_x_y.addItemListener(e -> {
+            if(e.getStateChange() == ItemEvent.SELECTED) WavePopup.this.SetMode2D(Signal.MODE_YZ);
+        });
+        this.mode_2d.add(this.plot_contour = new JRadioButtonMenuItem("Plot Contour"));
+        this.mode_2d_bg.add(this.plot_contour);
+        this.plot_contour.addItemListener(e -> {
+            if(e.getStateChange() == ItemEvent.SELECTED){
+                WavePopup.this.SetMode2D(Signal.MODE_CONTOUR);
+            }
+        });
+        this.mode_2d.add(this.plot_image = new JRadioButtonMenuItem("Plot Image"));
+        this.mode_2d_bg.add(this.plot_image);
+        this.plot_image.addItemListener(e -> {
+            if(e.getStateChange() == ItemEvent.SELECTED){
+                WavePopup.this.wave.setShowSigImage(true);
+                WavePopup.this.SetMode2D(Signal.MODE_IMAGE);
+            }else WavePopup.this.wave.setShowSigImage(false);
+        });
+        this.sep1 = new JSeparator();
+        this.sep2 = new JSeparator();
+        this.autoscale = new JMenuItem("Autoscale");
+        this.autoscale.addActionListener(e -> WavePopup.this.wave.Autoscale());
+        this.autoscaleY = new JMenuItem("Autoscale Y");
+        this.autoscaleY.addActionListener(e -> WavePopup.this.wave.AutoscaleY());
+        this.autoscaleAll = new JMenuItem("Autoscale all");
+        this.autoscaleAll.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_B, ActionEvent.CTRL_MASK));
+        this.autoscaleAll.addActionListener(e -> {
+            if(WavePopup.this.wave.IsImage()) ((WaveformManager)WavePopup.this.parent).AutoscaleAllImages();
+            else ((WaveformManager)WavePopup.this.parent).AutoscaleAll();
+        });
+        this.autoscaleAllY = new JMenuItem("Autoscale all Y");
+        this.autoscaleAllY.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y, ActionEvent.CTRL_MASK));
+        this.autoscaleAllY.addActionListener(e -> ((WaveformManager)WavePopup.this.parent).AutoscaleAllY());
+        this.allSameScale = new JMenuItem("All same scale");
+        this.allSameScale.addActionListener(e -> ((WaveformManager)WavePopup.this.parent).AllSameScale(WavePopup.this.wave));
+        this.allSameXScale = new JMenuItem("All same X scale");
+        this.allSameXScale.addActionListener(e -> ((WaveformManager)WavePopup.this.parent).AllSameXScale(WavePopup.this.wave));
+        this.allSameXScaleAutoY = new JMenuItem("All same X scale (auto Y)");
+        this.allSameXScaleAutoY.addActionListener(e -> ((WaveformManager)WavePopup.this.parent).AllSameXScaleAutoY(WavePopup.this.wave));
+        this.allSameYScale = new JMenuItem("All same Y scale");
+        this.allSameYScale.addActionListener(e -> ((WaveformManager)WavePopup.this.parent).AllSameYScale(WavePopup.this.wave));
+        this.resetScales = new JMenuItem("Reset scales");
+        this.resetScales.addActionListener(e -> WavePopup.this.wave.ResetScales());
+        this.resetAllScales = new JMenuItem("Reset all scales");
+        this.resetAllScales.addActionListener(e -> ((WaveformManager)WavePopup.this.parent).ResetAllScales());
+        this.undo_zoom = new JMenuItem("Undo Zoom");
+        this.undo_zoom.addActionListener(e -> WavePopup.this.wave.undoZoom());
+        this.cb_copy = new JMenuItem("Copy to Clipboard");
+        this.cb_copy.addActionListener(e -> {
+            if(DEBUG.D) System.out.println("actionPerformed" + e);
+            final Dimension dim = WavePopup.this.wave.getSize();
+            final BufferedImage ri = new BufferedImage(dim.width, dim.height, BufferedImage.TYPE_INT_RGB);
+            final Graphics2D g2d = (Graphics2D)ri.getGraphics();
+            g2d.setBackground(Color.white);
+            WavePopup.this.wave.paint(g2d, dim, Waveform.PRINT);
+            try{
+                final ImageTransferable imageTransferable = new ImageTransferable(ri);
+                final Clipboard cli = Toolkit.getDefaultToolkit().getSystemClipboard();
+                cli.setContents(imageTransferable, imageTransferable);
+            }catch(final Exception exc){
+                System.err.println("Exception " + exc);
+            }
+        });
+        this.playFrame = new JMenuItem();
+        this.playFrame.addActionListener(e -> {
+            if(WavePopup.this.wave.Playing()) WavePopup.this.wave.StopFrame();
+            else WavePopup.this.wave.PlayFrame();
+        });
+        this.profile_dialog = new JMenuItem("Show profile dialog");
+        this.profile_dialog.addActionListener(e -> WavePopup.this.ShowProfileDialog(WavePopup.this.wave));
+        this.colorMap = new JMenuItem("Color Palette");
+        this.colorMap.addActionListener(e -> WavePopup.this.ShowColorMapDialog(WavePopup.this.wave));
+        this.sep3 = new JSeparator();
+        this.saveAsText = new JMenuItem("Save as text ...");
+        this.saveAsText.addActionListener(e -> ((WaveformContainer)WavePopup.this.parent).SaveAsText(WavePopup.this.wave, false));
+    }
 
     protected void InitColorMenu() {
-        if(!Waveform.isColorsChanged() && colorList_bg != null) return;
-        if(colorList.getItemCount() != 0) colorList.removeAll();
-        String[] colors_name = Waveform.getColorsName();
+        if(!Waveform.isColorsChanged() && this.colorList_bg != null) return;
+        if(this.colorList.getItemCount() != 0) this.colorList.removeAll();
+        final String[] colors_name = Waveform.getColorsName();
         JRadioButtonMenuItem ob = null;
-        colorList_bg = new ButtonGroup();
+        this.colorList_bg = new ButtonGroup();
         if(colors_name != null){
             for(int i = 0; i < colors_name.length; i++){
-                colorList.add(ob = new JRadioButtonMenuItem(colors_name[i]));
+                this.colorList.add(ob = new JRadioButtonMenuItem(colors_name[i]));
                 ob.getModel().setActionCommand("COLOR_LIST " + i);
-                colorList_bg.add(ob);
+                this.colorList_bg.add(ob);
                 ob.addItemListener(this);
             }
         }
     }
 
-    protected void SetMenuItem(boolean is_image) {
-        if(getComponentCount() != 0) removeAll();
-        if(parent != null && parent instanceof WaveformManager){
-            if(((WaveformManager)parent).isMaximize()){
-                maximize.setText("Show All Panels");
-            }else{
-                maximize.setText("Maximize Panel");
+    protected void InitOptionMenu() {
+        final boolean state = (this.wave.GetShowSignalCount() == 1);
+        this.markerList.setEnabled(state);
+        this.colorList.setEnabled(state);
+        this.set_point.setEnabled(true);
+        if(state){
+            final boolean state_m = (this.wave.GetMarker() != Signal.NONE);
+            this.markerStep.setEnabled(state_m);
+            WavePopup.SelectListItem(this.markerList_bg, this.wave.GetMarker());
+            int st;
+            for(st = 0; st < Signal.markerStepList.length; st++)
+                if(Signal.markerStepList[st] == this.wave.GetMarkerStep()) break;
+            WavePopup.SelectListItem(this.markerStep_bg, st);
+            WavePopup.SelectListItem(this.colorList_bg, this.wave.GetColorIdx());
+        }else this.markerStep.setEnabled(false);
+    }
+
+    @Override
+    public void itemStateChanged(final ItemEvent e) {
+        final Object target = e.getSource();
+        if(target instanceof JRadioButtonMenuItem && e.getStateChange() == ItemEvent.SELECTED){
+            final JRadioButtonMenuItem cb = (JRadioButtonMenuItem)target;
+            final String action_cmd = cb.getModel().getActionCommand();
+            if(action_cmd == null) return;
+            final StringTokenizer act = new StringTokenizer(action_cmd);
+            final String action = act.nextToken();
+            final int idx = Integer.parseInt(act.nextToken());
+            if(action.equals("MARKER")){
+                this.SetMarker(idx);
+                this.markerStep.setEnabled(!(this.wave.GetMarker() == Signal.NONE || this.wave.GetMarker() == Signal.POINT));
+                // wave.Repaint(true);
+                this.wave.ReportChanges();
+                return;
             }
-        }
-        if(is_image){
-            add(setup);
-            colorList.setText("Colors");
-            if(profDialog != null) add(profile_dialog);
-            if(parent != null && parent instanceof WaveformManager){
-                add(maximize);
-                add(remove_panel);
+            if(action.equals("MARKER_STEP")){
+                this.SetMarkerStep(Signal.markerStepList[idx]);
+                // wave.Repaint(true);
+                this.wave.ReportChanges();
+                return;
             }
-            add(colorList);
-            add(colorMap);
-            add(playFrame);
-            add(set_point);
-            add(sep2);
-            add(autoscale);
-            if(parent != null && parent instanceof WaveformManager){
-                autoscaleAll.setText("Autoscale all images");
-                add(autoscaleAll);
-                maximize.setEnabled(((WaveformManager)parent).GetWaveformCount() > 1);
+            if(action.equals("COLOR_LIST")){
+                this.SetColor(idx);
+                // wave.Repaint(true);
+                this.wave.ReportChanges();
+                return;
             }
-            set_point.setEnabled((wave.mode == Waveform.MODE_POINT));
-        }else{
-            add(setup);
-            setup.setEnabled((setup_params != null));
-            add(set_point);
-            set_point.setEnabled((wave.mode == Waveform.MODE_POINT));
-            add(sep1);
-            add(markerList);
-            add(markerStep);
-            colorList.setText("Colors");
-            add(colorList);
-            if(wave.mode == Waveform.MODE_POINT || wave.GetShowSignalCount() == 1){
-                if(wave.getSignalType() == Signal.TYPE_1D || (wave.getSignalType() == Signal.TYPE_2D && (wave.getSignalMode2D() == Signal.MODE_XZ || wave.getSignalMode2D() == Signal.MODE_YZ))){
-                    add(mode_1d);
-                    switch(wave.getSignalMode1D()){
-                        case Signal.MODE_LINE:
-                            mode_1d_bg.setSelected(plot_line.getModel(), true);
-                            break;
-                        case Signal.MODE_NOLINE:
-                            mode_1d_bg.setSelected(plot_no_line.getModel(), true);
-                            break;
-                        case Signal.MODE_STEP:
-                            mode_1d_bg.setSelected(plot_step.getModel(), true);
-                            break;
-                    }
-                }
-                if(wave.getSignalType() == Signal.TYPE_2D){
-                    add(colorMap);
-                    add(mode_2d);
-                    mode_2d.setEnabled(wave.getSignalMode2D() != Signal.MODE_PROFILE);
-                    switch(wave.getSignalMode2D()){
-                        case Signal.MODE_XZ:
-                            mode_2d_bg.setSelected(plot_y_time.getModel(), true);
-                            break;
-                        case Signal.MODE_YZ:
-                            mode_2d_bg.setSelected(plot_x_y.getModel(), true);
-                            break;
-                        case Signal.MODE_CONTOUR:
-                            mode_2d_bg.setSelected(plot_contour.getModel(), true);
-                            break;
-                        case Signal.MODE_IMAGE:
-                            mode_2d_bg.setSelected(plot_image.getModel(), true);
-                            break;
-                    }
-                    plot_image.setEnabled(!wave.IsShowSigImage());
-                }
-            }
-            add(sep2);
-            add(autoscale);
-            add(autoscaleY);
-            if(parent != null && parent instanceof WaveformManager){
-                insert(maximize, 1);
-                insert(remove_panel, 2);
-                autoscaleAll.setText("Autoscale all");
-                add(autoscaleAll);
-                add(autoscaleAllY);
-                add(allSameScale);
-                add(allSameXScale);
-                add(allSameXScaleAutoY);
-                add(allSameYScale);
-                add(resetAllScales);
-                maximize.setEnabled(((WaveformManager)parent).GetWaveformCount() > 1);
-            }
-            add(resetScales);
-            add(undo_zoom);
-            // Copy image to clipborad can be done only with
-            // java release 1.4
-            // if(System.getProperty("java.version").indexOf("1.4") != -1)
-            {
-                add(cb_copy);
-            }
-            add(sep3);
-            add(saveAsText);
         }
     }
 
-    protected void SetImageMenu() {
-        SetMenuItem(true);
-        boolean state = (wave.frames != null && wave.frames.getNumFrame() != 0);
-        colorList.setEnabled(state);
-        SelectListItem(colorList_bg, wave.GetColorIdx());
-        playFrame.setEnabled(state);
-        set_point.setEnabled(state && ((wave.mode == Waveform.MODE_POINT)));
-        profile_dialog.setEnabled(!wave.isSendProfile());
+    protected void SetColor(final int idx) {
+        if(this.wave.GetColorIdx() != idx) this.wave.SetColorIdx(idx);
     }
 
-    public void setColorMapDialog(ColorMapDialog colorMapDialog) {
+    public void setColorMapDialog(final ColorMapDialog colorMapDialog) {
         this.colorMapDialog = colorMapDialog;
     }
 
-    public void ShowColorMapDialog(Waveform wave) {
-        /*
-         * if (colorMapDialog != null && colorMapDialog.isVisible()) colorMapDialog.dispose(); colorMapDialog = new ColorMapDialog(null, wave);
-         */
-        if(colorMapDialog == null){
-            colorMapDialog = new ColorMapDialog(null, null);
-        }else colorMapDialog.setWave(wave);
-        colorMapDialog.setLocationRelativeTo(wave);
-        colorMapDialog.setVisible(true);
-    }
-
-    public void ShowProfileDialog(Waveform wave) {
-        if(profDialog != null && profDialog.isVisible()) profDialog.dispose();
-        // profDialog = new ProfileDialog(null, wave);
-        profDialog.setWaveSource(wave);
-        profDialog.pack();
-        profDialog.setSize(200, 250);
-        if(profile_source != null) profile_source.setSendProfile(false);
-        wave.setSendProfile(true);
-        profile_source = wave;
-        profDialog.setLocationRelativeTo(wave);
-        profDialog.setVisible(true);
-        wave.sendProfileEvent();
-    }
-
-    protected void SetSignalMenu() {
-        SetMenuItem(false);
-        if(wave.GetShowSignalCount() != 0){
-            InitOptionMenu();
-        }else{
-            markerList.setEnabled(false);
-            colorList.setEnabled(false);
-            markerStep.setEnabled(false);
-            set_point.setEnabled(false);
-        }
-        // undo_zoom.setEnabled(wave.undoZoomPendig());
-        undo_zoom.setEnabled(wave.undoZoomPendig());
-    }
-
-    protected void InitOptionMenu() {
-        boolean state = (wave.GetShowSignalCount() == 1);
-        markerList.setEnabled(state);
-        colorList.setEnabled(state);
-        set_point.setEnabled(true);
-        if(state){
-            boolean state_m = (wave.GetMarker() != Signal.NONE);
-            markerStep.setEnabled(state_m);
-            SelectListItem(markerList_bg, wave.GetMarker());
-            int st;
-            for(st = 0; st < Signal.markerStepList.length; st++)
-                if(Signal.markerStepList[st] == wave.GetMarkerStep()) break;
-            SelectListItem(markerStep_bg, st);
-            SelectListItem(colorList_bg, wave.GetColorIdx());
-        }else markerStep.setEnabled(false);
-    }
-
-    public void Show(Waveform w, int x, int y, int tran_x, int tran_y) {
-        // parent = (Container)this.getParent();
-        // if(wave != w)
-        {
-            wave = w;
-            SetMenu();
-        }
-        // else
-        // if(!w.IsImage())
-        // InitOptionMenu();
-        SetMenuLabel();
-        curr_x = x;
-        curr_y = y;
-        show(w, x - tran_x, y - tran_y);
-    }
-
-    protected void SetMenuLabel() {
-        if(!wave.IsImage()){
-            if(wave.ShowMeasure()){
-                set_point.setText("Deselect Point");
-            }else set_point.setText("Set Point");
-        }else{
-            if(wave.ShowMeasure()) // && wave.sendProfile())
-            set_point.setText("Deselect Point");
-            else set_point.setText("Set Point");
-            if(wave.is_playing) playFrame.setText("Stop play");
-            else playFrame.setText("Start play");
-        }
-    }
-
-    protected void SetMenu() {
-        InitColorMenu();
-        if(wave.is_image) SetImageMenu();
-        else SetSignalMenu();
-        if(parent != null && parent instanceof WaveformManager) remove_panel.setEnabled(((WaveformManager)parent).GetWaveformCount() > 1);
-    }
-
-    protected void SetMode1D(int mode) {
-        wave.setSignalMode1D(mode);
-    }
-
-    protected void SetMode2D(int mode) {
-        wave.setSignalMode2D(mode);
-    }
-
-    protected void SetMarker(int idx) {
-        if(wave.GetMarker() != idx) wave.SetMarker(idx);
-    }
-
-    protected void SetMarkerStep(int step) {
-        if(wave.GetMarkerStep() != step) wave.SetMarkerStep(step);
-    }
-
-    public void setParent(Container parent) {
-        this.parent = parent;
-    }
-
-    protected void SetColor(int idx) {
-        if(wave.GetColorIdx() != idx) wave.SetColorIdx(idx);
-    }
-
-    public void SetDeselectPoint(Waveform w) {
+    public void SetDeselectPoint(final Waveform w) {
         if(w.ShowMeasure()){
-            if(parent != null && parent instanceof WaveformManager) ((WaveformManager)parent).SetShowMeasure(false);
+            if(this.parent != null && this.parent instanceof WaveformManager) ((WaveformManager)this.parent).SetShowMeasure(false);
             w.SetShowMeasure(false);
         }else{
-            if(parent != null && parent instanceof WaveformManager) ((WaveformManager)parent).SetShowMeasure(true);
+            if(this.parent != null && this.parent instanceof WaveformManager) ((WaveformManager)this.parent).SetShowMeasure(true);
             w.SetShowMeasure(true);
             w.SetPointMeasure();
         }
         w.repaint();
     }
 
-    @Override
-    public void itemStateChanged(ItemEvent e) {
-        Object target = e.getSource();
-        if(target instanceof JRadioButtonMenuItem && e.getStateChange() == ItemEvent.SELECTED){
-            JRadioButtonMenuItem cb = (JRadioButtonMenuItem)target;
-            String action_cmd = cb.getModel().getActionCommand();
-            if(action_cmd == null) return;
-            StringTokenizer act = new StringTokenizer(action_cmd);
-            String action = act.nextToken();
-            int idx = Integer.parseInt(act.nextToken());
-            if(action.equals("MARKER")){
-                SetMarker(idx);
-                markerStep.setEnabled(!(wave.GetMarker() == Signal.NONE || wave.GetMarker() == Signal.POINT));
-                // wave.Repaint(true);
-                wave.ReportChanges();
-                return;
-            }
-            if(action.equals("MARKER_STEP")){
-                SetMarkerStep(Signal.markerStepList[idx]);
-                // wave.Repaint(true);
-                wave.ReportChanges();
-                return;
-            }
-            if(action.equals("COLOR_LIST")){
-                SetColor(idx);
-                // wave.Repaint(true);
-                wave.ReportChanges();
-                return;
+    protected void SetImageMenu() {
+        this.SetMenuItem(true);
+        final boolean state = (this.wave.frames != null && this.wave.frames.getNumFrame() != 0);
+        this.colorList.setEnabled(state);
+        WavePopup.SelectListItem(this.colorList_bg, this.wave.GetColorIdx());
+        this.playFrame.setEnabled(state);
+        this.set_point.setEnabled(state && ((this.wave.mode == Waveform.MODE_POINT)));
+        this.profile_dialog.setEnabled(!this.wave.isSendProfile());
+    }
+
+    protected void SetMarker(final int idx) {
+        if(this.wave.GetMarker() != idx) this.wave.SetMarker(idx);
+    }
+
+    protected void SetMarkerStep(final int step) {
+        if(this.wave.GetMarkerStep() != step) this.wave.SetMarkerStep(step);
+    }
+
+    protected void SetMenu() {
+        this.InitColorMenu();
+        if(this.wave.is_image) this.SetImageMenu();
+        else this.SetSignalMenu();
+        if(this.parent != null && this.parent instanceof WaveformManager) this.remove_panel.setEnabled(((WaveformManager)this.parent).GetWaveformCount() > 1);
+    }
+
+    protected void SetMenuItem(final boolean is_image) {
+        if(this.getComponentCount() != 0) this.removeAll();
+        if(this.parent != null && this.parent instanceof WaveformManager){
+            if(((WaveformManager)this.parent).isMaximize()){
+                this.maximize.setText("Show All Panels");
+            }else{
+                this.maximize.setText("Maximize Panel");
             }
         }
+        if(is_image){
+            this.add(this.setup);
+            this.colorList.setText("Colors");
+            if(this.profDialog != null) this.add(this.profile_dialog);
+            if(this.parent != null && this.parent instanceof WaveformManager){
+                this.add(this.maximize);
+                this.add(this.remove_panel);
+            }
+            this.add(this.colorList);
+            this.add(this.colorMap);
+            this.add(this.playFrame);
+            this.add(this.set_point);
+            this.add(this.sep2);
+            this.add(this.autoscale);
+            if(this.parent != null && this.parent instanceof WaveformManager){
+                this.autoscaleAll.setText("Autoscale all images");
+                this.add(this.autoscaleAll);
+                this.maximize.setEnabled(((WaveformManager)this.parent).GetWaveformCount() > 1);
+            }
+            this.set_point.setEnabled((this.wave.mode == Waveform.MODE_POINT));
+        }else{
+            this.add(this.setup);
+            this.setup.setEnabled((this.setup_params != null));
+            this.add(this.set_point);
+            this.set_point.setEnabled((this.wave.mode == Waveform.MODE_POINT));
+            this.add(this.sep1);
+            this.add(this.markerList);
+            this.add(this.markerStep);
+            this.colorList.setText("Colors");
+            this.add(this.colorList);
+            if(this.wave.mode == Waveform.MODE_POINT || this.wave.GetShowSignalCount() == 1){
+                if(this.wave.getSignalType() == Signal.TYPE_1D || (this.wave.getSignalType() == Signal.TYPE_2D && (this.wave.getSignalMode2D() == Signal.MODE_XZ || this.wave.getSignalMode2D() == Signal.MODE_YZ))){
+                    this.add(this.mode_1d);
+                    switch(this.wave.getSignalMode1D()){
+                        case Signal.MODE_LINE:
+                            this.mode_1d_bg.setSelected(this.plot_line.getModel(), true);
+                            break;
+                        case Signal.MODE_NOLINE:
+                            this.mode_1d_bg.setSelected(this.plot_no_line.getModel(), true);
+                            break;
+                        case Signal.MODE_STEP:
+                            this.mode_1d_bg.setSelected(this.plot_step.getModel(), true);
+                            break;
+                    }
+                }
+                if(this.wave.getSignalType() == Signal.TYPE_2D){
+                    this.add(this.colorMap);
+                    this.add(this.mode_2d);
+                    this.mode_2d.setEnabled(this.wave.getSignalMode2D() != Signal.MODE_PROFILE);
+                    switch(this.wave.getSignalMode2D()){
+                        case Signal.MODE_XZ:
+                            this.mode_2d_bg.setSelected(this.plot_y_time.getModel(), true);
+                            break;
+                        case Signal.MODE_YZ:
+                            this.mode_2d_bg.setSelected(this.plot_x_y.getModel(), true);
+                            break;
+                        case Signal.MODE_CONTOUR:
+                            this.mode_2d_bg.setSelected(this.plot_contour.getModel(), true);
+                            break;
+                        case Signal.MODE_IMAGE:
+                            this.mode_2d_bg.setSelected(this.plot_image.getModel(), true);
+                            break;
+                    }
+                    this.plot_image.setEnabled(!this.wave.IsShowSigImage());
+                }
+            }
+            this.add(this.sep2);
+            this.add(this.autoscale);
+            this.add(this.autoscaleY);
+            if(this.parent != null && this.parent instanceof WaveformManager){
+                this.insert(this.maximize, 1);
+                this.insert(this.remove_panel, 2);
+                this.autoscaleAll.setText("Autoscale all");
+                this.add(this.autoscaleAll);
+                this.add(this.autoscaleAllY);
+                this.add(this.allSameScale);
+                this.add(this.allSameXScale);
+                this.add(this.allSameXScaleAutoY);
+                this.add(this.allSameYScale);
+                this.add(this.resetAllScales);
+                this.maximize.setEnabled(((WaveformManager)this.parent).GetWaveformCount() > 1);
+            }
+            this.add(this.resetScales);
+            this.add(this.undo_zoom);
+            // Copy image to clipborad can be done only with
+            // java release 1.4
+            // if(System.getProperty("java.version").indexOf("1.4") != -1)
+            {
+                this.add(this.cb_copy);
+            }
+            this.add(this.sep3);
+            this.add(this.saveAsText);
+        }
+    }
+
+    protected void SetMenuLabel() {
+        if(!this.wave.IsImage()){
+            if(this.wave.ShowMeasure()){
+                this.set_point.setText("Deselect Point");
+            }else this.set_point.setText("Set Point");
+        }else{
+            if(this.wave.ShowMeasure()) // && wave.sendProfile())
+                this.set_point.setText("Deselect Point");
+            else this.set_point.setText("Set Point");
+            if(this.wave.is_playing) this.playFrame.setText("Stop play");
+            else this.playFrame.setText("Start play");
+        }
+    }
+
+    protected void SetMode1D(final int mode) {
+        this.wave.setSignalMode1D(mode);
+    }
+
+    protected void SetMode2D(final int mode) {
+        this.wave.setSignalMode2D(mode);
+    }
+
+    public void setParent(final Container parent) {
+        this.parent = parent;
+    }
+
+    protected void SetSignalMenu() {
+        this.SetMenuItem(false);
+        if(this.wave.GetShowSignalCount() != 0){
+            this.InitOptionMenu();
+        }else{
+            this.markerList.setEnabled(false);
+            this.colorList.setEnabled(false);
+            this.markerStep.setEnabled(false);
+            this.set_point.setEnabled(false);
+        }
+        // undo_zoom.setEnabled(wave.undoZoomPendig());
+        this.undo_zoom.setEnabled(this.wave.undoZoomPendig());
+    }
+
+    public void Show(final Waveform w, final int x, final int y, final int tran_x, final int tran_y) {
+        // parent = (Container)this.getParent();
+        // if(wave != w)
+        {
+            this.wave = w;
+            this.SetMenu();
+        }
+        // else
+        // if(!w.IsImage())
+        // InitOptionMenu();
+        this.SetMenuLabel();
+        this.curr_x = x;
+        this.curr_y = y;
+        this.show(w, x - tran_x, y - tran_y);
+    }
+
+    public void ShowColorMapDialog(final Waveform wave) {
+        /*
+         * if (colorMapDialog != null && colorMapDialog.isVisible()) colorMapDialog.dispose(); colorMapDialog = new ColorMapDialog(null, wave);
+         */
+        if(this.colorMapDialog == null){
+            this.colorMapDialog = new ColorMapDialog(null, null);
+        }else this.colorMapDialog.setWave(wave);
+        this.colorMapDialog.setLocationRelativeTo(wave);
+        this.colorMapDialog.setVisible(true);
+    }
+
+    protected void ShowDialog() {
+        if(this.setup_params != null) this.setup_params.Show(this.wave);
+    }
+
+    public void ShowProfileDialog(final Waveform wave) {
+        if(this.profDialog != null && this.profDialog.isVisible()) this.profDialog.dispose();
+        // profDialog = new ProfileDialog(null, wave);
+        this.profDialog.setWaveSource(wave);
+        this.profDialog.pack();
+        this.profDialog.setSize(200, 250);
+        if(this.profile_source != null) this.profile_source.setSendProfile(false);
+        wave.setSendProfile(true);
+        this.profile_source = wave;
+        this.profDialog.setLocationRelativeTo(wave);
+        this.profDialog.setVisible(true);
+        wave.sendProfileEvent();
     }
 }

@@ -1,12 +1,11 @@
 package jScope;
 
 /* $Id$ */
-
 class JiSlab{
     public int mOffset, mSize;
 
-    public JiSlab(int offset, int size){
-        mOffset = offset;
-        mSize = size;
+    public JiSlab(final int offset, final int size){
+        this.mOffset = offset;
+        this.mSize = size;
     }
 }

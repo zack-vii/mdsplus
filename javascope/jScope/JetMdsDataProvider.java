@@ -6,34 +6,68 @@ import java.util.StringTokenizer;
 import javax.swing.JFrame;
 
 class JetMdsDataProvider extends MdsDataProvider{
+    public static boolean DataPending() {
+        return false;
+    }
+
+    public static boolean SupportsCompression() {
+        return false;
+    };
+
+    public static boolean SupportsContinuous() {
+        return false;
+    }
+
+    public static boolean SupportsFastNetwork() {
+        return true;
+    }
+
     public JetMdsDataProvider(){
         super("mdsplus.jet.efda.org");
     }
 
     @Override
-    public void SetArgument(String arg) {};
+    public synchronized int[] GetIntArray(final String in) throws IOException {
+        return super.GetIntArray(this.ParseExpression(in));
+    }
 
+    /*
+        public synchronized float[] GetFloatArray(String in) throws IOException
+        {
+        //System.out.println("parsed: "+ parsed);
+        float [] out_array = super.GetFloatArray(ParseExpression(in));
+        if(out_array == null && error == null)
+            error = "Cannot evaluate " + in + " for shot " + shot;
+
+        //if(out_array != null && out_array.length <= 1)
+        //{
+        //    error = "Cannot evaluate " + in + " for shot " + shot;
+        //    return null;
+        //}
+
+        return out_array;
+        }
+     */
     @Override
-    public synchronized void Update(String exp, long s) {
-        error = null;
-        shot = s;
+    public synchronized RealArray GetRealArray(final String in) throws IOException {
+        return super.GetRealArray(this.ParseExpression(in));
     }
 
     @Override
-    public synchronized int[] GetIntArray(String in) throws IOException {
-        return super.GetIntArray(ParseExpression(in));
+    public int InquireCredentials(final JFrame f, final DataServerItem server_item) {
+        return DataProvider.LOGIN_OK;
     }
 
     // Syntax: ppf/<signal> or jpf/<signal>
     // Ex: ppf/magn/ipla
-    protected String ParseExpression(String in) {
-        error = null;
-        StringTokenizer st = new StringTokenizer(in, " /(){}[]*+,:;", true);
+    protected String ParseExpression(final String in) {
+        this.error = null;
+        final StringTokenizer st = new StringTokenizer(in, " /(){}[]*+,:;", true);
         String parsed = "", signal = "";
         int state = 0;
         try{
             while(st.hasMoreTokens()){
-                String curr_str = st.nextToken();
+                final String curr_str = st.nextToken();
                 // System.out.println("Token: "+curr_str);
                 switch(state){
                     case 0:
@@ -54,61 +88,27 @@ class JetMdsDataProvider extends MdsDataProvider{
                         state = 3;
                         break;
                     case 3:
-                        parsed += ("(jet(\"" + signal + curr_str + "\", " + shot + ")) ");
+                        parsed += ("(jet(\"" + signal + curr_str + "\", " + this.shot + ")) ");
                         signal = "";
                         state = 0;
                         break;
                 }
             }
-        }catch(Exception e){
+        }catch(final Exception e){
             System.out.println(e);
         }
         return parsed;
     }
 
-    /*
-        public synchronized float[] GetFloatArray(String in) throws IOException
-        {
-        //System.out.println("parsed: "+ parsed);
-        float [] out_array = super.GetFloatArray(ParseExpression(in));
-        if(out_array == null && error == null)
-            error = "Cannot evaluate " + in + " for shot " + shot;
-
-        //if(out_array != null && out_array.length <= 1)
-        //{
-        //    error = "Cannot evaluate " + in + " for shot " + shot;
-        //    return null;
-        //}
-
-        return out_array;
-        }
-    */
     @Override
-    public synchronized RealArray GetRealArray(String in) throws IOException {
-        return super.GetRealArray(ParseExpression(in));
-    }
-
-    public static boolean SupportsCompression() {
-        return false;
-    }
+    public void SetArgument(final String arg) {}
 
     @Override
-    public void SetCompression(boolean state) {}
-
-    public static boolean SupportsContinuous() {
-        return false;
-    }
-
-    public static boolean DataPending() {
-        return false;
-    }
+    public void SetCompression(final boolean state) {}
 
     @Override
-    public int InquireCredentials(JFrame f, DataServerItem server_item) {
-        return DataProvider.LOGIN_OK;
-    }
-
-    public static boolean SupportsFastNetwork() {
-        return true;
+    public synchronized void Update(final String exp, final long s) {
+        this.error = null;
+        this.shot = s;
     }
 }

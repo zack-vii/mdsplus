@@ -18,46 +18,71 @@ public interface DataProvider{
     static final int LOGIN_OK = 1, LOGIN_ERROR = 2, LOGIN_CANCEL = 3;
 
     /**
-     * Defines the environment for data retrieval.
-     * Depending on the nature of the provider of data, some environment variable may be defined.
-     * For example the MdsDataProvider allows the definition of TDI variables which may be useful
-     * for configuring remote data access.
-     * jScope allows the definition of an arbitrary set of environment variable using the
-     * customize->public variables... option. As jScope does not make any assumption on the
-     * syntax of the defined variables, each variable definition is passed to the Data provider
-     * by means of the SetEnvironment method, whose argument is a String which defines <name value>
-     * pairs. If the DataProvider implementation does not support such a feature, it simply returns.
+     * Method AddConnectionListener is called by jScope after the instantiation of a DataProvider
+     * implementation, in order to be notified of the status of data transfer. If a DataProvider
+     * implementation has to handle the transfer of large chunks of data (e.g. frame sequences)
+     * requiring a relatively long time, it should be able to communicate the current status of
+     * the transfer to jScope which displays then a status bar. To do this, the DataProvider
+     * implementation calls ConnectionListener's method processConnectionEvent, passing an istance of
+     * ConnectionEvent as argument.
+     * Class ConnectionEvent defines the following information: <br>
+     * - int total_size: total size of the data to be transferred <br>
+     * - int current_size: the size of the data transferred so far <br>
+     * - String info: an additional information string which is displayed by jScope <br>
+     * If the DataProvider implementation does not support transfer notification, method AddConnectionListener
+     * is empty.
      *
-     * @param exp
-     *            The variable definition expressed as <name value> pair.
-     * @exception java.io.IOException
+     * @param l
+     *            The ConnectionListener which has to be notified by means of method processConnectionEvent(ConnenctionEvent)
+     * @see ConnectionListener
+     * @see ConnectionEvent
      */
-    public void SetEnvironment(String exp) throws IOException;
+    public void AddConnectionListener(ConnectionListener l);
 
     /**
-     * Method Update is called by jScope to notify the experiment name and the shot number.
-     * Update can be called several time by jScope for the same DataProvider implementation
-     * in the case user changes either the experiment name or the shot number.
+     * Method AddUpdateEventListener is called by jScope when asynchronous update on event is
+     * defined. To connect data visualization to asynchronous event an event name has to be defined
+     * in the Update event field of the setup data form popup dialog.
+     * DataProvider implementations supporting asynchronous signal updating should
+     * notify event occurrence to all registered listeners by calling method processUpdateEvent(UpdateEvent e).
+     * UpdateEvent defines the following field, in addition to those defined in the AWTEvent
+     * superclass: <br>
+     * - String name: the name of the event <br>
+     * The possibility of connecting data display to asynchronous events is useful when jScope
+     * is used during data acquisition, for an automatic display update when a signal has been
+     * acquired. In this case the data acquisition system would generate an event when the
+     * signal has been acquired, and the DataProvider implementation would call method
+     * processUpdateEvent (defined in UpdateEventListener interface) to request the display update to
+     * jScope. <br>
+     * If the DataProvider implementation does not support asynchronous events, the method is defined
+     * empty. <br>
      *
-     * @param exp
-     *            The experiment name
-     * @param s
-     *            The shot number.
+     * @param l
+     *            The passed instance of UpdateEventListener.
+     * @param event
+     *            The name of the event for which the UpdateEventListener is registering.
+     * @exception java.io.IOException
+     * @see UpdateEventListener
+     * @see UpdateEvent
      */
-    public void Update(String exp, long s);
+    public void AddUpdateEventListener(UpdateEventListener l, String event) throws IOException;
+
+    // public void enableAsyncUpdate(boolean enable);
+    /**
+     * Method Dispose is called by jScope each time a DataProvider is no more used. Unlike Object.finalize(),
+     * method Dispose is guaranteed to be called at the time the DataProvider implementation is no more
+     * used by jScope.
+     */
+    public void Dispose();
 
     /**
-     * GetString is called by jScope to evaluate title, X label and Y label. These labels are defined
-     * as string in the Setup data source popup form. In the simplest case labels are exactly
-     * the same as defined, and therefore GetString simply returns its argument.
-     * In any case the data provider is free to interpret differently the argument.
+     * If an error is encountered in the evaluation of a signal (GetWaveData or
+     * GetResampledWaveData returning null or generation IOException), jScope calls ErrorString
+     * method to retrieve the description of the error just occurred.
      *
-     * @param in
-     *            The specification of the label or title.
-     * @return The evaluated label or title.
-     * @exception java.io.IOException
+     * @return A verbose description of the last error.
      */
-    public String GetString(String in) throws IOException;
+    public String ErrorString();
 
     /**
      * Method GetFloat is called by jScope to evaluate x min, x max, y min, y max when defined
@@ -73,6 +98,55 @@ public interface DataProvider{
      * @exception java.io.IOException
      */
     public double GetFloat(String in) throws IOException;
+
+    /**
+     * GetFrameData is called by jScope to retrieve and display a frame sequence. The frame sequence
+     * is returned by means of an object implementing the FramesData interface.
+     * The methods defined in the FrameData interface are the following: <br>
+     * - int GetFrameType() returning the type of the corresponding frames, as returned by GetFrameAt, which can be: <br>
+     * -FramesData.BITMAP if the frames are returned by method GetFrameAt as a byte matrix <br>
+     * -FrameData.AWT_IMAGE if the frames are returned by method GetFrameAt as the <br>
+     * content of a gif or jpg file <br>
+     * -FrameData.JAI_IMAGE if the frames are returned by method GetFrameAt as the content of
+     * every other file format supported by JAI. <br>
+     * - int GetNumFrames() returning the number of frames in the sequence <br>
+     * - Dimension GetFrameDimension() returning the dimension of the single frame <br>
+     * - float [] GetFrameTimes returning the times associated with each frame <br>
+     * - byte[] GetFrameAt(int idx) returning the corresponding frame
+     *
+     * @param in_frame
+     *            The frame sequence specification as defined in the frames field of the setup data popup dialog
+     * @param start_time
+     *            Initial considered time for the frame sequence.
+     * @param end_time
+     *            Final considered time for the frame sequence.
+     * @param in_times
+     *            The definition of the time specification for the frame list as defined in the times field
+     *            of the setup data popup dialog.
+     * @return An implementation of the FrameData interface representing the corresponding frame sequence
+     * @exception java.io.IOException
+     * @see FrameData
+     */
+    public FrameData GetFrameData(String in_frame, String in_times, float start_time, float end_time) throws IOException;
+
+    /**
+     * Evaluate the passed string to provide am array of shot numbers.
+     * For MDSplus data provider it will carry out the execution of the corresponding expression
+     */
+    public long[] GetShots(String in) throws IOException;
+
+    /**
+     * GetString is called by jScope to evaluate title, X label and Y label. These labels are defined
+     * as string in the Setup data source popup form. In the simplest case labels are exactly
+     * the same as defined, and therefore GetString simply returns its argument.
+     * In any case the data provider is free to interpret differently the argument.
+     *
+     * @param in
+     *            The specification of the label or title.
+     * @return The evaluated label or title.
+     * @exception java.io.IOException
+     */
+    public String GetString(String in) throws IOException;
 
     /**
      * Method GetWaveData is called by jScope when a waveform has to be evaluated and only the Y
@@ -114,128 +188,6 @@ public interface DataProvider{
      */
     public WaveData GetWaveData(String in_y, String in_x);
 
-    public boolean SupportsTunneling();
-
-    /**
-     * If an error is encountered in the evaluation of a signal (GetWaveData or
-     * GetResampledWaveData returning null or generation IOException), jScope calls ErrorString
-     * method to retrieve the description of the error just occurred.
-     *
-     * @return A verbose description of the last error.
-     */
-    public String ErrorString();
-
-    /**
-     * Method AddUpdateEventListener is called by jScope when asynchronous update on event is
-     * defined. To connect data visualization to asynchronous event an event name has to be defined
-     * in the Update event field of the setup data form popup dialog.
-     * DataProvider implementations supporting asynchronous signal updating should
-     * notify event occurrence to all registered listeners by calling method processUpdateEvent(UpdateEvent e).
-     * UpdateEvent defines the following field, in addition to those defined in the AWTEvent
-     * superclass: <br>
-     * - String name: the name of the event <br>
-     * The possibility of connecting data display to asynchronous events is useful when jScope
-     * is used during data acquisition, for an automatic display update when a signal has been
-     * acquired. In this case the data acquisition system would generate an event when the
-     * signal has been acquired, and the DataProvider implementation would call method
-     * processUpdateEvent (defined in UpdateEventListener interface) to request the display update to
-     * jScope. <br>
-     * If the DataProvider implementation does not support asynchronous events, the method is defined
-     * empty. <br>
-     *
-     * @param l
-     *            The passed instance of UpdateEventListener.
-     * @param event
-     *            The name of the event for which the UpdateEventListener is registering.
-     * @exception java.io.IOException
-     * @see UpdateEventListener
-     * @see UpdateEvent
-     */
-    public void AddUpdateEventListener(UpdateEventListener l, String event) throws IOException;
-
-    /**
-     * Method RemoveUpdateEventListeneris called by jScope when the display of a waveform panel is
-     * no more triggered by an event.
-     *
-     * @param l
-     *            The instance of UpdateEventListener previously registered.
-     * @param event
-     *            The event to which the listener was previously registered.
-     * @exception java.io.IOException
-     * @see UpdateEventListener
-     */
-    public void RemoveUpdateEventListener(UpdateEventListener l, String event) throws IOException;
-
-    /**
-     * GetFrameData is called by jScope to retrieve and display a frame sequence. The frame sequence
-     * is returned by means of an object implementing the FramesData interface.
-     * The methods defined in the FrameData interface are the following: <br>
-     * - int GetFrameType() returning the type of the corresponding frames, as returned by GetFrameAt, which can be: <br>
-     * -FramesData.BITMAP if the frames are returned by method GetFrameAt as a byte matrix <br>
-     * -FrameData.AWT_IMAGE if the frames are returned by method GetFrameAt as the <br>
-     * content of a gif or jpg file <br>
-     * -FrameData.JAI_IMAGE if the frames are returned by method GetFrameAt as the content of
-     * every other file format supported by JAI. <br>
-     * - int GetNumFrames() returning the number of frames in the sequence <br>
-     * - Dimension GetFrameDimension() returning the dimension of the single frame <br>
-     * - float [] GetFrameTimes returning the times associated with each frame <br>
-     * - byte[] GetFrameAt(int idx) returning the corresponding frame
-     *
-     * @param in_frame
-     *            The frame sequence specification as defined in the frames field of the setup data popup dialog
-     * @param start_time
-     *            Initial considered time for the frame sequence.
-     * @param end_time
-     *            Final considered time for the frame sequence.
-     * @param in_times
-     *            The definition of the time specification for the frame list as defined in the times field
-     *            of the setup data popup dialog.
-     * @return An implementation of the FrameData interface representing the corresponding frame sequence
-     * @exception java.io.IOException
-     * @see FrameData
-     */
-    public FrameData GetFrameData(String in_frame, String in_times, float start_time, float end_time) throws IOException;
-
-    // public void enableAsyncUpdate(boolean enable);
-    /**
-     * Method Dispose is called by jScope each time a DataProvider is no more used. Unlike Object.finalize(),
-     * method Dispose is guaranteed to be called at the time the DataProvider implementation is no more
-     * used by jScope.
-     */
-    public void Dispose();
-
-    /**
-     * Method AddConnectionListener is called by jScope after the instantiation of a DataProvider
-     * implementation, in order to be notified of the status of data transfer. If a DataProvider
-     * implementation has to handle the transfer of large chunks of data (e.g. frame sequences)
-     * requiring a relatively long time, it should be able to communicate the current status of
-     * the transfer to jScope which displays then a status bar. To do this, the DataProvider
-     * implementation calls ConnectionListener's method processConnectionEvent, passing an istance of
-     * ConnectionEvent as argument.
-     * Class ConnectionEvent defines the following information: <br>
-     * - int total_size: total size of the data to be transferred <br>
-     * - int current_size: the size of the data transferred so far <br>
-     * - String info: an additional information string which is displayed by jScope <br>
-     * If the DataProvider implementation does not support transfer notification, method AddConnectionListener
-     * is empty.
-     *
-     * @param l
-     *            The ConnectionListener which has to be notified by means of method processConnectionEvent(ConnenctionEvent)
-     * @see ConnectionListener
-     * @see ConnectionEvent
-     */
-    public void AddConnectionListener(ConnectionListener l);
-
-    /**
-     * Called by jScope when transfer notification is no more requested. Empty if the DataProvider
-     * implementation does not support transfer status notification.
-     *
-     * @param l
-     *            The previously registered ConnectionListener.
-     * @see ConnectionListener
-     */
-    public void RemoveConnectionListener(ConnectionListener l);
-
     /**
      * Some DataProvider implemenations, such as Jet RDA provider, may require additional information
      * (e.g. username and password) typed by users in a login form. As jScope does not make any assumption
@@ -258,6 +210,29 @@ public interface DataProvider{
     public int InquireCredentials(JFrame f, DataServerItem server_item);
 
     /**
+     * Called by jScope when transfer notification is no more requested. Empty if the DataProvider
+     * implementation does not support transfer status notification.
+     *
+     * @param l
+     *            The previously registered ConnectionListener.
+     * @see ConnectionListener
+     */
+    public void RemoveConnectionListener(ConnectionListener l);
+
+    /**
+     * Method RemoveUpdateEventListeneris called by jScope when the display of a waveform panel is
+     * no more triggered by an event.
+     *
+     * @param l
+     *            The instance of UpdateEventListener previously registered.
+     * @param event
+     *            The event to which the listener was previously registered.
+     * @exception java.io.IOException
+     * @see UpdateEventListener
+     */
+    public void RemoveUpdateEventListener(UpdateEventListener l, String event) throws IOException;
+
+    /**
      * As DataProvider implementations are instantiated by jScope by means of the
      * Class.newInstance(), no arguments can be passed to the constructor method.
      * If an additional argument is required for the proper initialization of the
@@ -272,8 +247,33 @@ public interface DataProvider{
     public void SetArgument(String arg) throws IOException;
 
     /**
-     * Evaluate the passed string to provide am array of shot numbers.
-     * For MDSplus data provider it will carry out the execution of the corresponding expression
+     * Defines the environment for data retrieval.
+     * Depending on the nature of the provider of data, some environment variable may be defined.
+     * For example the MdsDataProvider allows the definition of TDI variables which may be useful
+     * for configuring remote data access.
+     * jScope allows the definition of an arbitrary set of environment variable using the
+     * customize->public variables... option. As jScope does not make any assumption on the
+     * syntax of the defined variables, each variable definition is passed to the Data provider
+     * by means of the SetEnvironment method, whose argument is a String which defines <name value>
+     * pairs. If the DataProvider implementation does not support such a feature, it simply returns.
+     *
+     * @param exp
+     *            The variable definition expressed as <name value> pair.
+     * @exception java.io.IOException
      */
-    public long[] GetShots(String in) throws IOException;
+    public void SetEnvironment(String exp) throws IOException;
+
+    public boolean SupportsTunneling();
+
+    /**
+     * Method Update is called by jScope to notify the experiment name and the shot number.
+     * Update can be called several time by jScope for the same DataProvider implementation
+     * in the case user changes either the experiment name or the shot number.
+     *
+     * @param exp
+     *            The experiment name
+     * @param s
+     *            The shot number.
+     */
+    public void Update(String exp, long s);
 }

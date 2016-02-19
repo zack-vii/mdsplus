@@ -6,10 +6,10 @@ import java.io.IOException;
 public interface JiVar{
     public static final int Byte   = 1;
     public static final int Char   = 2;
-    public static final int Short  = 3;
-    public static final int Int    = 4;
-    public static final int Float  = 5;
     public static final int Double = 6;
+    public static final int Float  = 5;
+    public static final int Int    = 4;
+    public static final int Short  = 3;
 
     /**
      * Get a attribute named 'name'

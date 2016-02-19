@@ -2,8 +2,6 @@ package jScope;
 
 /* $Id$ */
 import java.awt.Point;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -13,34 +11,26 @@ import javax.swing.JSeparator;
 import javax.swing.Timer;
 
 final class jScopeWavePopup extends MultiWavePopup{
-    static final long       serialVersionUID = 8641687468351L;
-    private SetupDataDialog setup_dialog;
-    protected JMenuItem     refresh;
-    protected JMenuItem     selectWave;
+    static final long             serialVersionUID = 8641687468351L;
+    protected JMenuItem           refresh;
+    protected JMenuItem           selectWave;
     // profile_dialog;
-    protected JSeparator    sep1;
+    protected JSeparator          sep1;
+    private final SetupDataDialog setup_dialog;
 
-    public jScopeWavePopup(SetupDataDialog setup_dialog, ProfileDialog profDialog, ColorMapDialog colorMapDialog){
+    public jScopeWavePopup(final SetupDataDialog setup_dialog, final ProfileDialog profDialog, final ColorMapDialog colorMapDialog){
         super(null, profDialog);
         this.setColorMapDialog(colorMapDialog);
-        setup.setText("Setup data source...");
+        this.setup.setText("Setup data source...");
         this.setup_dialog = setup_dialog;
-        selectWave = new JMenuItem("Select wave panel");
-        selectWave.addActionListener(new ActionListener(){
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if(wave != ((WaveformManager)jScopeWavePopup.this.parent).GetSelected()) ((WaveformManager)jScopeWavePopup.this.parent).Select(wave);
-                else ((WaveformManager)jScopeWavePopup.this.parent).Deselect();
-            }
+        this.selectWave = new JMenuItem("Select wave panel");
+        this.selectWave.addActionListener(e -> {
+            if(jScopeWavePopup.this.wave != ((WaveformManager)jScopeWavePopup.this.parent).GetSelected()) ((WaveformManager)jScopeWavePopup.this.parent).Select(jScopeWavePopup.this.wave);
+            else ((WaveformManager)jScopeWavePopup.this.parent).Deselect();
         });
-        sep1 = new JSeparator();
-        refresh = new JMenuItem("Refresh");
-        refresh.addActionListener(new ActionListener(){
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                ((jScopeWaveContainer)jScopeWavePopup.this.parent).Refresh(((jScopeMultiWave)wave), "Refresh ");
-            }
-        });
+        this.sep1 = new JSeparator();
+        this.refresh = new JMenuItem("Refresh");
+        this.refresh.addActionListener(e -> ((jScopeWaveContainer)jScopeWavePopup.this.parent).Refresh(((jScopeMultiWave)jScopeWavePopup.this.wave), "Refresh "));
         /*
                 sep3 = new JSeparator();
                 saveAsText = new JMenuItem("Save as text ...");
@@ -68,35 +58,72 @@ final class jScopeWavePopup extends MultiWavePopup{
     }
 
     @Override
-    protected void ShowDialog() {
-        jScopeWavePopup.this.ShowSetupDialog();
+    protected void PositionLegend(final Point p) {
+        super.PositionLegend(p);
+        ((jScopeMultiWave)this.wave).wi.ShowLegend(true);
+        ((jScopeMultiWave)this.wave).wi.SetLegendPosition(((jScopeMultiWave)this.wave).GetLegendXPosition(), ((jScopeMultiWave)this.wave).GetLegendYPosition());
     }
 
     @Override
-    protected void SetMenuItem(boolean is_image) {
-        super.SetMenuItem(is_image);
-        insert(refresh, this.getComponentCount() - 2);
-        setup.setEnabled((setup_dialog != null));
-        if(is_image){
-            // insert(profile_dialog, 3);
-        }else{
-            insert(selectWave, 2);
-            add(sep3);
-            add(saveAsText);
-        }
-        // come patch da eliminare
-        if(wave != null && ((jScopeMultiWave)wave).wi.num_waves == 1) ((jScopeMultiWave)wave).wi.signal_select = 0;
+    protected void RemoveLegend() {
+        super.RemoveLegend();
+        ((jScopeMultiWave)this.wave).wi.ShowLegend(false);
     }
 
     @Override
-    protected void SetMenuLabel() {
-        super.SetMenuLabel();
-        if(!wave.IsImage()){
-            if(wave.IsSelected()) selectWave.setText("Deselect wave panel");
-            else selectWave.setText("Select wave panel");
-        }else{
-            profile_dialog.setEnabled(!wave.isSendProfile());
+    public void SetColor(final int idx) {
+        super.SetColor(idx);
+        final jScopeMultiWave w = (jScopeMultiWave)this.wave;
+        final int sigIdx = w.GetSelectedSignal();
+        if(sigIdx != -1 && w.wi.colors_idx[sigIdx] != idx){
+            w.wi.colors_idx[w.GetSelectedSignal()] = idx % Waveform.colors.length;
+            w.SetCrosshairColor(idx);
         }
+    }
+
+    @Override
+    public void SetDeselectPoint(final Waveform w) {
+        final String f_name = System.getProperty("jScope.save_selected_points");
+        if(w.ShowMeasure() && f_name != null && f_name.length() != 0){
+            long shot = 0;
+            final jScopeMultiWave mw = (jScopeMultiWave)w;
+            if(mw.wi.shots != null) shot = mw.wi.shots[mw.GetSelectedSignal()];
+            try{
+                boolean exist = false;
+                final File f = new File(f_name);
+                if(f.exists()) exist = true;
+                final BufferedWriter out = new BufferedWriter(new FileWriter(f_name, true));
+                if(!exist){
+                    out.write(" Shot X1 Y1 X2 Y2");
+                    out.newLine();
+                }
+                out.write(" " + shot + w.getIntervalPoints());
+                out.newLine();
+                out.close();
+            }catch(final IOException e){}
+        }
+        super.SetDeselectPoint(w);
+    }
+
+    @Override
+    protected void SetInterpolate(final boolean state) {
+        super.SetInterpolate(state);
+        final jScopeMultiWave w = (jScopeMultiWave)this.wave;
+        w.wi.interpolates[w.GetSelectedSignal()] = state;
+    }
+
+    @Override
+    public void SetMarker(final int idx) {
+        super.SetMarker(idx);
+        final jScopeMultiWave w = (jScopeMultiWave)this.wave;
+        if(w.wi.markers[w.GetSelectedSignal()] != idx) w.wi.markers[w.GetSelectedSignal()] = idx;
+    }
+
+    @Override
+    public void SetMarkerStep(final int step) {
+        super.SetMarkerStep(step);
+        final jScopeMultiWave w = (jScopeMultiWave)this.wave;
+        if(w.wi.markers_step[w.GetSelectedSignal()] != step) w.wi.markers_step[w.GetSelectedSignal()] = step;
     }
 
     @Override
@@ -107,110 +134,70 @@ final class jScopeWavePopup extends MultiWavePopup{
         jScopeFacade.jScopeSetUI(this);
     }
 
-    protected void ShowSetupDialog() {
-        jScopeMultiWave w = (jScopeMultiWave)wave;
-        if(w.mode == Waveform.MODE_POINT) // && w.wi.signal_select != -1)
-        {
-            setup_dialog.selectSignal(w.GetSelectedSignal());
-        }else if(w.GetShowSignalCount() > 0 || w.is_image && w.wi.num_waves != 0) setup_dialog.selectSignal(1);
-        Timer t = new Timer(20, new ActionListener(){
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-                Point p = ((WaveformManager)jScopeWavePopup.this.parent).getWavePosition(wave);
-                setup_dialog.Show(wave, p.x, p.y);
-            }
-        });
-        t.setRepeats(false);
-        t.start();
+    @Override
+    protected void SetMenuItem(final boolean is_image) {
+        super.SetMenuItem(is_image);
+        this.insert(this.refresh, this.getComponentCount() - 2);
+        this.setup.setEnabled((this.setup_dialog != null));
+        if(is_image){
+            // insert(profile_dialog, 3);
+        }else{
+            this.insert(this.selectWave, 2);
+            this.add(this.sep3);
+            this.add(this.saveAsText);
+        }
+        // come patch da eliminare
+        if(this.wave != null && ((jScopeMultiWave)this.wave).wi.num_waves == 1) ((jScopeMultiWave)this.wave).wi.signal_select = 0;
     }
 
     @Override
-    protected void RemoveLegend() {
-        super.RemoveLegend();
-        ((jScopeMultiWave)wave).wi.ShowLegend(false);
+    protected void SetMenuLabel() {
+        super.SetMenuLabel();
+        if(!this.wave.IsImage()){
+            if(this.wave.IsSelected()) this.selectWave.setText("Deselect wave panel");
+            else this.selectWave.setText("Select wave panel");
+        }else{
+            this.profile_dialog.setEnabled(!this.wave.isSendProfile());
+        }
     }
 
     @Override
-    protected void PositionLegend(Point p) {
-        super.PositionLegend(p);
-        ((jScopeMultiWave)wave).wi.ShowLegend(true);
-        ((jScopeMultiWave)wave).wi.SetLegendPosition(((jScopeMultiWave)wave).GetLegendXPosition(), ((jScopeMultiWave)wave).GetLegendYPosition());
-    }
-
-    @Override
-    protected void SetInterpolate(boolean state) {
-        super.SetInterpolate(state);
-        jScopeMultiWave w = (jScopeMultiWave)wave;
-        w.wi.interpolates[w.GetSelectedSignal()] = state;
-    }
-
-    @Override
-    protected void SetMode1D(int mode) {
-        jScopeMultiWave w = (jScopeMultiWave)wave;
+    protected void SetMode1D(final int mode) {
+        final jScopeMultiWave w = (jScopeMultiWave)this.wave;
         w.wi.mode1D[w.GetSelectedSignal()] = mode;
         super.SetMode1D(mode);
     }
 
     @Override
-    protected void SetMode2D(int mode) {
-        jScopeMultiWave w = (jScopeMultiWave)wave;
+    protected void SetMode2D(final int mode) {
+        final jScopeMultiWave w = (jScopeMultiWave)this.wave;
         w.wi.mode2D[w.GetSelectedSignal()] = mode;
         super.SetMode2D(mode);
         // w.Refresh();
     }
 
     @Override
-    public void SetDeselectPoint(Waveform w) {
-        String f_name = System.getProperty("jScope.save_selected_points");
-        if(w.ShowMeasure() && f_name != null && f_name.length() != 0){
-            long shot = 0;
-            jScopeMultiWave mw = (jScopeMultiWave)w;
-            if(mw.wi.shots != null) shot = mw.wi.shots[mw.GetSelectedSignal()];
-            try{
-                boolean exist = false;
-                File f = new File(f_name);
-                if(f.exists()) exist = true;
-                BufferedWriter out = new BufferedWriter(new FileWriter(f_name, true));
-                if(!exist){
-                    out.write(" Shot X1 Y1 X2 Y2");
-                    out.newLine();
-                }
-                out.write(" " + shot + w.getIntervalPoints());
-                out.newLine();
-                out.close();
-            }catch(IOException e){}
-        }
-        super.SetDeselectPoint(w);
-    }
-
-    @Override
-    public void SetSignalState(String label, boolean state) {
-        jScopeMultiWave w = (jScopeMultiWave)wave;
+    public void SetSignalState(final String label, final boolean state) {
+        final jScopeMultiWave w = (jScopeMultiWave)this.wave;
         w.SetSignalState(label, state);
     }
 
     @Override
-    public void SetMarker(int idx) {
-        super.SetMarker(idx);
-        jScopeMultiWave w = (jScopeMultiWave)wave;
-        if(w.wi.markers[w.GetSelectedSignal()] != idx) w.wi.markers[w.GetSelectedSignal()] = idx;
+    protected void ShowDialog() {
+        jScopeWavePopup.this.ShowSetupDialog();
     }
 
-    @Override
-    public void SetMarkerStep(int step) {
-        super.SetMarkerStep(step);
-        jScopeMultiWave w = (jScopeMultiWave)wave;
-        if(w.wi.markers_step[w.GetSelectedSignal()] != step) w.wi.markers_step[w.GetSelectedSignal()] = step;
-    }
-
-    @Override
-    public void SetColor(int idx) {
-        super.SetColor(idx);
-        jScopeMultiWave w = (jScopeMultiWave)wave;
-        int sigIdx = w.GetSelectedSignal();
-        if(sigIdx != -1 && w.wi.colors_idx[sigIdx] != idx){
-            w.wi.colors_idx[w.GetSelectedSignal()] = idx % Waveform.colors.length;
-            w.SetCrosshairColor(idx);
-        }
+    protected void ShowSetupDialog() {
+        final jScopeMultiWave w = (jScopeMultiWave)this.wave;
+        if(w.mode == Waveform.MODE_POINT) // && w.wi.signal_select != -1)
+        {
+            this.setup_dialog.selectSignal(w.GetSelectedSignal());
+        }else if(w.GetShowSignalCount() > 0 || w.is_image && w.wi.num_waves != 0) this.setup_dialog.selectSignal(1);
+        final Timer t = new Timer(20, ae -> {
+            final Point p = ((WaveformManager)jScopeWavePopup.this.parent).getWavePosition(jScopeWavePopup.this.wave);
+            jScopeWavePopup.this.setup_dialog.Show(jScopeWavePopup.this.wave, p.x, p.y);
+        });
+        t.setRepeats(false);
+        t.start();
     }
 }

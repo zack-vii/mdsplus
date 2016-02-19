@@ -12,12 +12,40 @@ import java.io.IOException;
  * @see DataProvider
  */
 interface FrameData{
-    static final int BITMAP_IMAGE_8     = 1;
+    static final int AWT_IMAGE          = 5;
     static final int BITMAP_IMAGE_16    = 2;
     static final int BITMAP_IMAGE_32    = 4;
-    static final int AWT_IMAGE          = 5;
-    static final int JAI_IMAGE          = 6;
+    static final int BITMAP_IMAGE_8     = 1;
     static final int BITMAP_IMAGE_FLOAT = 8;
+    static final int JAI_IMAGE          = 6;
+
+    /**
+     * Return the frame at the given position.
+     *
+     * @param idx
+     *            The index of the requested frame in the frame sequence.
+     * @return The frame as a byte array. If the frame type is FrameData.BITMAP_IMAGE, the matrix uses row major
+     *         ordering.
+     * @exception java.io.IOException
+     */
+    public byte[] GetFrameAt(int idx) throws IOException;
+
+    /**
+     * Return the dimension of a frame. All the frames in the sequence must have the same dimension.
+     *
+     * @return The frame dimension.
+     * @exception java.io.IOException
+     */
+    public Dimension GetFrameDimension() throws Exception;
+
+    /**
+     * Return the times associated with every frame of the sequence. This information is required to correlate
+     * the frame sequence with the other signals displayed by jScope.
+     *
+     * @return The time array for the frame sequence.
+     * @exception java.io.IOException
+     */
+    public double[] GetFrameTimes() throws Exception;
 
     /**
      * Returns the type of the corresponding frames. Returned frames can have either of the following types: <br>
@@ -40,32 +68,4 @@ interface FrameData{
      * @exception java.io.IOException
      */
     public int GetNumFrames() throws Exception;
-
-    /**
-     * Return the dimension of a frame. All the frames in the sequence must have the same dimension.
-     *
-     * @return The frame dimension.
-     * @exception java.io.IOException
-     */
-    public Dimension GetFrameDimension() throws Exception;
-
-    /**
-     * Return the times associated with every frame of the sequence. This information is required to correlate
-     * the frame sequence with the other signals displayed by jScope.
-     *
-     * @return The time array for the frame sequence.
-     * @exception java.io.IOException
-     */
-    public double[] GetFrameTimes() throws Exception;
-
-    /**
-     * Return the frame at the given position.
-     *
-     * @param idx
-     *            The index of the requested frame in the frame sequence.
-     * @return The frame as a byte array. If the frame type is FrameData.BITMAP_IMAGE, the matrix uses row major
-     *         ordering.
-     * @exception java.io.IOException
-     */
-    public byte[] GetFrameAt(int idx) throws IOException;
 }

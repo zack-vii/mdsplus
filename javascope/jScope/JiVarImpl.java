@@ -4,13 +4,13 @@ package jScope;
 import java.io.IOException;
 
 public abstract class JiVarImpl implements JiVar{
-    protected JiDataSource mSource;  // Source object for this variable
     protected String       mName;
+    protected JiDataSource mSource;  // Source object for this variable
     protected int          mType = 0;
 
-    public JiVarImpl(JiDataSource s, String name){
-        mName = name;
-        mSource = s;
+    public JiVarImpl(final JiDataSource s, final String name){
+        this.mName = name;
+        this.mSource = s;
     }
 
     /**
@@ -49,22 +49,22 @@ public abstract class JiVarImpl implements JiVar{
 
     @Override
     public String getName() {
-        return mName;
+        return this.mName;
     }
 
     @Override
     public JiDataSource getSource() {
-        return mSource;
+        return this.mSource;
     }
 
     @Override
     public int getType() {
-        return mType;
+        return this.mType;
     }
 
     @Override
     public String getTypeString() {
-        switch(mType){
+        switch(this.mType){
             case Byte:
                 return "byte";
             case Char:

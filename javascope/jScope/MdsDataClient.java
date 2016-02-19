@@ -4,6 +4,29 @@ package jScope;
 import java.util.Vector;
 
 final public class MdsDataClient extends MdsConnection{
+    public static void main(final String arg[]) {
+        MdsDataClient mdc = null;
+        try{
+            mdc = new MdsDataClient("150.178.3.33");
+            System.out.println("OK connessione");
+            // float data_f[] = mdc.getFloatArray("sin(0:6.28:0.1)");
+            // mdc.open("PR98_TFTR", 102257);
+            // System.out.println("OK apertura pulse");
+            // float data[][] = mdc.getFloatMatrix(":matrix");
+            // double data_2[][] = mdc.getDoubleMatrix("[[1.,2.,3.],[4.,5.,6.],[7.,8.,9.],[10.,11.,12.]]");
+            // double data_y[] = mdc.getDoubleArray(".ONED:WTOT");
+            // float data_x[] = mdc.getFloatArray("DIM_OF(\\PR98_TFTR::TOP.ONED:WTOT)");
+            // for(int i = 0; i < data_x.length; i++)
+            // System.out.println("  "+data_x[i]+"  "+data_y[i]);
+            // String s = mdc.getString("\\PR98_TFTR::TOP.COMMENTS:INSTITUTION");
+            // System.out.println(s);
+            mdc.close();
+            System.exit(1);
+        }catch(final Exception exc){
+            System.out.println("" + exc);
+            if(mdc != null) mdc.close();
+        }
+    }
     @SuppressWarnings("unused")
     private String experiment;
     @SuppressWarnings("unused")
@@ -17,9 +40,9 @@ final public class MdsDataClient extends MdsConnection{
      * @exception MdsIOException
      *                if an I/0 error occurs
      */
-    public MdsDataClient(String provider) throws MdsIOException{
+    public MdsDataClient(final String provider) throws MdsIOException{
         super(provider);
-        if(ConnectToMds(false) == 0) throw new MdsIOException(error);
+        if(this.ConnectToMds(false) == 0) throw new MdsIOException(this.error);
     }
 
     /**
@@ -32,210 +55,38 @@ final public class MdsDataClient extends MdsConnection{
      * @exception MdsIOException
      *                if an I/0 error occurs
      */
-    public MdsDataClient(String provider, String user) throws MdsIOException{
+    public MdsDataClient(final String provider, final String user) throws MdsIOException{
         super(provider);
-        setUser(user);
-        if(ConnectToMds(false) == 0) throw new MdsIOException(error);
-    }
-
-    /**
-     * Open an MdsPlus experiment in read only access mode
-     *
-     * @param experiment
-     *            Experiment name
-     * @param shot
-     *            Shot number
-     * @exception MdsIOException
-     *                if an I/0 error occurs
-     */
-    public void open(String experiment, int shot) throws MdsIOException {
-        open(experiment, shot, 1);
-    }
-
-    /**
-     * Open an MdsPlus experiment
-     *
-     * @param experiment
-     *            Experiment name
-     * @param shot
-     *            Shot number
-     * @param readOnly
-     *            access mode 1 for read only
-     * @exception MdsIOException
-     *                if an I/0 error occurs
-     */
-    public void open(String experiment, int shot, int readOnly) throws MdsIOException {
-        if(!connected) throw new MdsIOException("Mds data client not connected to " + provider);
-        this.experiment = experiment;
-        this.shot = shot;
-        Descriptor descr = MdsValue("JavaOpen(\"" + experiment + "\"," + shot + "," + readOnly + ")");
-        if(!(descr.dtype != Descriptor.DTYPE_CSTRING && descr.dtype == Descriptor.DTYPE_LONG && descr.int_data != null && descr.int_data.length > 0 && (descr.int_data[0] % 2 == 1))){
-            if(error != null) throw new MdsIOException("Cannot open experiment " + experiment + " shot " + shot + " : " + error);
-            throw new MdsIOException("Cannot open experiment " + experiment + " shot " + shot);
-        }
+        this.setUser(user);
+        if(this.ConnectToMds(false) == 0) throw new MdsIOException(this.error);
     }
 
     /**
      * Close currently open experiment
      */
     public void close() {
-        if(connected) DisconnectFromMds();
+        if(this.connected) this.DisconnectFromMds();
     }
 
-    /**
-     * Evaluate an MdsPlus expression which return a bidimensional float array
-     *
-     * @param expr
-     *            expression to evaluate
-     * @return bidimensional float array returned by expression evaluation
-     * @exception MdsIOException
-     *                if an I/0 or an expression evaluation error occurs
-     */
-    @SuppressWarnings("fallthrough")
-    public float[][] getFloatMatrix(String expr) throws MdsIOException {
-        Descriptor desc = MdsValue("shape(" + expr + ")");
-        float out[][] = null;
-        int row = 0, col = 0;
+    public Object evaluate(final String expr, final Vector<Descriptor> args) throws MdsIOException {
+        final Descriptor desc = this.MdsValue(expr, args);
         switch(desc.dtype){
             case Descriptor.DTYPE_FLOAT:
-                throw new MdsIOException("Evaluated expression not a matrix");
+                return new Float(desc.float_data[0]);
             case Descriptor.DTYPE_LONG:
-                if(desc.int_data.length != 2) throw new MdsIOException("Can be read only bi-dimensional matrix");
-                col = desc.int_data[0];
-                row = desc.int_data[1];
-                break;
-            case Descriptor.DTYPE_BYTE:
-                throw new MdsIOException("Evaluated expression not a matrix");
-            case Descriptor.DTYPE_CSTRING:
-                if((desc.status & 1) == 0) throw new MdsIOException(desc.error);
-            default:
-                throw new MdsIOException("Evaluated expression not a matrix");
-        }
-        desc = MdsValue(expr);
-        switch(desc.dtype){
-            case Descriptor.DTYPE_FLOAT:
-                out = new float[row][col];
-                for(int i = 0, k = 0; i < row; i++)
-                    for(int j = 0; j < col; j++)
-                        out[i][j] = desc.float_data[k++];
-                return out;
-            case Descriptor.DTYPE_LONG:
-                out = new float[row][col];
-                for(int i = 0, k = 0; i < row; i++)
-                    for(int j = 0; j < col; j++)
-                        out[i][j] = desc.int_data[k++];
-                return out;
+                return new Integer(desc.int_data[0]);
             case Descriptor.DTYPE_DOUBLE:
-                out = new float[row][col];
-                for(int i = 0, k = 0; i < row; i++)
-                    for(int j = 0; j < col; j++)
-                        out[i][j] = (float)desc.double_data[k++];
-                return out;
+                return new Double(desc.double_data[0]);
+            case Descriptor.DTYPE_ULONG:
+                return new Long(desc.long_data[0]);
             case Descriptor.DTYPE_BYTE:
-                throw new MdsIOException("Cannot convert a string to float array");
+                return new Character((char)desc.byte_data[0]);
             case Descriptor.DTYPE_CSTRING:
                 if((desc.status & 1) == 0) throw new MdsIOException(desc.error);
+                return new String(desc.strdata);
             default:
                 throw new MdsIOException("Data type code " + desc.dtype + " unsupported");
         }
-    }
-
-    /**
-     * Evaluate an MdsPlus expression which return a bidimensional double array
-     *
-     * @param expr
-     *            expression to evaluate
-     * @return bidimensional float array returned by expression evaluation
-     * @exception MdsIOException
-     *                if an I/0 or an expression evaluation error occurs
-     */
-    @SuppressWarnings("fallthrough")
-    public double[][] getDoubleMatrix(String expr) throws MdsIOException {
-        Descriptor desc = MdsValue("shape(" + expr + ")");
-        double out[][] = null;
-        int row = 0, col = 0;
-        switch(desc.dtype){
-            case Descriptor.DTYPE_FLOAT:
-                throw new MdsIOException("Evaluated expression not a matrix");
-            case Descriptor.DTYPE_LONG:
-                if(desc.int_data.length != 2) throw new MdsIOException("Can be read only bi-dimensional matrix");
-                col = desc.int_data[0];
-                row = desc.int_data[1];
-                break;
-            case Descriptor.DTYPE_BYTE:
-                throw new MdsIOException("Evaluated expression not a matrix");
-            case Descriptor.DTYPE_CSTRING:
-                if((desc.status & 1) == 0) throw new MdsIOException(desc.error);
-            default:
-                throw new MdsIOException("Evaluated expression not a matrix");
-        }
-        desc = MdsValue(expr);
-        switch(desc.dtype){
-            case Descriptor.DTYPE_FLOAT:
-                out = new double[row][col];
-                for(int i = 0, k = 0; i < row; i++)
-                    for(int j = 0; j < col; j++)
-                        out[i][j] = desc.float_data[k++];
-                return out;
-            case Descriptor.DTYPE_LONG:
-                out = new double[row][col];
-                for(int i = 0, k = 0; i < row; i++)
-                    for(int j = 0; j < col; j++)
-                        out[i][j] = desc.int_data[k++];
-                return out;
-            case Descriptor.DTYPE_DOUBLE:
-                out = new double[row][col];
-                for(int i = 0, k = 0; i < row; i++)
-                    for(int j = 0; j < col; j++)
-                        out[i][j] = desc.double_data[k++];
-                return out;
-            case Descriptor.DTYPE_BYTE:
-                throw new MdsIOException("Cannot convert a string to float array");
-            case Descriptor.DTYPE_CSTRING:
-                if((desc.status & 1) == 0) throw new MdsIOException(desc.error);
-            default:
-                throw new MdsIOException("Data type code " + desc.dtype + " unsupported");
-        }
-    }
-
-    /**
-     * Evaluate an MdsPlus expression which return a float array
-     *
-     * @param expr
-     *            expression to evaluate
-     * @return float array value returned by the expression evaluation
-     * @exception MdsIOException
-     *                if an I/0 or an expression evaluation error occurs
-     */
-    @SuppressWarnings("fallthrough")
-    public float[] getFloatArray(String expr) throws MdsIOException {
-        Descriptor desc = MdsValue(expr);
-        float out[] = null;
-        float out_data[] = null;
-        switch(desc.dtype){
-            case Descriptor.DTYPE_FLOAT:
-                out = desc.float_data;
-                break;
-            case Descriptor.DTYPE_LONG:
-                out_data = new float[desc.int_data.length];
-                for(int i = 0; i < desc.int_data.length; i++)
-                    out_data[i] = desc.int_data[i];
-                out = out_data;
-                break;
-            case Descriptor.DTYPE_DOUBLE:
-                out_data = new float[desc.double_data.length];
-                for(int i = 0; i < desc.double_data.length; i++)
-                    out_data[i] = (float)desc.double_data[i];
-                out = out_data;
-                break;
-            case Descriptor.DTYPE_BYTE:
-                throw new MdsIOException("Cannot convert a string to float array");
-            case Descriptor.DTYPE_CSTRING:
-                if((desc.status & 1) == 0) throw new MdsIOException(desc.error);
-            default:
-                throw new MdsIOException("Data type code " + desc.dtype + " unsupported");
-        }
-        return out;
     }
 
     /**
@@ -248,8 +99,8 @@ final public class MdsDataClient extends MdsConnection{
      *                if an I/0 or an expression evaluation error occurs
      */
     @SuppressWarnings("fallthrough")
-    public byte[] getByteArray(String expr) throws MdsIOException {
-        Descriptor desc = MdsValue(expr);
+    public byte[] getByteArray(final String expr) throws MdsIOException {
+        final Descriptor desc = this.MdsValue(expr);
         byte out[] = null;
         byte out_data[] = null;
         switch(desc.dtype){
@@ -270,32 +121,26 @@ final public class MdsDataClient extends MdsConnection{
     }
 
     /**
-     * Evaluate an MdsPlus expression which return a int array
+     * Evaluate an MdsPlus expression which return a double value
      *
      * @param expr
      *            expression to evaluate
-     * @return float array value returned by the expression evaluation
+     * @return float value returned by the expression evaluation
      * @exception MdsIOException
      *                if an I/0 or an expression evaluation error occurs
      */
     @SuppressWarnings("fallthrough")
-    public int[] getIntArray(String expr) throws MdsIOException {
-        Descriptor desc = MdsValue(expr);
-        int out_data[] = null;
+    public double getDouble(final String expr) throws MdsIOException {
+        final Descriptor desc = this.MdsValue(expr);
         switch(desc.dtype){
             case Descriptor.DTYPE_FLOAT:
-                throw new MdsIOException("Cannot convert a float to int array");
+                return desc.float_data[0];
             case Descriptor.DTYPE_LONG:
-            case Descriptor.DTYPE_ULONG:
-                return desc.int_data;
+                return desc.int_data[0];
             case Descriptor.DTYPE_DOUBLE:
-                throw new MdsIOException("Cannot convert a double to int array");
-            case Descriptor.DTYPE_UBYTE:
+                return desc.double_data[0];
             case Descriptor.DTYPE_BYTE:
-                out_data = new int[desc.byte_data.length];
-                for(int i = 0; i < desc.byte_data.length; i++)
-                    out_data[i] = desc.byte_data[i];
-                return out_data;
+                throw new MdsIOException("Cannot convert a string to float");
             case Descriptor.DTYPE_CSTRING:
                 if((desc.status & 1) == 0) throw new MdsIOException(desc.error);
             default:
@@ -313,8 +158,8 @@ final public class MdsDataClient extends MdsConnection{
      *                if an I/0 or an expression evaluation error occurs
      */
     @SuppressWarnings("fallthrough")
-    public double[] getDoubleArray(String expr) throws MdsIOException {
-        Descriptor desc = MdsValue(expr);
+    public double[] getDoubleArray(final String expr) throws MdsIOException {
+        final Descriptor desc = this.MdsValue(expr);
         double out[] = null;
         double out_data[] = null;
         switch(desc.dtype){
@@ -344,6 +189,64 @@ final public class MdsDataClient extends MdsConnection{
     }
 
     /**
+     * Evaluate an MdsPlus expression which return a bidimensional double array
+     *
+     * @param expr
+     *            expression to evaluate
+     * @return bidimensional float array returned by expression evaluation
+     * @exception MdsIOException
+     *                if an I/0 or an expression evaluation error occurs
+     */
+    @SuppressWarnings("fallthrough")
+    public double[][] getDoubleMatrix(final String expr) throws MdsIOException {
+        Descriptor desc = this.MdsValue("shape(" + expr + ")");
+        double out[][] = null;
+        int row = 0, col = 0;
+        switch(desc.dtype){
+            case Descriptor.DTYPE_FLOAT:
+                throw new MdsIOException("Evaluated expression not a matrix");
+            case Descriptor.DTYPE_LONG:
+                if(desc.int_data.length != 2) throw new MdsIOException("Can be read only bi-dimensional matrix");
+                col = desc.int_data[0];
+                row = desc.int_data[1];
+                break;
+            case Descriptor.DTYPE_BYTE:
+                throw new MdsIOException("Evaluated expression not a matrix");
+            case Descriptor.DTYPE_CSTRING:
+                if((desc.status & 1) == 0) throw new MdsIOException(desc.error);
+            default:
+                throw new MdsIOException("Evaluated expression not a matrix");
+        }
+        desc = this.MdsValue(expr);
+        switch(desc.dtype){
+            case Descriptor.DTYPE_FLOAT:
+                out = new double[row][col];
+                for(int i = 0, k = 0; i < row; i++)
+                    for(int j = 0; j < col; j++)
+                        out[i][j] = desc.float_data[k++];
+                return out;
+            case Descriptor.DTYPE_LONG:
+                out = new double[row][col];
+                for(int i = 0, k = 0; i < row; i++)
+                    for(int j = 0; j < col; j++)
+                        out[i][j] = desc.int_data[k++];
+                return out;
+            case Descriptor.DTYPE_DOUBLE:
+                out = new double[row][col];
+                for(int i = 0, k = 0; i < row; i++)
+                    for(int j = 0; j < col; j++)
+                        out[i][j] = desc.double_data[k++];
+                return out;
+            case Descriptor.DTYPE_BYTE:
+                throw new MdsIOException("Cannot convert a string to float array");
+            case Descriptor.DTYPE_CSTRING:
+                if((desc.status & 1) == 0) throw new MdsIOException(desc.error);
+            default:
+                throw new MdsIOException("Data type code " + desc.dtype + " unsupported");
+        }
+    }
+
+    /**
      * Evaluate an MdsPlus expression which return a float value
      *
      * @param expr
@@ -353,8 +256,8 @@ final public class MdsDataClient extends MdsConnection{
      *                if an I/0 or an expression evaluation error occurs
      */
     @SuppressWarnings("fallthrough")
-    public float getFloat(String expr) throws MdsIOException {
-        Descriptor desc = MdsValue(expr);
+    public float getFloat(final String expr) throws MdsIOException {
+        final Descriptor desc = this.MdsValue(expr);
         switch(desc.dtype){
             case Descriptor.DTYPE_FLOAT:
                 return desc.float_data[0];
@@ -372,26 +275,96 @@ final public class MdsDataClient extends MdsConnection{
     }
 
     /**
-     * Evaluate an MdsPlus expression which return a double value
+     * Evaluate an MdsPlus expression which return a float array
      *
      * @param expr
      *            expression to evaluate
-     * @return float value returned by the expression evaluation
+     * @return float array value returned by the expression evaluation
      * @exception MdsIOException
      *                if an I/0 or an expression evaluation error occurs
      */
     @SuppressWarnings("fallthrough")
-    public double getDouble(String expr) throws MdsIOException {
-        Descriptor desc = MdsValue(expr);
+    public float[] getFloatArray(final String expr) throws MdsIOException {
+        final Descriptor desc = this.MdsValue(expr);
+        float out[] = null;
+        float out_data[] = null;
         switch(desc.dtype){
             case Descriptor.DTYPE_FLOAT:
-                return desc.float_data[0];
+                out = desc.float_data;
+                break;
             case Descriptor.DTYPE_LONG:
-                return desc.int_data[0];
+                out_data = new float[desc.int_data.length];
+                for(int i = 0; i < desc.int_data.length; i++)
+                    out_data[i] = desc.int_data[i];
+                out = out_data;
+                break;
             case Descriptor.DTYPE_DOUBLE:
-                return desc.double_data[0];
+                out_data = new float[desc.double_data.length];
+                for(int i = 0; i < desc.double_data.length; i++)
+                    out_data[i] = (float)desc.double_data[i];
+                out = out_data;
+                break;
             case Descriptor.DTYPE_BYTE:
-                throw new MdsIOException("Cannot convert a string to float");
+                throw new MdsIOException("Cannot convert a string to float array");
+            case Descriptor.DTYPE_CSTRING:
+                if((desc.status & 1) == 0) throw new MdsIOException(desc.error);
+            default:
+                throw new MdsIOException("Data type code " + desc.dtype + " unsupported");
+        }
+        return out;
+    }
+
+    /**
+     * Evaluate an MdsPlus expression which return a bidimensional float array
+     *
+     * @param expr
+     *            expression to evaluate
+     * @return bidimensional float array returned by expression evaluation
+     * @exception MdsIOException
+     *                if an I/0 or an expression evaluation error occurs
+     */
+    @SuppressWarnings("fallthrough")
+    public float[][] getFloatMatrix(final String expr) throws MdsIOException {
+        Descriptor desc = this.MdsValue("shape(" + expr + ")");
+        float out[][] = null;
+        int row = 0, col = 0;
+        switch(desc.dtype){
+            case Descriptor.DTYPE_FLOAT:
+                throw new MdsIOException("Evaluated expression not a matrix");
+            case Descriptor.DTYPE_LONG:
+                if(desc.int_data.length != 2) throw new MdsIOException("Can be read only bi-dimensional matrix");
+                col = desc.int_data[0];
+                row = desc.int_data[1];
+                break;
+            case Descriptor.DTYPE_BYTE:
+                throw new MdsIOException("Evaluated expression not a matrix");
+            case Descriptor.DTYPE_CSTRING:
+                if((desc.status & 1) == 0) throw new MdsIOException(desc.error);
+            default:
+                throw new MdsIOException("Evaluated expression not a matrix");
+        }
+        desc = this.MdsValue(expr);
+        switch(desc.dtype){
+            case Descriptor.DTYPE_FLOAT:
+                out = new float[row][col];
+                for(int i = 0, k = 0; i < row; i++)
+                    for(int j = 0; j < col; j++)
+                        out[i][j] = desc.float_data[k++];
+                return out;
+            case Descriptor.DTYPE_LONG:
+                out = new float[row][col];
+                for(int i = 0, k = 0; i < row; i++)
+                    for(int j = 0; j < col; j++)
+                        out[i][j] = desc.int_data[k++];
+                return out;
+            case Descriptor.DTYPE_DOUBLE:
+                out = new float[row][col];
+                for(int i = 0, k = 0; i < row; i++)
+                    for(int j = 0; j < col; j++)
+                        out[i][j] = (float)desc.double_data[k++];
+                return out;
+            case Descriptor.DTYPE_BYTE:
+                throw new MdsIOException("Cannot convert a string to float array");
             case Descriptor.DTYPE_CSTRING:
                 if((desc.status & 1) == 0) throw new MdsIOException(desc.error);
             default:
@@ -409,8 +382,8 @@ final public class MdsDataClient extends MdsConnection{
      *                if an I/0 or an expression evaluation error occurs
      */
     @SuppressWarnings("fallthrough")
-    public int getInt(String expr) throws MdsIOException {
-        Descriptor desc = MdsValue(expr);
+    public int getInt(final String expr) throws MdsIOException {
+        final Descriptor desc = this.MdsValue(expr);
         switch(desc.dtype){
             case Descriptor.DTYPE_UBYTE:
             case Descriptor.DTYPE_BYTE:
@@ -430,6 +403,68 @@ final public class MdsDataClient extends MdsConnection{
     }
 
     /**
+     * Evaluate an MdsPlus expression which return a int array
+     *
+     * @param expr
+     *            expression to evaluate
+     * @return float array value returned by the expression evaluation
+     * @exception MdsIOException
+     *                if an I/0 or an expression evaluation error occurs
+     */
+    @SuppressWarnings("fallthrough")
+    public int[] getIntArray(final String expr) throws MdsIOException {
+        final Descriptor desc = this.MdsValue(expr);
+        int out_data[] = null;
+        switch(desc.dtype){
+            case Descriptor.DTYPE_FLOAT:
+                throw new MdsIOException("Cannot convert a float to int array");
+            case Descriptor.DTYPE_LONG:
+            case Descriptor.DTYPE_ULONG:
+                return desc.int_data;
+            case Descriptor.DTYPE_DOUBLE:
+                throw new MdsIOException("Cannot convert a double to int array");
+            case Descriptor.DTYPE_UBYTE:
+            case Descriptor.DTYPE_BYTE:
+                out_data = new int[desc.byte_data.length];
+                for(int i = 0; i < desc.byte_data.length; i++)
+                    out_data[i] = desc.byte_data[i];
+                return out_data;
+            case Descriptor.DTYPE_CSTRING:
+                if((desc.status & 1) == 0) throw new MdsIOException(desc.error);
+            default:
+                throw new MdsIOException("Data type code " + desc.dtype + " unsupported");
+        }
+    }
+
+    /**
+     * Evaluate an MdsPlus expression which return an long value
+     *
+     * @param expr
+     *            expression to evaluate
+     * @return integer value returned by the expression evaluation
+     * @exception MdsIOException
+     *                if an I/0 or an expression evaluation error occurs
+     */
+    @SuppressWarnings("fallthrough")
+    public long getLong(final String expr) throws MdsIOException {
+        final Descriptor desc = this.MdsValue(expr);
+        switch(desc.dtype){
+            case Descriptor.DTYPE_FLOAT:
+                return (long)desc.float_data[0];
+            case Descriptor.DTYPE_LONG:
+                return desc.int_data[0];
+            case Descriptor.DTYPE_ULONG:
+                return desc.long_data[0];
+            case Descriptor.DTYPE_BYTE:
+                throw new MdsIOException("Cannot convert a string to float");
+            case Descriptor.DTYPE_CSTRING:
+                if((desc.status & 1) == 0) throw new MdsIOException(desc.error);
+            default:
+                throw new MdsIOException("Data type code " + desc.dtype + " unsupported");
+        }
+    }
+
+    /**
      * Evaluate an MdsPlus expression which return an short value
      *
      * @param expr
@@ -439,8 +474,8 @@ final public class MdsDataClient extends MdsConnection{
      *                if an I/0 or an expression evaluation error occurs
      */
     @SuppressWarnings("fallthrough")
-    public short getShort(String expr) throws MdsIOException {
-        Descriptor desc = MdsValue(expr);
+    public short getShort(final String expr) throws MdsIOException {
+        final Descriptor desc = this.MdsValue(expr);
         switch(desc.dtype){
             case Descriptor.DTYPE_UBYTE:
             case Descriptor.DTYPE_BYTE:
@@ -468,8 +503,8 @@ final public class MdsDataClient extends MdsConnection{
      *                if an I/0 or an expression evaluation error occurs
      */
     @SuppressWarnings("fallthrough")
-    public short[] getShortArray(String expr) throws MdsIOException {
-        Descriptor desc = MdsValue(expr);
+    public short[] getShortArray(final String expr) throws MdsIOException {
+        final Descriptor desc = this.MdsValue(expr);
         short out_data[] = null;
         switch(desc.dtype){
             case Descriptor.DTYPE_FLOAT:
@@ -496,34 +531,6 @@ final public class MdsDataClient extends MdsConnection{
     }
 
     /**
-     * Evaluate an MdsPlus expression which return an long value
-     *
-     * @param expr
-     *            expression to evaluate
-     * @return integer value returned by the expression evaluation
-     * @exception MdsIOException
-     *                if an I/0 or an expression evaluation error occurs
-     */
-    @SuppressWarnings("fallthrough")
-    public long getLong(String expr) throws MdsIOException {
-        Descriptor desc = MdsValue(expr);
-        switch(desc.dtype){
-            case Descriptor.DTYPE_FLOAT:
-                return (long)desc.float_data[0];
-            case Descriptor.DTYPE_LONG:
-                return desc.int_data[0];
-            case Descriptor.DTYPE_ULONG:
-                return desc.long_data[0];
-            case Descriptor.DTYPE_BYTE:
-                throw new MdsIOException("Cannot convert a string to float");
-            case Descriptor.DTYPE_CSTRING:
-                if((desc.status & 1) == 0) throw new MdsIOException(desc.error);
-            default:
-                throw new MdsIOException("Data type code " + desc.dtype + " unsupported");
-        }
-    }
-
-    /**
      * Evaluate an MdsPlus expression which return a string value
      *
      * @param expr
@@ -532,8 +539,8 @@ final public class MdsDataClient extends MdsConnection{
      * @exception MdsIOException
      *                if an I/0 or an expression evaluation error occurs
      */
-    public String getString(String expr) throws MdsIOException {
-        Descriptor desc = MdsValue(expr);
+    public String getString(final String expr) throws MdsIOException {
+        final Descriptor desc = this.MdsValue(expr);
         switch(desc.dtype){
             case Descriptor.DTYPE_UBYTE:
             case Descriptor.DTYPE_BYTE:
@@ -550,48 +557,40 @@ final public class MdsDataClient extends MdsConnection{
         }
     }
 
-    public Object evaluate(String expr, Vector<Descriptor> args) throws MdsIOException {
-        Descriptor desc = MdsValue(expr, args);
-        switch(desc.dtype){
-            case Descriptor.DTYPE_FLOAT:
-                return new Float(desc.float_data[0]);
-            case Descriptor.DTYPE_LONG:
-                return new Integer(desc.int_data[0]);
-            case Descriptor.DTYPE_DOUBLE:
-                return new Double(desc.double_data[0]);
-            case Descriptor.DTYPE_ULONG:
-                return new Long(desc.long_data[0]);
-            case Descriptor.DTYPE_BYTE:
-                return new Character((char)desc.byte_data[0]);
-            case Descriptor.DTYPE_CSTRING:
-                if((desc.status & 1) == 0) throw new MdsIOException(desc.error);
-                return new String(desc.strdata);
-            default:
-                throw new MdsIOException("Data type code " + desc.dtype + " unsupported");
-        }
+    /**
+     * Open an MdsPlus experiment in read only access mode
+     *
+     * @param experiment
+     *            Experiment name
+     * @param shot
+     *            Shot number
+     * @exception MdsIOException
+     *                if an I/0 error occurs
+     */
+    public void open(final String experiment, final int shot) throws MdsIOException {
+        this.open(experiment, shot, 1);
     }
 
-    public static void main(String arg[]) {
-        MdsDataClient mdc = null;
-        try{
-            mdc = new MdsDataClient("150.178.3.33");
-            System.out.println("OK connessione");
-            // float data_f[] = mdc.getFloatArray("sin(0:6.28:0.1)");
-            // mdc.open("PR98_TFTR", 102257);
-            // System.out.println("OK apertura pulse");
-            // float data[][] = mdc.getFloatMatrix(":matrix");
-            // double data_2[][] = mdc.getDoubleMatrix("[[1.,2.,3.],[4.,5.,6.],[7.,8.,9.],[10.,11.,12.]]");
-            // double data_y[] = mdc.getDoubleArray(".ONED:WTOT");
-            // float data_x[] = mdc.getFloatArray("DIM_OF(\\PR98_TFTR::TOP.ONED:WTOT)");
-            // for(int i = 0; i < data_x.length; i++)
-            // System.out.println("  "+data_x[i]+"  "+data_y[i]);
-            // String s = mdc.getString("\\PR98_TFTR::TOP.COMMENTS:INSTITUTION");
-            // System.out.println(s);
-            mdc.close();
-            System.exit(1);
-        }catch(Exception exc){
-            System.out.println("" + exc);
-            if(mdc != null) mdc.close();
+    /**
+     * Open an MdsPlus experiment
+     *
+     * @param experiment
+     *            Experiment name
+     * @param shot
+     *            Shot number
+     * @param readOnly
+     *            access mode 1 for read only
+     * @exception MdsIOException
+     *                if an I/0 error occurs
+     */
+    public void open(final String experiment, final int shot, final int readOnly) throws MdsIOException {
+        if(!this.connected) throw new MdsIOException("Mds data client not connected to " + this.provider);
+        this.experiment = experiment;
+        this.shot = shot;
+        final Descriptor descr = this.MdsValue("JavaOpen(\"" + experiment + "\"," + shot + "," + readOnly + ")");
+        if(!(descr.dtype != Descriptor.DTYPE_CSTRING && descr.dtype == Descriptor.DTYPE_LONG && descr.int_data != null && descr.int_data.length > 0 && (descr.int_data[0] % 2 == 1))){
+            if(this.error != null) throw new MdsIOException("Cannot open experiment " + experiment + " shot " + shot + " : " + this.error);
+            throw new MdsIOException("Cannot open experiment " + experiment + " shot " + shot);
         }
     }
 }

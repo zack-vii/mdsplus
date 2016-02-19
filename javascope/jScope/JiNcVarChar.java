@@ -4,28 +4,28 @@ package jScope;
 import java.io.IOException;
 
 class JiNcVarChar extends JiNcVarImp{
-    public JiNcVarChar(RandomAccessData in, JiNcVar parent, long offset){
+    public JiNcVarChar(final RandomAccessData in, final JiNcVar parent, final long offset){
         super(in, parent, offset);
     }
 
     @Override
-    public Object read(JiDim[] dims) throws IOException {
-        return readChar(dims);
+    public Object read(final JiDim[] dims) throws IOException {
+        return this.readChar(dims);
     }
 
     @Override
-    public char[] readChar(JiDim[] dims) throws IOException {
+    public char[] readChar(final JiDim[] dims) throws IOException {
         char[] rval = null;
-        mParent.validateDims(dims);
-        JiSlabIterator itr = new JiSlabIterator((JiNcSource)mParent.getSource(), mParent, dims);
-        int size = itr.size();
+        this.mParent.validateDims(dims);
+        final JiSlabIterator itr = new JiSlabIterator((JiNcSource)this.mParent.getSource(), this.mParent, dims);
+        final int size = itr.size();
         rval = new char[size];
         JiSlab slab;
         int counter = 0;
         while((slab = itr.next()) != null){
-            byte[] bytes = new byte[slab.mSize * sizeof()];
-            mRFile.seek(mOffset + slab.mOffset);
-            mRFile.readFully(bytes);
+            final byte[] bytes = new byte[slab.mSize * this.sizeof()];
+            this.mRFile.seek(this.mOffset + slab.mOffset);
+            this.mRFile.readFully(bytes);
             for(int i = 0; i < slab.mSize; ++i){
                 rval[counter++] = (char)bytes[i];
             }
