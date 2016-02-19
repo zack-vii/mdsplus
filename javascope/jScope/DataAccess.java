@@ -1,9 +1,7 @@
 package jScope;
 
 /* $Id$ */
-import java.net.*;
 import java.io.IOException;
-
 
 /**
  * Interface DataAccess is used by classes WaveDisplay and CompositeWaveDisplay
@@ -20,95 +18,97 @@ import java.io.IOException;
  * The second mechanisms delegates data access to the WaveDisplay client. In this
  * case the client needs first to specify the data source by means of method setProvider.
  * An URL is used to specify a data source. Its interpretation is however delegated
- * to the DataAccess implementation.  The client
+ * to the DataAccess implementation. The client
  * then can retrieve an implementation of DataProvider (method getDataProvider),
  * and use this implementation directly to retrieve signals and frame sequences for
  * that experiment and shot.
  */
-public interface DataAccess
-{
-
+public interface DataAccess{
     /**
      * Retrieve the X axis of the signal specified by the URL.
      *
-     * @param url The URL of the signal.
+     * @param url
+     *            The URL of the signal.
      * @return A float array specifying the desired X axis
      * @exception java.io.IOException
      */
-    float[]       getX(String url) throws IOException;
+    float[] getX(String url) throws IOException;
 
     /**
      * Retrieve the Y axis of the signal specified by the URL.
      *
-     * @param url the signal URL
+     * @param url
+     *            the signal URL
      * @return A float array specifying the desired X axis
      * @exception java.io.IOException
      */
-    float[]       getY(String url) throws IOException;
+    float[] getY(String url) throws IOException;
 
     /**
      * Retrieve the signal specified by the URL as a whole.
      * Its usual implementation is based on methods getX() and getY() as follows:
-     *
      * Signal getSignal(String url)
      * {
-     *     return new Signal(getX(url), getY(url));
+     * return new Signal(getX(url), getY(url));
      * }
      *
-     * @param url The signal URL
+     * @param url
+     *            The signal URL
      * @return The signal specified by the URL
      * @exception java.io.IOException
      */
-    Signal        getSignal(String url) throws IOException;
+    Signal getSignal(String url) throws IOException;
 
     /**
      * Retrieves the sequence of frames (specified by an instance of FrameData)
      * specified by the passed URL. See the specification of FrameData
      * interface for details.
      *
-     * @param url The URL of the frame sequence
+     * @param url
+     *            The URL of the frame sequence
      * @return The frame sequence
      * @exception java.io.IOException
      */
-    FrameData     getFrameData(String url) throws IOException;
+    FrameData getFrameData(String url) throws IOException;
 
     /**
      * Test if the specified protocol is supported. It is used by WaveDisplay
      * to find out which DataAccess implementation (if any) is able to manage
      * the specified protocol.
      *
-     * @param url the signal URL. The protocol is specified in the first patrt of the URL.
+     * @param url
+     *            the signal URL. The protocol is specified in the first patrt of the URL.
      * @return True if the protocol is supported, false otherwise.
      */
-    boolean       supports(String url);
+    boolean supports(String url);
 
     /**
      * Last error message
      *
      * @return The last error message string. If no errors returns null.
      */
-    String        getError();
+    String getError();
 
     /**
      * Returns the name of the last accessed signal.
      *
      * @return The anme of the last accessed signal
      */
-    String        getSignalName();
+    String getSignalName();
 
     /**
      * Return the shot number of the last accessed signal
      *
      * @return The shot number specified as a string
      */
-    String        getShot();
+    String getShot();
 
     /**
      * Return the experiment name of the last accessed signal
      *
      * @return The experiment name
      */
-    String        getExperiment();
+    String getExperiment();
 
     /**
      * Returns the DataProvider implementation carrying out data access for the experiment and shot
@@ -116,7 +116,7 @@ public interface DataAccess
      *
      * @return The DataProvider implementation.
      */
-    DataProvider  getDataProvider();
+    DataProvider getDataProvider();
 
     /**
      * Specifies experiment name and shot by means of an URL. The DataAccess implementation
@@ -125,7 +125,7 @@ public interface DataAccess
      * @param url
      * @exception java.io.IOException
      */
-    public void   setProvider(String url) throws IOException;
+    public void setProvider(String url) throws IOException;
 
     /**
      * Used to communicate a password for data access autentication. If no
@@ -134,12 +134,13 @@ public interface DataAccess
      * This method is called by the WaveDisplay applet when the HTML
      * paramenter AUTENTICATION is defined.
      *
-     * @param encoded_credentials The Password, expressed as a string.
+     * @param encoded_credentials
+     *            The Password, expressed as a string.
      */
-    void          setPassword(String encoded_credentials);
+    void setPassword(String encoded_credentials);
 
     /**
      * Releases all allocated resources.
      */
-    void          close();
+    void close();
 }

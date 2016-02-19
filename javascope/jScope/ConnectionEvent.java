@@ -2,7 +2,6 @@ package jScope;
 
 /* $Id$ */
 import java.awt.AWTEvent;
-import java.awt.Event;
 
 /**
  * ConnectionEvent instances describe the current status of the data transfer and are passed by the DataProvider
@@ -13,50 +12,46 @@ import java.awt.Event;
  * @see Connection Listener
  * @see DataProvider
  */
-public class ConnectionEvent extends AWTEvent
-{
-    static final long serialVersionUID = 47623776584563L;
-    public static final int LOST_CONNECTION = AWTEvent.RESERVED_ID_MAX + 1;
-
+public class ConnectionEvent extends AWTEvent{
+    static final long       serialVersionUID = 47623776584563L;
+    public static final int LOST_CONNECTION  = AWTEvent.RESERVED_ID_MAX + 1;
     /**
      * Total size of the data to be transferred.
      */
-    int    total_size;
-
+    int                     total_size;
     /**
      * Number ofbytes transferred so far.
      */
-    int    current_size;
-
+    int                     current_size;
     /**
      * Additional string information, shown in the status bar of jScope.
      */
-    String info;
+    String                  info;
 
-    public ConnectionEvent(Object source, String info, int total_size, int current_size)
-    {
+    public ConnectionEvent(Object source, String info, int total_size, int current_size){
         super(source, 0);
-        this.total_size   = total_size;
+        this.total_size = total_size;
         this.current_size = current_size;
         this.info = info;
     }
-    public String getInfo() { return info;}
-    public ConnectionEvent(Object source, int total_size, int current_size)
-    {
+
+    public String getInfo() {
+        return info;
+    }
+
+    public ConnectionEvent(Object source, int total_size, int current_size){
         super(source, 0);
-        this.total_size   = total_size;
+        this.total_size = total_size;
         this.current_size = current_size;
         this.info = null;
     }
 
-    public ConnectionEvent(Object source, String info)
-    {
+    public ConnectionEvent(Object source, String info){
         super(source, 0);
         this.info = new String(info);
     }
 
-    public ConnectionEvent(Object source, int event_id, String info)
-    {
+    public ConnectionEvent(Object source, int event_id, String info){
         super(source, event_id);
         this.info = new String(info);
     }

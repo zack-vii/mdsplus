@@ -1,97 +1,82 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ * To change this template, choose Tools | Templates and open the template in the editor.
  */
 package jScope;
-import java.util.*;
+
+import java.util.Vector;
 
 /**
- *
- * @author manduchi
- * Basic version of WaveData which keeps arrays for X and Y (old style)
+ * @author manduchi Basic version of WaveData which keeps arrays for X and Y (old style)
  */
-final public class XYWaveData implements WaveData
-{
-    int type;
-    boolean isLong = false;
-    boolean increasingX = true;
-    double x[];
-    float y[];
-    double x2D[];
-    long x2DLong[];
-    float y2D[];
-    float z[];
-    long xLong[];
-    Vector<WaveDataListener> listeners = new Vector<WaveDataListener>();
-    //For test
-    boolean liveUpdateStarted = false;
+final public class XYWaveData implements WaveData{
+    int                      type;
+    boolean                  isLong            = false;
+    boolean                  increasingX       = true;
+    double                   x[];
+    float                    y[];
+    double                   x2D[];
+    long                     x2DLong[];
+    float                    y2D[];
+    float                    z[];
+    long                     xLong[];
+    Vector<WaveDataListener> listeners         = new Vector<WaveDataListener>();
+    // For test
+    boolean                  liveUpdateStarted = false;
 
-    XYWaveData(float x[], float y[], int numPoints)
-    {
+    XYWaveData(float x[], float y[], int numPoints){
         type = Signal.TYPE_1D;
         int len = numPoints;
-        if(x.length < len)
-            len = x.length;
-        if(y.length < len)
-            len = y.length;
-
+        if(x.length < len) len = x.length;
+        if(y.length < len) len = y.length;
         this.x = new double[len];
         this.y = new float[len];
-        for(int i = 0; i < len; i++)
-        {
+        for(int i = 0; i < len; i++){
             this.x[i] = x[i];
             this.y[i] = y[i];
         }
         checkIncreasingX();
     }
-    XYWaveData(double x[], float y[], int numPoints)
-    {
+
+    XYWaveData(double x[], float y[], int numPoints){
         type = Signal.TYPE_1D;
         int len = numPoints;
-        if(x.length < len)
-            len = x.length;
-        if(y.length < len)
-            len = y.length;
-
+        if(x.length < len) len = x.length;
+        if(y.length < len) len = y.length;
         this.x = new double[len];
         this.y = new float[len];
-        for(int i = 0; i < len; i++)
-        {
+        for(int i = 0; i < len; i++){
             this.x[i] = x[i];
             this.y[i] = y[i];
         }
         checkIncreasingX();
     }
-    XYWaveData(float x[], float y[])
-    {
+
+    XYWaveData(float x[], float y[]){
         this(x, y, x.length);
     }
-    XYWaveData(double x[], float y[])
-    {
+
+    XYWaveData(double x[], float y[]){
         this(x, y, x.length);
     }
-    XYWaveData(long x[], float y[])
-    {
+
+    XYWaveData(long x[], float y[]){
         type = Signal.TYPE_1D;
         int len = x.length;
-        if(y.length < len)
-            len = y.length;
-
+        if(y.length < len) len = y.length;
         this.x = new double[len];
         this.y = new float[len];
         this.xLong = new long[len];
-        for(int i = 0; i < len; i++)
-        {
-            this.x[i] = (double)x[i];
+        for(int i = 0; i < len; i++){
+            this.x[i] = x[i];
             this.y[i] = y[i];
             this.xLong[i] = xLong[i];
         }
         isLong = true;
         checkIncreasingX();
     }
-    XYWaveData(float x[], float y[], float z[])
-    {
-       type = Signal.TYPE_2D;
+
+    XYWaveData(float x[], float y[], float z[]){
+        type = Signal.TYPE_2D;
         this.x2D = new double[x.length];
         this.y2D = new float[y.length];
         this.z = new float[z.length];
@@ -101,13 +86,11 @@ final public class XYWaveData implements WaveData
             this.y2D[i] = y[i];
         for(int i = 0; i < z.length; i++)
             this.z[i] = z[i];
-
-        if(z.length != x.length * y.length)
-            System.out.println("INTERNAL ERROR: WRONG DIMENSIONS FOR 2D SIGNAL");
+        if(z.length != x.length * y.length) System.out.println("INTERNAL ERROR: WRONG DIMENSIONS FOR 2D SIGNAL");
     }
-    XYWaveData(double x[], float y[], float z[])
-    {
-       type = Signal.TYPE_2D;
+
+    XYWaveData(double x[], float y[], float z[]){
+        type = Signal.TYPE_2D;
         this.x2D = new double[x.length];
         this.y2D = new float[y.length];
         this.z = new float[z.length];
@@ -117,13 +100,11 @@ final public class XYWaveData implements WaveData
             this.y2D[i] = y[i];
         for(int i = 0; i < z.length; i++)
             this.z[i] = z[i];
-
-        if(z.length != x.length * y.length)
-            System.out.println("INTERNAL ERROR: WRONG DIMENSIONS FOR 2D SIGNAL");
+        if(z.length != x.length * y.length) System.out.println("INTERNAL ERROR: WRONG DIMENSIONS FOR 2D SIGNAL");
     }
-    XYWaveData(long x[], float y[], float z[])
-    {
-       type = Signal.TYPE_2D;
+
+    XYWaveData(long x[], float y[], float z[]){
+        type = Signal.TYPE_2D;
         this.x2DLong = new long[x.length];
         this.y2D = new float[y.length];
         this.z = new float[z.length];
@@ -133,296 +114,259 @@ final public class XYWaveData implements WaveData
             this.y2D[i] = y[i];
         for(int i = 0; i < z.length; i++)
             this.z[i] = z[i];
-
-        if(z.length != x.length * y.length)
-            System.out.println("INTERNAL ERROR: WRONG DIMENSIONS FOR 2D SIGNAL");
+        if(z.length != x.length * y.length) System.out.println("INTERNAL ERROR: WRONG DIMENSIONS FOR 2D SIGNAL");
         isLong = true;
     }
-    public void setContinuousUpdate(boolean continuopusUpdate){}
+
+    @Override
+    public void setContinuousUpdate(boolean continuopusUpdate) {}
 
     /*
      * Read data within specified interval. either Xmin or xmax cna specify no limit (-Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY)
      */
-    public XYData getData(double xmin, double xmax, int numPoints)
-    {
+    @Override
+    public XYData getData(double xmin, double xmax, int numPoints) {
         int minIdx, maxIdx;
-
-        if(!increasingX) //If not increasing return bare data
-        {
-            return new XYData(x, y, Double.POSITIVE_INFINITY , false);
-        }
-        if(xmin == Double.NEGATIVE_INFINITY)
-        {
+        if(!increasingX) // If not increasing return bare data
+        { return new XYData(x, y, Double.POSITIVE_INFINITY, false); }
+        if(xmin == Double.NEGATIVE_INFINITY){
             xmin = x[0];
             minIdx = 0;
-        }
-        else
-        {
+        }else{
             for(minIdx = 0; minIdx < x.length - 2 && x[minIdx] < xmin; minIdx++);
-            if(minIdx > 0 && x[minIdx] > xmin)
-                minIdx--;
+            if(minIdx > 0 && x[minIdx] > xmin) minIdx--;
         }
-        if(xmax == Double.POSITIVE_INFINITY)
-        {
+        if(xmax == Double.POSITIVE_INFINITY){
             xmax = x[x.length - 1];
             maxIdx = x.length - 1;
-        }
-        else
-        {
+        }else{
             for(maxIdx = minIdx + 1; maxIdx < x.length - 1 && x[maxIdx] < xmax; maxIdx++);
         }
-
-
-        //OK, trovato l'intervallo tra minIdx e maxIdx
-        double delta = (xmax - xmin)/numPoints;
-        double retResolution;
+        // OK, trovato l'intervallo tra minIdx e maxIdx
+        double delta = (xmax - xmin) / numPoints;
+        // double retResolution;
         boolean showMinMax = false;
         int actPoints;
-        //Forces resampling only if there is a significant numebr of points
-        if((maxIdx - minIdx) > 1000 &&  delta > 4 * (maxIdx - minIdx + 1)/(xmax - xmin)) //If at least there are four times  real points
+        // Forces re-sampling only if there is a significant number of points
+        if((maxIdx - minIdx) > 1000 && delta > 4 * (maxIdx - minIdx + 1) / (xmax - xmin)) // If at least there are four times real points
         {
-            actPoints = 2 * (int)((xmax - xmin)/delta + 0.5);
+            actPoints = 2 * (int)((xmax - xmin) / delta + 0.5);
             showMinMax = true;
-            retResolution = 1./delta;
+            // retResolution = 1. / delta;
+        }else{
+            actPoints = maxIdx - minIdx + 1; // No re-sampling at all
+            showMinMax = false;
+            // retResolution = Double.POSITIVE_INFINITY; // Maximum resolution
         }
-        else
-        {
-           actPoints = maxIdx - minIdx + 1; //No resampling at all
-           showMinMax = false;
-           retResolution = Double.POSITIVE_INFINITY ;  //Maximum resolution
-        }
-
         float retY[] = new float[actPoints];
         double retX[] = new double[actPoints];
         long retXLong[] = null;
-        if(isLong)
-            retXLong = new long[actPoints];
-        if(showMinMax)
-        {
+        if(isLong) retXLong = new long[actPoints];
+        if(showMinMax){
             int currIdx = minIdx;
-            for(int i = 0; i < actPoints/2; i++)
-            {
-               float currMin = y[currIdx];
-               float currMax = y[currIdx];
-               double currStart = x[currIdx];
-               while(currIdx < x.length-1 && (x[currIdx] - currStart) < delta)
-               {
-                   if(y[currIdx] < currMin)
-                       currMin = y[currIdx];
-                   if(y[currIdx] > currMax)
-                       currMax = y[currIdx];
-                   currIdx++;
-               }
-               retX[2*i] = retX[2*i+1] = (currStart + x[(currIdx == 0)?0:currIdx-1])/2.;
-               if(isLong)
-                    retXLong[2*i] = retXLong[2*i+1] = (long)((currStart + x[(currIdx == 0)?0:currIdx-1])/2.);
-               retY[2*i] = currMin;
-               retY[2*i+1] = currMax;
+            for(int i = 0; i < actPoints / 2; i++){
+                float currMin = y[currIdx];
+                float currMax = y[currIdx];
+                double currStart = x[currIdx];
+                while(currIdx < x.length - 1 && (x[currIdx] - currStart) < delta){
+                    if(y[currIdx] < currMin) currMin = y[currIdx];
+                    if(y[currIdx] > currMax) currMax = y[currIdx];
+                    currIdx++;
+                }
+                retX[2 * i] = retX[2 * i + 1] = (currStart + x[(currIdx == 0) ? 0 : currIdx - 1]) / 2.;
+                if(isLong) retXLong[2 * i] = retXLong[2 * i + 1] = (long)((currStart + x[(currIdx == 0) ? 0 : currIdx - 1]) / 2.);
+                retY[2 * i] = currMin;
+                retY[2 * i + 1] = currMax;
             }
             startLiveUpdate();
-            if(isLong)
-                return new XYData(retXLong, retY, actPoints/(xmax - xmin), true);
-            else
-                return new XYData(retX, retY, actPoints/(xmax - xmin), true);
+            if(isLong) return new XYData(retXLong, retY, actPoints / (xmax - xmin), true);
+            return new XYData(retX, retY, actPoints / (xmax - xmin), true);
         }
-        else
-        {
-            for(int i = 0; i < maxIdx - minIdx + 1; i++)
-            {
-                retY[i] = y[minIdx + i];
-                retX[i] = x[minIdx + i];
-                if(isLong)
-                    retXLong[i] = xLong[minIdx + i];
-            }
-            startLiveUpdate();
-            if(isLong)
-                return new XYData(retXLong, retY, Double.POSITIVE_INFINITY , true);
-            else
-                return new XYData(retX, retY, Double.POSITIVE_INFINITY , true);
+        for(int i = 0; i < maxIdx - minIdx + 1; i++){
+            retY[i] = y[minIdx + i];
+            retX[i] = x[minIdx + i];
+            if(isLong) retXLong[i] = xLong[minIdx + i];
         }
-    }
-    public XYData getData(int numPoints)
-    {
-       if(type != Signal.TYPE_1D)
-       {
-           System.out.println("INTERNAL ERROR getData called for non 1 D signal");
-           return null;
-       }
-       if(numPoints >= x.length)
-           return new XYData(x, y, Double.POSITIVE_INFINITY , true);
-       return getData(Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, numPoints);
+        startLiveUpdate();
+        if(isLong) return new XYData(retXLong, retY, Double.POSITIVE_INFINITY, true);
+        return new XYData(retX, retY, Double.POSITIVE_INFINITY, true);
     }
 
-    public float[] getZ()
-    {
-        if(type == Signal.TYPE_2D)
-            return z;
-        System.out.println("INTERNAL ERROR SimpleWave.getZ for 1D signal");
-        return null;
+    @Override
+    public XYData getData(int numPoints) {
+        if(type != Signal.TYPE_1D){
+            System.out.println("INTERNAL ERROR getData called for non 1 D signal");
+            return null;
+        }
+        if(numPoints >= x.length) return new XYData(x, y, Double.POSITIVE_INFINITY, true);
+        return getData(Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, numPoints);
     }
-    public double[] getX2D()
-    {
-        if(type == Signal.TYPE_2D)
-            return x2D;
+
+    @Override
+    public float[] getZ() {
+        if(type == Signal.TYPE_2D) return z;
         System.out.println("INTERNAL ERROR SimpleWave.getZ for 1D signal");
         return null;
     }
 
-    public long[] getX2DLong()
-    {
-        if(type == Signal.TYPE_2D)
-            return x2DLong;
+    @Override
+    public double[] getX2D() {
+        if(type == Signal.TYPE_2D) return x2D;
+        System.out.println("INTERNAL ERROR SimpleWave.getZ for 1D signal");
+        return null;
+    }
+
+    @Override
+    public long[] getX2DLong() {
+        if(type == Signal.TYPE_2D) return x2DLong;
         System.out.println("INTERNAL ERROR SimpleWave.getZ2dLong for 1D signal");
         return null;
     }
 
-
-    public float[] getY2D()
-    {
-        if(type == Signal.TYPE_2D)
-            return y2D;
+    @Override
+    public float[] getY2D() {
+        if(type == Signal.TYPE_2D) return y2D;
         System.out.println("INTERNAL ERROR SimpleWave.getZ for 1D signal");
         return null;
     }
 
-    public double[] getXLimits()
-    {
+    public double[] getXLimits() {
         double xmin, xmax;
         xmin = xmax = x[0];
-        for(int i = 0; i < x.length; i++)
-        {
-            if(x[i] > xmax)
-                xmax = x[i];
-            if(x[i] < xmin)
-                xmin = x[i];
+        for(int i = 0; i < x.length; i++){
+            if(x[i] > xmax) xmax = x[i];
+            if(x[i] < xmin) xmin = x[i];
         }
-        return new double [] {xmin, xmax};
+        return new double[]{xmin, xmax};
     }
-    public long []getXLong()
-    {
-        if(!isLong)
-        {
-           System.out.println("INTERNAL ERROR: getLong called for non long X");
-           return null;
+
+    public long[] getXLong() {
+        if(!isLong){
+            System.out.println("INTERNAL ERROR: getLong called for non long X");
+            return null;
         }
         return xLong;
     }
-    public boolean isXLong() {return isLong; }
 
+    @Override
+    public boolean isXLong() {
+        return isLong;
+    }
 
-   public String GetTitle()   {return "Title";}
+    @Override
+    public String GetTitle() {
+        return "Title";
+    }
 
     /**
-     * Get the associated label for X axis. It is displayed if no X axis label is defined in the setup data
-     * definition.
+     * Get the associated label for X axis. It is displayed if no X axis label is defined in the setup data definition.
      *
      * @return The X label string.
      * @exception java.io.IOException
      */
-    public String GetXLabel()  {return "XLabel";}
+    @Override
+    public String GetXLabel() {
+        return "XLabel";
+    }
+
     /**
-     * Get the associated label for Y axis. It is displayed if no Y axis label is defined in the setup data
-     * definition.
+     * Get the associated label for Y axis. It is displayed if no Y axis label is defined in the setup data definition.
      *
      * @return The Y label string.
      * @exception java.io.IOException
      */
-    public String GetYLabel()  {return "YLabel";}
+    @Override
+    public String GetYLabel() {
+        return "YLabel";
+    }
 
     /**
-     * Get the associated label for Z axis (for bidimensional signals only). It is displayed if no X axis label is defined in the setup data
-     * definition.
+     * Get the associated label for Z axis (for bidimensional signals only). It is displayed if no X axis label is defined in the setup data definition.
      *
      * @return The Z label string.
      * @exception java.io.IOException
      */
-    public String GetZLabel()  {return "ZLabel";}
+    @Override
+    public String GetZLabel() {
+        return "ZLabel";
+    }
 
-    public void addWaveDataListener(WaveDataListener listener)
-    {
+    @Override
+    public void addWaveDataListener(WaveDataListener listener) {
         listeners.addElement(listener);
     }
-    void fireListeners(double []x, float []y, double resolution)
-    {
-        for(int i = 0; i < listeners.size(); i++)
-            listeners.elementAt(i).dataRegionUpdated(x, y, resolution);
-    }
-    void fireListeners(long []x, float []y, double resolution)
-    {
+
+    void fireListeners(double[] x, float[] y, double resolution) {
         for(int i = 0; i < listeners.size(); i++)
             listeners.elementAt(i).dataRegionUpdated(x, y, resolution);
     }
 
-    public void getDataAsync(double lowerBound, double upperBound, int numPoints)
-    {
-       // (new AsyncUpdater(lowerBound, upperBound, numPoints/(upperBound - lowerBound))).start();
+    void fireListeners(long[] x, float[] y, double resolution) {
+        for(int i = 0; i < listeners.size(); i++)
+            listeners.elementAt(i).dataRegionUpdated(x, y, resolution);
     }
 
-    public int getNumDimension() {return 1;}
-    void checkIncreasingX()
-    {
+    @Override
+    public void getDataAsync(double lowerBound, double upperBound, int numPoints) {
+        // (new AsyncUpdater(lowerBound, upperBound, numPoints/(upperBound -
+        // lowerBound))).start();
+    }
+
+    @Override
+    public int getNumDimension() {
+        return 1;
+    }
+
+    void checkIncreasingX() {
         increasingX = true;
         for(int i = 1; i < x.length; i++)
-        {
-            if(x[i-1] > x[i])
-            {
+            if(x[i - 1] > x[i]){
                 increasingX = false;
                 return;
             }
+    }
+    // Inner class AsyncUpdater
+    class AsyncUpdater extends Thread{
+        double lowerBound;
+        double upperBound;
+        double resolution;
+
+        AsyncUpdater(double lowerBound, double upperBound, double resolution){
+            this.lowerBound = lowerBound;
+            this.upperBound = upperBound;
+            this.resolution = resolution;
+        }
+
+        @Override
+        public void run() {
+            // System.out.println("GET DATA ASYNC "+lowerBound+"  "+upperBound+"  "+resolution);
+            XYData newData = getData(lowerBound, upperBound, 1000);
+            if(isLong) fireListeners(newData.xLong, newData.y, newData.resolution);
+            else fireListeners(newData.x, newData.y, newData.resolution);
         }
     }
-
-    //Inner class AsyncUpdater
-    class AsyncUpdater extends Thread
-    {
-       double lowerBound;
-       double upperBound;
-       double resolution;
-
-       AsyncUpdater(double lowerBound, double upperBound, double resolution)
-       {
-           this.lowerBound = lowerBound;
-           this.upperBound = upperBound;
-           this.resolution = resolution;
-       }
-       public void run()
-       {
-  //          System.out.println("GET DATA ASYNC "+lowerBound+"  "+upperBound+"  "+resolution);
-            XYData newData = getData(lowerBound, upperBound, 1000);
-            if(isLong)
-                fireListeners(newData.xLong, newData.y, newData.resolution);
-            else
-                fireListeners(newData.x, newData.y, newData.resolution);
-       }
-    }
-
-       //Inner class LiveUpdater just for test
-    class LiveUpdater extends Thread
-    {
-       public void run()
-       {
-           //if(true) return; //REMOVE THIS FOR LIVE UPDATE
-           double []newX = new double[1];
-           float []newY = new float[1];
-           for(int i = 0; i < x.length; i++)
-           {
-                try {
+    // Inner class LiveUpdater just for test
+    class LiveUpdater extends Thread{
+        @Override
+        public void run() {
+            // if(true) return; //REMOVE THIS FOR LIVE UPDATE
+            double[] newX = new double[1];
+            float[] newY = new float[1];
+            for(int i = 0; i < x.length; i++){
+                try{
                     Thread.sleep(100);
                 }catch(InterruptedException exc){}
-
                 newX[0] = x[x.length - 1] + i + 1;
                 newY[0] = y[x.length - 1 - i];
-                fireListeners(newX, newY, Double.POSITIVE_INFINITY );
+                fireListeners(newX, newY, Double.POSITIVE_INFINITY);
             }
         }
     }
 
-    void startLiveUpdate()
-    {
-        if(!liveUpdateStarted)
-        {
+    void startLiveUpdate() {
+        if(!liveUpdateStarted){
             liveUpdateStarted = true;
-            (new LiveUpdater()).start();
+            new LiveUpdater().start();
         }
     }
 }
