@@ -118,10 +118,8 @@ final public class jScopeFacade extends JFrame implements ActionListener, ItemLi
             this.setName("Monitor Thread");
             try{
                 while(true){
-                    // System.out.println
                     jScopeFacade.this.SetWindowTitle("Free :" + (int)(Runtime.getRuntime().freeMemory() / 1024) + " " + "Total :" + (int)(Runtime.getRuntime().totalMemory()) / 1024 + " " + "USED :" + (int)((Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1024.));
                     Thread.sleep(2000, 0);
-                    // waitTime(2000);
                 }
             }catch(final InterruptedException e){}
         }
@@ -430,6 +428,9 @@ final public class jScopeFacade extends JFrame implements ActionListener, ItemLi
         return null;
     }
 
+    public static Rectangle    getRectangle()
+    {return jScopeFacade.win.getBounds();}
+
     public static long getRefreshPeriod() {
         return jScopeFacade.refreshPeriod;
     }
@@ -494,7 +495,6 @@ final public class jScopeFacade extends JFrame implements ActionListener, ItemLi
         // do the following on the gui thread
         SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(jScopeFacade.T_parentComponent, jScopeFacade.T_message, jScopeFacade.T_title, jScopeFacade.T_messageType));
     }
-
     public static void startApplication(final String args[]) {
         String file = null;
         String propertiesFile = null;
@@ -791,7 +791,25 @@ final public class jScopeFacade extends JFrame implements ActionListener, ItemLi
         this.exitScope();
     }
 
-    private void creaHistoryFile(final File f) {
+    /**
+     * Show the splash screen while the rest of the demo loads
+     */
+    public void createAboutScreen() {
+        final JLabel aboutLabel = new AboutWindow();
+        this.aboutScreen = new JWindow();
+        this.aboutScreen.addMouseListener(new MouseAdapter(){
+            @Override
+            public void mouseClicked(final MouseEvent e) {
+                jScopeFacade.this.hideAbout();
+            }
+        });
+        this.aboutScreen.getContentPane().add(aboutLabel);
+        this.aboutScreen.pack();
+        final Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        this.aboutScreen.setLocation(screenSize.width / 2 - this.aboutScreen.getSize().width / 2, screenSize.height / 2 - this.aboutScreen.getSize().height / 2);
+    }
+
+    private void createHistoryFile(final File f) {
         int idx = 0, maxIdx = 0;
         int maxHistory = 2;
         final String config_file_history = this.js_prop.getProperty("jScope.config_file_history_length");
@@ -821,24 +839,6 @@ final public class jScopeFacade extends JFrame implements ActionListener, ItemLi
         f.renameTo(fr);
     }
 
-    /**
-     * Show the splash screen while the rest of the demo loads
-     */
-    public void createAboutScreen() {
-        final JLabel aboutLabel = new AboutWindow();
-        this.aboutScreen = new JWindow();
-        this.aboutScreen.addMouseListener(new MouseAdapter(){
-            @Override
-            public void mouseClicked(final MouseEvent e) {
-                jScopeFacade.this.hideAbout();
-            }
-        });
-        this.aboutScreen.getContentPane().add(aboutLabel);
-        this.aboutScreen.pack();
-        final Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        this.aboutScreen.setLocation(screenSize.width / 2 - this.aboutScreen.getSize().width / 2, screenSize.height / 2 - this.aboutScreen.getSize().height / 2);
-    }
-
     private boolean EventUpdateEnabled() {
         if(this.update_i.getState()){
             this.SetStatusLabel("Disable event update");
@@ -863,10 +863,6 @@ final public class jScopeFacade extends JFrame implements ActionListener, ItemLi
     public void FromFile(final Properties pr) throws IOException {
         String prop = "";
         try{
-            if((prop = pr.getProperty("Scope.reversed")) != null){
-                final boolean b = new Boolean(prop).booleanValue();
-                this.color_dialog.SetReversed(b);
-            }
             if((prop = pr.getProperty("Scope.update.disable")) != null){
                 final boolean b = new Boolean(prop).booleanValue();
                 this.update_i.setState(b);
@@ -903,7 +899,7 @@ final public class jScopeFacade extends JFrame implements ActionListener, ItemLi
         // 2) in jScope.properties using jScope.directory property
         // If the previous properties are not defined jScope create
         // configuration folder in <home directory>/jScope/configurations, if
-        // for same abnormal reason the directory creation failed
+        // for some abnormal reason the directory creation failed
         // <home directory> is used as configuration directory
         this.curr_directory = System.getProperty("jScope.config_directory");
         if(this.curr_directory == null || this.curr_directory.trim().length() == 0){
@@ -920,7 +916,7 @@ final public class jScopeFacade extends JFrame implements ActionListener, ItemLi
                     if(!jScopeUserDir.exists()){
                         final byte b[] = new byte[1024];
                         jScopeUserDir.mkdirs();
-                        final String configList[] = {"FTU_plasma_current.jscp", "fusion.jscp", "JET_plasma_current.jscp", "RFX_plasma_current.jscp", "TS_plasma_current.jscp", "TWU_plasma_current.jscp"};
+                        final String configList[] = {}; // "FTU_plasma_current.jscp", "fusion.jscp", "JET_plasma_current.jscp", "RFX_plasma_current.jscp", "TS_plasma_current.jscp", "TWU_plasma_current.jscp"};
                         for(final String element : configList){
                             final InputStream fis = this.getClass().getClassLoader().getResourceAsStream("configurations/" + element);
                             final FileOutputStream fos = new FileOutputStream(this.curr_directory + element);
@@ -991,7 +987,7 @@ final public class jScopeFacade extends JFrame implements ActionListener, ItemLi
     }
 
     /**
-     * pop down the spash screen
+     * pop down the splash screen
      */
     public void hideAbout() {
         this.aboutScreen.setVisible(false);
@@ -1108,12 +1104,17 @@ final public class jScopeFacade extends JFrame implements ActionListener, ItemLi
     @Override
     public void itemStateChanged(final ItemEvent e) {
         final Object ob = e.getSource();
-        if(ob == this.brief_error_i) WaveInterface.brief_error = this.brief_error_i.getState();
+        if(ob == this.brief_error_i)
+            WaveInterface.brief_error = this.brief_error_i.getState();
         if(e.getStateChange() != ItemEvent.SELECTED) return;
-        if(ob == this.copy) this.wave_panel.SetMode(Waveform.MODE_COPY);
-        if(ob == this.zoom) this.wave_panel.SetMode(Waveform.MODE_ZOOM);
-        if(ob == this.point) this.wave_panel.SetMode(Waveform.MODE_POINT);
-        if(ob == this.pan) this.wave_panel.SetMode(Waveform.MODE_PAN);
+        if(ob == this.copy)
+            this.wave_panel.SetMode(Waveform.MODE_COPY);
+        if(ob == this.zoom)
+            this.wave_panel.SetMode(Waveform.MODE_ZOOM);
+        if(ob == this.point)
+            this.wave_panel.SetMode(Waveform.MODE_POINT);
+        if(ob == this.pan)
+            this.wave_panel.SetMode(Waveform.MODE_PAN);
     }
 
     public void jScopeCreate(final int spos_x, final int spos_y) {
@@ -1126,43 +1127,6 @@ final public class jScopeFacade extends JFrame implements ActionListener, ItemLi
         this.attrs.add(new MediaPrintableArea(5, 5, MediaSize.ISO.A4.getX(Size2DSyntax.MM) - 5, MediaSize.ISO.A4.getY(Size2DSyntax.MM) - 5, MediaPrintableArea.MM));
         this.attrs.add(res);
         if(this.printerSelection != null) this.prnJob = this.printerSelection.createPrintJob();
-        /*
-                PrintServiceAttributeSet pras = printerSelection.getAttributes();
-
-                MediaSize at = (MediaSize) printerSelection.getDefaultAttributeValue(
-                    MediaSize.ISO.A4.getCategory());
-
-                System.out.println("Size name " + at);
-
-                {
-                    PrintService[] pservice = PrintServiceLookup.lookupPrintServices(null,null);
-                    for (int i=0; i<pservice.length; i++)
-                    { System.out.println(pservice[i]);
-                      System.out.println(" --- Job Attributes ---");
-                      Class[] cats = pservice[i].getSupportedAttributeCategories();
-                      for (int j=0; j < cats.length; j++)
-                      { Attribute attr=(Attribute)pservice[i].getDefaultAttributeValue(cats[j]);
-                        if (attr != null)
-                        { // Get attribute name and values
-                          String attrName = attr.getName();
-                          String attrValue = attr.toString();
-                          System.out.println(" "+attrName+": "+attrValue);
-                          Object o = pservice[i].getSupportedAttributeValues(attr.getCategory(),null, null);
-                          if (o.getClass().isArray())
-                          { for (int k=0; k < Array.getLength(o); k++)
-                            { Object o2 = Array.get(o, k);
-                              System.out.println(" "+o2);
-                            }
-                          }
-                          else
-                          {
-                            System.out.println(" "+o);
-                          }
-                        }
-                      }
-                    }
-                }
-         */
         this.help_dialog = new jScopeBrowseUrl(this);
         try{
             final String path = "docs/jScope.html";
@@ -1916,7 +1880,7 @@ final public class jScopeFacade extends JFrame implements ActionListener, ItemLi
             out = new PrintWriter(new FileWriter(ftmp));
             this.ToFile(out);
             out.close();
-            if(fok.exists()) this.creaHistoryFile(fok);
+            if(fok.exists()) this.createHistoryFile(fok);
             ftmp.renameTo(fok);
         }catch(final Exception e){
             JOptionPane.showMessageDialog(this, e, "alert", JOptionPane.ERROR_MESSAGE);
@@ -1925,14 +1889,9 @@ final public class jScopeFacade extends JFrame implements ActionListener, ItemLi
     }
 
     public void SetApplicationFonts(final Font font) {
-        // int fontSize=9;
-        // Font userEntryFont = new Font("Dialog", Font.PLAIN, fontSize);
-        // Font defaultFont = new Font("Dialog", Font.PLAIN, fontSize);
-        // Font boldFont = new Font("Dialog", Font.BOLD, fontSize);
         final Font userEntryFont = font;
         final Font defaultFont = font;
         final Font boldFont = font;
-        // writeToFile("c:\\temp\\outFile.txt",String.valueOf(UIManager.getDefaults())); // write out defaults
         // User entry widgets
         UIManager.put("Text.font", new FontUIResource(userEntryFont));
         UIManager.put("TextField.font", new FontUIResource(userEntryFont));
@@ -2056,8 +2015,7 @@ final public class jScopeFacade extends JFrame implements ActionListener, ItemLi
     public void UpdateAllWaves() {
         final String s = this.shot_t.getText();
         final String s1 = this.def_values.shot_str;
-        // Set main shot text field with
-        // global setting shot if defined.
+        // Set main shot text field with global setting shot if defined.
         if((s == null || s.trim().length() == 0) && (s1 != null && s1.trim().length() != 0)) this.shot_t.setText(s1);
         this.executing_update = true;
         this.apply_b.setText("Abort");
@@ -2125,18 +2083,18 @@ final public class jScopeFacade extends JFrame implements ActionListener, ItemLi
 
 class ServerDialog extends JDialog implements ActionListener{
     private static String                   know_provider[]   = {"W7XDataProvider", "MdsDataProvider",
-                                                              // "MdsDataProviderUdt",
-                                                              // "JetMdsDataProvider",
-                                                              // "TwuDataProvider",
-                                                              // "JetDataProvider",
-                                                              // "FtuDataProvider",
-                                                              // "TSDataProvider",
-                                                              // "AsdexDataProvider",
-                                                              // "ASCIIDataProvider",
-                                                              // "T2DataProvider",
-                                                              "LocalDataProvider", "MdsAsynchDataProvider"
-                                                              // "MDSplus.MdsStreamingDataProvider"
-                                                              };
+        // "MdsDataProviderUdt",
+        // "JetMdsDataProvider",
+        // "TwuDataProvider",
+        // "JetDataProvider",
+        // "FtuDataProvider",
+        // "TSDataProvider",
+        // "AsdexDataProvider",
+        // "ASCIIDataProvider",
+        // "T2DataProvider",
+        "LocalDataProvider", "MdsAsynchDataProvider"
+        // "MDSplus.MdsStreamingDataProvider"
+    };
     static final long                       serialVersionUID  = 4734523460978461L;
     static private JList                    server_list;
     private final JButton                   add_b, remove_b, exit_b, connect_b, modify_b;

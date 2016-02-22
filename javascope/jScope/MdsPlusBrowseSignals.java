@@ -5,11 +5,10 @@ import java.util.Properties;
 import java.util.StringTokenizer;
 
 public class MdsPlusBrowseSignals extends jScopeBrowseSignals{
-    static final long serialVersionUID = 8643838486846L;
-    String            path;
-    String            server_url;
-    String            shot;
-    String            tree;
+    public static final long serialVersionUID = 8643838486846L;
+    private String           server_url;
+    private String           shot;
+    private String           tree;
 
     @Override
     protected String getServerAddr() {

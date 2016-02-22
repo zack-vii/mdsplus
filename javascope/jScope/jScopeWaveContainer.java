@@ -767,9 +767,8 @@ final class jScopeWaveContainer extends WaveformContainer{
         if(this.save_as_txt_directory != null && this.save_as_txt_directory.trim().length() != 0) file_diag.setCurrentDirectory(new File(this.save_as_txt_directory));
         file_diag.setDialogTitle(title);
         int returnVal = JFileChooser.CANCEL_OPTION;
-        boolean done = false;
         String txtsig_file = null;
-        while(!done){
+        while(true){
             returnVal = file_diag.showSaveDialog(this);
             if(returnVal == JFileChooser.APPROVE_OPTION){
                 final File file = file_diag.getSelectedFile();
@@ -777,9 +776,9 @@ final class jScopeWaveContainer extends WaveformContainer{
                 if(file.exists()){
                     final Object[] options = {"Yes", "No"};
                     final int val = JOptionPane.showOptionDialog(null, txtsig_file + " already exists.\nDo you want to replace it?", "Save as", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE, null, options, options[1]);
-                    if(val == JOptionPane.YES_OPTION) done = true;
-                }else done = true;
-            }else done = true;
+                    if(val == JOptionPane.YES_OPTION) break;
+                }else break;
+            }else break;
         }
         if(returnVal == JFileChooser.APPROVE_OPTION){
             if(txtsig_file != null){
@@ -788,10 +787,9 @@ final class jScopeWaveContainer extends WaveformContainer{
                     for(int i = 0; i < this.GetWaveformCount(); i++)
                         panel.addElement((jScopeMultiWave)this.GetWavePanel(i));
                 }else panel.addElement(w);
-                String s = "", s1 = "", s2 = "";
-                boolean g_more_point;
-                final StringBuffer space = new StringBuffer();
                 try{
+                    final StringBuffer space = new StringBuffer();
+                    String s = "", s1 = "", s2 = "";
                     final BufferedWriter out = new BufferedWriter(new FileWriter(txtsig_file));
                     for(int l = 0; l < 3; l++){
                         s = "%";
@@ -821,7 +819,6 @@ final class jScopeWaveContainer extends WaveformContainer{
                         }
                         out.newLine();
                     }
-                    g_more_point = true;
                     int n_max_sig = 0;
                     final boolean more_point[] = new boolean[panel.size()];
                     for(int k = 0; k < panel.size(); k++){
@@ -831,6 +828,7 @@ final class jScopeWaveContainer extends WaveformContainer{
                         if(wi == null || wi.signals == null) continue;
                         if(wi.signals.length > n_max_sig) n_max_sig = wi.signals.length;
                     }
+                    boolean g_more_point = true;
                     final int start_idx[][] = new int[panel.size()][n_max_sig];
                     while(g_more_point){
                         g_more_point = false;
@@ -839,7 +837,7 @@ final class jScopeWaveContainer extends WaveformContainer{
                             wi = (MdsWaveInterface)wave.wi;
                             if(wi == null || wi.signals == null) continue;
                             if(!more_point[k]){
-                                for(final Signal signal : wi.signals)
+                                for(int i = 0; i < wi.signals.length; i++)
                                     out.write("                                   ");
                                 continue;
                             }
@@ -847,9 +845,6 @@ final class jScopeWaveContainer extends WaveformContainer{
                             int j = 0;
                             final double xmax = wave.GetWaveformMetrics().XMax();
                             final double xmin = wave.GetWaveformMetrics().XMin();
-                            // int start_idx[] = new int[wi.signals.length];
-                            // for(int i = 0; i < wi.signals.length; i++)
-                            // start_idx[i] = 0;
                             more_point[k] = false;
                             for(int i = 0; i < wi.signals.length; i++){
                                 s1 = "";

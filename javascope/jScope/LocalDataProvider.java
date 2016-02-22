@@ -218,7 +218,7 @@ public class LocalDataProvider extends MdsDataProvider /* implements DataProvide
                     if(DEBUG.D) System.out.println(">> Short");
                 case 4: // int32
                 {
-                    if(DEBUG.D && this.pixelSize == 4) System.out.println(">> Integer");
+                    if(DEBUG.D) if(this.pixelSize == 4) System.out.println(">> Integer");
                     int buf[] = LocalDataProvider.this.GetIntArray(nodeName);
                     if(buf == null) throw new IOException(LocalDataProvider.this.ErrorString());
                     maxpages = buf.length / size;
@@ -235,7 +235,7 @@ public class LocalDataProvider extends MdsDataProvider /* implements DataProvide
                 }
                 case 8: // Double & (double)Float
                 {
-                    if(DEBUG.D && this.pixelSize == 8) System.out.println(">> Double");
+                    if(DEBUG.D) System.out.println(">> Double");
                     float buf[] = LocalDataProvider.this.GetFloatArrayNative(nodeName);
                     if(buf == null) throw new IOException(LocalDataProvider.this.ErrorString());
                     maxpages = buf.length / size;
