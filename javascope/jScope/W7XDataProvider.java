@@ -5,18 +5,134 @@ import java.awt.Dimension;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.List;
 import java.util.Vector;
 import javax.swing.JFrame;
 import de.mpg.ipp.codac.signalaccess.IndexIterator;
 import de.mpg.ipp.codac.signalaccess.Signal;
+import de.mpg.ipp.codac.signalaccess.SignalAddress;
 import de.mpg.ipp.codac.signalaccess.SignalAddressBuilder;
 import de.mpg.ipp.codac.signalaccess.SignalReader;
 import de.mpg.ipp.codac.signalaccess.SignalToolsFactory;
+import de.mpg.ipp.codac.signalaccess.SignalsTreeLister;
 import de.mpg.ipp.codac.signalaccess.objylike.ArchieToolsFactory;
 import de.mpg.ipp.codac.signalaccess.readoptions.ReadOptions;
 import de.mpg.ipp.codac.w7xtime.TimeInterval;
 
 final class W7XDataProvider implements DataProvider{
+    public static class signalaccess{
+        public static final signalaccess arch = new signalaccess(false);
+        public static final signalaccess test = new signalaccess(true);
+
+        private static final SignalAddress getAddress(String path) {
+            if(signalaccess.isTest(path)){
+                signalaccess.test.sab.newBuilder().path(path.substring(5)).build();
+            }
+            if(path.toUpperCase().startsWith("/ARCHIVEDB/")) path = path.substring(10);
+            return signalaccess.arch.sab.newBuilder().path(path).build();
+        }
+
+        public static final byte[] getByteAt(final Signal signal, final int index, final int frameType) throws IOException {
+            final int w = signal.getDimensionSize(1);
+            final int h = signal.getDimensionSize(2);
+            if(frameType == FrameData.BITMAP_IMAGE_8){
+                final byte[] data = new byte[w * h];
+                for(int iw = 0; iw < w; iw++)
+                    for(int ih = 0; ih < h; ih++)
+                        signal.getValue(Byte.class, new int[]{index, iw, ih});
+                return data;
+            }
+            final ByteArrayOutputStream dosb = new ByteArrayOutputStream();
+            final DataOutputStream dos = new DataOutputStream(dosb);
+            try{
+                if(frameType == FrameData.BITMAP_IMAGE_16) for(int iw = 0; iw < w; iw++)
+                    for(int ih = 0; ih < h; ih++)
+                        dos.writeShort(signal.getValue(Integer.class, new int[]{index, iw, ih}));
+                else if(frameType == FrameData.BITMAP_IMAGE_32) for(int iw = 0; iw < w; iw++)
+                    for(int ih = 0; ih < h; ih++)
+                        dos.writeInt(signal.getValue(Integer.class, new int[]{index, iw, ih}));
+                else if(frameType == FrameData.BITMAP_IMAGE_FLOAT) for(int iw = 0; iw < w; iw++)
+                    for(int ih = 0; ih < h; ih++)
+                        dos.writeFloat(signal.getValue(Float.class, new int[]{index, iw, ih}));
+                dos.close();
+                return dosb.toByteArray();
+            }catch(final IOException e){}
+            return null;
+        }
+
+        public static final double[] getDouble(final Signal signal) {
+            final int count = signal.getSampleCount();
+            final double[] data = new double[count];
+            if(count == 0) return data;
+            final IndexIterator iter = IndexIterator.of(signal);
+            for(int i = 0; i < count; i++)
+                data[i] = signal.getValue(Double.class, iter.next());
+            return data;
+        }
+
+        public static final float[] getFloat(final Signal signal) {
+            final int count = signal.getSampleCount();
+            final float[] data = new float[count];
+            if(count == 0) return data;
+            final IndexIterator iter = IndexIterator.of(signal);
+            for(int i = 0; i < count; i++)
+                data[i] = signal.getValue(Double.class, iter.next()).floatValue();
+            return data;
+        }
+
+        public static final long[] getLong(final Signal signal) {
+            final int count = signal.getSampleCount();
+            final long[] data = new long[count];
+            if(count == 0) return data;
+            final IndexIterator iter = IndexIterator.of(signal);
+            for(int i = 0; i < count; i++)
+                data[i] = signal.getValue(Long.class, iter.next());
+            return data;
+        }
+
+        private static final SignalReader getReader(final String path) {
+            if(signalaccess.isTest(path)) return signalaccess.test.stf.makeSignalReader(signalaccess.getAddress(path));
+            return signalaccess.arch.stf.makeSignalReader(signalaccess.getAddress(path));
+        }
+
+        private static final Signal getSignal(final String path, final TimeInterval ti, final ReadOptions ro) {
+            Signal sig;
+            final SignalReader sr = W7XDataProvider.signalaccess.getReader(path);
+            try{
+                sig = sr.readSignal(ti, ro);
+            }finally{
+                sr.close();
+            }
+            return sig;
+        }
+
+        private static final TimeInterval getTimeInterval(final long from, final long upto) {
+            return TimeInterval.ALL.withStart(from).withEnd(upto);
+        }
+
+        private static final boolean isTest(final String path) {
+            return path.toUpperCase().startsWith("/TEST/");
+        }
+        public final SignalAddressBuilder sab;
+        public final SignalToolsFactory   stf;
+        public final SignalsTreeLister    stl;
+
+        private signalaccess(final boolean test){
+            if(test) this.stf = ArchieToolsFactory.remoteArchive("Test");
+            else this.stf = ArchieToolsFactory.remoteArchive();
+            this.sab = this.stf.makeSignalAddressBuilder(new String[0]);
+            this.stl = this.stf.makeSignalsTreeLister();
+        }
+
+        public final List<SignalAddress> getList(final String path) {
+            return this.getList(path, TimeInterval.ALL);
+        }
+
+        @SuppressWarnings("unchecked")
+        public final List<SignalAddress> getList(final String path, final TimeInterval ti) {
+            return (List<SignalAddress>)this.stl.listFor(ti, path);
+        }
+    }
     class SimpleFrameData implements FrameData{
         int frameType = 0;
         String in_y, in_x;
@@ -56,7 +172,7 @@ final class W7XDataProvider implements DataProvider{
         @Override
         public byte[] GetFrameAt(final int idx) throws IOException {
             this.getSignals();
-            return W7XDataProvider.getByteAt(this.sig_y, idx, this.GetFrameType());
+            return W7XDataProvider.signalaccess.getByteAt(this.sig_y, idx, this.GetFrameType());
         }
 
         @Override
@@ -68,13 +184,13 @@ final class W7XDataProvider implements DataProvider{
         public double[] GetFrameTimes() throws IOException {
             this.getSignals();
             if(this.in_x == null){
-                final long[] x = W7XDataProvider.getLong(this.sig_x);
+                final long[] x = W7XDataProvider.signalaccess.getLong(this.sig_x);
                 final double[] xd = new double[x.length];
                 for(int i = 0; i < x.length; i++)
                     xd[i] = (x[i] - this.orig) / 1E9;
                 return xd;
             }
-            return W7XDataProvider.getDouble(this.sig_x);
+            return W7XDataProvider.signalaccess.getDouble(this.sig_x);
         }
 
         @Override
@@ -96,10 +212,10 @@ final class W7XDataProvider implements DataProvider{
 
         private void getSignals() {
             if(this.sig_y != null && this.sig_x != null) return;
-            final TimeInterval ti = W7XDataProvider.getTimeInterval(this.from, this.upto);
+            final TimeInterval ti = W7XDataProvider.signalaccess.getTimeInterval(this.from, this.upto);
             final ReadOptions ro = ReadOptions.fetchAll();
-            this.sig_y = W7XDataProvider.getSignal(this.in_y, ti, ro);
-            this.sig_x = (this.in_x == null) ? this.sig_y.getDimensionSignal(0) : W7XDataProvider.getSignal(this.in_x, ti, ro);
+            this.sig_y = W7XDataProvider.signalaccess.getSignal(this.in_y, ti, ro);
+            this.sig_x = (this.in_x == null) ? this.sig_y.getDimensionSignal(0) : W7XDataProvider.signalaccess.getSignal(this.in_x, ti, ro);
         }
     }
     class SimpleWaveData implements WaveData{
@@ -234,10 +350,10 @@ final class W7XDataProvider implements DataProvider{
             long starttime = 0L;
             if(DEBUG.D) starttime = System.nanoTime();
             if(this.sig_y != null && this.sig_x != null) return;
-            final TimeInterval ti = W7XDataProvider.getTimeInterval(this.from, this.upto);
+            final TimeInterval ti = W7XDataProvider.signalaccess.getTimeInterval(this.from, this.upto);
             final ReadOptions ro = ReadOptions.fetchAll();
-            this.sig_y = W7XDataProvider.getSignal(this.in_y, ti, ro);
-            this.sig_x = (this.in_x == null) ? this.sig_y.getDimensionSignal(0) : W7XDataProvider.getSignal(this.in_x, ti, ro);
+            this.sig_y = W7XDataProvider.signalaccess.getSignal(this.in_y, ti, ro);
+            this.sig_x = (this.in_x == null) ? this.sig_y.getDimensionSignal(0) : W7XDataProvider.signalaccess.getSignal(this.in_x, ti, ro);
             if(DEBUG.D) System.out.println("getSignals took " + (System.nanoTime() - starttime) / 1E9 + "s");
         }
 
@@ -252,12 +368,12 @@ final class W7XDataProvider implements DataProvider{
 
         @Override
         public double[] getX2D() {
-            return W7XDataProvider.getDouble(this.sig_x);
+            return W7XDataProvider.signalaccess.getDouble(this.sig_x);
         }
 
         @Override
         public long[] getX2DLong() {
-            return W7XDataProvider.getLong(this.sig_x);
+            return W7XDataProvider.signalaccess.getLong(this.sig_x);
         }
 
         @Override
@@ -267,7 +383,7 @@ final class W7XDataProvider implements DataProvider{
 
         @Override
         public float[] getY2D() {
-            return W7XDataProvider.getFloat(this.sig_y.getDimensionSignal(1));
+            return W7XDataProvider.signalaccess.getFloat(this.sig_y.getDimensionSignal(1));
         }
 
         @Override
@@ -281,7 +397,7 @@ final class W7XDataProvider implements DataProvider{
 
         @Override
         public float[] getZ() {
-            return W7XDataProvider.getFloat(this.sig_y);
+            return W7XDataProvider.signalaccess.getFloat(this.sig_y);
         }
 
         @Override
@@ -300,96 +416,10 @@ final class W7XDataProvider implements DataProvider{
         }
     }
 
-    public static byte[] getByteAt(final Signal signal, final int index, final int frameType) throws IOException {
-        final int w = signal.getDimensionSize(1);
-        final int h = signal.getDimensionSize(2);
-        if(frameType == FrameData.BITMAP_IMAGE_8){
-            final byte[] data = new byte[w * h];
-            for(int iw = 0; iw < w; iw++)
-                for(int ih = 0; ih < h; ih++)
-                    signal.getValue(Byte.class, new int[]{index, iw, ih});
-            return data;
-        }
-        final ByteArrayOutputStream dosb = new ByteArrayOutputStream();
-        final DataOutputStream dos = new DataOutputStream(dosb);
-        try{
-            if(frameType == FrameData.BITMAP_IMAGE_16) for(int iw = 0; iw < w; iw++)
-                for(int ih = 0; ih < h; ih++)
-                    dos.writeShort(signal.getValue(Integer.class, new int[]{index, iw, ih}));
-            else if(frameType == FrameData.BITMAP_IMAGE_32) for(int iw = 0; iw < w; iw++)
-                for(int ih = 0; ih < h; ih++)
-                    dos.writeInt(signal.getValue(Integer.class, new int[]{index, iw, ih}));
-            else if(frameType == FrameData.BITMAP_IMAGE_FLOAT) for(int iw = 0; iw < w; iw++)
-                for(int ih = 0; ih < h; ih++)
-                    dos.writeFloat(signal.getValue(Float.class, new int[]{index, iw, ih}));
-            dos.close();
-            return dosb.toByteArray();
-        }catch(final IOException e){}
-        return null;
-    }
-
-    public static double[] getDouble(final Signal signal) {
-        final int count = signal.getSampleCount();
-        final double[] data = new double[count];
-        if(count == 0) return data;
-        final IndexIterator iter = IndexIterator.of(signal);
-        for(int i = 0; i < count; i++)
-            data[i] = signal.getValue(Double.class, iter.next());
-        return data;
-    }
-
-    public static float[] getFloat(final Signal signal) {
-        final int count = signal.getSampleCount();
-        final float[] data = new float[count];
-        if(count == 0) return data;
-        final IndexIterator iter = IndexIterator.of(signal);
-        for(int i = 0; i < count; i++)
-            data[i] = signal.getValue(Double.class, iter.next()).floatValue();
-        return data;
-    }
-
-    public static long[] getLong(final Signal signal) {
-        final int count = signal.getSampleCount();
-        final long[] data = new long[count];
-        if(count == 0) return data;
-        final IndexIterator iter = IndexIterator.of(signal);
-        for(int i = 0; i < count; i++)
-            data[i] = signal.getValue(Long.class, iter.next());
-        return data;
-    }
-
-    private static SignalReader getReader(String path) {
-        if(path.toUpperCase().startsWith("/TEST/")){
-            final SignalToolsFactory stf_test = ArchieToolsFactory.remoteArchive("Test");
-            final SignalAddressBuilder sab_test = stf_test.makeSignalAddressBuilder(new String[0]);
-            return stf_test.makeSignalReader(sab_test.newBuilder().path(path.substring(5)).build());
-        }
-        if(path.toUpperCase().startsWith("/ARCHIVEDB/")) path = path.substring(10);
-        final SignalToolsFactory stf = ArchieToolsFactory.remoteArchive();
-        final SignalAddressBuilder sab = stf.makeSignalAddressBuilder(new String[0]);
-        return stf.makeSignalReader(sab.newBuilder().path(path).build());
-    }
-
-    private static Signal getSignal(final String path, final TimeInterval ti, final ReadOptions ro) {
-        Signal sig;
-        final SignalReader sr = W7XDataProvider.getReader(path);
-        try{
-            sig = sr.readSignal(ti, ro);
-        }finally{
-            sr.close();
-        }
-        return sig;
-    }
-
-    private static TimeInterval getTimeInterval(final long from, final long upto) {
-        return TimeInterval.ALL.withStart(from).withEnd(upto);
-    }
-
     private static boolean isW7X(final String in) {
         return in.contains("_DATASTREAM");
     }
 
-    /** mds forwarding **/
     public static boolean SupportsCompression() {
         return MdsDataProvider.SupportsCompression();
     }
@@ -437,7 +467,6 @@ final class W7XDataProvider implements DataProvider{
         return this.mds.GetFloat(in);
     }
 
-    /** end mds forwarding **/
     @Override
     public FrameData GetFrameData(final String in_y, final String in_x, final float time_min, final float time_max) throws IOException {
         return W7XDataProvider.isW7X(in_y) ? new SimpleFrameData(in_y, in_x, time_min, time_max) : this.mds.GetFrameData(in_y, in_x, time_min, time_max);
