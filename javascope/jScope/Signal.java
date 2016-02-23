@@ -1206,72 +1206,77 @@ final public class Signal implements WaveDataListener{
     }
 
     public int FindClosestIdx(final double curr_x, final double curr_y) {
-        double min_dist, curr_dist;
-        int min_idx;
-        int i = 0;
-        if(this.type == Signal.TYPE_2D && (this.mode2D == Signal.MODE_IMAGE || this.mode2D == Signal.MODE_CONTOUR)){
-            this.img_xprev = Signal.FindIndex(this.x2D, curr_x, this.img_xprev);
-            this.img_yprev = Signal.FindIndex(this.y2D, curr_y, this.img_yprev);
-            if(this.img_xprev > this.y2D.length) return this.img_xprev - 6;
-            return this.img_xprev;
-        }
-        double currX[];
-        if(this.type == Signal.TYPE_1D) currX = this.x;
-        else{
-            if(this.mode2D == Signal.MODE_XZ || this.mode2D == Signal.MODE_YZ) currX = this.sliceX;
+        try{
+            double min_dist, curr_dist;
+            int min_idx;
+            int i = 0;
+            if(this.type == Signal.TYPE_2D && (this.mode2D == Signal.MODE_IMAGE || this.mode2D == Signal.MODE_CONTOUR)){
+                this.img_xprev = Signal.FindIndex(this.x2D, curr_x, this.img_xprev);
+                this.img_yprev = Signal.FindIndex(this.y2D, curr_y, this.img_yprev);
+                if(this.img_xprev > this.y2D.length) return this.img_xprev - 6;
+                return this.img_xprev;
+            }
+            double currX[];
+            if(this.type == Signal.TYPE_1D) currX = this.x;
             else{
-                final double xf[] = this.x2D;
-                currX = new double[xf.length];
-                for(int idx = 0; idx < xf.length; idx++)
-                    currX[idx] = xf[idx];
-            }
-        }
-        if(this.increasing_x || this.type == Signal.TYPE_2D){
-            if(currX == null) return -1;
-            if(this.prev_idx >= currX.length) this.prev_idx = currX.length - 1;
-            if(curr_x > currX[this.prev_idx]){
-                for(i = this.prev_idx; i < currX.length && currX[i] < curr_x; i++);
-                if(i > 0) i--;
-                this.prev_idx = i;
-                return i;
-            }
-            if(curr_x < currX[this.prev_idx]){
-                for(i = this.prev_idx; i > 0 && currX[i] > curr_x; i--);
-                this.prev_idx = i;
-                return i;
-            }
-            return this.prev_idx;
-        }
-        // Handle below x values not in ascending order
-        if(curr_x > this.curr_xmax){
-            for(min_idx = 0; min_idx < currX.length && currX[min_idx] != this.curr_xmax; min_idx++);
-            if(min_idx == currX.length) min_idx--;
-            return min_idx;
-        }
-        if(curr_x < this.curr_xmin){
-            for(min_idx = 0; min_idx < currX.length && currX[min_idx] != this.curr_xmin; min_idx++);
-            if(min_idx == currX.length) min_idx--;
-            return min_idx;
-        }
-        min_idx = 0;
-        min_dist = Double.POSITIVE_INFINITY;
-        this.find_NaN = false;
-        for(i = 0; i < this.x.length - 1; i++){
-            if(Float.isNaN(this.y[i])){
-                this.find_NaN = true;
-                continue;
-            }
-            if(curr_x > currX[i] && curr_x < currX[i + 1] || curr_x < currX[i] && curr_x > currX[i + 1] || currX[i] == currX[i + 1]){
-                curr_dist = (curr_x - currX[i]) * (curr_x - currX[i]) + (curr_y - this.y[i]) * (curr_y - this.y[i]);
-                // Patch to elaborate strange RFX signal (roprand bar error signal)
-                if(currX[i] != currX[i + 1] && !Float.isNaN(this.y[i + 1])) curr_dist += (curr_x - currX[i + 1]) * (curr_x - currX[i + 1]) + (curr_y - this.y[i + 1]) * (curr_y - this.y[i + 1]);
-                if(curr_dist < min_dist){
-                    min_dist = curr_dist;
-                    min_idx = i;
+                if(this.mode2D == Signal.MODE_XZ || this.mode2D == Signal.MODE_YZ) currX = this.sliceX;
+                else{
+                    final double xf[] = this.x2D;
+                    currX = new double[xf.length];
+                    for(int idx = 0; idx < xf.length; idx++)
+                        currX[idx] = xf[idx];
                 }
             }
+            if(this.increasing_x || this.type == Signal.TYPE_2D){
+                if(currX == null) return -1;
+                if(this.prev_idx >= currX.length) this.prev_idx = currX.length - 1;
+                if(curr_x > currX[this.prev_idx]){
+                    for(i = this.prev_idx; i < currX.length && currX[i] < curr_x; i++);
+                    if(i > 0) i--;
+                    this.prev_idx = i;
+                    return i;
+                }
+                if(curr_x < currX[this.prev_idx]){
+                    for(i = this.prev_idx; i > 0 && currX[i] > curr_x; i--);
+                    this.prev_idx = i;
+                    return i;
+                }
+                return this.prev_idx;
+            }
+            // Handle below x values not in ascending order
+            if(curr_x > this.curr_xmax){
+                for(min_idx = 0; min_idx < currX.length && currX[min_idx] != this.curr_xmax; min_idx++);
+                if(min_idx == currX.length) min_idx--;
+                return min_idx;
+            }
+            if(curr_x < this.curr_xmin){
+                for(min_idx = 0; min_idx < currX.length && currX[min_idx] != this.curr_xmin; min_idx++);
+                if(min_idx == currX.length) min_idx--;
+                return min_idx;
+            }
+            min_idx = 0;
+            min_dist = Double.POSITIVE_INFINITY;
+            this.find_NaN = false;
+            for(i = 0; i < this.x.length - 1; i++){
+                if(Float.isNaN(this.y[i])){
+                    this.find_NaN = true;
+                    continue;
+                }
+                if(curr_x > currX[i] && curr_x < currX[i + 1] || curr_x < currX[i] && curr_x > currX[i + 1] || currX[i] == currX[i + 1]){
+                    curr_dist = (curr_x - currX[i]) * (curr_x - currX[i]) + (curr_y - this.y[i]) * (curr_y - this.y[i]);
+                    // Patch to elaborate strange RFX signal (roprand bar error signal)
+                    if(currX[i] != currX[i + 1] && !Float.isNaN(this.y[i + 1])) curr_dist += (curr_x - currX[i + 1]) * (curr_x - currX[i + 1]) + (curr_y - this.y[i + 1]) * (curr_y - this.y[i + 1]);
+                    if(curr_dist < min_dist){
+                        min_dist = curr_dist;
+                        min_idx = i;
+                    }
+                }
+            }
+            return min_idx;
+        }catch(final Exception e){
+            System.err.println("Signal.FindClosestIdx: " + e);
         }
-        return min_idx;
+        return -1;
     }
 
     public boolean findNaN() {
