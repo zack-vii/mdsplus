@@ -14,21 +14,23 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.SimpleTimeZone;
+import java.util.TimeZone;
 
 public class Grid implements Serializable{
-    static final long   dayMilliSeconds  = 86400000;                  // 24 * 60 * 60 * 1000;
-    final static String GRID_MODE[]      = {"Dotted", "Gray", "None"};
-    final static int    IS_DOTTED        = 0, IS_GRAY = 1, IS_NONE = 2, MAX_GRID = 10;
-    final static int    IS_X             = 0, IS_Y = 1;
-    static final long   serialVersionUID = 231274264578461L;
+    static final long             dayMilliSeconds  = 86400000;                  // 24 * 60 * 60 * 1000;
+    final static String           GRID_MODE[]      = {"Dotted", "Gray", "None"};
+    final static int              IS_DOTTED        = 0, IS_GRAY = 1, IS_NONE = 2, MAX_GRID = 10;
+    final static int              IS_X             = 0, IS_Y = 1;
+    static final long             serialVersionUID = 231274264578461L;
+    private static final TimeZone UTC              = TimeZone.getTimeZone("UTC");
 
     public static long calculateDifference(final Date a, final Date b) {
         final Calendar cal1 = Calendar.getInstance();
-        // GABcal1.setTimeZone(TimeZone.getTimeZone("GMT+00"));
+        cal1.setTimeZone(Grid.UTC);
         cal1.setTime(a);
         cal1.set(cal1.get(Calendar.YEAR), cal1.get(Calendar.MONTH), cal1.get(Calendar.DAY_OF_MONTH), 23, 59, 59);
         final Calendar cal2 = Calendar.getInstance();
-        // GABcal2.setTimeZone(TimeZone.getTimeZone("GMT+00"));
+        cal2.setTimeZone(Grid.UTC);
         cal2.setTime(b);
         cal2.set(cal2.get(Calendar.YEAR), cal2.get(Calendar.MONTH), cal2.get(Calendar.DAY_OF_MONTH), 0, 0, 0);
         final long diffMillis = cal2.getTimeInMillis() - cal1.getTimeInMillis();
@@ -335,11 +337,9 @@ public class Grid implements Serializable{
                     try{
                         final long datel = Grid.toMillis(this.x_values[i]);
                         final DateFormat df = new SimpleDateFormat("HH:mm:ss");
-                        // GABdf.setTimeZone(new SimpleTimeZone(0, "GMT"));
-                        // df.setTimeZone(TimeZone.getDefault());
+                        df.setTimeZone(Grid.UTC);
                         final DateFormat dfSubSec = new SimpleDateFormat("HH:mm:ss.SSS");
-                        // --dfSubSec.setTimeZone(new SimpleTimeZone(0, "GMT"));
-                        // GABdfSubSec.setTimeZone(TimeZone.getDefault());
+                        dfSubSec.setTimeZone(Grid.UTC);
                         if(datel <= Grid.dayMilliSeconds){
                             // if the date to convert is in the date 1 Jan 1970
                             // is whown only the huor and the time xone must be set
@@ -352,8 +352,7 @@ public class Grid implements Serializable{
                         currStringSubSec = dfSubSec.format(date).toString();
                         curr_string = df.format(date).toString();
                         final DateFormat df1 = new SimpleDateFormat("d-MMM-yyyy");
-                        // --df1.setTimeZone(new SimpleTimeZone(0, "GMT"));
-                        // GABdf1.setTimeZone(TimeZone.getDefault());
+                        df1.setTimeZone(Grid.UTC);
                         final String new_date_string = df1.format(date).toString();
                         if(i == 0 || !new_date_string.equals(prev_date_string)){
                             curr_date_string = prev_date_string = new_date_string;

@@ -33,6 +33,7 @@ final class W7XDataProvider implements DataProvider{
         }
 
         public static final byte[] getByteAt(final Signal signal, final int index, final int frameType) throws IOException {
+            if(signal == null) return new byte[]{};
             final int w = signal.getDimensionSize(1);
             final int h = signal.getDimensionSize(2);
             if(frameType == FrameData.BITMAP_IMAGE_8){
@@ -61,6 +62,7 @@ final class W7XDataProvider implements DataProvider{
         }
 
         public static final double[] getDouble(final Signal signal) {
+            if(signal == null) return new double[]{};
             final int count = signal.getSampleCount();
             final double[] data = new double[count];
             if(count == 0) return data;
@@ -71,6 +73,7 @@ final class W7XDataProvider implements DataProvider{
         }
 
         public static final float[] getFloat(final Signal signal) {
+            if(signal == null) return new float[]{};
             final int count = signal.getSampleCount();
             final float[] data = new float[count];
             if(count == 0) return data;
@@ -81,6 +84,7 @@ final class W7XDataProvider implements DataProvider{
         }
 
         public static final long[] getLong(final Signal signal) {
+            if(signal == null) return new long[]{};
             final int count = signal.getSampleCount();
             final long[] data = new long[count];
             if(count == 0) return data;
@@ -260,7 +264,6 @@ final class W7XDataProvider implements DataProvider{
         boolean                                _jscope_set        = false;
         boolean                                continuousUpdate   = false;
         String                                 in_x, in_y;
-        boolean                                isXLong            = false;
         int                                    n_points;
         boolean                                resample           = false;
         long                                   shot, from, upto, orig = 0;
@@ -307,7 +310,7 @@ final class W7XDataProvider implements DataProvider{
         public XYData getData(final double xmin, final double xmax, final int numPoints, final boolean isXLong) throws Exception {
             if(this.in_x == null){
                 final long[] x = this.getX2DLong();
-                if(this.shot < 0) return new XYData(x, this.getZ(), Long.MAX_VALUE, true);
+                if(this.isXLong()) return new XYData(x, this.getZ(), Long.MAX_VALUE, true);
                 final double[] xd = new double[x.length];
                 for(int i = 0; i < x.length; i++)
                     xd[i] = (x[i] - this.orig) / 1E9;
@@ -364,7 +367,7 @@ final class W7XDataProvider implements DataProvider{
 
         @Override
         public String GetXLabel() throws IOException {
-            return (this.in_x != null) ? ((this.sig_x != null) ? this.sig_x.getUnit() : null) : (this.shot < 0 ? "time" : "s");
+            return (this.in_x != null) ? ((this.sig_x != null) ? this.sig_x.getUnit() : null) : (this.isXLong() ? "time" : "s");
         }
 
         @Override
@@ -393,7 +396,7 @@ final class W7XDataProvider implements DataProvider{
 
         @Override
         public boolean isXLong() {
-            return this.orig == 0;
+            return this.orig == 0L;
         }
 
         @Override
