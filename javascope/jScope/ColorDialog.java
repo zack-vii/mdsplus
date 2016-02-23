@@ -441,7 +441,6 @@ final class ColorDialog extends JDialog implements ActionListener, ItemListener{
     }
 
     public void SetReversed(final boolean reversed) {
-        System.out.println("Scope.reversed " + reversed);
         if(this.reversed == reversed) return;
         this.reversed = reversed;
         this.ReversedColor(this.color_name, this.color_vector);
