@@ -428,8 +428,9 @@ final public class jScopeFacade extends JFrame implements ActionListener, ItemLi
         return null;
     }
 
-    public static Rectangle    getRectangle()
-    {return jScopeFacade.win.getBounds();}
+    public static Rectangle getRectangle() {
+        return jScopeFacade.win.getBounds();
+    }
 
     public static long getRefreshPeriod() {
         return jScopeFacade.refreshPeriod;
@@ -495,6 +496,7 @@ final public class jScopeFacade extends JFrame implements ActionListener, ItemLi
         // do the following on the gui thread
         SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(jScopeFacade.T_parentComponent, jScopeFacade.T_message, jScopeFacade.T_title, jScopeFacade.T_messageType));
     }
+
     public static void startApplication(final String args[]) {
         String file = null;
         String propertiesFile = null;
@@ -1104,17 +1106,12 @@ final public class jScopeFacade extends JFrame implements ActionListener, ItemLi
     @Override
     public void itemStateChanged(final ItemEvent e) {
         final Object ob = e.getSource();
-        if(ob == this.brief_error_i)
-            WaveInterface.brief_error = this.brief_error_i.getState();
+        if(ob == this.brief_error_i) WaveInterface.brief_error = this.brief_error_i.getState();
         if(e.getStateChange() != ItemEvent.SELECTED) return;
-        if(ob == this.copy)
-            this.wave_panel.SetMode(Waveform.MODE_COPY);
-        if(ob == this.zoom)
-            this.wave_panel.SetMode(Waveform.MODE_ZOOM);
-        if(ob == this.point)
-            this.wave_panel.SetMode(Waveform.MODE_POINT);
-        if(ob == this.pan)
-            this.wave_panel.SetMode(Waveform.MODE_PAN);
+        if(ob == this.copy) this.wave_panel.SetMode(Waveform.MODE_COPY);
+        if(ob == this.zoom) this.wave_panel.SetMode(Waveform.MODE_ZOOM);
+        if(ob == this.point) this.wave_panel.SetMode(Waveform.MODE_POINT);
+        if(ob == this.pan) this.wave_panel.SetMode(Waveform.MODE_PAN);
     }
 
     public void jScopeCreate(final int spos_x, final int spos_y) {
@@ -2343,9 +2340,7 @@ class ServerDialog extends JDialog implements ActionListener{
             this.data_provider_list.addItem(dsi.class_name);
         }
         // if (!found && dsi.class_name == null)
-        if(dsi.class_name == null){
-            JOptionPane.showMessageDialog(null, "Undefine data server class for " + dsi.name, "alert addServerIp", JOptionPane.ERROR_MESSAGE);
-        }
+        if(dsi.class_name == null) JOptionPane.showMessageDialog(null, "Undefine data server class for " + dsi.name, "alert addServerIp", JOptionPane.ERROR_MESSAGE);
         // if (!found)
         {
             this.list_model.addElement(dsi);

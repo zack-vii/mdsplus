@@ -135,8 +135,9 @@ final class W7XDataProvider implements DataProvider{
     }
     class SimpleFrameData implements FrameData{
         int frameType = 0;
+        long   from = 0, upto = 0, orig = 0;
         String in_y, in_x;
-        long   shot, from = 0, upto = 0, orig = 0;
+
         Signal sig_y, sig_x;
 
         public SimpleFrameData(final String in_y){
@@ -146,27 +147,18 @@ final class W7XDataProvider implements DataProvider{
         public SimpleFrameData(final String in_y, final String in_x){
             this(in_y, in_x, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY);
         }
-
         public SimpleFrameData(final String in_y, final String in_x, final float time_min, final float time_max){
-            this.shot = W7XDataProvider.this.mds.shot;
             this.in_x = in_x;
             this.in_y = in_y;
-            long[] timing;
             try{
-                try{
-                    if(this.shot < 1) timing = W7XDataProvider.this.mds.GetLongArray("TIME()");
-                    else timing = W7XDataProvider.this.mds.GetLongArray("TIME(" + this.shot + ")");
-                }catch(final IOException e){
-                    W7XDataProvider.this.error = "Time not set! Use TIME(from,upto,origin) or specify a valid shot number.";
-                    throw new IOException(W7XDataProvider.this.error);
-                }
+                final long[] timing = W7XDataProvider.this.getTiming();
                 this.orig = timing.length > 2 ? timing[2] : 0L;
                 this.from = timing[0];
                 this.upto = timing[1];
-            }catch(final Exception e){
-                System.err.println(">>> W7XDataProvider.SimpleFrameData: " + e);
+                this.getSignals();
+            }catch(final IOException e){
+                System.err.println(e);
             }
-            this.getSignals();
         }
 
         @Override
@@ -285,22 +277,16 @@ final class W7XDataProvider implements DataProvider{
             this.shot = W7XDataProvider.this.mds.shot;
             this.in_x = in_x;
             this.in_y = in_y;
-            long[] timing;
             try{
-                try{
-                    timing = W7XDataProvider.this.mds.GetLongArray((this.shot < 1) ? "TIME()" : "TIME(" + this.shot + ")");
-                }catch(final IOException e){
-                    W7XDataProvider.this.error = "Time not set! Use TIME(from,upto,origin) or specify a valid shot number.";
-                    throw new IOException(W7XDataProvider.this.error);
-                }
+                final long[] timing = W7XDataProvider.this.getTiming();
+                this.orig = timing.length > 2 ? timing[2] : 0L;
                 this.from = timing[0];
                 this.upto = timing[1];
-                this.orig = timing.length > 2 ? timing[2] : 0L;
-            }catch(final Exception e){
-                System.err.println("W7XDataProvider.SimpleWaveData: " + e);
+                this.updateWorker = new UpdateWorker(this);
+                this.updateWorker.start();
+            }catch(final IOException e){
+                System.err.println(e);
             }
-            this.updateWorker = new UpdateWorker(this);
-            this.updateWorker.start();
         }
 
         @Override
@@ -415,9 +401,28 @@ final class W7XDataProvider implements DataProvider{
             this.continuousUpdate = state;
         }
     }
+    public static W7XDataProvider instance;
+    private static long[] Timing = null;
 
     private static boolean isW7X(final String in) {
-        return in.contains("_DATASTREAM");
+        return in.startsWith("/") || in.contains("_DATASTREAM");
+    }
+
+    public static final void setTiming() {
+        W7XDataProvider.instance.mds.mds.MdsValue("TIME(0)");
+    }
+
+    public static final void setTiming(final long from, final long upto) {
+        W7XDataProvider.setTiming(from, upto, 0L);
+    }
+
+    public static final void setTiming(final long from, final long upto, final long orig) {
+        W7XDataProvider.Timing = new long[]{from * 1000000L, upto * 1000000L, orig * 1000000L};
+        final Vector<Descriptor> args = new Vector<Descriptor>();
+        args.addElement(new Descriptor(null, new long[]{W7XDataProvider.Timing[0]}));
+        args.addElement(new Descriptor(null, new long[]{W7XDataProvider.Timing[1]}));
+        args.addElement(new Descriptor(null, new long[]{W7XDataProvider.Timing[2]}));
+        System.out.println("" + W7XDataProvider.instance.mds.mds.MdsValue("T2STR(TIME($,$,$))", args).strdata);
     }
 
     public static boolean SupportsCompression() {
@@ -427,14 +432,16 @@ final class W7XDataProvider implements DataProvider{
     public static boolean SupportsFastNetwork() {
         return MdsDataProvider.SupportsFastNetwork();
     }
+
     String          error;
     MdsDataProvider mds;
-
     public W7XDataProvider(){
+        W7XDataProvider.instance = this;
         this.mds = new MdsDataProvider();
     }
 
     public W7XDataProvider(final String provider) throws IOException{
+        W7XDataProvider.instance = this;
         this.mds = new MdsDataProvider(provider);
     }
 
@@ -488,6 +495,17 @@ final class W7XDataProvider implements DataProvider{
     @Override
     public synchronized String GetString(final String in) throws IOException {
         return this.mds.GetString(in);
+    }
+
+    public final long[] getTiming() throws IOException {
+        try{
+            final long shot = W7XDataProvider.this.mds.shot;
+            if(shot < 1) return W7XDataProvider.this.mds.GetLongArray("TIME()");
+            return W7XDataProvider.this.mds.GetLongArray("TIME(" + shot + ")");
+        }catch(final Exception e){}
+        if(W7XDataProvider.Timing != null) return W7XDataProvider.Timing;
+        this.error = "Time not set! Use TIME(from,upto,origin) or specify a valid shot number.";
+        throw new IOException(this.error);
     }
 
     @Override

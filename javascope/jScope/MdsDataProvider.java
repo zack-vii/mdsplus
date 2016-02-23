@@ -793,7 +793,7 @@ public class MdsDataProvider implements DataProvider{
             this.continuousUpdate = continuousUpdate;
         }
     } // END Inner Class SimpleWaveData
-      // //////////////////////////////////////GAB JULY 2014
+    // //////////////////////////////////////GAB JULY 2014
     class tdicache{
         String         in_x;
         String         in_y;

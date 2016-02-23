@@ -2,30 +2,131 @@ package jScope;
 
 import jScope.W7XDataProvider.signalaccess;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.EventQueue;
+import java.awt.FlowLayout;
+import java.awt.GridLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.TimeZone;
+import javax.swing.JButton;
+import javax.swing.JFormattedTextField;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSpinner;
 import javax.swing.JTree;
+import javax.swing.SpinnerDateModel;
 import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.TreeExpansionEvent;
 import javax.swing.event.TreeWillExpandListener;
+import javax.swing.text.DateFormatter;
+import javax.swing.text.DefaultFormatterFactory;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.ExpandVetoException;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
-import com.toedter.calendar.JCalendar;
+import org.jdesktop.swingx.JXDatePicker;
+import org.jdesktop.swingx.calendar.SingleDaySelectionModel;
 import de.mpg.ipp.codac.signalaccess.SignalAddress;
 import de.mpg.ipp.codac.w7xtime.TimeInterval;
 
 public final class W7XSignalBrowser extends jScopeBrowseSignals{
+    static final class DateTimePicker extends JXDatePicker{
+        public static final DateFormat  format           = new SimpleDateFormat("yyyy-MM-dd\'T\'HH:mm:ss.SSS");
+        private static final long       serialVersionUID = 77777773L;
+        private static final DateFormat timeFormat       = new SimpleDateFormat("HH:mm:ss.SSS");
+        public static final TimeZone    UTC              = TimeZone.getTimeZone("UTC");
+        private JPanel                  timePanel;
+        private JSpinner                timeSpinner;
 
+        public DateTimePicker(final Date date, final int mm, final int ss, final int SSS){
+            super();
+            this.getMonthView().setSelectionModel(new SingleDaySelectionModel());
+            this.setTimeZone(DateTimePicker.UTC);
+            DateTimePicker.format.setTimeZone(DateTimePicker.UTC);
+            this.setFormats(DateTimePicker.format);
+            this.updateTextFieldFormat();
+            final GregorianCalendar calendar = new GregorianCalendar();
+            calendar.setTimeZone(DateTimePicker.UTC);
+            calendar.setTime(date);
+            calendar.set(Calendar.MINUTE, mm);
+            calendar.set(Calendar.SECOND, ss);
+            calendar.set(Calendar.MILLISECOND, SSS);
+            this.setDate(calendar.getTime());
+        }
+
+        @Override
+        public void cancelEdit() {
+            super.cancelEdit();
+            this.setTimeSpinners();
+        }
+
+        @Override
+        public void commitEdit() throws ParseException {
+            this.commitTime();
+            super.commitEdit();
+        }
+
+        private void commitTime() {
+            final Date date = this.getDate();
+            if(date == null) return;
+            final GregorianCalendar timeCalendar = new GregorianCalendar();
+            DateTimePicker.format.setTimeZone(DateTimePicker.UTC);
+            timeCalendar.setTime((Date)this.timeSpinner.getValue());
+            final GregorianCalendar calendar = new GregorianCalendar();
+            DateTimePicker.format.setTimeZone(DateTimePicker.UTC);
+            calendar.setTime(date);
+            calendar.set(Calendar.HOUR_OF_DAY, timeCalendar.get(Calendar.HOUR_OF_DAY));
+            calendar.set(Calendar.MINUTE, timeCalendar.get(Calendar.MINUTE));
+            calendar.set(Calendar.SECOND, timeCalendar.get(Calendar.SECOND));
+            calendar.set(Calendar.MILLISECOND, timeCalendar.get(Calendar.MILLISECOND));
+            this.setDate(calendar.getTime());
+        }
+
+        private JPanel createTimePanel() {
+            final JPanel newPanel = new JPanel();
+            newPanel.setLayout(new FlowLayout());
+            final SpinnerDateModel dateModel = new SpinnerDateModel();
+            this.timeSpinner = new JSpinner(dateModel);
+            DateTimePicker.timeFormat.setTimeZone(DateTimePicker.UTC);
+            this.updateTextFieldFormat();
+            newPanel.add(new JLabel("Time:"));
+            newPanel.add(this.timeSpinner);
+            newPanel.setBackground(Color.WHITE);
+            return newPanel;
+        }
+
+        @Override
+        public JPanel getLinkPanel() {
+            super.getLinkPanel();
+            if(this.timePanel == null) this.timePanel = this.createTimePanel();
+            this.setTimeSpinners();
+            return this.timePanel;
+        }
+
+        private void setTimeSpinners() {
+            final Date date = this.getDate();
+            if(date != null) this.timeSpinner.setValue(date);
+        }
+
+        private void updateTextFieldFormat() {
+            if( this.timeSpinner == null ) return;
+            final JFormattedTextField tf = ((JSpinner.DefaultEditor) this.timeSpinner.getEditor()).getTextField();
+            final DefaultFormatterFactory factory = (DefaultFormatterFactory) tf.getFormatterFactory();
+            final DateFormatter formatter = (DateFormatter) factory.getDefaultFormatter();
+            formatter.setFormat( DateTimePicker.timeFormat );
+        }
+    }
     public final class W7XDataBase extends W7XNode{
         private static final long                 serialVersionUID = 77777772L;
         private final String                      name;
@@ -96,7 +197,6 @@ public final class W7XSignalBrowser extends jScopeBrowseSignals{
             return ((SignalAddress)this.getUserObject()).tail();
         }
     }
-
     private static final long serialVersionUID = 77777770L;
 
     public static void main(final String[] args) {
@@ -110,7 +210,7 @@ public final class W7XSignalBrowser extends jScopeBrowseSignals{
         });
     }
     private final JPanel                contentPane;
-    private final JCalendar from,upto;
+    private final DateTimePicker        from, upto;
     public final boolean                is_image = false;
     private String                      server_url;
     private String                      shot;
@@ -127,22 +227,27 @@ public final class W7XSignalBrowser extends jScopeBrowseSignals{
         this.contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
         this.contentPane.setLayout(new BorderLayout(0, 0));
         this.setContentPane(this.contentPane);
-        final JPanel jp = new JPanel();
-        this.setMinimumSize(new Dimension(464, 300));
-        this.setPreferredSize(new Dimension(464, 550));
-        jp.add(this.from = new JCalendar(), BorderLayout.WEST);
-        jp.add(this.upto = new JCalendar(), BorderLayout.EAST);
-        this.from.getCalendar().setTimeZone(TimeZone.getTimeZone("UTC"));
-        this.from.getCalendar().set(Calendar.HOUR_OF_DAY, 0);
-        this.from.getCalendar().set(Calendar.MINUTE, 0);
-        this.from.getCalendar().set(Calendar.SECOND, 0);
-        this.from.getCalendar().set(Calendar.MILLISECOND, 0);
-        this.upto.getCalendar().setTimeZone(TimeZone.getTimeZone("UTC"));
-        this.upto.getCalendar().set(Calendar.HOUR_OF_DAY, 23);
-        this.upto.getCalendar().set(Calendar.MINUTE, 59);
-        this.upto.getCalendar().set(Calendar.SECOND, 59);
-        this.upto.getCalendar().set(Calendar.MILLISECOND, 999);
-        this.contentPane.add(jp, BorderLayout.NORTH);
+        this.setPreferredSize(new Dimension(424, 550));
+        JPanel jp,ejp;
+        JButton but;
+        final GridLayout grid = new GridLayout(2, 1);
+        grid.setVgap(-10);
+        this.contentPane.add(ejp = new JPanel(grid), BorderLayout.NORTH);
+        ejp.add(jp = new JPanel());
+        jp.add(but = new JButton("setTime"));
+        but.addActionListener(e -> {
+            W7XDataProvider.setTiming(W7XSignalBrowser.this.from.getDate().getTime(), W7XSignalBrowser.this.upto.getDate().getTime());
+        });
+        jp.add(but = new JButton("clearTime"));
+        but.addActionListener(e -> {
+            W7XDataProvider.setTiming();
+        });
+        jp.add(but = new JButton("setTime"));
+        ejp.add(ejp = new JPanel());
+        ejp.add(jp = new JPanel());
+        final Date date = new Date();
+        jp.add(this.from = new DateTimePicker(date, 0, 0, 0));
+        jp.add(this.upto = new DateTimePicker(date, 59, 59, 999));
         this.top = new DefaultMutableTreeNode("DataBase");
         final JTree tree = new JTree(this.top);
         this.contentPane.add(new JScrollPane(tree));
