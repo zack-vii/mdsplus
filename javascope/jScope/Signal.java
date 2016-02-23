@@ -851,9 +851,8 @@ final public class Signal implements WaveDataListener{
      * Autoscale x coordinates.
      */
     public void AutoscaleX() {
-        if(DEBUG.M){
-            System.out.println("Signal.AutoscaleX()");
-        }
+        if(DEBUG.M) System.out.println("Signal.AutoscaleX()");
+        if(this.x.length < 1) return;
         this.unfreeze();
         if(this.type == Signal.TYPE_2D && (this.mode2D == Signal.MODE_IMAGE || this.mode2D == Signal.MODE_CONTOUR)){
             if(DEBUG.D){
@@ -879,9 +878,8 @@ final public class Signal implements WaveDataListener{
      * Autoscale y coordinates.
      */
     public void AutoscaleY() {
-        if(DEBUG.M){
-            System.out.println("Signal.AutoscaleY()");
-        }
+        if(DEBUG.M) System.out.println("Signal.AutoscaleY()");
+        if(this.x.length < 1) return;
         if(this.type == Signal.TYPE_2D){
             if(this.mode2D == Signal.MODE_IMAGE || this.mode2D == Signal.MODE_CONTOUR){
                 this.ymax = this.y2D_max;
@@ -899,6 +897,7 @@ final public class Signal implements WaveDataListener{
         float currY[];
         if(this.type == Signal.TYPE_2D && (this.mode2D == Signal.MODE_XZ || this.mode2D == Signal.MODE_YZ)) currY = this.sliceY;
         else currY = this.y;
+        if(currY == null) return;
         int startIdx;
         // Check for initial NaN Y values
         for(startIdx = 0; startIdx < currY.length && new Float(this.y[startIdx]).isNaN(); startIdx++);
@@ -1711,31 +1710,29 @@ final public class Signal implements WaveDataListener{
     }
 
     void setAxis() {
-        int i;
-        // If the signal dimension is 2 or the x axis are not increasing, the signal is assumed to be completely in memory
-        // and no further readout from data is performed
-        if(this.type != Signal.TYPE_1D || !this.increasing_x) return;
-        // Check if the signal is fully available (i.e. has already been read without X limits)
-        if(!this.resolutionManager.isEmpty()){
-            final double minMax[] = this.resolutionManager.getMinMaxX();
-            if(minMax[0] == Double.NEGATIVE_INFINITY && minMax[1] == Double.POSITIVE_INFINITY){
-                this.xLimitsInitialized = true;
-                this.xmin = this.x[0];
-                this.xmax = this.x[this.x.length - 1];
-                return;
-            }
-        }
-        // resolutionManager.resetRegions();
         try{
+            int i;
+            // If the signal dimension is 2 or the x axis are not increasing, the signal is assumed to be completely in memory
+            // and no further readout from data is performed
+            if(this.type != Signal.TYPE_1D || !this.increasing_x) return;
+            // Check if the signal is fully available (i.e. has already been read without X limits)
+            if(!this.resolutionManager.isEmpty()){
+                final double minMax[] = this.resolutionManager.getMinMaxX();
+                if(minMax[0] == Double.NEGATIVE_INFINITY && minMax[1] == Double.POSITIVE_INFINITY){
+                    this.xLimitsInitialized = true;
+                    this.xmin = this.x[0];
+                    this.xmax = this.x[this.x.length - 1];
+                    return;
+                }
+            }
+            // resolutionManager.resetRegions();
             final XYData xyData = this.data.getData(Signal.NUM_POINTS);
             if(xyData == null) return;
             this.x = xyData.x;
             this.y = xyData.y;
             this.adjustArraySizes();
             this.increasing_x = xyData.increasingX;
-            if(this.increasing_x){
-                this.resolutionManager.addRegion(new RegionDescriptor(Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, Signal.NUM_POINTS / (this.x[this.x.length - 1] - this.x[0])));
-            }
+            if(this.increasing_x) this.resolutionManager.addRegion(new RegionDescriptor(Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, this.x.length / (this.x[this.x.length - 1] - this.x[0])));
             if(this.data.isXLong()) this.xLong = xyData.xLong;
             this.curr_xmin = this.xmin = xyData.xMin;
             this.curr_xmax = this.xmax = xyData.xMax;
@@ -1745,8 +1742,12 @@ final public class Signal implements WaveDataListener{
                 if(this.y[i] > this.ymax) this.ymax = this.y[i];
                 if(this.ymin > this.y[i]) this.ymin = this.y[i];
             }
-        }catch(final Exception exc){
-            System.err.println("Set Axis Exception: " + exc);
+        }catch(final Exception e){
+            if(DEBUG.D) System.err.println("Signal.setAxis Exception: " + e);
+            this.ymax = Double.NEGATIVE_INFINITY;
+            this.ymin = Double.POSITIVE_INFINITY;
+            this.curr_xmin = this.xmax = Double.NEGATIVE_INFINITY;
+            this.curr_xmin = this.xmin = Double.POSITIVE_INFINITY;
         }
     }
 
