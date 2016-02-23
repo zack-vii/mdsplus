@@ -842,7 +842,7 @@ final public class Signal implements WaveDataListener{
      * Autoscale Signal.
      */
     public void Autoscale() {
-        this.setAxis();
+        if(!this.setAxis()) return;
         this.AutoscaleX();
         this.AutoscaleY();
     }
@@ -852,26 +852,32 @@ final public class Signal implements WaveDataListener{
      */
     public void AutoscaleX() {
         if(DEBUG.M) System.out.println("Signal.AutoscaleX()");
-        if(this.x.length < 1) return;
-        this.unfreeze();
-        if(this.type == Signal.TYPE_2D && (this.mode2D == Signal.MODE_IMAGE || this.mode2D == Signal.MODE_CONTOUR)){
-            if(DEBUG.D){
-                System.out.println("Signal.AutoscaleX:x2D!");
+        try{
+            if(this.x.length < 1) return;
+            this.unfreeze();
+            if(this.type == Signal.TYPE_2D && (this.mode2D == Signal.MODE_IMAGE || this.mode2D == Signal.MODE_CONTOUR)){
+                if(DEBUG.D){
+                    System.out.println("Signal.AutoscaleX:x2D!");
+                }
+                this.xmax = this.x2D_max;
+                this.xmin = this.x2D_min;
+                return;
             }
-            this.xmax = this.x2D_max;
-            this.xmin = this.x2D_min;
-            return;
+            double currX[];
+            if(this.type == Signal.TYPE_2D && (this.mode2D == Signal.MODE_XZ || this.mode2D == Signal.MODE_YZ)) currX = this.sliceX;
+            else currX = this.x;
+            if(this.x == null || this.x.length == 0) return;
+            this.xmin = this.xmax = currX[0];
+            for(int i = 1; i < currX.length; i++){
+                if(currX[i] < this.xmin) this.xmin = currX[i];
+                if(currX[i] > this.xmax) this.xmax = currX[i];
+            }
+            if(this.xmin == this.xmax) this.xmax = this.xmin + (float)1E-10;
+        }catch(final Exception e){
+            System.err.println("AutoScaleX: " + e);
+            this.xmin = Double.POSITIVE_INFINITY;
+            this.xmax = Double.NEGATIVE_INFINITY;
         }
-        double currX[];
-        if(this.type == Signal.TYPE_2D && (this.mode2D == Signal.MODE_XZ || this.mode2D == Signal.MODE_YZ)) currX = this.sliceX;
-        else currX = this.x;
-        if(this.x == null || this.x.length == 0) return;
-        this.xmin = this.xmax = currX[0];
-        for(int i = 1; i < currX.length; i++){
-            if(currX[i] < this.xmin) this.xmin = currX[i];
-            if(currX[i] > this.xmax) this.xmax = currX[i];
-        }
-        if(this.xmin == this.xmax) this.xmax = this.xmin + (float)1E-10;
     }
 
     /**
@@ -879,75 +885,85 @@ final public class Signal implements WaveDataListener{
      */
     public void AutoscaleY() {
         if(DEBUG.M) System.out.println("Signal.AutoscaleY()");
-        if(this.x.length < 1) return;
-        if(this.type == Signal.TYPE_2D){
-            if(this.mode2D == Signal.MODE_IMAGE || this.mode2D == Signal.MODE_CONTOUR){
-                this.ymax = this.y2D_max;
-                this.ymin = this.y2D_min;
-            }else{
-                this.ymax = this.ymin = this.sliceY[0];
-                for(final float element : this.sliceY){
-                    if(element < this.ymin) this.ymin = element;
-                    if(element > this.ymax) this.ymax = element;
+        try{
+            if(this.x.length < 1) return;
+            if(this.type == Signal.TYPE_2D){
+                if(this.mode2D == Signal.MODE_IMAGE || this.mode2D == Signal.MODE_CONTOUR){
+                    this.ymax = this.y2D_max;
+                    this.ymin = this.y2D_min;
+                }else{
+                    this.ymax = this.ymin = this.sliceY[0];
+                    for(final float element : this.sliceY){
+                        if(element < this.ymin) this.ymin = element;
+                        if(element > this.ymax) this.ymax = element;
+                    }
+                    if(this.ymin == this.ymax) this.ymax = this.ymin == 0 ? 1 : (this.ymin < 0 ? this.ymin - this.ymin / 4 : this.ymin + this.ymin / 4);
                 }
-                if(this.ymin == this.ymax) this.ymax = this.ymin == 0 ? 1 : (this.ymin < 0 ? this.ymin - this.ymin / 4 : this.ymin + this.ymin / 4);
+                return;
             }
-            return;
-        }
-        float currY[];
-        if(this.type == Signal.TYPE_2D && (this.mode2D == Signal.MODE_XZ || this.mode2D == Signal.MODE_YZ)) currY = this.sliceY;
-        else currY = this.y;
-        if(currY == null) return;
-        int startIdx;
-        // Check for initial NaN Y values
-        for(startIdx = 0; startIdx < currY.length && new Float(this.y[startIdx]).isNaN(); startIdx++);
-        this.ymin = this.ymax = this.y[startIdx];
-        for(int i = startIdx; i < currY.length; i++){
-            if(new Float(this.y[startIdx]).isNaN()) continue;
-            if(currY[i] < this.ymin) this.ymin = currY[i];
-            if(currY[i] > this.ymax) this.ymax = currY[i];
-        }
-        if(this.ymin == this.ymax) this.ymax = this.ymin + this.ymin / 4;
-    }
-
-    public void AutoscaleY(final double min, final double max) {
-        if(DEBUG.M){
-            System.out.println("Signal.AutoscaleY(" + min + ", " + max + ")");
-        }
-        if(this.type == Signal.TYPE_2D && (this.mode2D == Signal.MODE_IMAGE || this.mode2D == Signal.MODE_CONTOUR)){
-            this.ymin = this.y2D_min;
-            this.ymax = this.y2D_max;
-            return;
-        }
-        float currY[];
-        double currX[];
-        if(this.type == Signal.TYPE_2D && (this.mode2D == Signal.MODE_XZ || this.mode2D == Signal.MODE_YZ)){
-            currY = this.sliceY;
-            currX = this.sliceX;
-        }else{
-            currY = this.y;
-            currX = this.x;
-        }
-        if(currX == null || currY == null) return;
-        final int len = (currX.length < currY.length) ? currX.length : currY.length;
-        for(int i = 0; i < len; i++){
-            if(currX[i] >= min && currX[i] <= this.xmax){
-                this.ymin = this.ymax = currY[i];
-                break;
-            }
-        }
-        for(int i = 0; i < len; i++){
-            if(currX[i] >= min && currX[i] <= max){
+            float currY[];
+            if(this.type == Signal.TYPE_2D && (this.mode2D == Signal.MODE_XZ || this.mode2D == Signal.MODE_YZ)) currY = this.sliceY;
+            else currY = this.y;
+            if(currY == null) return;
+            int startIdx;
+            // Check for initial NaN Y values
+            for(startIdx = 0; startIdx < currY.length && new Float(this.y[startIdx]).isNaN(); startIdx++);
+            this.ymin = this.ymax = this.y[startIdx];
+            for(int i = startIdx; i < currY.length; i++){
+                if(new Float(currY[i]).isNaN()) continue;
                 if(currY[i] < this.ymin) this.ymin = currY[i];
                 if(currY[i] > this.ymax) this.ymax = currY[i];
             }
+            if(this.ymin == this.ymax) this.ymax = this.ymin + this.ymin / 4;
+        }catch(final Exception e){
+            System.err.println("AutoScaleY: " + e);
+            this.ymin = Double.POSITIVE_INFINITY;
+            this.ymax = Double.NEGATIVE_INFINITY;
+        }
+    }
+
+    public void AutoscaleY(final double min, final double max) {
+        if(DEBUG.M) System.out.println("Signal.AutoscaleY(" + min + ", " + max + ")");
+        try{
+            if(this.type == Signal.TYPE_2D && (this.mode2D == Signal.MODE_IMAGE || this.mode2D == Signal.MODE_CONTOUR)){
+                this.ymin = this.y2D_min;
+                this.ymax = this.y2D_max;
+                return;
+            }
+            float currY[];
+            double currX[];
+            if(this.type == Signal.TYPE_2D && (this.mode2D == Signal.MODE_XZ || this.mode2D == Signal.MODE_YZ)){
+                currY = this.sliceY;
+                currX = this.sliceX;
+            }else{
+                currY = this.y;
+                currX = this.x;
+            }
+            if(currX == null || currY == null) return;
+            final int len = (currX.length < currY.length) ? currX.length : currY.length;
+            for(int i = 0; i < len; i++){
+                if(new Float(this.y[i]).isNaN()) continue;
+                if(currX[i] >= min && currX[i] <= this.xmax){
+                    this.ymin = this.ymax = currY[i];
+                    break;
+                }
+            }
+            for(int i = 0; i < len; i++){
+                if(new Float(this.y[i]).isNaN()) continue;
+                if(currX[i] >= min && currX[i] <= max){
+                    if(currY[i] < this.ymin) this.ymin = currY[i];
+                    if(currY[i] > this.ymax) this.ymax = currY[i];
+                }
+            }
+        }catch(final Exception e){
+            System.err.println("AutoScaleY: " + e);
+            this.ymin = Double.POSITIVE_INFINITY;
+            this.ymax = Double.NEGATIVE_INFINITY;
         }
     }
 
     void checkData(final double xMin, final double xMax) throws Exception {
-        if(DEBUG.M){
-            System.out.println("Signal.checkData(" + xMin + ", " + xMax + ")");
-        }
+        if(DEBUG.M) System.out.println("Signal.checkData(" + xMin + ", " + xMax + ")");
         final int numDimensions = this.data.getNumDimension();
         if(numDimensions == 1){
             this.type = Signal.TYPE_1D;
@@ -1056,9 +1072,7 @@ final public class Signal implements WaveDataListener{
     @Override
     public void dataRegionUpdated(final double[] regX, final float[] regY, final double resolution) {
         if(regX == null || regX.length == 0) return;
-        if(DEBUG.M){
-            System.out.println("dataRegionUpdated " + this.resolutionManager.lowResRegions.size());
-        }
+        if(DEBUG.M) System.out.println("dataRegionUpdated " + this.resolutionManager.lowResRegions.size());
         if(this.freezeMode != this.NOT_FREEZED) // If zooming in ANY part of the signal
         {
             this.pendingUpdatesV.addElement(new XYData(regX, regY, resolution, true, regX[0], regX[regX.length - 1]));
@@ -1206,6 +1220,7 @@ final public class Signal implements WaveDataListener{
     }
 
     public int FindClosestIdx(final double curr_x, final double curr_y) {
+        if(this.x.length < 1) return -1;
         try{
             double min_dist, curr_dist;
             int min_idx;
@@ -1284,9 +1299,7 @@ final public class Signal implements WaveDataListener{
     }
 
     void fireSignalUpdated(final boolean changeLimits) {
-        if(DEBUG.M){
-            System.out.println("fireSignalUpdated(" + changeLimits + ") for " + this.signalListeners.size());
-        }
+        if(DEBUG.M) System.out.println("fireSignalUpdated(" + changeLimits + ") for " + this.signalListeners.size());
         for(int i = 0; i < this.signalListeners.size(); i++)
             this.signalListeners.elementAt(i).signalUpdated(changeLimits);
     }
@@ -1714,12 +1727,12 @@ final public class Signal implements WaveDataListener{
         this.setName(name);
     }
 
-    void setAxis() {
+    boolean setAxis() {
         try{
             int i;
             // If the signal dimension is 2 or the x axis are not increasing, the signal is assumed to be completely in memory
             // and no further readout from data is performed
-            if(this.type != Signal.TYPE_1D || !this.increasing_x) return;
+            if(this.type != Signal.TYPE_1D || !this.increasing_x) return true;
             // Check if the signal is fully available (i.e. has already been read without X limits)
             if(!this.resolutionManager.isEmpty()){
                 final double minMax[] = this.resolutionManager.getMinMaxX();
@@ -1727,12 +1740,12 @@ final public class Signal implements WaveDataListener{
                     this.xLimitsInitialized = true;
                     this.xmin = this.x[0];
                     this.xmax = this.x[this.x.length - 1];
-                    return;
+                    return true;
                 }
             }
             // resolutionManager.resetRegions();
             final XYData xyData = this.data.getData(Signal.NUM_POINTS);
-            if(xyData == null) return;
+            if(xyData == null) return false;
             this.x = xyData.x;
             this.y = xyData.y;
             this.adjustArraySizes();
@@ -1747,12 +1760,14 @@ final public class Signal implements WaveDataListener{
                 if(this.y[i] > this.ymax) this.ymax = this.y[i];
                 if(this.ymin > this.y[i]) this.ymin = this.y[i];
             }
+            return true;
         }catch(final Exception e){
             if(DEBUG.D) System.err.println("Signal.setAxis Exception: " + e);
+            this.xmax = Double.NEGATIVE_INFINITY;
+            this.xmin = Double.POSITIVE_INFINITY;
             this.ymax = Double.NEGATIVE_INFINITY;
             this.ymin = Double.POSITIVE_INFINITY;
-            this.curr_xmin = this.xmax = Double.NEGATIVE_INFINITY;
-            this.curr_xmin = this.xmin = Double.POSITIVE_INFINITY;
+            return false;
         }
     }
 
