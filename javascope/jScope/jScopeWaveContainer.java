@@ -837,7 +837,8 @@ final class jScopeWaveContainer extends WaveformContainer{
                             wi = (MdsWaveInterface)wave.wi;
                             if(wi == null || wi.signals == null) continue;
                             if(!more_point[k]){
-                                for(int i = 0; i < wi.signals.length; i++)
+                                for(@SuppressWarnings("unused")
+                                final Signal signal : wi.signals)
                                     out.write("                                   ");
                                 continue;
                             }
@@ -1184,7 +1185,7 @@ final class jScopeWaveContainer extends WaveformContainer{
             }
             for(int i = 0, k = 0; i < 4; i++){
                 for(int j = 0; j < this.rows[i]; j++, k++){
-                    if(this.wave_all != null && this.wave_all[k] != null){
+                    if(this.wave_all != null && this.wave_all[k] != null && this.wave_all[k].wi != null){
                         ((MdsWaveInterface)this.wave_all[k].wi).allEvaluated();
                     }
                 }

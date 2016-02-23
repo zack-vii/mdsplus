@@ -79,8 +79,7 @@ jScope\WaveData.java jScope\WaveDisplay.java jScope\WaveformContainer.java ^
 jScope\WaveformEditor.java jScope\WaveformEditorListener.java jScope\WaveformEvent.java ^
 jScope\Waveform.java jScope\WaveformListener.java jScope\WaveformManager.java ^
 jScope\WaveformMetrics.java jScope\WaveInterface.java jScope\WavePopup.java ^
-jScope\XYData.java jScope\XYWaveData.java jScope\WaveDataListener.java ^
-jScope\W7XDataProvider.java
+jScope\XYData.java jScope\XYWaveData.java jScope\WaveDataListener.java
 
 SET WAVEDISPLAY_SRC=
 
@@ -92,7 +91,8 @@ jScope\MdsDataClient.java ^
 jScope\MdsIOException.java ^
 jScope\MdsPlusBrowseSignals.java ^
 jScope\TextorBrowseSignals.java ^
-jScope\W7XBrowseSignals.java ^
+jScope\W7XSignalBrowser.java ^
+jScope\W7XDataProvider.java ^
 jScope\DEBUG.java
  
 SET EXTRA_CLASS=^
@@ -101,7 +101,7 @@ jScope\FontPanel.class ^
 jScope\ServerDialog*.class ^
 jScope\WindowDialog.class
 
-SET CLASSPATH=-classpath ".;MindTerm.jar;W7XDataProvider.jar"
+SET CLASSPATH=-classpath ".;MindTerm.jar;swingx.jar;W7XDataProvider.jar"
 SET JAVAC="%JDK_HOME%\bin\javac.exe"
 SET JCFLAGS=-O -g:none||rem-Xlint -deprecation
 SET MANIFEST=%CD%\jScopeManifest.mf
@@ -120,6 +120,7 @@ COPY /Y colors1.tbl %JARDIR%\>NUL
 MKDIR  %JARDIR%\docs 2>NUL
 FOR %%F IN (%DOCS%) DO COPY /Y %%F /D %JARDIR%\docs>NUL
 COPY %CD%\MindTerm.jar %JARDIR%>NUL
+COPY %CD%\swingx.jar %JARDIR%>NUL
 COPY %CD%\W7XDataProvider.jar %JARDIR%>NUL
 
 :packjar

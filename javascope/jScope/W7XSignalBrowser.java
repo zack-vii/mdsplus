@@ -18,6 +18,7 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.TimeZone;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -102,6 +103,7 @@ public final class W7XSignalBrowser extends jScopeBrowseSignals{
             this.updateTextFieldFormat();
             newPanel.add(new JLabel("Time:"));
             newPanel.add(this.timeSpinner);
+            this.timeSpinner.addChangeListener(e -> {this.commitTime();});
             newPanel.setBackground(Color.WHITE);
             return newPanel;
         }
@@ -120,11 +122,11 @@ public final class W7XSignalBrowser extends jScopeBrowseSignals{
         }
 
         private void updateTextFieldFormat() {
-            if( this.timeSpinner == null ) return;
-            final JFormattedTextField tf = ((JSpinner.DefaultEditor) this.timeSpinner.getEditor()).getTextField();
-            final DefaultFormatterFactory factory = (DefaultFormatterFactory) tf.getFormatterFactory();
-            final DateFormatter formatter = (DateFormatter) factory.getDefaultFormatter();
-            formatter.setFormat( DateTimePicker.timeFormat );
+            if(this.timeSpinner == null) return;
+            final JFormattedTextField tf = ((JSpinner.DefaultEditor)this.timeSpinner.getEditor()).getTextField();
+            final DefaultFormatterFactory factory = (DefaultFormatterFactory)tf.getFormatterFactory();
+            final DateFormatter formatter = (DateFormatter)factory.getDefaultFormatter();
+            formatter.setFormat(DateTimePicker.timeFormat);
         }
     }
     public final class W7XDataBase extends W7XNode{
@@ -153,12 +155,11 @@ public final class W7XSignalBrowser extends jScopeBrowseSignals{
         }
 
         public void addSignal() {
-            if(W7XSignalBrowser.this.wave_panel != null){
-                final TreeNode[] path = this.getPath();
-                if(path == null || path.length < 2) return;
-                final String sig_path = "/" + ((W7XDataBase)path[1]).name + this.getSignalPath();
-                if(sig_path != null) W7XSignalBrowser.this.wave_panel.AddSignal(null, null, "", sig_path, true, W7XSignalBrowser.this.is_image);
-            }
+            if(W7XSignalBrowser.this.wave_panel == null) return;
+            final TreeNode[] path = this.getPath();
+            if(path == null || path.length < 2) return;
+            final String sig_path = "/" + ((W7XDataBase)path[1]).name + this.getSignalPath();
+            if(sig_path != null) W7XSignalBrowser.this.wave_panel.AddSignal(null, null, "", sig_path, true, W7XSignalBrowser.this.is_image);
         }
 
         @SuppressWarnings("unchecked")
@@ -186,9 +187,8 @@ public final class W7XSignalBrowser extends jScopeBrowseSignals{
             if(children == null) return;
             this.removeAllChildren();
             this.setAllowsChildren(children.size() > 0);
-            for(final SignalAddress node : children){
+            for(final SignalAddress node : children)
                 this.add(new W7XNode(node));
-            }
             this.loaded = true;
         }
 
@@ -211,7 +211,7 @@ public final class W7XSignalBrowser extends jScopeBrowseSignals{
     }
     private final JPanel                contentPane;
     private final DateTimePicker        from, upto;
-    public final boolean                is_image = false;
+    public boolean                      is_image = false;
     private String                      server_url;
     private String                      shot;
     public final DefaultMutableTreeNode top;
@@ -228,8 +228,9 @@ public final class W7XSignalBrowser extends jScopeBrowseSignals{
         this.contentPane.setLayout(new BorderLayout(0, 0));
         this.setContentPane(this.contentPane);
         this.setPreferredSize(new Dimension(424, 550));
-        JPanel jp,ejp;
+        JPanel jp, ejp;
         JButton but;
+        final JCheckBox cb;
         final GridLayout grid = new GridLayout(2, 1);
         grid.setVgap(-10);
         this.contentPane.add(ejp = new JPanel(grid), BorderLayout.NORTH);
@@ -237,12 +238,16 @@ public final class W7XSignalBrowser extends jScopeBrowseSignals{
         jp.add(but = new JButton("setTime"));
         but.addActionListener(e -> {
             W7XDataProvider.setTiming(W7XSignalBrowser.this.from.getDate().getTime(), W7XSignalBrowser.this.upto.getDate().getTime());
+            jScopeFacade.instance.UpdateAllWaves();
         });
         jp.add(but = new JButton("clearTime"));
         but.addActionListener(e -> {
             W7XDataProvider.setTiming();
         });
-        jp.add(but = new JButton("setTime"));
+        jp.add(cb = new JCheckBox("asImage"));
+        cb.addActionListener(e -> {
+            this.is_image = cb.isSelected();
+        });
         ejp.add(ejp = new JPanel());
         ejp.add(jp = new JPanel());
         final Date date = new Date();

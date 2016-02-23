@@ -304,19 +304,19 @@ final public class jScopeFacade extends JFrame implements ActionListener, ItemLi
                 if(rb.isSelected() && rb.getText().equals("Windows Style Look and Feel")){
                     // currentUI = "Windows";
                     UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
-                    SwingUtilities.updateComponentTreeUI(jScopeFacade.this);
+                    SwingUtilities.updateComponentTreeUI(root);
                 }else if(rb.isSelected() && rb.getText().equals("Macintosh Look and Feel")){
                     // currentUI = "Macintosh";
                     UIManager.setLookAndFeel("com.sun.java.swing.plaf.mac.MacLookAndFeel");
-                    SwingUtilities.updateComponentTreeUI(jScopeFacade.this);
+                    SwingUtilities.updateComponentTreeUI(root);
                 }else if(rb.isSelected() && rb.getText().equals("Motif Look and Feel")){
                     // currentUI = "Motif";
                     UIManager.setLookAndFeel("com.sun.java.swing.plaf.motif.MotifLookAndFeel");
-                    SwingUtilities.updateComponentTreeUI(jScopeFacade.this);
+                    SwingUtilities.updateComponentTreeUI(root);
                 }else if(rb.isSelected() && rb.getText().equals("Java Look and Feel")){
                     // currentUI = "Metal";
                     UIManager.setLookAndFeel("javax.swing.plaf.metal.MetalLookAndFeel");
-                    SwingUtilities.updateComponentTreeUI(jScopeFacade.this);
+                    SwingUtilities.updateComponentTreeUI(root);
                 }
                 jScopeFacade.this.jScopeUpdateUI();
                 /*
@@ -351,34 +351,33 @@ final public class jScopeFacade extends JFrame implements ActionListener, ItemLi
             root.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         }
     }
-    // static final long EPICS_BASE = 631062000000L;
-    // static final long EPICS_BASE = 631148400000L;
-    static final long           EPICS_BASE       = 631152000000L;
-    static public boolean       is_debug         = false;
-    public static final int     JAVA_TIME        = 1, VMS_TIME = 2, EPICS_TIME = 3;
-    // LookAndFeel class names
-    static String               macClassName     = "com.sun.java.swing.plaf.mac.MacLookAndFeel";
-    public static final int     MAX_NUM_SHOT     = 30;
-    public static final int     MAX_VARIABLE     = 10;
-    static String               metalClassName   = "javax.swing.plaf.metal.MetalLookAndFeel";
-    static String               motifClassName   = "com.sun.java.swing.plaf.motif.MotifLookAndFeel";
-    static boolean              not_sup_local    = false;
-    static int                  num_scope        = 0;
-    static long                 refreshPeriod    = -1;
-    static final long           serialVersionUID = 476443678461L;
-    static DataServerItem[]     server_ip_list;
-    static Object               T_message;
-    static int                  T_messageType;
-    static Component            T_parentComponent;
-    static String               T_title;
-    static int                  timeMode         = jScopeFacade.JAVA_TIME;
-    static final String         VERSION          = "jScope (version 7.4.5)";
-    static final long           VMS_BASE         = 0x7c95674beb4000L;
-    private static jScopeFacade win;
-    static String               windowsClassName = "com.sun.java.swing.plaf.windows.WindowsLookAndFeel";
+    // private static final long EPICS_BASE = 631062000000L;
+    // private static final long EPICS_BASE = 631148400000L;
+    private static final long      EPICS_BASE       = 631152000000L;
+    public static jScopeFacade     instance;
+    static public boolean          is_debug         = false;
+    public static final int        JAVA_TIME        = 1, VMS_TIME = 2, EPICS_TIME = 3;
+    private static String          macClassName     = "com.sun.java.swing.plaf.mac.MacLookAndFeel";
+    public static final int        MAX_NUM_SHOT     = 30;
+    public static final int        MAX_VARIABLE     = 10;
+    private static String          metalClassName   = "javax.swing.plaf.metal.MetalLookAndFeel";
+    private static String          motifClassName   = "com.sun.java.swing.plaf.motif.MotifLookAndFeel";
+    public static boolean          not_sup_local    = false;
+    private static int             num_scope        = 0;
+    private static long            refreshPeriod    = -1;
+    private static final long      serialVersionUID = 476443678461L;
+    public static DataServerItem[] server_ip_list;
+    private static Object          T_message;
+    private static int             T_messageType;
+    private static Component       T_parentComponent;
+    private static String          T_title;
+    private static int             timeMode         = jScopeFacade.JAVA_TIME;
+    public static final String     VERSION          = "jScope (version 7.4.5)";
+    private static final long      VMS_BASE         = 0x7c95674beb4000L;
+    static String                  windowsClassName = "com.sun.java.swing.plaf.windows.WindowsLookAndFeel";
 
     public static boolean busy() {
-        return jScopeFacade.win.executing_update;
+        return jScopeFacade.instance.executing_update;
     }
 
     static long convertFromSpecificTime(final long inTime) {
@@ -429,7 +428,7 @@ final public class jScopeFacade extends JFrame implements ActionListener, ItemLi
     }
 
     public static Rectangle getRectangle() {
-        return jScopeFacade.win.getBounds();
+        return jScopeFacade.instance.getBounds();
     }
 
     public static long getRefreshPeriod() {
@@ -516,15 +515,15 @@ final public class jScopeFacade extends JFrame implements ActionListener, ItemLi
                 }
             }
         }
-        if(jScopeFacade.IsNewJVMVersion()) jScopeFacade.win = new jScopeFacade(100, 100, propertiesFile);
+        if(jScopeFacade.IsNewJVMVersion()) jScopeFacade.instance = new jScopeFacade(100, 100, propertiesFile);
         else{
             System.out.println("jScope application required JDK version 1.2 or later");
             System.exit(1);
         }
-        jScopeFacade.win.pack();
-        jScopeFacade.win.setSize(750, 550);
+        jScopeFacade.instance.pack();
+        jScopeFacade.instance.setSize(750, 550);
         jScopeFacade.num_scope++;
-        jScopeFacade.win.startScope(file);
+        jScopeFacade.instance.startScope(file);
     }
     JWindow                   aboutScreen;
     /** Menu item on menu autoscale_m */

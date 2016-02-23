@@ -261,11 +261,8 @@ final class W7XDataProvider implements DataProvider{
                 this.intUpdate();
             }
         }
-        boolean                                _jscope_set        = false;
         boolean                                continuousUpdate   = false;
         String                                 in_x, in_y;
-        int                                    n_points;
-        boolean                                resample           = false;
         long                                   shot, from, upto, orig = 0;
         public Signal                          sig_x, sig_y;
         UpdateWorker                           updateWorker;
@@ -337,13 +334,15 @@ final class W7XDataProvider implements DataProvider{
 
         private void getSignals() {
             long starttime = 0L;
-            if(DEBUG.D) starttime = System.nanoTime();
+            // if(DEBUG.D)
+            starttime = System.nanoTime();
             if(this.sig_y != null && this.sig_x != null) return;
             final TimeInterval ti = W7XDataProvider.signalaccess.getTimeInterval(this.from, this.upto);
             final ReadOptions ro = ReadOptions.fetchAll();
             this.sig_y = W7XDataProvider.signalaccess.getSignal(this.in_y, ti, ro);
             this.sig_x = (this.in_x == null) ? this.sig_y.getDimensionSignal(0) : W7XDataProvider.signalaccess.getSignal(this.in_x, ti, ro);
-            if(DEBUG.D) System.out.println("getSignals took " + (System.nanoTime() - starttime) / 1E9 + "s");
+            // if(DEBUG.D)
+            System.out.println("getSignals took " + (System.nanoTime() - starttime) / 1E9 + "s for " + this.sig_y.getSampleCount() + " samples");
         }
 
         @Override
@@ -425,7 +424,7 @@ final class W7XDataProvider implements DataProvider{
         args.addElement(new Descriptor(null, new long[]{W7XDataProvider.Timing[0]}));
         args.addElement(new Descriptor(null, new long[]{W7XDataProvider.Timing[1]}));
         args.addElement(new Descriptor(null, new long[]{W7XDataProvider.Timing[2]}));
-        System.out.println("" + W7XDataProvider.instance.mds.mds.MdsValue("T2STR(TIME($,$,$))", args).strdata);
+        System.out.println(W7XDataProvider.instance.mds.mds.MdsValue("T2STR(TIME($,$,$))", args).strdata);
     }
 
     public static boolean SupportsCompression() {
