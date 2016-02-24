@@ -84,7 +84,7 @@ final public class Signal implements WaveDataListener{
             }
             this.lowResRegions.insertElementAt(newReg, idx);
             if(DEBUG.D) System.out.println("Added region (" + newReg.lowerBound + "," + newReg.upperBound + "," + newReg.resolution + ")");
-            // Merge adjacent regions with same resolution (may happens due to the inteval enlargements which occur in zooms)
+            // Merge adjacent regions with same resolution (may happens due to the interval enlargements which occur in zooms)
             idx = 1;
             while(idx < this.lowResRegions.size()){
                 final RegionDescriptor currReg = this.lowResRegions.elementAt(idx);
@@ -122,9 +122,7 @@ final public class Signal implements WaveDataListener{
                 final RegionDescriptor currReg = this.lowResRegions.elementAt(i);
                 // 1) Lower bound is within interval
                 if(currReg.lowerBound < upperInt && currReg.lowerBound > lowerInt){
-                    if(DEBUG.D){
-                        System.out.println("CASE 1: Lower bound is within interval for region " + i + "  its resolution: " + currReg.resolution + " in resolution: " + resolution);
-                    }
+                    if(DEBUG.D) System.out.println("CASE 1: Lower bound is within interval for region " + i + "  its resolution: " + currReg.resolution + " in resolution: " + resolution);
                     if(currReg.resolution < resolution){
                         // Adjust upper bound
                         double currUpper = currReg.upperBound;
@@ -364,11 +362,8 @@ final public class Signal implements WaveDataListener{
     private int                            updSignalSizeInc;
     float                                  upError[];
     boolean                                upToDate           = false;
-    // 1D management
     double                                 x[]                = null;
     private WaveData                       x_data;
-    /** Private caches of the signal (only for 1D Signals) **/
-    // 2D management
     double                                 x2D[];
     protected double                       x2D_max;
     protected double                       x2D_min;
@@ -711,9 +706,7 @@ final public class Signal implements WaveDataListener{
     }
 
     public Signal(final WaveData data, final WaveData x_data, final double xminVal, final double xmaxVal, final WaveData lowErrData, final WaveData upErrData){
-        if(DEBUG.M){
-            System.out.println("Signal(" + data + ", " + x_data + ", " + xminVal + ", " + xmaxVal + ", " + lowErrData + ", " + upErrData + ")");
-        }
+        if(DEBUG.M) System.out.println("Signal(" + data + ", " + x_data + ", " + xminVal + ", " + xmaxVal + ", " + lowErrData + ", " + upErrData + ")");
         this.error = (lowErrData != null || upErrData != null);
         this.asym_error = (lowErrData != null && upErrData != null);
         this.up_errorData = upErrData;
@@ -861,15 +854,21 @@ final public class Signal implements WaveDataListener{
             this.xmin = this.x2D_min;
             return;
         }
-        double currX[];
-        if(this.type == Signal.TYPE_2D && (this.mode2D == Signal.MODE_XZ || this.mode2D == Signal.MODE_YZ)) currX = this.sliceX;
-        else currX = this.x;
-        if(currX == null) return;
-        for(int i = 1; i < currX.length; i++){
-            if(Double.isNaN(currX[i])) continue;
-            if(currX[i] < this.xmin) this.xmin = currX[i];
-            if(currX[i] > this.xmax) this.xmax = currX[i];
+        if(this.type == Signal.TYPE_2D && (this.mode2D == Signal.MODE_XZ || this.mode2D == Signal.MODE_YZ)) this.AutoscaleX1D(this.sliceX);
+        else this.AutoscaleX1D(this.x);
+    }
+
+    private void AutoscaleX1D(final double[] X) {
+        this.xmin = Double.POSITIVE_INFINITY;
+        this.xmax = Double.NEGATIVE_INFINITY;
+        if(X == null) return;
+        for(final double element : X){
+            if(Double.isNaN(element)) continue;
+            if(element < this.xmin) this.xmin = element;
+            if(element > this.xmax) this.xmax = element;
         }
+        if(this.fix_xmin && this.saved_xmin > this.xmin) this.xmin = this.saved_xmin;
+        if(this.fix_xmax && this.saved_xmax < this.xmax) this.xmax = this.saved_xmax;
         if(this.xmin != this.xmax) return;
         this.xmax = this.xmin + 1E-3;
         this.xmin = this.xmin - 1E-3;
@@ -910,6 +909,8 @@ final public class Signal implements WaveDataListener{
             if(Y[i] < this.ymin) this.ymin = Y[i];
             if(Y[i] > this.ymax) this.ymax = Y[i];
         }
+        if(this.fix_ymin && this.saved_ymin > this.ymin) this.ymin = this.saved_ymin;
+        if(this.fix_ymax && this.saved_ymax < this.ymax) this.ymax = this.saved_ymax;
         if(this.ymin != this.ymax) return;
         this.ymax = this.ymin + 1E-3f;
         this.ymin = this.ymin - 1E-3f;
@@ -1847,9 +1848,6 @@ final public class Signal implements WaveDataListener{
         this.curr_y_xz_idx = -1;
         switch(mode){
             case MODE_IMAGE:
-                /*
-                 * saved_ymin = ymin = y2D_min; saved_ymax = ymax = y2D_max; saved_xmin = xmin = x2D_min; saved_xmax = xmax = x2D_max;
-                 */
                 if(this.saved_ymin == Double.NEGATIVE_INFINITY) this.saved_ymin = this.ymin = this.y2D_min;
                 else this.ymin = this.saved_ymin;
                 if(this.saved_ymax == Double.POSITIVE_INFINITY) this.saved_ymax = this.ymax = this.y2D_max;
@@ -1900,8 +1898,9 @@ final public class Signal implements WaveDataListener{
     }
 
     public void setXLimits(final double xmin, final double xmax, final int mode) {
-        if(this.freezeMode != this.NOT_FREEZED) // If adding samples when freezed
-        {
+        if(DEBUG.M) System.out.println("setXLimits(" + xmin + ", " + xmax + ", " + mode + ")");
+        if(this.freezeMode != this.NOT_FREEZED){// If adding samples when freeze
+            if(DEBUG.D) System.out.println("unfreezed mode");
             this.xmin = xmin;
             this.xmax = xmax;
             return;
@@ -1909,9 +1908,7 @@ final public class Signal implements WaveDataListener{
         this.xLimitsInitialized = true;
         if(xmin != Double.NEGATIVE_INFINITY){
             this.xmin = xmin;
-            if((mode & Signal.AT_CREATION) != 0){
-                this.saved_xmin = xmin;
-            }
+            if((mode & Signal.AT_CREATION) != 0) this.saved_xmin = xmin;
             if((mode & Signal.FIXED_LIMIT) != 0) this.fix_xmin = true;
         }
         if(xmax != Double.POSITIVE_INFINITY){
@@ -1928,8 +1925,8 @@ final public class Signal implements WaveDataListener{
         actXMax += (actXMax - actXMin) / enlargeFactor;
         actXMin -= (actXMax - actXMin) / enlargeFactor;
         final double actResolution = Signal.NUM_POINTS / (actXMax - actXMin);
-        if(!this.increasing_x) return; // Dynamic resampling only for "classical" signas
-        if(this.up_errorData != null || this.low_errorData != null) return; // Dynamic resampling only without error bars
+        if(!this.increasing_x) return; // Dynamic re-sampling only for "classical" signals
+        if(this.up_errorData != null || this.low_errorData != null) return; // Dynamic re-sampling only without error bars
         final Vector<RegionDescriptor> lowResRegions = this.resolutionManager.getLowerResRegions(actXMin, actXMax, actResolution);
         for(int i = 0; i < lowResRegions.size(); i++){
             final RegionDescriptor currReg = lowResRegions.elementAt(i);
@@ -2106,7 +2103,7 @@ final public class Signal implements WaveDataListener{
     }
 
     /**
-     * Metod to call before execute a Traslate method.
+     * Method to call before execute a translate method.
      */
     public void StartTraslate() {
         this.t_xmax = this.xmax;
@@ -2203,16 +2200,16 @@ final public class Signal implements WaveDataListener{
     }
 
     /**
-     * Traslate signal of delta_x and delta_y
+     * Translate signal of delta_x and delta_y
      *
      * @param delta_x
-     *            x traslation factor
+     *            x translation factor
      * @param delta_y
-     *            y traslation factor
+     *            y translation factor
      * @param x_log
-     *            logaritm scale flag, if is logaritm scale true
+     *            logaritm scale flag, if is logarithm scale true
      * @param y_log
-     *            logaritm scale flag, if is logaritm scale true
+     *            logaritm scale flag, if is logarithm scale true
      */
     public void Traslate(final double delta_x, final double delta_y, final boolean x_log, final boolean y_log) {
         if(x_log){

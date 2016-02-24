@@ -1006,16 +1006,14 @@ final class SetupDataDialog extends JDialog implements ActionListener, ItemListe
 
     private void applyWaveform() {
         this.checkSetup();
-        {
-            this.setCursor(new Cursor(Cursor.WAIT_CURSOR));
-            try{
-                this.main_scope.wave_panel.Refresh(this.wave, "Update ");
-            }catch(final Throwable e){
-                this.main_scope.SetStatusLabel("Error during apply: " + e);
-                this.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
-            }
+        this.setCursor(new Cursor(Cursor.WAIT_CURSOR));
+        try{
+            this.main_scope.wave_panel.Refresh(this.wave, "Update ");
+        }catch(final Throwable e){
+            this.main_scope.SetStatusLabel("Error during apply: " + e);
             this.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
         }
+        this.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
     }
 
     private void cancelOperation() {
@@ -1033,7 +1031,6 @@ final class SetupDataDialog extends JDialog implements ActionListener, ItemListe
         if(def_exp ^ def_shot){
             if(!def_shot){
                 JOptionPane.showMessageDialog(null, "Experiment defined but undefined shot", "alert", JOptionPane.ERROR_MESSAGE);
-                // return 1;
                 error = 1;
             }
         }
@@ -1596,8 +1593,8 @@ final class SetupDataDialog extends JDialog implements ActionListener, ItemListe
         this.wi.experiment = new String(this.experiment.getText());
         this.wi.in_shot = new String(this.shot.getText());
         this.wi.in_def_node = new String(this.def_node.getText());
-        // wi.in_upd_event = new String(upd_event.getText());
-        // wi.cin_upd_event = new String(upd_event.getText());
+        this.wi.in_upd_event = new String(this.upd_event.getText());
+        this.wi.cin_upd_event = new String(this.upd_event.getText());
         this.wi.in_xmax = new String(this.x_max.getText());
         this.wi.in_xmin = new String(this.x_min.getText());
         this.wi.in_timemax = new String(this.time_max.getText());

@@ -1827,9 +1827,6 @@ final public class jScopeFacade extends JFrame implements ActionListener, ItemLi
 
     private void SaveAs() {
         if(this.curr_directory != null && this.curr_directory.trim().length() != 0) this.file_diag.setCurrentDirectory(new File(this.curr_directory));
-        // javax.swing.Timer tim = new javax.swing.Timer(20, new ActionListener()
-        // {
-        // public void actionPerformed(ActionEvent ae) {
         int returnVal = JFileChooser.CANCEL_OPTION;
         boolean done = false;
         while(!done){
@@ -1856,10 +1853,6 @@ final public class jScopeFacade extends JFrame implements ActionListener, ItemLi
                 this.SaveConfiguration(this.config_file);
             }
         }
-        // }
-        // });
-        // tim.setRepeats(false);
-        // tim.start();
     }
 
     public void SaveConfiguration(String conf_file) {

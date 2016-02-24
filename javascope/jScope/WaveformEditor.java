@@ -29,7 +29,6 @@ final public class WaveformEditor extends Waveform{
         final JFrame frame = new JFrame("Test WaveformEditor");
         frame.setSize(400, 300);
         frame.getContentPane().add(we);
-        frame.pack();
         frame.setVisible(true);
     }
     int                            closestIdx = -1;

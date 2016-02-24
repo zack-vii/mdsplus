@@ -1004,28 +1004,22 @@ public class Waveform extends JComponent implements SignalListener{
     }
 
     protected double MaxXSignal() {
-        if(DEBUG.M) System.out.println("Waveform.MaxXSignal()");
         if(this.waveform_signal == null) return 1.;
         return this.waveform_signal.getXmax();
     }
 
     protected double MaxYSignal() {
-        if(DEBUG.M) System.out.println("Waveform.MaxYSignal()");
         if(this.waveform_signal == null) return 1.;
-        if(this.waveform_signal.getYmax() <= this.waveform_signal.getYmin()) return this.waveform_signal.getYmax() + 1E-3 + Math.abs(this.waveform_signal.getYmax());
         return this.waveform_signal.getYmax();
     }
 
     protected double MinXSignal() {
-        if(DEBUG.M) System.out.println("Waveform.MinXSignal()");
-        if(this.waveform_signal == null) return 0.;
+        if(this.waveform_signal == null) return -1.;
         return this.waveform_signal.getXmin();
     }
 
     protected double MinYSignal() {
-        if(DEBUG.M) System.out.println("Waveform.MinYSignal()");
-        if(this.waveform_signal == null) return 0.;
-        if(this.waveform_signal.getYmax() <= this.waveform_signal.getYmin()) return this.waveform_signal.getYmin() - 1E-3 - Math.abs(this.waveform_signal.getYmax());
+        if(this.waveform_signal == null) return -1.;
         return this.waveform_signal.getYmin();
     }
 
@@ -1035,9 +1029,7 @@ public class Waveform extends JComponent implements SignalListener{
     }
 
     synchronized public void paint(final Graphics g, Dimension d, final int print_mode) {
-        if(DEBUG.M){
-            System.out.println("Waveform.paint(" + g + ", " + d + ", " + print_mode + ")");
-        }
+        if(DEBUG.M) System.out.println("Waveform.paint(" + g + ", " + d + ", " + print_mode + ")");
         this.execute_print = (print_mode != Waveform.NO_PRINT);
         final Insets i = this.getInsets();
         Waveform.setFont(g);
@@ -1457,9 +1449,7 @@ public class Waveform extends JComponent implements SignalListener{
     }
 
     public void setFixedLimits() {
-        if(DEBUG.M){
-            System.out.println("Waveform.setFixedLimits()");
-        }
+        if(DEBUG.M) System.out.println("Waveform.setFixedLimits()");
         try{
             this.waveform_signal.setXLimits(this.lx_min, this.lx_max, Signal.SIMPLE);
         }catch(final Exception exc){
@@ -1470,9 +1460,7 @@ public class Waveform extends JComponent implements SignalListener{
     }
 
     public void setFixedLimits(final float xmin, final float xmax, final float ymin, final float ymax) {
-        if(DEBUG.M){
-            System.out.println("Waveform.setFixedLimits(" + xmin + ", " + xmax + ", " + ymin + ", " + ymax + ")");
-        }
+        if(DEBUG.M) System.out.println("Waveform.setFixedLimits(" + xmin + ", " + xmax + ", " + ymin + ", " + ymax + ")");
         this.lx_max = xmax;
         this.lx_min = xmin;
         this.ly_max = ymax;

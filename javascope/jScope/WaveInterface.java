@@ -128,7 +128,6 @@ public class WaveInterface{
     public String          in_shot;
     public String          in_title, in_xlabel, in_ylabel;
     public boolean         in_upd_limits      = true;
-    // Parameter used to evaluate waveform
     public String          in_xmin, in_xmax, in_ymax, in_ymin, in_timemax, in_timemin;
     public boolean         interpolates[];
     protected boolean      is_image           = false;
@@ -144,10 +143,6 @@ public class WaveInterface{
     public int             num_shot           = 1;
     public int             num_waves;
     public String          provider;
-    // Used by GetShotArray methods to define
-    // if required shots must be evaluate
-    // private String shot_str_eval = null;
-    // private long shot_list[] = null;
     boolean                reversed           = false;
     public long            shots[];
     boolean                show_legend        = false;
@@ -161,17 +156,14 @@ public class WaveInterface{
     public double          xmax, xmin, ymax, ymin, timemax, timemin;
 
     public WaveInterface(){
-        if(DEBUG.M) System.out.println("WaveInterface()");
         this.CreateWaveInterface(null, null);
     }
 
     public WaveInterface(final DataProvider dp){
-        if(DEBUG.M) System.out.println("WaveInterface(" + dp + ")");
         this.CreateWaveInterface(null, dp);
     }
 
     public WaveInterface(final Waveform wave){
-        if(DEBUG.M) System.out.println("WaveInterface(" + wave + ")");
         this.CreateWaveInterface(wave, null);
     }
 
@@ -181,7 +173,6 @@ public class WaveInterface{
     }
 
     public void AddFrames(final String frames) {
-        if(DEBUG.M) System.out.println("WaveInterface.AddFrames(\"" + frames + "\")");
         this.AddFrames(frames, null);
     }
 
@@ -195,7 +186,6 @@ public class WaveInterface{
     }
 
     public boolean AddSignal(final String y_expr) {
-        if(DEBUG.M) System.out.println("WaveInterface.AddSignal(\"" + y_expr + "\")");
         return this.AddSignal("", y_expr);
     }
 
@@ -357,42 +347,28 @@ public class WaveInterface{
         if(DEBUG.M) System.out.println("WaveInterface.Erase()");
         this.num_waves = 0;
         this.in_label = null;
-        this.in_x = null;
-        this.in_y = null;
-        this.in_up_err = null;
-        this.in_low_err = null;
-        this.in_xmin = null;
-        this.in_xmax = null;
-        this.in_ymax = null;
-        this.in_ymin = null;
+        this.in_x = this.in_y = null;
+        this.in_up_err = this.in_low_err = null;
+        this.in_xmin = this.in_xmax = this.in_ymax = this.in_ymin = null;
         this.in_timemax = null;
         this.in_timemin = null;
-        this.in_title = null;
-        this.in_xlabel = null;
-        this.in_ylabel = null;
-        this.experiment = null;
-        this.in_shot = null;
-        this.num_shot = 1;
+        this.in_title = this.in_xlabel = this.in_ylabel = null;
+        this.experiment = this.in_shot = null;
+        this.num_shot = 0;
         this.modified = true;
-        this.markers_step = null;
-        this.markers = null;
+        this.markers = this.markers_step = null;
         this.colors_idx = null;
         this.interpolates = null;
-        this.mode2D = null;
-        this.mode1D = null;
+        this.mode2D = this.mode1D = null;
         this.shots = null;
-        this.error = null;
-        this.curr_error = null;
+        this.error = this.curr_error = null;
         this.w_error = null;
         this.signals = null;
         this.title = null;
-        this.xlabel = null;
-        this.ylabel = null;
-        this.zlabel = null;
+        this.xlabel = this.ylabel = this.zlabel = null;
         this.is_image = false;
         this.keep_ratio = true;
-        this.horizontal_flip = false;
-        this.vertical_flip = false;
+        this.horizontal_flip = this.vertical_flip = false;
         this.frames = null;
         this.show_legend = false;
         this.evaluated = null;
@@ -521,7 +497,7 @@ public class WaveInterface{
         return curr_shots;
     }
 
-    private Signal GetSignal(final int curr_wave, double xmin, final double xmax) throws Exception {
+    private Signal GetSignal(final int curr_wave, double xmin, double xmax) throws Exception {
         if(DEBUG.M) System.out.println("WaveInterface.GetSignal(" + curr_wave + ", " + xmin + ", " + xmax + ")");
         Signal out_signal = null;
         final int mode = this.wave.GetMode();
@@ -536,8 +512,8 @@ public class WaveInterface{
                 out_signal = this.GetSignalFromProvider(curr_wave, xmin, xmax);
             }
             if(out_signal != null){
-                if(xmin > xmax) xmin = xmax;
-                if(this.ymin > this.ymax) this.ymin = this.ymax;
+                if(this.xmin > xmin) xmin = this.xmin;
+                if(this.xmax < xmax) xmax = this.xmax;
                 out_signal.setXLimits(xmin, xmax, Signal.AT_CREATION | Signal.FIXED_LIMIT);
                 if(this.in_ymax != null && (this.in_ymax.trim()).length() != 0 && this.in_upd_limits) out_signal.setYmax(this.ymax, Signal.AT_CREATION | Signal.FIXED_LIMIT);
                 if(this.in_ymin != null && (this.in_ymin.trim()).length() != 0 && this.in_upd_limits) out_signal.setYmin(this.ymin, Signal.AT_CREATION | Signal.FIXED_LIMIT);
@@ -751,11 +727,6 @@ public class WaveInterface{
         this.w_error = null;
         this.signals = null;
         this.modified = true;
-        // When change data provide
-        // shot variable is reset to
-        // assure shot avaluation
-        // shot_str_eval = null;
-        // shot_list = null;
     }
 
     public void setExperiment(final String experiment) {
@@ -781,10 +752,12 @@ public class WaveInterface{
 
     public void setLimits() {
         if(DEBUG.M) System.out.println("WaveInterface.setLimits()");
-        try{
-            for(final Signal signal : this.signals)
-                if(signal != null) this.setLimits(signal);
-        }catch(final Exception e){}
+        for(final Signal signal : this.signals)
+            if(signal != null) try{
+                this.setLimits(signal);
+            }catch(final Exception e){
+                System.err.println("WaveInterface.setLimits() @ signal " + signal);
+            }
     }
 
     public void setLimits(final Signal s) throws Exception {
@@ -823,14 +796,14 @@ public class WaveInterface{
         this.show_legend = state;
     }
 
-    public synchronized int StartEvaluate() throws IOException {
+    public synchronized boolean StartEvaluate() throws IOException {
         if(DEBUG.M) System.out.println("WaveInterface.StartEvaluate()");
         this.error = null;
         if(this.modified) this.evaluated = null;
         if(this.in_y == null || this.in_x == null){
             this.error = "Missing Y or X values";
             this.signals = null;
-            return 0;
+            return false;
         }
         if(this.shots == null && !(this.experiment == null || this.experiment.trim().length() == 0)){
             this.error = "Missing shot value";
@@ -848,7 +821,7 @@ public class WaveInterface{
         }
         if(this.in_x != null && this.num_waves != this.in_x.length){
             this.error = "X values are different from Y values";
-            return 0;
+            return false;
         }
         if(this.shots != null && this.shots.length > 0){
             int i = 0;
@@ -859,14 +832,14 @@ public class WaveInterface{
         }else this.dp.Update(null, 0);
         if(this.dp.ErrorString() != null){
             this.error = this.dp.ErrorString();
-            return 0;
+            return false;
         }
         if(DEBUG.D) System.out.println(">> Compute title");
         if(this.in_title != null && (this.in_title.trim()).length() != 0){
             this.title = this.dp.GetString(this.in_title);
             if(this.title == null){
                 this.error = this.dp.ErrorString();
-                return 0;
+                return false;
             }
         }
         if(DEBUG.D) System.out.println(">> Compute limits");
@@ -874,28 +847,28 @@ public class WaveInterface{
             this.xmin = this.dp.GetFloat(this.in_xmin);
             if(this.dp.ErrorString() != null){
                 this.error = this.dp.ErrorString();
-                return 0;
+                return false;
             }
         }else this.xmin = (!this.is_image) ? Double.NEGATIVE_INFINITY : -1;
         if(this.in_xmax != null && (this.in_xmax.trim()).length() != 0 && this.in_upd_limits){
             this.xmax = this.dp.GetFloat(this.in_xmax);
             if(this.dp.ErrorString() != null){
                 this.error = this.dp.ErrorString();
-                return 0;
+                return false;
             }
         }else this.xmax = (!this.is_image) ? Double.POSITIVE_INFINITY : -1;
         if(this.in_ymax != null && (this.in_ymax.trim()).length() != 0 && this.in_upd_limits){
             this.ymax = this.dp.GetFloat(this.in_ymax);
             if(this.dp.ErrorString() != null){
                 this.error = this.dp.ErrorString();
-                return 0;
+                return false;
             }
         }else this.ymax = (!this.is_image) ? Double.POSITIVE_INFINITY : -1;
         if(this.in_ymin != null && (this.in_ymin.trim()).length() != 0 && this.in_upd_limits){
             this.ymin = this.dp.GetFloat(this.in_ymin);
             if(this.dp.ErrorString() != null){
                 this.error = this.dp.ErrorString();
-                return 0;
+                return false;
             }
         }else this.ymin = (!this.is_image) ? Double.NEGATIVE_INFINITY : -1;
         if(this.is_image){
@@ -903,14 +876,14 @@ public class WaveInterface{
                 this.timemax = this.dp.GetFloat(this.in_timemax);
                 if(this.dp.ErrorString() != null){
                     this.error = this.dp.ErrorString();
-                    return 0;
+                    return false;
                 }
             }else this.timemax = Double.POSITIVE_INFINITY;
             if(this.in_timemin != null && (this.in_timemin.trim()).length() != 0){
                 this.timemin = this.dp.GetFloat(this.in_timemin);
                 if(this.dp.ErrorString() != null){
                     this.error = this.dp.ErrorString();
-                    return 0;
+                    return false;
                 }
             }else this.timemin = Double.NEGATIVE_INFINITY;
         }
@@ -919,7 +892,7 @@ public class WaveInterface{
             this.xlabel = this.dp.GetString(this.in_xlabel);
             if(this.xlabel == null){
                 this.error = this.dp.ErrorString();
-                return 0;
+                return false;
             }
         }
         if(DEBUG.D) System.out.println(">> Compute y label");
@@ -927,12 +900,12 @@ public class WaveInterface{
             this.ylabel = this.dp.GetString(this.in_ylabel);
             if(this.ylabel == null){
                 this.error = this.dp.ErrorString();
-                return 0;
+                return false;
             }
         }
         if(this.xmin > this.xmax) this.xmin = this.xmax;
         if(this.ymin > this.ymax) this.ymin = this.ymax;
-        return 1;
+        return true;
     }
 
     public boolean UpdateShot(final long curr_shots[]) throws IOException {

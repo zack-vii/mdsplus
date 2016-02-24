@@ -138,10 +138,9 @@ final class W7XDataProvider implements DataProvider{
         }
     }
     class SimpleFrameData implements FrameData{
-        int frameType = 0;
-        long   from = 0, upto = 0, orig = 0;
+        int    frameType = 0;
+        long   from      = 0, upto = 0, orig = 0;
         String in_y, in_x;
-
         Signal sig_y, sig_x;
 
         public SimpleFrameData(final String in_y){
@@ -151,6 +150,7 @@ final class W7XDataProvider implements DataProvider{
         public SimpleFrameData(final String in_y, final String in_x){
             this(in_y, in_x, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY);
         }
+
         public SimpleFrameData(final String in_y, final String in_x, final float time_min, final float time_max){
             this.in_x = in_x;
             this.in_y = in_y;
@@ -307,14 +307,14 @@ final class W7XDataProvider implements DataProvider{
         public XYData getData(final double xmin, final double xmax, final int numPoints, final boolean isXLong) throws Exception {
             if(this.in_x == null){
                 final long[] x = this.getX2DLong();
-                if(this.isXLong()) return new XYData(x, this.getZ(), Long.MAX_VALUE, true);
+                if(this.isXLong()) return new XYData(x, this.getZ(), Double.POSITIVE_INFINITY, true);
                 final double[] xd = new double[x.length];
                 for(int i = 0; i < x.length; i++)
                     xd[i] = (x[i] - this.orig) / 1E9;
-                return new XYData(xd, this.getZ(), Double.MAX_VALUE, true);
+                return new XYData(xd, this.getZ(), Double.POSITIVE_INFINITY, true, xmin, xmax);
             }
             if(this.isXLong()) return new XYData(this.getX2DLong(), this.getZ(), Double.POSITIVE_INFINITY);
-            return new XYData(this.getX2D(), this.getZ(), Double.POSITIVE_INFINITY);
+            return new XYData(this.getX2D(), this.getZ(), Double.POSITIVE_INFINITY, false, xmin, xmax);
         }
 
         @Override
@@ -334,15 +334,13 @@ final class W7XDataProvider implements DataProvider{
 
         private void getSignals() {
             long starttime = 0L;
-            // if(DEBUG.D)
-            starttime = System.nanoTime();
+            if(DEBUG.D) starttime = System.nanoTime();
             if(this.sig_y != null && this.sig_x != null) return;
             final TimeInterval ti = W7XDataProvider.signalaccess.getTimeInterval(this.from, this.upto);
             final ReadOptions ro = ReadOptions.fetchAll();
             this.sig_y = W7XDataProvider.signalaccess.getSignal(this.in_y, ti, ro);
             this.sig_x = (this.in_x == null) ? this.sig_y.getDimensionSignal(0) : W7XDataProvider.signalaccess.getSignal(this.in_x, ti, ro);
-            // if(DEBUG.D)
-            System.out.println("getSignals took " + (System.nanoTime() - starttime) / 1E9 + "s for " + this.sig_y.getSampleCount() + " samples");
+            if(DEBUG.D) System.out.println("getSignals took " + (System.nanoTime() - starttime) / 1E9 + "s for " + this.sig_y.getSampleCount() + " samples");
         }
 
         @Override
@@ -404,7 +402,7 @@ final class W7XDataProvider implements DataProvider{
         }
     }
     public static W7XDataProvider instance;
-    private static long[] Timing = null;
+    private static long[]         Timing = null;
 
     private static boolean isW7X(final String in) {
         return in.startsWith("/") || in.contains("_DATASTREAM");
@@ -434,9 +432,9 @@ final class W7XDataProvider implements DataProvider{
     public static boolean SupportsFastNetwork() {
         return MdsDataProvider.SupportsFastNetwork();
     }
-
     String          error;
     MdsDataProvider mds;
+
     public W7XDataProvider(){
         W7XDataProvider.instance = this;
         this.mds = new MdsDataProvider();
@@ -491,6 +489,7 @@ final class W7XDataProvider implements DataProvider{
 
     @Override
     public long[] GetShots(final String in) throws IOException {
+        if(DEBUG.M) System.out.println("GetShots(" + in + ")");
         return this.mds.GetShots(in);
     }
 

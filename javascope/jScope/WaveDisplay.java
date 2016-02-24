@@ -117,7 +117,7 @@ public class WaveDisplay extends JApplet implements WaveformListener{
                     System.out.println("Shots : " + da.getShot());
                     wi.AddSignal(da.getSignalName());
                     wi.setShotArray(da.getShot());
-                    if(wi.StartEvaluate() == 1) wi.EvaluateOthers();
+                    if(wi.StartEvaluate()) wi.EvaluateOthers();
                     Signal s;
                     if(wi.signals != null && (s = wi.signals[0]) != null){
                         color = WaveDisplay.getParameterValue(signalParams, "color");
@@ -194,7 +194,7 @@ public class WaveDisplay extends JApplet implements WaveformListener{
                     wi.AddSignal(da.getSignalName());
                     System.out.println("Shots : " + da.getShot());
                     wi.setShotArray(da.getShot());
-                    if(wi.StartEvaluate() == 1) wi.EvaluateOthers();
+                    if(wi.StartEvaluate()) wi.EvaluateOthers();
                     if(wi.signals != null && (wi.signals[0]) != null){
                         this.w.Update(wi.signals);
                     }else{

@@ -77,9 +77,7 @@ final class MdsWaveInterface extends WaveInterface{
     public String       previous_shot     = "";
 
     public MdsWaveInterface(final MdsWaveInterface wi){
-        if(DEBUG.M){
-            System.out.println("MdsWaveInterface(" + wi + ")");
-        }
+        if(DEBUG.M) System.out.println("MdsWaveInterface(" + wi + ")");
         this.previous_shot = wi.previous_shot;
         this.cache_enabled = wi.cache_enabled;
         this.provider = wi.provider;
@@ -848,7 +846,7 @@ final class MdsWaveInterface extends WaveInterface{
                     String def = in_def_node;
                     if (in_def_node.indexOf("\\") == 0)
                         def = "\\\\\\" + in_def_node;
-
+                
                     dp.SetEnvironment("__default_node = " + def);
                 }
                  */
@@ -929,9 +927,9 @@ final class MdsWaveInterface extends WaveInterface{
         /* 12-2-2009
                 if( !getModified() && in_shot != null && c_shot_str != null)
                 {
-
+        
                     setModified( !in_shot.equals( c_shot_str ) );
-
+        
                     if(! getModified() )
                         return;
                 }
