@@ -409,7 +409,9 @@ final public class jScopeFacade extends JFrame implements ActionListener, ItemLi
     }
 
     public static boolean equalsString(final String s1, final String s2) {
-        return ((s1 == null || s1.length() == 0) && (s2 == null || s2.length() == 0)) || s1.equals(s2);
+        if(s1 == null) return s2 == null || s2.length() == 0;
+        if(s2 == null) return s1.length() == 0;
+        return s1.equals(s2);
     }
 
     public static String findFileInClassPath(final String file) {
@@ -2079,18 +2081,18 @@ final public class jScopeFacade extends JFrame implements ActionListener, ItemLi
 
 class ServerDialog extends JDialog implements ActionListener{
     private static String                   know_provider[]   = {"W7XDataProvider", "MdsDataProvider",
-        // "MdsDataProviderUdt",
-        // "JetMdsDataProvider",
-        // "TwuDataProvider",
-        // "JetDataProvider",
-        // "FtuDataProvider",
-        // "TSDataProvider",
-        // "AsdexDataProvider",
-        // "ASCIIDataProvider",
-        // "T2DataProvider",
-        "LocalDataProvider", "MdsAsynchDataProvider"
-        // "MDSplus.MdsStreamingDataProvider"
-    };
+                                                              // "MdsDataProviderUdt",
+                                                              // "JetMdsDataProvider",
+                                                              // "TwuDataProvider",
+                                                              // "JetDataProvider",
+                                                              // "FtuDataProvider",
+                                                              // "TSDataProvider",
+                                                              // "AsdexDataProvider",
+                                                              // "ASCIIDataProvider",
+                                                              // "T2DataProvider",
+                                                                        "LocalDataProvider", "MdsAsynchDataProvider"
+                                                                        // "MDSplus.MdsStreamingDataProvider"
+                                                                };
     static final long                       serialVersionUID  = 4734523460978461L;
     static private JList                    server_list;
     private final JButton                   add_b, remove_b, exit_b, connect_b, modify_b;

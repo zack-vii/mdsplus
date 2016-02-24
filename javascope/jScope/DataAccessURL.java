@@ -38,15 +38,14 @@ class DataAccessURL{
     }
 
     static public void getImages(final String url, final String name, final String passwd, final Frames f) throws Exception {
-        DataAccess da = null;
-        if((da = DataAccessURL.getDataAccess(url)) != null || f == null){
-            da.setPassword(passwd);
-            final FrameData fd = da.getFrameData(url);
-            if(fd == null && da.getError() == null) throw(new IOException("Incorrect password or read images error"));
-            f.SetFrameData(fd);
-            f.setName(da.getSignalName());
-            if(da.getError() != null){ throw(new IOException(da.getError())); }
-        }else throw(new IOException("Protocol not recognized"));
+        final DataAccess da = DataAccessURL.getDataAccess(url);
+        if(da == null || f == null) throw(new IOException("Protocol not recognized"));
+        da.setPassword(passwd);
+        final FrameData fd = da.getFrameData(url);
+        if(fd == null && da.getError() == null) throw(new IOException("Incorrect password or read images error"));
+        f.SetFrameData(fd);
+        f.setName(da.getSignalName());
+        if(da.getError() != null){ throw(new IOException(da.getError())); }
     }
 
     static public int getNumProtocols() {
@@ -62,20 +61,16 @@ class DataAccessURL{
     }
 
     static public Signal getSignal(final String url, String name, final String passwd) throws IOException {
-        DataAccess da = null;
-        if((da = DataAccessURL.getDataAccess(url)) != null){
-            da.setPassword(passwd);
-            final Signal s = da.getSignal(url);
-            if(s == null && da.getError() == null) throw(new IOException("Incorrect password or read signal error"));
-            if(da.getError() == null){
-                if(name == null) name = s.getName();
-                if(name == null) name = da.getSignalName() + " " + da.getShot();
-                else name = name + " " + da.getShot();
-                s.setName(name);
-                return s;
-            }
-            throw(new IOException(da.getError()));
-        }
-        return null;
+        final DataAccess da = DataAccessURL.getDataAccess(url);
+        if(da == null) return null;
+        da.setPassword(passwd);
+        if(da.getError() != null) throw new IOException(da.getError());
+        final Signal s = da.getSignal(url);
+        if(s == null) throw(new IOException("Incorrect password or read signal error"));
+        if(name == null) name = s.getName();
+        if(name == null) name = da.getSignalName() + " " + da.getShot();
+        else name = name + " " + da.getShot();
+        s.setName(name);
+        return s;
     }
 }

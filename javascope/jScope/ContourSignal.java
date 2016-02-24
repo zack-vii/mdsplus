@@ -67,28 +67,16 @@ public class ContourSignal{
         this.ymin = this.ymax = this.y[0];
         this.zmin = this.zmax = this.z[0][0];
         for(int i = 0; i < this.x.length; i++){
-            if(this.x[i] < this.xmin){
-                this.xmin = this.x[i];
-            }
-            if(this.x[i] > this.xmax){
-                this.xmax = this.x[i];
-            }
+            if(this.x[i] < this.xmin) this.xmin = this.x[i];
+            if(this.x[i] > this.xmax) this.xmax = this.x[i];
             for(int j = 0; j < this.z[0].length; j++){
-                if(this.z[i][j] < this.zmin){
-                    this.zmin = this.z[i][j];
-                }
-                if(this.z[i][j] > this.zmax){
-                    this.zmax = this.z[i][j];
-                }
+                if(this.z[i][j] < this.zmin) this.zmin = this.z[i][j];
+                if(this.z[i][j] > this.zmax) this.zmax = this.z[i][j];
             }
         }
         for(final float element : this.y){
-            if(element < this.ymin){
-                this.ymin = element;
-            }
-            if(element > this.ymax){
-                this.ymax = element;
-            }
+            if(element < this.ymin) this.ymin = element;
+            if(element > this.ymax) this.ymax = element;
         }
         this.equalCases();
     }
@@ -99,7 +87,6 @@ public class ContourSignal{
         double x1, y1, z1;
         double x2, y2, z2;
         double xc, yc, c1;
-        // System.out.println("Livello " + level);
         int xNear[] = null;
         int yNear[] = null;
         int rPoint[] = null;
@@ -113,17 +100,13 @@ public class ContourSignal{
         final int maxIteractions = this.x.length * this.y.length;
         for(int i = 0; i < this.x.length; i++){
             for(int j = 0; j < this.y.length - 1; j++){
-                if(this.xflag[i][j]){
-                    continue;
-                }
+                if(this.xflag[i][j]) continue;
                 x1 = this.x[i];
                 y1 = this.y[j];
                 z1 = this.z[i][j];
                 x2 = this.x[i];
                 y2 = this.y[j + 1];
                 z2 = this.z[i][j + 1];
-                // xflag[i][j] = true;
-                // System.out.println("Manin Case A set "+i+" "+j);
                 if(this.checkIntersection(level, z1, z2)){
                     c1 = (level - z1) / (z2 - z1);
                     xc = x1 + (x2 - x1) * c1;
@@ -138,20 +121,16 @@ public class ContourSignal{
                             this.xflag[i][j] = true;
                         }catch(final Exception exc){}
                     }
-                }else{
-                    continue;
-                }
+                }else continue;
                 boolean contourCompleted = false;
                 int l;
                 int numIteractions = 0;
                 while(!contourCompleted){
                     do{
                         try{
-                            // edge = false;
-                            // System.out.println("Riferimento ["+(ri)+","+(rj)+"]");
                             switch(edgeCase){
                                 case CASE_A:
-                                    // System.out.println("CASE_A");
+                                    if(DEBUG.D) System.out.println("CASE_A");
                                     xNear = ContourSignal.xNear_A;
                                     yNear = ContourSignal.yNear_A;
                                     rPoint = ContourSignal.rPoint_A;
@@ -159,27 +138,29 @@ public class ContourSignal{
                                     this.xflag[ri][rj] = true;
                                     break;
                                 case CASE_B:
-                                    // System.out.println("CASE_B");
+                                    if(DEBUG.D) System.out.println("CASE_B");
                                     xNear = ContourSignal.xNear_B;
                                     yNear = ContourSignal.yNear_B;
                                     rPoint = ContourSignal.rPoint_B;
                                     succCase = ContourSignal.succCase_B;
                                     break;
                                 case CASE_C:
-                                    // System.out.println("CASE_C");
+                                    if(DEBUG.D) System.out.println("CASE_C");
                                     xNear = ContourSignal.xNear_C;
                                     yNear = ContourSignal.yNear_C;
                                     rPoint = ContourSignal.rPoint_C;
                                     succCase = ContourSignal.succCase_C;
                                     break;
                                 case CASE_D:
-                                    // System.out.println("CASE_D");
+                                    if(DEBUG.D) System.out.println("CASE_D");
                                     xNear = ContourSignal.xNear_D;
                                     yNear = ContourSignal.yNear_D;
                                     rPoint = ContourSignal.rPoint_D;
                                     succCase = ContourSignal.succCase_D;
                                     this.xflag[ri][rj - 1] = true;
                                     break;
+                                default:
+                                    throw new Exception("invalid edgeCase: " + edgeCase);
                             }
                             int rri = 0;
                             int rrj = 0;
@@ -194,7 +175,7 @@ public class ContourSignal{
                                 x2 = this.x[rrii];
                                 y2 = this.y[rrjj];
                                 z2 = this.z[rrii][rrjj];
-                                // System.out.print("["+(ri + xNear[l])+","+(rj + yNear[l])+"] "+" ["+(ri + xNear[l+1])+","+(rj + yNear[l+1])+"] " + l);
+                                if(DEBUG.D) System.out.print("[" + (ri + xNear[l]) + "," + (rj + yNear[l]) + "] " + " [" + (ri + xNear[l + 1]) + "," + (rj + yNear[l + 1]) + "] " + l);
                                 if(this.checkIntersection(level, z1, z2)){
                                     if(this.equalZ2){
                                         try{
@@ -213,175 +194,158 @@ public class ContourSignal{
                                 }
                             }
                             if(l == 3){
-                                System.out.println("Errore creazione curva di livello");
+                                System.err.println("Error creating contour of level " + level);
                                 currCPoint = firstCPoint;
                             }
-                        }catch(final Exception exc){
-                            if(!(exc instanceof IOException)){
-                                // System.out.println("Eccezzione");
-                                // Quando una curva di livello esce dalla griglia
-                                // si verifica una eccezione che gestisco andando
-                                // alla ricerca sul bordo dove rientra la curva
-                                // e riprendendo quindi la ricerca dei punti
-                                // di contour
-                                boolean found = false;
-                                int xi, yj;
-                                int border;
-                                // edge = true;
-                                for(border = 0; border < 4 && !found; border++){
-                                    switch(edgeCase){
-                                        case CASE_B:
-                                            yj = this.y.length - 1;
-                                            for(xi = ri; xi > 0; xi--){
-                                                x2 = this.x[xi];
-                                                y2 = this.y[yj];
-                                                z2 = this.z[xi][yj];
-                                                x1 = this.x[xi - 1];
-                                                y1 = this.y[yj];
-                                                z1 = this.z[xi - 1][yj];
-                                                if(this.checkIntersection(level, z1, z2)){
-                                                    found = true;
-                                                    ri = xi - 1;
-                                                    rj = yj;
-                                                    edgeCase = ContourSignal.CASE_C;
-                                                    // System.out.println("CASE B Trovata int succ CASE C");
-                                                    break;
-                                                }
-                                            }
-                                            // Non ho trovato nessun punto sul lato
-                                            // superiore devo cercare un punto sul
-                                            // bordo laterale CASE_A devo partire dal primo
-                                            // punto a differenza del caso generico in cui
-                                            // devo partire dal punto successivo al segmento in cui e'
-                                            // stato individuato il punto di uscita della curva di livello
-                                            // in esame, valgono considerazioni analoghe per gli altri casi.
-                                            if(!found){
-                                                // System.out.println("CASE B NON Trovata int succ CASE A");
-                                                edgeCase = ContourSignal.CASE_D;
-                                                rj = this.y.length - 1;
-                                            }
-                                            break;
-                                        case CASE_A:
-                                            xi = this.x.length - 1;
-                                            for(yj = rj + 1; yj < this.y.length - 1; yj++){
-                                                x1 = this.x[xi];
-                                                y1 = this.y[yj];
-                                                z1 = this.z[xi][yj];
-                                                x2 = this.x[xi];
-                                                y2 = this.y[yj + 1];
-                                                z2 = this.z[xi][yj + 1];
-                                                this.xflag[xi][yj] = true;
-                                                if(this.checkIntersection(level, z1, z2)){
-                                                    found = true;
-                                                    ri = xi;
-                                                    rj = yj + 1;
-                                                    edgeCase = ContourSignal.CASE_D;
-                                                    // System.out.println("CASE A Trovata int succ CASE D");
-                                                    break;
-                                                }
-                                            }
-                                            if(!found){
-                                                // System.out.println("CASE A NON Trovata int succ CASE C");
-                                                edgeCase = ContourSignal.CASE_B;
-                                                ri = this.x.length - 1;
-                                            }
-                                            break;
-                                        case CASE_C:
-                                            yj = 0;
-                                            // for (xi = ri - 1; xi >= 0; xi--)
-                                            for(xi = ri + 1; xi < this.x.length - 1; xi++){
-                                                x1 = this.x[xi];
-                                                y1 = this.y[yj];
-                                                z1 = this.z[xi][yj];
-                                                x2 = this.x[xi + 1];
-                                                y2 = this.y[yj];
-                                                z2 = this.z[xi + 1][yj];
-                                                if(this.checkIntersection(level, z1, z2)){
-                                                    found = true;
-                                                    ri = xi;
-                                                    rj = yj;
-                                                    edgeCase = ContourSignal.CASE_B;
-                                                    // System.out.println("CASE C Trovata int succ CASE B");
-                                                    break;
-                                                }
-                                            }
-                                            if(!found){
-                                                // System.out.println("CASE C NON Trovata int succ CASE D");
-                                                edgeCase = ContourSignal.CASE_A;
-                                                rj = -1;
-                                            }
-                                            break;
-                                        case CASE_D:
-                                            xi = 0;
-                                            for(yj = rj - 1; yj > 0; yj--){
-                                                x1 = this.x[xi];
-                                                y1 = this.y[yj];
-                                                z1 = this.z[xi][yj];
-                                                x2 = this.x[xi];
-                                                y2 = this.y[yj - 1];
-                                                z2 = this.z[xi][yj - 1];
-                                                this.xflag[xi][yj] = true;
-                                                if(this.checkIntersection(level, z1, z2)){
-                                                    found = true;
-                                                    ri = xi;
-                                                    rj = yj - 1;
-                                                    edgeCase = ContourSignal.CASE_A;
-                                                    // System.out.println("CASE D Trovata int succ CASE A");
-                                                    break;
-                                                }
-                                            }
-                                            if(!found){
-                                                // System.out.println("CASE D NON Trovata int succ CASE B");
+                        }catch(final IOException exc){}catch(final Exception exc){
+                            if(DEBUG.D) System.err.println("Exception");
+                            /*
+                             * When a contour line exits the grid is an exception occurs that I manage by seeking on the edge
+                             * where it falls within the curve and then taking up the search for the contour points.
+                             */
+                            boolean found = false;
+                            int xi, yj;
+                            int border;
+                            for(border = 0; border < 4 && !found; border++){
+                                switch(edgeCase){
+                                    case CASE_B:
+                                        yj = this.y.length - 1;
+                                        for(xi = ri; xi > 0; xi--){
+                                            x2 = this.x[xi];
+                                            y2 = this.y[yj];
+                                            z2 = this.z[xi][yj];
+                                            x1 = this.x[xi - 1];
+                                            y1 = this.y[yj];
+                                            z1 = this.z[xi - 1][yj];
+                                            if(this.checkIntersection(level, z1, z2)){
+                                                found = true;
+                                                ri = xi - 1;
+                                                rj = yj;
                                                 edgeCase = ContourSignal.CASE_C;
-                                                ri = -1;
+                                                if(DEBUG.D) System.out.println("CASE B found. continue CASE C.");
+                                                break;
                                             }
-                                            break;
-                                    }
-                                }
-                                /*
-                                 * Per gestire correttamente le curve di livello che escono
-                                 * dalla griglia come curve spezzate devo memorizzare ogni
-                                 * singola spezzata separatamente per evitare che in fase
-                                 * di plot vengano congiunti con un segmento i punti di
-                                 * uscita dalla griglia della curva di livello in esame.
-                                 */
-                                if(contour.size() >= 2){
-                                    contours.addElement(contour);
-                                    contour = new Vector<Point2D.Double>();
-                                }else{
-                                    contour.clear();
-                                }
-                                c1 = (level - z1) / (z2 - z1);
-                                xc = x1 + (x2 - x1) * c1;
-                                yc = y1 + (y2 - y1) * c1;
-                                contour.addElement((currCPoint = new Point2D.Double(xc, yc)));
-                                if(!found && border == 4){
-                                    // System.out.println("Completato il bordo");
-                                    numIteractions = maxIteractions;
+                                        }
+                                        /*
+                                         * I do not find any point on the upper side should I look for a point
+                                         * on the side edge CASE_A I have from the first point as opposed to the generic
+                                         * case where I have to start from the point next to the segment in which was
+                                         * identified the exit point of the contour in examination, similar considerations apply to other cases.
+                                         */
+                                        if(!found){
+                                            if(DEBUG.D) System.out.println("CASE B not found. continue CASE D.");
+                                            edgeCase = ContourSignal.CASE_D;
+                                            rj = this.y.length - 1;
+                                        }
+                                        break;
+                                    case CASE_A:
+                                        xi = this.x.length - 1;
+                                        for(yj = rj + 1; yj < this.y.length - 1; yj++){
+                                            x1 = this.x[xi];
+                                            y1 = this.y[yj];
+                                            z1 = this.z[xi][yj];
+                                            x2 = this.x[xi];
+                                            y2 = this.y[yj + 1];
+                                            z2 = this.z[xi][yj + 1];
+                                            this.xflag[xi][yj] = true;
+                                            if(this.checkIntersection(level, z1, z2)){
+                                                found = true;
+                                                ri = xi;
+                                                rj = yj + 1;
+                                                edgeCase = ContourSignal.CASE_D;
+                                                if(DEBUG.D) System.out.println("CASE A found. continue CASE D.");
+                                                break;
+                                            }
+                                        }
+                                        if(!found){
+                                            if(DEBUG.D) System.out.println("CASE A not found. continue CASE B.");
+                                            edgeCase = ContourSignal.CASE_B;
+                                            ri = this.x.length - 1;
+                                        }
+                                        break;
+                                    case CASE_C:
+                                        yj = 0;
+                                        // for (xi = ri - 1; xi >= 0; xi--)
+                                        for(xi = ri + 1; xi < this.x.length - 1; xi++){
+                                            x1 = this.x[xi];
+                                            y1 = this.y[yj];
+                                            z1 = this.z[xi][yj];
+                                            x2 = this.x[xi + 1];
+                                            y2 = this.y[yj];
+                                            z2 = this.z[xi + 1][yj];
+                                            if(this.checkIntersection(level, z1, z2)){
+                                                found = true;
+                                                ri = xi;
+                                                rj = yj;
+                                                edgeCase = ContourSignal.CASE_B;
+                                                if(DEBUG.D) System.out.println("CASE C found. continue CASE B.");
+                                                break;
+                                            }
+                                        }
+                                        if(!found){
+                                            if(DEBUG.D) System.out.println("CASE C not found. continue CASE D.");
+                                            edgeCase = ContourSignal.CASE_A;
+                                            rj = -1;
+                                        }
+                                        break;
+                                    case CASE_D:
+                                        xi = 0;
+                                        for(yj = rj - 1; yj > 0; yj--){
+                                            x1 = this.x[xi];
+                                            y1 = this.y[yj];
+                                            z1 = this.z[xi][yj];
+                                            x2 = this.x[xi];
+                                            y2 = this.y[yj - 1];
+                                            z2 = this.z[xi][yj - 1];
+                                            this.xflag[xi][yj] = true;
+                                            if(this.checkIntersection(level, z1, z2)){
+                                                found = true;
+                                                ri = xi;
+                                                rj = yj - 1;
+                                                edgeCase = ContourSignal.CASE_A;
+                                                if(DEBUG.D) System.out.println("CASE D not found. continue CASE A.");
+                                                break;
+                                            }
+                                        }
+                                        if(!found){
+                                            if(DEBUG.D) System.out.println("CASE D not found. continue CASE B.");
+                                            edgeCase = ContourSignal.CASE_C;
+                                            ri = -1;
+                                        }
+                                        break;
                                 }
                             }
+                            /*
+                             * To properly handle the contour lines as they exit the grid as broken curves
+                             * I memorize every single broken separately to avoid being plot are joined
+                             * with a segment of the exit points from the grid in the examined contour.
+                             */
+                            if(contour.size() >= 2){
+                                contours.addElement(contour);
+                                contour = new Vector<Point2D.Double>();
+                            }else{
+                                contour.clear();
+                            }
+                            c1 = (level - z1) / (z2 - z1);
+                            xc = x1 + (x2 - x1) * c1;
+                            yc = y1 + (y2 - y1) * c1;
+                            contour.addElement((currCPoint = new Point2D.Double(xc, yc)));
+                            if(!found && border == 4){
+                                if(DEBUG.D) System.out.println("Edge completed.");
+                                numIteractions = maxIteractions;
+                            }
                         }
-                        // System.out.println("First " + firstPoint );
-                        // System.out.println("" + numIteractions + " Curr " + currPoint );
-                        // System.out.println("Edge case" + edgeCase );
                         numIteractions++;
                         if(numIteractions > maxIteractions) break;
                     }
-                    /* La curva di livello si ritiene conclusa quando
-                       si ritorna al punto di partenza
+                    /*
+                     * The contour line is deemed complete when you return to the starting point.
                      */
                     while(!(currCPoint.equals(firstCPoint)));
-                    /*
-                              if (numIteractions > maxIteractions)
-                                System.out.println("Raggiunto numero massimo di iterazioni");
-                     */
                     if(contour.size() >= 2){
                         contours.addElement(contour);
                         contour = new Vector<Point2D.Double>();
-                    }else{
-                        contour.clear();
-                    }
-                    // if(true) return contours;
+                    }else contour.clear();
                     contourCompleted = true;
                 }
             }

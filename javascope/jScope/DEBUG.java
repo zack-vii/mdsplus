@@ -4,6 +4,7 @@ public final class DEBUG{
     // set to false to allow compiler to identify and eliminate unreachable code
     public static final boolean A  = (DEBUG.LV & 8) > 0;
     public static final boolean D  = (DEBUG.LV & 1) > 0;
+    public static final boolean G  = (DEBUG.LV & 6) > 0;
     public static final int     LV = 0;
     public static final boolean M  = (DEBUG.LV & 4) > 0;
     public static final boolean ON = DEBUG.LV > 0;

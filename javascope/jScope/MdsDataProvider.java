@@ -133,7 +133,7 @@ public class MdsDataProvider implements DataProvider{
         double    time_max, time_min;
         double    times[];
 
-        public SegmentedFrameData(final String in_y, final String in_x, final double time_min, final double time_max, int numSegments) throws IOException{
+        public SegmentedFrameData(final String in_y, final String in_x, final double time_min, final double time_max, final int numSegments) throws IOException{
             if(DEBUG.M) System.out.println("MdsDataProvider.SegmentedFrameData(\"" + in_y + "\", \"" + in_x + "\", " + time_min + ", " + time_max + ", " + numSegments + ")");
             // Find out frames per segment and frame min and max based on time min and time max
             this.in_x = in_x;
@@ -141,41 +141,7 @@ public class MdsDataProvider implements DataProvider{
             this.time_min = time_min;
             this.time_max = time_max;
             this.numSegments = numSegments;
-            this.startSegment = -1;
-            final double startTimes[] = new double[numSegments];
-            // Get segment window corresponding to the passed time window
-            for(int i = 0; i < numSegments; i++){
-                final double limits[] = MdsDataProvider.this.GetDoubleArray("GetSegmentLimits(" + in_y + "," + i + ")");
-                startTimes[i] = limits[0];
-                if(limits[1] > time_min){
-                    this.startSegment = i;
-                    break;
-                }
-            }
-            if(this.startSegment == -1) throw new IOException("Frames outside defined time window");
-            // Check first if endTime is greated than the end of the last segment, to avoid rolling over all segments
-            double endLimits[] = MdsDataProvider.this.GetDoubleArray("GetSegmentLimits(" + in_y + "," + (numSegments - 1) + ")");
-            // Throw away spurious frames at the end
-            while(endLimits == null || endLimits.length != 2){
-                numSegments--;
-                if(numSegments == 0) break;
-                endLimits = MdsDataProvider.this.GetDoubleArray("GetSegmentLimits(" + in_y + "," + (numSegments - 1) + ")");
-            }
-            if(numSegments > 100 && endLimits[0] < time_max){
-                this.endSegment = numSegments - 1;
-                for(int i = this.startSegment; i < numSegments; i++)
-                    startTimes[i] = startTimes[0] + i * (endLimits[0] - startTimes[0]) / numSegments;
-            }else{
-                for(this.endSegment = this.startSegment; this.endSegment < numSegments; this.endSegment++){
-                    try{
-                        final double limits[] = MdsDataProvider.this.GetDoubleArray("GetSegmentLimits(" + in_y + "," + this.endSegment + ")");
-                        startTimes[this.endSegment] = limits[0];
-                        if(limits[0] > time_max) break;
-                    }catch(final Exception exc){
-                        break;
-                    }
-                }
-            }
+            final double[] startTimes = this.findSegments();
             this.actSegments = this.endSegment - this.startSegment;
             // Get Frame Dimension and frames per segment
             MdsDataProvider.this.mds.MdsValue("_jscope_seg=*");
@@ -193,13 +159,11 @@ public class MdsDataProvider implements DataProvider{
             this.bytesPerPixel = data.getDataSize();
             this.mode = data.getFrameType();
             // Get Frame times
-            if(this.framesPerSegment == 1) // We assume in this case that start time is the same of the frame time
-            {
+            if(this.framesPerSegment == 1){ // We assume in this case that start time is the same of the frame time
                 this.times = new double[this.actSegments];
                 for(int i = 0; i < this.actSegments; i++)
                     this.times[i] = startTimes[this.startSegment + i];
-            }else // Get segment times. We assume that the same number of frames is contained in every segment
-            {
+            }else{ // Get segment times. We assume that the same number of frames is contained in every segment
                 this.times = new double[this.actSegments * this.framesPerSegment];
                 for(int i = 0; i < this.actSegments; i++){
                     final double segTimes[] = MdsDataProvider.this.GetDoubleArray("D_Float(Dim_Of(GetSegment(" + in_y + "," + i + ")))");
@@ -208,6 +172,28 @@ public class MdsDataProvider implements DataProvider{
                         this.times[i * this.framesPerSegment + j] = segTimes[j];
                 }
             }
+        }
+
+        private double[] findSegments() throws IOException {
+            if(DEBUG.M) System.out.println("MdsDataProvider.SegmentedFrameData.findSegments() @ " + this.in_y);
+            final double[] startTimes = new double[this.numSegments];
+            try{
+                double[] limits;
+                try{ // try using GetLimits
+                    limits = MdsDataProvider.this.GetDoubleArray("GetLimits(" + this.in_y + ")");
+                }catch(final Exception e){ // readout the limits manually
+                    limits = MdsDataProvider.this.GetDoubleArray("STATEMENT(_N=GETNCI(" + this.in_y + ",'NID_NUMBER'),_L=[],FOR(_I=0,_I<20,_I++,STATEMENT(_S=0,_E=0,_R=TreeShr->TreeGetSegmentLimits(VAL(_N),VAL(_I),XD(_S),XD(_E)),IF(_R&1,_L=[_L,_S,_E],_L=[_L,$ROPRAND,$ROPRAND]))),_L)");
+                }
+                for(int i = 0; i < this.numSegments; i++)
+                    startTimes[i] = limits[i * 2];
+                for(this.startSegment = 0; this.startSegment < this.numSegments; this.startSegment++)
+                    if(limits[this.startSegment * 2 + 1] > this.time_min) break;
+                for(this.endSegment = this.numSegments; this.endSegment >= this.startSegment; this.endSegment--)
+                    if(limits[this.endSegment * 2] < this.time_max) break;
+            }catch(final Exception e){
+                System.err.println("findSegments " + e);
+            }
+            return startTimes;
         }
 
         @Override
@@ -387,9 +373,7 @@ public class MdsDataProvider implements DataProvider{
         }
 
         public SimpleWaveData(final String in_y, final String in_x, final String experiment, final long shot){
-            if(DEBUG.M){
-                System.out.println("MdsDataProvider.SimpleWaveData(\"" + in_y + "\", \"" + in_x + "\", \"" + experiment + "\", " + shot + ")");
-            }
+            if(DEBUG.M) System.out.println("MdsDataProvider.SimpleWaveData(\"" + in_y + "\", \"" + in_x + "\", \"" + experiment + "\", " + shot + ")");
             this.wd_experiment = experiment;
             this.wd_shot = shot;
             if(this.checkForAsynchRequest(in_y)) this.c = new tdicache("[]", "[]", MdsDataProvider.var_idx++);
@@ -407,9 +391,7 @@ public class MdsDataProvider implements DataProvider{
         // Check if the passed Y expression specifies also an asynchronous part (separated by the patern &&&)
         // in case get an implemenation of AsynchDataSource
         boolean checkForAsynchRequest(final String expression) {
-            if(DEBUG.M){
-                System.out.println("MdsDataProvider.SimpleWaveData.checkForAsynchRequest(\"" + expression + "\")");
-            }
+            if(DEBUG.M) System.out.println("MdsDataProvider.SimpleWaveData.checkForAsynchRequest(\"" + expression + "\")");
             if(expression.startsWith("ASYNCH::")){
                 this.asynchSource = MdsDataProvider.this.getAsynchSource();
                 if(this.asynchSource != null){
@@ -477,9 +459,7 @@ public class MdsDataProvider implements DataProvider{
 
         @Override
         public int getNumDimension() throws IOException {
-            if(DEBUG.M){
-                System.out.println("MdsDataProvider.SimpleWaveData.getNumDimension()");
-            }
+            if(DEBUG.M) System.out.println("MdsDataProvider.SimpleWaveData.getNumDimension()");
             if(this.numDimensions != SimpleWaveData.UNKNOWN) return this.numDimensions;
             String expr;
             if(this.segmentMode == SimpleWaveData.SEGMENTED_YES) expr = "GetSegment(" + this.c.yo() + ",0)";
@@ -502,9 +482,7 @@ public class MdsDataProvider implements DataProvider{
 
         @Override
         public String GetTitle() throws IOException {
-            if(DEBUG.M){
-                System.out.println("MdsDataProvider.SimpleWaveData.GetTitle()");
-            }
+            if(DEBUG.M) System.out.println("MdsDataProvider.SimpleWaveData.GetTitle()");
             if(!this.titleEvaluated){
                 this.titleEvaluated = true;
                 this.title = MdsDataProvider.this.GetStringValue("help_of(" + this.c.y() + ")");
@@ -580,7 +558,7 @@ public class MdsDataProvider implements DataProvider{
         private String getTimeContext(double xmin, double xmax, boolean isLong) throws Exception {
             if(DEBUG.M)
                 System.out.println("MdsDataProvider.SimpleWaveData.setTimeContext(" + xmin + ", " + xmax + ", " + isLong + ")");
-
+        
             String res;
             try{
                 if(xmin == Double.NEGATIVE_INFINITY && xmax == Double.POSITIVE_INFINITY) res = "SetTimeContext(*,*,*);";
@@ -723,9 +701,7 @@ public class MdsDataProvider implements DataProvider{
 
         @Override
         public String GetYLabel() throws IOException {
-            if(DEBUG.M){
-                System.out.println("MdsDataProvider.SimpleWaveData.GetYLabel()");
-            }
+            if(DEBUG.M) System.out.println("MdsDataProvider.SimpleWaveData.GetYLabel()");
             if(!this.yLabelEvaluated){
                 this.yLabelEvaluated = true;
                 if(this.getNumDimension() > 1){
@@ -766,19 +742,15 @@ public class MdsDataProvider implements DataProvider{
         }
 
         private void SegmentMode() {
-            if(DEBUG.M){
-                System.out.println("MdsDataProvider.SimpleWaveData.SegmentMode()");
-            }
+            if(DEBUG.M) System.out.println("MdsDataProvider.SimpleWaveData.SegmentMode()");
             if(this.segmentMode == SimpleWaveData.SEGMENTED_UNKNOWN){
                 try{// fast using in_y as NumSegments is a node property
                     final int[] numSegments = MdsDataProvider.this.GetIntArray("GetNumSegments(" + this.c.yo() + ")");
                     if(numSegments == null) this.segmentMode = SimpleWaveData.SEGMENTED_UNKNOWN;
                     else if(numSegments[0] > 0) this.segmentMode = SimpleWaveData.SEGMENTED_YES;
                     else this.segmentMode = SimpleWaveData.SEGMENTED_NO;
-                }catch(final Exception exc){// numSegments==null should not get here anymore
-                    if(DEBUG.M){
-                        System.err.println("# MdsDataProvider.SimpleWaveData.SegmentMode: " + exc);
-                    }
+                }catch(final Exception exc){// happens if expression is not a plain node path
+                    if(DEBUG.M) System.err.println("# MdsDataProvider.SimpleWaveData.SegmentMode, GetNumSegments(" + this.c.yo() + "): " + exc);
                     MdsDataProvider.this.error = null;
                     this.segmentMode = SimpleWaveData.SEGMENTED_UNKNOWN;
                 }
@@ -787,13 +759,11 @@ public class MdsDataProvider implements DataProvider{
 
         @Override
         public void setContinuousUpdate(final boolean continuousUpdate) {
-            if(DEBUG.M){
-                System.out.println("MdsDataProvider.SimpleWaveData.setContinuousUpdate(" + continuousUpdate + ")");
-            }
+            if(DEBUG.M) System.out.println("MdsDataProvider.SimpleWaveData.setContinuousUpdate(" + continuousUpdate + ")");
             this.continuousUpdate = continuousUpdate;
         }
     } // END Inner Class SimpleWaveData
-    // //////////////////////////////////////GAB JULY 2014
+      // //////////////////////////////////////GAB JULY 2014
     class tdicache{
         String         in_x;
         String         in_y;
@@ -958,7 +928,7 @@ public class MdsDataProvider implements DataProvider{
                         }
                     }else{
                         if(nextTime == -1 || nextTime > currUpdate.updateTime) // It will alway be nextTime != -1
-                            nextTime = currUpdate.updateTime;
+                        nextTime = currUpdate.updateTime;
                         i++;
                     }
                 }
@@ -1570,7 +1540,7 @@ public class MdsDataProvider implements DataProvider{
                     outF[i] = desc.int_data[i];
                 out = new RealArray(outF);
             }
-            break;
+                break;
             case Descriptor.DTYPE_USHORT:
             case Descriptor.DTYPE_SHORT:{
                 final float[] outF = new float[desc.short_data.length];
@@ -1578,7 +1548,7 @@ public class MdsDataProvider implements DataProvider{
                     outF[i] = desc.short_data[i];
                 out = new RealArray(outF);
             }
-            break;
+                break;
             case Descriptor.DTYPE_UBYTE:
             case Descriptor.DTYPE_BYTE:{
                 final float[] outF = new float[desc.byte_data.length];
@@ -1586,12 +1556,12 @@ public class MdsDataProvider implements DataProvider{
                     outF[i] = desc.byte_data[i];
                 out = new RealArray(outF);
             }
-            break;
+                break;
             case Descriptor.DTYPE_ULONGLONG:
             case Descriptor.DTYPE_LONGLONG:{
                 out = new RealArray(desc.long_data);
             }
-            break;
+                break;
             case Descriptor.DTYPE_CSTRING:
                 if(DEBUG.D) System.out.println(">> MdsDataProvider.GetRealArray: " + desc.dtype);
                 if((desc.status & 1) == 0) this.error = desc.error;

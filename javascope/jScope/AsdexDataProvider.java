@@ -56,14 +56,16 @@ class AsdexDataProvider extends MdsDataProvider{
                 if(startIdx.length != 1 || endIdx.length != 1) return null;
                 final int numPoint = endIdx[0] - startIdx[0] + 1;
                 final double delta[] = AsdexDataProvider.this.GetDoubleArray("slope_of(axis_of(dim_of(" + expr + ")))");
-                double begin[] = null;
-                double end[] = null;
                 double curr;
                 final double firstTime[] = AsdexDataProvider.this.GetDoubleArray("i_to_x(dim_of(" + expr + ")," + startIdx[0] + ")");
+                double begin[];
+                double end[];
                 try{
                     begin = AsdexDataProvider.this.GetDoubleArray("begin_of(axis_of(dim_of(" + expr + ")))");
                     end = AsdexDataProvider.this.GetDoubleArray("end_of(axis_of(dim_of(" + expr + ")))");
-                }catch(final IOException e){}
+                }catch(final IOException e){
+                    return null;
+                }
                 if(delta.length == 1 && numPoint > 1){
                     int i, j;
                     final double out[] = new double[numPoint];

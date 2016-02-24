@@ -1004,34 +1004,26 @@ public class Waveform extends JComponent implements SignalListener{
     }
 
     protected double MaxXSignal() {
-        if(DEBUG.M){
-            System.out.println("Waveform.MaxXSignal()");
-        }
+        if(DEBUG.M) System.out.println("Waveform.MaxXSignal()");
         if(this.waveform_signal == null) return 1.;
         return this.waveform_signal.getXmax();
     }
 
     protected double MaxYSignal() {
-        if(DEBUG.M){
-            System.out.println("Waveform.MaxYSignal()");
-        }
+        if(DEBUG.M) System.out.println("Waveform.MaxYSignal()");
         if(this.waveform_signal == null) return 1.;
         if(this.waveform_signal.getYmax() <= this.waveform_signal.getYmin()) return this.waveform_signal.getYmax() + 1E-3 + Math.abs(this.waveform_signal.getYmax());
         return this.waveform_signal.getYmax();
     }
 
     protected double MinXSignal() {
-        if(DEBUG.M){
-            System.out.println("Waveform.MinXSignal()");
-        }
+        if(DEBUG.M) System.out.println("Waveform.MinXSignal()");
         if(this.waveform_signal == null) return 0.;
         return this.waveform_signal.getXmin();
     }
 
     protected double MinYSignal() {
-        if(DEBUG.M){
-            System.out.println("Waveform.MinYSignal()");
-        }
+        if(DEBUG.M) System.out.println("Waveform.MinYSignal()");
         if(this.waveform_signal == null) return 0.;
         if(this.waveform_signal.getYmax() <= this.waveform_signal.getYmin()) return this.waveform_signal.getYmin() - 1E-3 - Math.abs(this.waveform_signal.getYmax());
         return this.waveform_signal.getYmin();

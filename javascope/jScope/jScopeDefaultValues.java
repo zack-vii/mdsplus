@@ -38,7 +38,8 @@ final class jScopeDefaultValues{
     }
 
     public void setPublicVariables(final String public_variables) {
-        if(this.public_variables == null || public_variables == null || !this.public_variables.equals(public_variables)){
+        if(this.public_variables == null || public_variables == null) return;
+        if(!this.public_variables.equals(public_variables)){
             this.is_evaluated = false;
             this.public_variables = public_variables.trim();
         }

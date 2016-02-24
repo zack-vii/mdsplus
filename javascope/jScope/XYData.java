@@ -55,16 +55,20 @@ final public class XYData{
     private void MinMax(final boolean incrX) {
         this.increasingX = true;
         if(this.nSamples == 0) return;
+        this.xMax = Double.NEGATIVE_INFINITY;
+        this.xMin = Double.POSITIVE_INFINITY;
         if(incrX){
-            this.xMin = this.x[0];
-            this.xMax = this.x[this.x.length - 1];
+            for(int i = 0; !Double.isFinite(this.xMin); i++)
+                this.xMin = this.x[i];
+            for(int i = this.nSamples - 1; !Double.isFinite(this.xMax); i--)
+                this.xMax = this.x[i];
             return;
         }
-        this.xMin = this.xMax = this.x[0];
-        for(int i = 1; i < this.x.length; i++){
-            if(this.x[i - 1] > this.x[i]) this.increasingX = false;
-            if(this.x[i] > this.xMax) this.xMax = this.x[i];
-            if(this.x[i] < this.xMin) this.xMin = this.x[i];
+        for(final double element : this.x){
+            if(Double.isNaN(element)) continue;
+            if(this.xMax > element) this.increasingX = false;
+            if(element > this.xMax) this.xMax = element;
+            if(element < this.xMin) this.xMin = element;
         }
     }
 }
