@@ -150,7 +150,7 @@ final class SetupDataDialog extends JDialog implements ActionListener, ItemListe
         }
     }
     class SError extends JDialog implements ActionListener{
-        static final long serialVersionUID = 476237704286796L;
+        static final long        serialVersionUID = 476237704286796L;
         private final JTextField e_up, e_low;
         private final JButton    ok, cancel;
         private Data             ws;
@@ -430,18 +430,15 @@ final class SetupDataDialog extends JDialog implements ActionListener, ItemListe
         }
 
         public void init(final WaveInterface wi) {
-            Data ws;
             if(wi != null){
                 if(wi.shots != null){
                     this.shots = new long[wi.num_shot];
                     for(int i = 0; i < wi.num_shot; i++)
                         this.shots[i] = wi.shots[i];
-                    // shot_str = wi.in_shot;
                 }
                 this.list_num_shot = wi.num_shot;
-                // shot_str = wi.in_shot;
                 for(int i = 0; i < wi.num_waves; i++){
-                    ws = new Data();
+                    final Data ws = new Data();
                     ws.label = wi.in_label[i];
                     ws.x_expr = wi.in_x[i];
                     ws.y_expr = wi.in_y[i];
@@ -458,26 +455,11 @@ final class SetupDataDialog extends JDialog implements ActionListener, ItemListe
                     this.addSignalSetup(ws);
                 }
                 this.signalListRefresh();
+                if(this.getSignalSelect() == -1 && wi.num_waves > 0) this.setSignalSelect(0);
             }
-            if(this.getSignalSelect() == -1 && wi.num_waves > 0) this.setSignalSelect(0);
             this.signalSelect(this.getSignalSelect());
         }
 
-        /*
-              public void textValueChanged(TextEvent e)
-              {
-                Object ob = e.getSource();
-
-                if(ob == marker_step_t && getSignalSelect() != -1)
-                {
-                    try {
-                        signals.elementAt(getSignalSelect()).marker_step = new Integer(marker_step_t.getText()).intValue();
-                    } catch (NumberFormatException ex) {
-                        marker_step_t.setText("1");
-                    }
-                 }
-              }
-         */
         @Override
         public void itemStateChanged(final ItemEvent e) {
             final Object ob = e.getSource();
@@ -998,12 +980,12 @@ final class SetupDataDialog extends JDialog implements ActionListener, ItemListe
         }
         if(ob == this.error && this.y_expr.getText().trim().length() != 0){
             if(this.signalList.getSignalSelect() == -1)
-                /*
+            /*
             Check if the list is in add mode (signal selectet -1)
             in this case before to add error signal must be added
             to the list
-                 */
-                this.updateDataSetup();
+             */
+            this.updateDataSetup();
             if(this.signalList.getSignalSelect() != -1){
                 /*
                 Only if is selected a signal in the list

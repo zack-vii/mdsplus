@@ -79,12 +79,10 @@ public class MultiWaveform extends Waveform{
         for(int i = 0; i < this.signals.size(); i++){
             s = this.signals.elementAt(i);
             if(s.fullPaint()){
-                // System.out.println(s.name + "UPDATE");
                 this.Update();
                 return;
             }
         }
-        // System.out.println("APPEND UPDATE");
         this.appendPaint(this.getGraphics(), this.getSize());
     }
 
@@ -225,24 +223,18 @@ public class MultiWaveform extends Waveform{
 
     @Override
     protected void drawMarkers(final Graphics g, final Vector<Polygon> segments, final int mark_type, final int step, final int mode) {
-        int num_points, num_segments = 0;
-        int i;
+        int num_points = 0;
         Point points[];
         Polygon curr_polygon;
-        if(segments != null) num_segments = segments.size();
-        for(i = num_points = 0; i < num_segments; i++)
+        if(segments == null) return;
+        final int num_segments = segments.size();
+        for(int i = num_points = 0; i < num_segments; i++)
             num_points += segments.elementAt(i).npoints;
         points = new Point[num_points];
-        for(i = 0; i < num_points; i++)
-            points[i] = new Point();
-        for(i = num_points = 0; i < num_segments; i++){
+        for(int i = num_points = 0; i < num_segments; i++){
             curr_polygon = segments.elementAt(i);
             for(int j = 0; j < curr_polygon.npoints; j += step){
-                // if(mode == Signal.MODE_STEP && i%2 == 1)
-                // continue;
-                points[num_points].x = curr_polygon.xpoints[j];
-                points[num_points].y = curr_polygon.ypoints[j];
-                num_points++;
+                points[num_points++] = new Point(curr_polygon.xpoints[j], curr_polygon.ypoints[j]);
             }
         }
         super.drawMarkers(g, points, num_points, mark_type, 1, mode);
@@ -319,8 +311,8 @@ public class MultiWaveform extends Waveform{
             }
             if(this.dragging && this.mode == Waveform.MODE_PAN) continue;
             if(s.getMarker() != Signal.NONE && s.getMode2D() != Signal.MODE_IMAGE)
-                // DrawMarkers(g, segments, s.getMarker(), marker_step);
-                this.drawMarkers(g, segments, s);
+            // DrawMarkers(g, segments, s.getMarker(), marker_step);
+            this.drawMarkers(g, segments, s);
             if(s.hasError()) this.drawError(s, g, d);
         }
         if((print_mode & MultiWaveform.PRINT_BW) == MultiWaveform.PRINT_BW){
@@ -523,13 +515,13 @@ public class MultiWaveform extends Waveform{
                     // Waveform.ConvertToString(sign.getTime(), false) +
                     " ]";
                     break;
-                    /*
-                            case Signal.MODE_YX:
-                                lab = lab + " [Y-X T = " +  sign.getStringTime() +
-                                   // Waveform.ConvertToString(sign.getTime(), false)
-                                   " ]";
-                                break;
-                     */
+                /*
+                        case Signal.MODE_YX:
+                            lab = lab + " [Y-X T = " +  sign.getStringTime() +
+                               // Waveform.ConvertToString(sign.getTime(), false)
+                               " ]";
+                            break;
+                 */
             }
         }
         return lab;

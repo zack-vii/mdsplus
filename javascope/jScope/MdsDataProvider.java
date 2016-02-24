@@ -1664,7 +1664,7 @@ public class MdsDataProvider implements DataProvider{
     @Override
     public synchronized void RemoveConnectionListener(final ConnectionListener l) {
         if(DEBUG.M) System.out.println("MdsDataProvider.RemoveConnectionListener(" + l + ")");
-        if(this.mds == null){ return; }
+        if(this.mds == null) return;
         this.mds.removeConnectionListener(l);
     }
 
@@ -1714,10 +1714,7 @@ public class MdsDataProvider implements DataProvider{
     void SetEnvironmentSpecific(final String in) {
         if(DEBUG.M) System.out.println("MdsDataProvider.SetEnvironmentSpecific(\"" + in + "\")");
         final Descriptor desc = this.mds.MdsValue(in);
-        switch(desc.dtype){
-            case Descriptor.DTYPE_CSTRING:
-                if((desc.status & 1) == 0) this.error = desc.error;
-        }
+        if(desc.dtype == Descriptor.DTYPE_CSTRING) if((desc.status & 1) == 0) this.error = desc.error;
     }
 
     private void setProvider(final String arg) {

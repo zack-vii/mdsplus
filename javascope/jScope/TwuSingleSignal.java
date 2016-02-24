@@ -156,10 +156,12 @@ final public class TwuSingleSignal{
         }
     }
 
+    @SuppressWarnings("null") // is handled indirectly by throwError()
     private void fetch_X_Properties() throws Exception {
         TwuSingleSignal.checkForError(this.mainSignal);
         final TWUProperties yprops = this.mainSignal != null ? this.mainSignal.getTWUProperties() : null;
-        final int dim = yprops != null ? yprops.Dimensions() : -1;
+        if(yprops == null) this.throwError("No yprops or mainSignal!");
+        final int dim = yprops.Dimensions();
         if(dim > 1 || dim < 0) this.throwError("Not a 1-dimensional signal !");
         if(!yprops.hasAbscissa0()){
             this.fake_my_Properties();
@@ -330,8 +332,7 @@ final public class TwuSingleSignal{
     }
 
     // -----------------------------------------------------------------------------
-    private void throwError(final String msg) throws Exception {
-        // error = true ;
+    private final void throwError(final String msg) throws Exception {
         this.errorSource = new Exception(msg);
         throw this.errorSource;
     }
