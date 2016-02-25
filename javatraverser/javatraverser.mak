@@ -195,5 +195,5 @@ all : $(SOURCES_DATA) $(SOURCES_ARRAY) $(SOURCES_TRAV)
 	$(JAVAC) $(CLASSPATH) $(SOURCES_ARRAY)
 	$(JAVAC) $(CLASSPATH) $(SOURCES_TRAV)
 	$(JAR) -cmf DeviceBeansManifest.mf ..\java\classes\DeviceBeans.jar *.class *.gif
-	$(JAR) -cf ..\java\classes\jTraverser.jar *.class *.gif
+	$(JAR) -cmf jTraverserManifest.mf ..\java\classes\jTraverser.jar *.class *.gif
 
