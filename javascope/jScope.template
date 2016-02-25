@@ -6,7 +6,7 @@ java=`which java`
 if ( uname -p | grep 64 > /dev/null )
 then
   if (file -L $java } grep 64i-bit > /dev/null )
-  then 
+  then
     lib=lib64
   else
     lib=lib32

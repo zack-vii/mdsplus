@@ -1,108 +1,106 @@
 package jScope;
 
 /* $Id$ */
-import jScope.DataProvider;
-import jScope.MdsplusParser;
-import jScope.DataServerItem;
-import jScope.MdsDataProvider;
-import java.util.*;
 import java.io.IOException;
 import javax.swing.JFrame;
 
-class TSDataProvider extends MdsDataProvider
-{
+final class TSDataProvider extends MdsDataProvider{
+    public static boolean SupportsCompression() {
+        return false;
+    }
 
-    public TSDataProvider()
-    {
+    public static boolean SupportsContinuous() {
+        return false;
+    }
+
+    public static boolean SupportsFastNetwork() {
+        return false;
+    }
+
+    public TSDataProvider(){
         super();
     }
-    
-    public TSDataProvider(String provider) throws IOException
-    {
+
+    public TSDataProvider(final String provider) throws IOException{
         super(provider);
     }
-    
-    public void SetArgument(String arg) throws IOException
-    {
-        mds.setProvider(arg);
-        mds.setUser("mdsplus");
-    }
-    
-    public synchronized void Update(String exp, long s)
-	{
-	    error = null;
-		shot = (int) s;
-	}
-	
-	protected String ParseExpression(String in)
-	{
-	    //if(in.startsWith("DIM_OF("))
-	    //    return in;
-	        
-	    String res = MdsplusParser.parseFun(in, "GetTsBase(" + shot + ", \"", "\")");
-	        
-/*	    StringTokenizer st = new StringTokenizer(in, ":");
-        String res = "GetTSData(\"";
-	    try{
-	        String name = st.nextToken();*/
-/*	        String rang0 = st.nextToken();
-	        String rang1 = st.nextToken();
-	        res = "GetTSData(\"" + name + "\", " + shot + ", " +
-	            rang0 + ", " + rang1 + ")"; */
-	        //res = "GetTsBase(" + shot + ", \"" + name + "\")";
-/*	    }catch(Exception e)
-	    {
-	        error = "Wrong signal format: must be <signal_name>:<rangs[0]>:<rangs[1]>";
-	        return null;
-	    }*/
-	    //System.out.println(res);
-	    return res;
-	}
 
-    public synchronized int[] GetIntArray(String in) throws IOException
-    {
-        String parsed = ParseExpression(in);
+    @SuppressWarnings("static-method")
+    public boolean DataPending() {
+        return false;
+    }
+
+    protected String GetDefaultXLabel(final String in_y) throws IOException {
+        this.error = null;
+        return this.GetString("GetTSUnit(0)");
+    }
+
+    protected String GetDefaultYLabel() throws IOException {
+        this.error = null;
+        return this.GetString("GetTSUnit(1)");
+    }
+
+    @Override
+    public synchronized float[] GetFloatArray(final String in) throws IOException {
+        final String parsed = this.ParseExpression(in);
+        if(parsed == null) return null;
+        this.error = null;
+        final float[] out_array = super.GetFloatArray(parsed);
+        if(out_array == null && this.error == null) this.error = "Cannot evaluate " + in + " for shot " + this.shot;
+        if(out_array != null && out_array.length <= 1){
+            this.error = "Cannot evaluate " + in + " for shot " + this.shot;
+            return null;
+        }
+        return out_array;
+    }
+
+    @Override
+    public synchronized int[] GetIntArray(final String in) throws IOException {
+        final String parsed = this.ParseExpression(in);
         if(parsed == null) return null;
         return super.GetIntArray(parsed);
     }
-	
-	
-	
-    public synchronized float[] GetFloatArray(String in) throws IOException
-    {
-        String parsed = ParseExpression(in);
-        if(parsed == null) return null;
-	    error= null;
-	    float [] out_array = super.GetFloatArray(parsed);
-	    if(out_array == null&& error == null)
-	        error = "Cannot evaluate " + in + " for shot " + shot;
-	    if(out_array != null && out_array.length <= 1)
-	    {
-	        error = "Cannot evaluate " + in + " for shot " + shot;
-	        return null;
-	    }
-	    return out_array;
+
+    @Override
+    public int[] GetNumDimensions(final String spec) {
+        return new int[]{1};
     }
 
-        
-protected String GetDefaultXLabel(String in_y)  throws IOException
-{
-	error= null;
-	return GetString("GetTSUnit(0)");
-}
-        
-protected String GetDefaultYLabel()  throws IOException
-{
-	error= null;
-	return GetString("GetTSUnit(1)");
-}
+    @Override
+    public int InquireCredentials(final JFrame f, final DataServerItem server_item) {
+        return DataProvider.LOGIN_OK;
+    }
 
-public boolean SupportsCompression(){return false;}
-public void    SetCompression(boolean state){}
-public boolean SupportsContinuous() {return false; }
-public boolean DataPending() {return  false;}
-public int     InquireCredentials(JFrame f, DataServerItem server_item){return DataProvider.LOGIN_OK;}
-public boolean SupportsFastNetwork(){return false;}
-public int []    GetNumDimensions(String spec) {return new int[] {1};}
+    protected String ParseExpression(final String in) {
+        // if(in.startsWith("DIM_OF("))
+        // return in;
+        final String res = MdsplusParser.parseFun(in, "GetTsBase(" + this.shot + ", \"", "\")");
+        /*
+         * StringTokenizer st = new StringTokenizer(in, ":"); String res = "GetTSData(\""; try{ String name = st.nextToken();
+         */
+        /*
+         * String rang0 = st.nextToken(); String rang1 = st.nextToken(); res = "GetTSData(\"" + name + "\", " + shot + ", " + rang0 + ", " + rang1 + ")";
+         */
+        // res = "GetTsBase(" + shot + ", \"" + name + "\")";
+        /*
+         * }catch(Exception e) { error = "Wrong signal format: must be <signal_name>:<rangs[0]>:<rangs[1]>"; return null; }
+         */
+        // System.out.println(res);
+        return res;
+    }
+
+    @Override
+    public void SetArgument(final String arg) throws IOException {
+        this.mds.setProvider(arg);
+        this.mds.setUser("mdsplus");
+    }
+
+    @Override
+    public void SetCompression(final boolean state) {}
+
+    @Override
+    public synchronized void Update(final String exp, final long s) {
+        this.error = null;
+        this.shot = (int)s;
+    }
 }
-								

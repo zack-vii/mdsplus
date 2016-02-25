@@ -1,16 +1,16 @@
 @ECHO OFF
 ECHO preparing
-if defined JDK_DIR GOTO:start
+if defined JDK_HOME GOTO:start
 rem This script located the current version of
 rem "Java Development Kit" and sets the
-rem %JDK_PATH% environment variable
+rem %JDK_HOME% environment variable
 setlocal ENABLEEXTENSIONS
 set KEY=HKEY_LOCAL_MACHINE\SOFTWARE\JavaSoft\Java Development Kit
 FOR /F "usebackq tokens=2,* skip=2" %%L IN (`reg query "%KEY%" /v CurrentVersion`) DO SET JDKVER=%%M
-FOR /F "usebackq tokens=2,* skip=2" %%L IN (`reg query "%KEY%\%JDKVER%" /v JavaHome`) DO SET JDK_DIR="%%M"
-SET JDK_DIR=%JDK_DIR:"=%
-IF EXIST "%JDK_DIR%" GOTO:start
-ECHO JDK not found. Please set %%JDK_DIR%% to the root path of your jdk.
+FOR /F "usebackq tokens=2,* skip=2" %%L IN (`reg query "%KEY%\%JDKVER%" /v JavaHome`) DO SET JDK_HOME="%%M"
+SET JDK_HOME=%JDK_HOME:"=%
+IF EXIST "%JDK_HOME%" GOTO:start
+ECHO JDK not found. Please set %%JDK_HOME%% to the root path of your jdk.
 SET /A ERROR=1
 GOTO:end
 
@@ -90,23 +90,26 @@ jScope\LocalDataProvider.java ^
 jScope\MdsDataClient.java ^
 jScope\MdsIOException.java ^
 jScope\MdsPlusBrowseSignals.java ^
-jScope\TextorBrowseSignals.java
-
+jScope\TextorBrowseSignals.java ^
+jScope\W7XSignalBrowser.java ^
+jScope\W7XDataProvider.java ^
+jScope\DEBUG.java
+ 
 SET EXTRA_CLASS=^
 jScope\FakeTWUProperties.class ^
 jScope\FontPanel.class ^
 jScope\ServerDialog*.class ^
 jScope\WindowDialog.class
 
-SET CLASSPATH=-classpath ".;%MDSPLUS_DIR%\java\classes\MindTerm.jar"
-SET JAVAC="%JDK_DIR%\bin\javac.exe"
-SET JCFLAGS= ||rem -Xlint -deprecation
-SET JAR="%JDK_DIR%\bin\jar.exe"
+SET CLASSPATH=-classpath ".;MindTerm.jar;swingx.jar;W7XDataProvider.jar"
+SET JAVAC="%JDK_HOME%\bin\javac.exe"
+SET JCFLAGS=-O -g:none||rem-Xlint -deprecation
+SET MANIFEST=%CD%\jScopeManifest.mf
+SET JAR="%JDK_HOME%\bin\jar.exe"
 SET JARDIR=..\java\classes
-MKDIR  %JARDIR%\docs 2>NUL
 
 ECHO compiling *.java to *.class . . .
-%JAVAC% %JCFLAGS% -d %JARDIR% %CLASSPATH% %COMMON_SRC% %JSCOPE_SRC% %WAVEDISPLAY_SRC% ||rem jScope/DEBUG.java
+%JAVAC% %JCFLAGS% -d %JARDIR% %CLASSPATH% %COMMON_SRC% %JSCOPE_SRC% %WAVEDISPLAY_SRC%
 SET /A ERROR=%ERRORLEVEL%
 IF %ERROR% NEQ 0 GOTO:cleanup
 
@@ -114,12 +117,16 @@ IF %ERROR% NEQ 0 GOTO:cleanup
 ECHO gathering data
 COPY /Y jScope.properties %JARDIR%\>NUL
 COPY /Y colors1.tbl %JARDIR%\>NUL
-FOR %%F IN (%DOCS%) DO COPY /Y %%F %JARDIR%\docs>NUL
+MKDIR  %JARDIR%\docs 2>NUL
+FOR %%F IN (%DOCS%) DO COPY /Y %%F /D %JARDIR%\docs>NUL
+COPY %CD%\MindTerm.jar %JARDIR%>NUL
+COPY %CD%\swingx.jar %JARDIR%>NUL
+COPY %CD%\W7XDataProvider.jar %JARDIR%>NUL
 
 :packjar
 ECHO creating jar packages
 PUSHD %JARDIR%
-%JAR% -cf "jScope.jar" jScope.class colors1.tbl jScope.properties jScope docs
+%JAR% -cmf %MANIFEST% "jScope.jar" jScope.class colors1.tbl jScope.properties jScope docs
 %JAR% -cf "WaveDisplay.jar" %COMMON_SRC:.java=.class%
 POPD
 
@@ -136,7 +143,7 @@ IF %ERROR% NEQ 0 GOTO:end
 ECHO start jScope?
 PAUSE
 CLS
-java -cp "%JARDIR%\jScope.jar" -Xmx128M  jScope
+java -jar -Xmx1G "%JARDIR%\jScope.jar"
 
 :end
 PAUSE

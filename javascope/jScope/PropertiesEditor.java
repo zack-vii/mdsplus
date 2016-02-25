@@ -1,75 +1,64 @@
 package jScope;
 
-import java.io.*;
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
+import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.FileWriter;
+import java.io.IOException;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JEditorPane;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JViewport;
 
+final public class PropertiesEditor extends JDialog{
+    static final long serialVersionUID = 34724623452341L;
+    String            prFile;
+    JEditorPane       text;
 
-public class PropertiesEditor extends JDialog
-{
-    JEditorPane text;
-    String prFile;
-
-    public PropertiesEditor(JFrame owner, String propetiesFile)
-    {
+    public PropertiesEditor(final JFrame owner, final String propetiesFile){
         super(owner);
         this.setTitle("jScope properties file editor : " + propetiesFile);
-
-        prFile = propetiesFile;
-
-        text = new JEditorPane();
-        text.setEditable(true);
-
-        try
-        {
-            text.setPage("file:"+propetiesFile);
-        }
-        catch(IOException exc){}
-
-
-        JScrollPane scroller = new JScrollPane();
-        JViewport vp = scroller.getViewport();
-        vp.add(text);
-        getContentPane().add(scroller, BorderLayout.CENTER);
-
-
-        JPanel p = new JPanel();
-        JButton save = new JButton("Save");
+        this.prFile = propetiesFile;
+        this.text = new JEditorPane();
+        this.text.setEditable(true);
+        try{
+            this.text.setPage("file:" + propetiesFile);
+        }catch(final IOException exc){}
+        final JScrollPane scroller = new JScrollPane();
+        final JViewport vp = scroller.getViewport();
+        vp.add(this.text);
+        this.getContentPane().add(scroller, BorderLayout.CENTER);
+        final JPanel p = new JPanel();
+        final JButton save = new JButton("Save");
         save.setSelected(true);
         p.add(save);
-
-        save.addActionListener(new ActionListener()
-            {
-                public void actionPerformed(ActionEvent e)
-                {
-                    try
-                    {
-                        text.write(new FileWriter(prFile));
- 		                JOptionPane.showMessageDialog(PropertiesEditor.this,
- 		                                          "The changes will take effect the next time you restart jScope.",
-		                                          "Info", JOptionPane.WARNING_MESSAGE);
-                    }
-                    catch (IOException exc){exc.printStackTrace();};
-                }
-            });
-
-        JButton close = new JButton("Close");
+        save.addActionListener(new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try{
+                    PropertiesEditor.this.text.write(new FileWriter(PropertiesEditor.this.prFile));
+                    JOptionPane.showMessageDialog(PropertiesEditor.this, "The changes will take effect the next time you restart jScope.", "Info", JOptionPane.WARNING_MESSAGE);
+                }catch(final IOException exc){
+                    exc.printStackTrace();
+                };
+            }
+        });
+        final JButton close = new JButton("Close");
         close.setSelected(true);
         p.add(close);
-        close.addActionListener(new ActionListener()
-            {
-                public void actionPerformed(ActionEvent e)
-                {
-                    setVisible(false);
-                    dispose();
-                }
-            });
-
-
-        getContentPane().add(p, BorderLayout.SOUTH);
-        pack();
-        setSize(680,700);
-
+        close.addActionListener(new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                PropertiesEditor.this.setVisible(false);
+                PropertiesEditor.this.dispose();
+            }
+        });
+        this.getContentPane().add(p, BorderLayout.SOUTH);
+        this.pack();
+        this.setSize(680, 700);
     }
 }

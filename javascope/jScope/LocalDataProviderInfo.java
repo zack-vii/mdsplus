@@ -1,16 +1,13 @@
 package jScope;
 
-class LocalDataProviderInfo
-{
-    int dtype;
-    int pixelSize;
-    int [] dims;
+class LocalDataProviderInfo{
+    int[] dims;
+    int   dtype;
+    int   pixelSize;
 
-    public LocalDataProviderInfo(int dtype, int pixelSize, int dims[])
-    {
+    public LocalDataProviderInfo(final int dtype, final int pixelSize, final int dims[]){
         this.dtype = dtype;
- 	this.pixelSize = pixelSize;
+        this.pixelSize = pixelSize;
         this.dims = dims;
     }
 }
-

@@ -58,7 +58,7 @@ Interface  FrameData</H2>
 
 <P>
 When a Frame sequence is requested to a DataProvider implementation, it is returned by means of an object
- implemenmting the FrameData interface. FrameData defines therefore all the access methods required to handle 
+ implemenmting the FrameData interface. FrameData defines therefore all the access methods required to handle
  a sequence of frames.
 <P>
 <DL>
@@ -218,7 +218,7 @@ public int <B>GetFrameType</B>()
   content of a gif or jpeg file.
  <br>
  -FramDeata.JAI_IMAGE meaning that method GetFrameAt will return a byte vector representing the binary
-  content of every image file supported by the JAI (Java Advanced Imaging) package. The JAI package needs not 
+  content of every image file supported by the JAI (Java Advanced Imaging) package. The JAI package needs not
   to be installed unless file formats other than gif or jpeg are used.<DD><DL>
 <DT><B>Returns:</B><DD>The type of the corresponding frame.<DT><B>Throws:</B><DD><CODE>java.io.IOException</CODE> - &nbsp;</DL>
 </DD>
@@ -255,7 +255,7 @@ GetFrameTimes</H3>
 public float[] <B>GetFrameTimes</B>()
                       throws java.io.IOException</PRE>
 <DL>
-<DD>Return the times associated with every frame of the sequence. This information is required to correlate 
+<DD>Return the times associated with every frame of the sequence. This information is required to correlate
  the frame sequence with the other signals displayed by jScope.<DD><DL>
 <DT><B>Returns:</B><DD>The time array for the frame sequence.<DT><B>Throws:</B><DD><CODE>java.io.IOException</CODE> - &nbsp;</DL>
 </DD>

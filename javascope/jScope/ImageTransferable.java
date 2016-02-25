@@ -1,44 +1,42 @@
 package jScope;
 
-import java.io.*;
-import java.awt.image.*;
-import java.awt.datatransfer.*;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.ClipboardOwner;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 
-class ImageTransferable implements Transferable, ClipboardOwner
-{
-    
+class ImageTransferable implements Transferable, ClipboardOwner{
     BufferedImage ri;
-    
-    ImageTransferable(BufferedImage img)
-    {
-        ri = img;
+
+    ImageTransferable(final BufferedImage img){
+        this.ri = img;
     }
-    
-    public DataFlavor[] getTransferDataFlavors() { 
-        return new DataFlavor[] { DataFlavor.imageFlavor}; 
-    } 
 
-    public boolean isDataFlavorSupported(DataFlavor flavor) {
-        return DataFlavor.imageFlavor.equals(flavor); 
-    } 
-
-    public Object getTransferData(DataFlavor flavor) 
-            throws IOException, UnsupportedFlavorException { 
-                                    
-        if(ri == null)
-            return null;
-
-        if (!isDataFlavorSupported(flavor)) { 
-            throw new UnsupportedFlavorException(flavor); 
-        } 
-        return ri;
+    @Override
+    public Object getTransferData(final DataFlavor flavor) throws IOException, UnsupportedFlavorException {
+        if(this.ri == null) return null;
+        if(!this.isDataFlavorSupported(flavor)){ throw new UnsupportedFlavorException(flavor); }
+        return this.ri;
     }
-    
-    public void lostOwnership(Clipboard clipboard, Transferable contents) 
-    {
+
+    @Override
+    public DataFlavor[] getTransferDataFlavors() {
+        return new DataFlavor[]{DataFlavor.imageFlavor};
+    }
+
+    @Override
+    public boolean isDataFlavorSupported(final DataFlavor flavor) {
+        return DataFlavor.imageFlavor.equals(flavor);
+    }
+
+    @Override
+    public void lostOwnership(final Clipboard clipboard, final Transferable contents) {
         /*
-	    System.out.println ("ImageTransferable lost ownership of "  +clipboard.getName());
-	    System.out.println ("data: " + contents);
-	    */
+        System.out.println ("ImageTransferable lost ownership of "  +clipboard.getName());
+        System.out.println ("data: " + contents);
+         */
     }
 }

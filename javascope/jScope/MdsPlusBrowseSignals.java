@@ -1,59 +1,59 @@
 package jScope;
 
 /* $Id$ */
-import java.net.*; 
-import java.io.*;
-import java.util.*;
-import javax.swing.JOptionPane;
+import java.util.Properties;
+import java.util.StringTokenizer;
 
-public class MdsPlusBrowseSignals extends jScopeBrowseSignals
-{   
-    String path;
-    String shot;
-    String tree;
-    String server_url;
-    
-    protected String getSignal(String url_name)
-    {
-        String sig_path = null, curr_line;
-        try
-        {            
-            if(url_name != null)
-            {
+public class MdsPlusBrowseSignals extends jScopeBrowseSignals{
+    public static final long serialVersionUID = 8643838486846L;
+    private String           server_url;
+    private String           shot;
+    private String           tree;
+
+    @Override
+    protected String getServerAddr() {
+        return this.server_url;
+    }
+
+    @Override
+    protected String getShot() {
+        return this.shot;
+    }
+
+    @Override
+    protected String getSignal(final String url_name) {
+        String sig_path = null;
+        try{
+            if(url_name != null){
                 String name;
                 String value;
                 int st_idx;
-                Properties pr = new Properties();
-                if((st_idx = url_name.indexOf("?")) != -1)
-                {
-                    String param = url_name.substring(st_idx+1);
-                    StringTokenizer st = new StringTokenizer(param, "&");
-                    name =  st.nextToken("=");
+                final Properties pr = new Properties();
+                if((st_idx = url_name.indexOf("?")) != -1){
+                    final String param = url_name.substring(st_idx + 1);
+                    final StringTokenizer st = new StringTokenizer(param, "&");
+                    name = st.nextToken("=");
                     value = st.nextToken("&").substring(1);
                     pr.put(name, value);
-                    name =  st.nextToken("=").substring(1);
+                    name = st.nextToken("=").substring(1);
                     value = st.nextToken("&").substring(1);
                     pr.put(name, value);
-                    name =  st.nextToken("=").substring(1);
+                    name = st.nextToken("=").substring(1);
                     value = st.nextToken("&").substring(1);
                     pr.put(name, value);
-                    
-                    tree = (String)pr.getProperty("experiment");
-                    shot = (String)pr.getProperty("shot");
-                    sig_path = (String)pr.getProperty("path");
-                    
+                    this.tree = pr.getProperty("experiment");
+                    this.shot = pr.getProperty("shot");
+                    sig_path = pr.getProperty("path");
                 }
             }
-        } 
-        catch (Exception exc)
-        {
+        }catch(final Exception exc){
             sig_path = null;
         }
-        
         return sig_path;
     }
-    
-    protected String getTree(){return tree;}
-    protected String getShot(){return shot;}
-    protected String getServerAddr(){return server_url;}
+
+    @Override
+    protected String getTree() {
+        return this.tree;
+    }
 }

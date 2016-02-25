@@ -1,107 +1,115 @@
 package jScope;
 
 /* $Id$ */
-import jScope.DataProvider;
-import jScope.FrameData;
-import jScope.DataServerItem;
-import jScope.ConnectionListener;
-import java.io.*;
+import java.io.IOException;
 import javax.swing.JFrame;
 
-
-class NotConnectedDataProvider implements DataProvider
-{
-    final String error = "Not Connected";
-
-
-    public WaveData GetWaveData(String in)
-    {
-        return null;
-    }
-    public WaveData GetWaveData(String in_y, String in_x)
-    {
-        return null;
-    }
-    public WaveData GetResampledWaveData(String in, double start, double end, int n_points)
-    {
-        return null;
-    }
-    public WaveData GetResampledWaveData(String in_y, String in_x, double start, double end, int n_points)
-    {
-        return null;
-    }
-    public void enableAsyncUpdate(boolean enable){}
-
-    public void    Dispose(){}
-    public boolean SupportsCompression(){return false;}
-    public void    SetCompression(boolean state){}
-    public boolean SupportsContinuous() { return false; }
-    public int     InquireCredentials(JFrame f, DataServerItem server_item){return DataProvider.LOGIN_OK;}
-    public boolean SupportsFastNetwork(){return false;}
-    public void    SetArgument(String arg){}
-    public boolean SupportsTunneling() {return false; }
-
-
-
-    public void SetEnvironment(String exp)
-    {
-    }
-    public void Update(String exp, long s)
-    {
-    }
-    public String GetString(String in)
-    {
-        return "";
-    }
-    public double GetFloat(String in)
-    {
-        Double f = new Double(in);
-        return f.doubleValue();
-    }
-
-    public float[] GetFloatArray(String in_x, String in_y, float start, float end)
-    {
-        return null;
-    }
-
-    public float[] GetFloatArray(String in)
-    {
-        return null;
-    }
-
-    public long[] GetShots(String in)
-    {
-        long d[] = new long[1];
-        d[0] = 0;
-        return d;
-    }
-
-    public String ErrorString()
-    {
-        return error;
-    }
-    public void AddUpdateEventListener(UpdateEventListener l, String event)
-    {
-    }
-    public void RemoveUpdateEventListener(UpdateEventListener l, String event)
-    {
-    }
-    public void    AddConnectionListener(ConnectionListener l)
-    {
-    }
-    public void    RemoveConnectionListener(ConnectionListener l)
-    {
-    }
-    public void setContinuousUpdate(){}
-
-    public FrameData GetFrameData(String in_y, String in_x, float time_min, float time_max) throws IOException
-    {
-        return null;
-    }
-
-    public boolean DataPending()
-    {
+final class NotConnectedDataProvider implements DataProvider{
+    public static boolean DataPending() {
         return false;
     }
 
- }
+    public static float[] GetFloatArray(final String in) {
+        return null;
+    }
+
+    public static float[] GetFloatArray(final String in_x, final String in_y, final float start, final float end) {
+        return null;
+    }
+
+    public static WaveData GetResampledWaveData(final String in, final double start, final double end, final int n_points) {
+        return null;
+    }
+
+    public static WaveData GetResampledWaveData(final String in_y, final String in_x, final double start, final double end, final int n_points) {
+        return null;
+    }
+
+    public static void SetCompression(final boolean state) {}
+
+    public static void setContinuousUpdate() {}
+
+    public static boolean SupportsCompression() {
+        return false;
+    }
+
+    public static boolean SupportsContinuous() {
+        return false;
+    }
+
+    public static boolean SupportsFastNetwork() {
+        return false;
+    }
+    final String error = "Not Connected";
+
+    @Override
+    public void AddConnectionListener(final ConnectionListener l) {}
+
+    @Override
+    public void AddUpdateEventListener(final UpdateEventListener l, final String event) {}
+
+    @Override
+    public void Dispose() {}
+
+    public void enableAsyncUpdate(final boolean enable) {}
+
+    @Override
+    public String ErrorString() {
+        return this.error;
+    }
+
+    @Override
+    public double GetFloat(final String in) {
+        return new Double(in);
+    }
+
+    @Override
+    public FrameData GetFrameData(final String in_y, final String in_x, final float time_min, final float time_max) throws IOException {
+        return null;
+    }
+
+    @Override
+    public long[] GetShots(final String in) {
+        return new long[]{0L};
+    }
+
+    @Override
+    public String GetString(final String in) {
+        return "";
+    }
+
+    @Override
+    public WaveData GetWaveData(final String in) {
+        return null;
+    }
+
+    @Override
+    public WaveData GetWaveData(final String in_y, final String in_x) {
+        return null;
+    }
+
+    @Override
+    public int InquireCredentials(final JFrame f, final DataServerItem server_item) {
+        return DataProvider.LOGIN_OK;
+    }
+
+    @Override
+    public void RemoveConnectionListener(final ConnectionListener l) {}
+
+    @Override
+    public void RemoveUpdateEventListener(final UpdateEventListener l, final String event) {}
+
+    @Override
+    public void SetArgument(final String arg) {}
+
+    @Override
+    public void SetEnvironment(final String exp) {}
+
+    @Override
+    public boolean SupportsTunneling() {
+        return false;
+    }
+
+    @Override
+    public void Update(final String exp, final long s) {}
+}

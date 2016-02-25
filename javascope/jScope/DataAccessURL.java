@@ -1,123 +1,76 @@
 package jScope;
 
 /* $Id$ */
-import java.util.Vector;
 import java.io.IOException;
+import java.util.Vector;
 
-class DataAccessURL  
-{
-    
-    static Vector dataAccessVector = new Vector();
-        
-    static public void addProtocol(DataAccess dataAccess)
-    {
-        dataAccessVector.addElement(dataAccess);
+class DataAccessURL{
+    static Vector<DataAccess> dataAccessVector = new Vector<DataAccess>();
+
+    static public void addProtocol(final DataAccess dataAccess) {
+        DataAccessURL.dataAccessVector.addElement(dataAccess);
     }
 
-    static public Signal getSignal(String url) throws IOException
-    {
-        return getSignal(url, null, null);
-    }
-
-    static public Signal getSignal(String url, String passwd) throws IOException
-    {
-        return getSignal(url, null, passwd);
-    }
-    
-    static public DataAccess getDataAccess(String url) throws IOException
-    {
+    static public void close() {
         DataAccess da = null;
-        
-        for(int i = 0 ; i < dataAccessVector.size(); da = null, i++)
-        {
-            da = (DataAccess)dataAccessVector.elementAt(i);
-            if(da.supports(url))
-                break;
+        for(int i = 0; i < DataAccessURL.dataAccessVector.size(); i++){
+            da = DataAccessURL.dataAccessVector.elementAt(i);
+            if(da != null) da.close();
         }
-        if(da == null)
-            throw(new IOException("Protocol not recognized"));       
+    }
+
+    static public DataAccess getDataAccess(final String url) throws IOException {
+        DataAccess da = null;
+        for(int i = 0; i < DataAccessURL.dataAccessVector.size(); da = null, i++){
+            da = DataAccessURL.dataAccessVector.elementAt(i);
+            if(da.supports(url)) break;
+        }
+        if(da == null) throw(new IOException("Protocol not recognized"));
         return da;
     }
-    
-    static public Signal getSignal(String url, String name, String passwd) throws IOException
-    {
-        DataAccess da = null;
-        
-        if((da = getDataAccess(url)) != null)
-        {
-            da.setPassword(passwd);
-            Signal s = da.getSignal(url);
-            if(s == null && da.getError() == null)
-                throw(new IOException("Incorrect password or read signal error"));
-            
-            if(da.getError() == null)
-            {
-                if(name == null)
-                    name = s.getName();
-                    
-                if(name == null)
-                    name = da.getSignalName()+" "+da.getShot();
-                else
-                    name = name+" "+da.getShot();                
-                s.setName(name);
-                return s;
-            }
-            else
-            {
-                throw(new IOException(da.getError()));
-            }
-        }
-        return null;
-    }    
 
-    static public void getImages(String url, Frames f) throws Exception
-    {
-        getImages(url, null, null, f);
+    static public void getImages(final String url, final Frames f) throws Exception {
+        DataAccessURL.getImages(url, null, null, f);
     }
 
-    static public void getImages(String url, String passwd, Frames f) throws Exception
-    {
-        getImages(url, null, passwd, f);
+    static public void getImages(final String url, final String passwd, final Frames f) throws Exception {
+        DataAccessURL.getImages(url, null, passwd, f);
     }
 
-    static public void getImages(String url, String name, String passwd, Frames f) throws Exception
-    {
-        DataAccess da = null;
-        
-        if((da = getDataAccess(url)) != null || f == null)
-        {
-            da.setPassword(passwd);
-            FrameData fd = da.getFrameData(url);
-            if(fd == null && da.getError() == null)
-                throw(new IOException("Incorrect password or read images error"));
-            
-            f.SetFrameData(fd);
-            f.setName(da.getSignalName());
-            
-            if(da.getError() != null)
-            {
-                throw(new IOException(da.getError()));
-            }
-        }
-        else
-            throw(new IOException("Protocol not recognized"));
-    }
-    
-    
-    static public void close()
-    {
-        DataAccess da = null;
-        for(int i = 0 ; i < dataAccessVector.size(); i++)
-        {
-            da = (DataAccess)dataAccessVector.elementAt(i);
-            if(da != null)
-                da.close();
-        }
+    static public void getImages(final String url, final String name, final String passwd, final Frames f) throws Exception {
+        final DataAccess da = DataAccessURL.getDataAccess(url);
+        if(da == null || f == null) throw(new IOException("Protocol not recognized"));
+        da.setPassword(passwd);
+        final FrameData fd = da.getFrameData(url);
+        if(fd == null && da.getError() == null) throw(new IOException("Incorrect password or read images error"));
+        f.SetFrameData(fd);
+        f.setName(da.getSignalName());
+        if(da.getError() != null){ throw(new IOException(da.getError())); }
     }
 
-    static public int getNumProtocols()
-    {
-        return dataAccessVector.size();
+    static public int getNumProtocols() {
+        return DataAccessURL.dataAccessVector.size();
     }
 
+    static public Signal getSignal(final String url) throws IOException {
+        return DataAccessURL.getSignal(url, null, null);
+    }
+
+    static public Signal getSignal(final String url, final String passwd) throws IOException {
+        return DataAccessURL.getSignal(url, null, passwd);
+    }
+
+    static public Signal getSignal(final String url, String name, final String passwd) throws IOException {
+        final DataAccess da = DataAccessURL.getDataAccess(url);
+        if(da == null) return null;
+        da.setPassword(passwd);
+        if(da.getError() != null) throw new IOException(da.getError());
+        final Signal s = da.getSignal(url);
+        if(s == null) throw(new IOException("Incorrect password or read signal error"));
+        if(name == null) name = s.getName();
+        if(name == null) name = da.getSignalName() + " " + da.getShot();
+        else name = name + " " + da.getShot();
+        s.setName(name);
+        return s;
+    }
 }

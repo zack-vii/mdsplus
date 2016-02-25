@@ -16,301 +16,260 @@ package jScope;
 // $Id$
 //
 // -------------------------------------------------------------------------------------------------
+import java.io.IOException;
+import java.util.StringTokenizer;
+import java.util.Vector;
+import javax.swing.JFrame;
 
-import jScope.DataProvider;
-import jScope.FrameData;
-import jScope.DataServerItem;
-import java.io.*;
-import java.net.*;
-import java.util.*;
-import java.awt.*;
-import javax.swing.*;
-import java.awt.event.*;
-import java.lang.InterruptedException;
-
-
-class TwuDataProvider
-    implements DataProvider
-{
-    private   String experiment;
-    protected long   shot;
-    private String error_string;
-    private transient Vector   connection_listener = new Vector();
-    private String user_agent;
-    private TwuWaveData lastWaveData = null ;
-
-
-    //DataProvider implementation
-    public boolean SupportsCompression(){return false;}
-    public void    SetCompression(boolean state){}
-    public void    SetEnvironment(String s) {}
-    public void    Dispose(){}
-    public String  GetString(String in) {return in; }
-    public double   GetFloat(String in){ return new Double(in).doubleValue(); }
-    public String  ErrorString() { return error_string; }
-    public void    AddUpdateEventListener   (UpdateEventListener l, String event){}
-    public void    RemoveUpdateEventListener(UpdateEventListener l, String event){}
-    public boolean SupportsContinuous() {return false; }
-    public boolean DataPending()        {return false; }
-    public int     InquireCredentials(JFrame f, DataServerItem server_item){return DataProvider.LOGIN_OK;}
-    public boolean SupportsFastNetwork(){return true;}
-    public void    SetArgument(String arg){}
-    public boolean SupportsTunneling() {return false;}
-    public void setContinuousUpdate(){}
-
-    //  --------------------------------------------------------------------------------------------
-    //     interface methods for getting *Data objects
-    //  ---------------------------------------------------
-
-    public void enableAsyncUpdate(boolean enable){}
-    public FrameData GetFrameData(String in_y, String in_x, float time_min, float time_max)
-        throws IOException
-    {
-        return (new TwuSimpleFrameData(this, in_y, in_x, time_min, time_max));
+final class TwuDataProvider implements DataProvider{
+    public static boolean DataPending() {
+        return false;
     }
 
-    //  ---------------------------------------------------
-    public synchronized WaveData GetWaveData (String in)
-    {
-        return GetWaveData (in, null);
-    }
-
-    public synchronized WaveData GetWaveData (String in_y, String in_x)
-    {
-        TwuWaveData find = FindWaveData (in_y, in_x);
-        find.setFullFetch() ;
-        return find ;
-    }
-
-    public synchronized WaveData GetResampledWaveData(String in, double start, double end, int n_points)
-    {
-        return GetResampledWaveData(in, null, start, end, n_points);
-    }
-    public synchronized WaveData
-    GetResampledWaveData(String in_y, String in_x, double start, double end, int n_points)
-    {
-        TwuWaveData find = FindWaveData (in_y, in_x);
-        find.setZoom ((float)start, (float)end, n_points);
-        return find ;
-    }
-
-    public synchronized TwuWaveData FindWaveData (String in_y, String in_x)
-    {
-        if ( lastWaveData == null  ||  lastWaveData.notEqualsInputSignal (in_y, in_x, shot) )
-        {
-            lastWaveData = new TwuWaveData (this, in_y, in_x) ;
-            try
-            {
-                // Ensure that the properties are fetched right away.
-                lastWaveData.getTWUProperties() ;
-            }
-            catch (IOException e)
-            {
-                setErrorstring("No Such Signal : " +
-                               TwuNameServices.GetSignalPath(in_y, shot) );
-                //throw new IOException ("No Such Signal");
-            }
-        }
-        return lastWaveData ;
-    }
-
-    // ---------------------------------------------------------------------------------------------
-
-    public synchronized float[] GetFloatArray(String in)
-    {
-        boolean is_time;
-        resetErrorstring(null);
-
-        if(in.startsWith("TIME:", 0))
-        {
-            is_time = true;
-            in = in.substring(5);
-        }
-        else
-          is_time = false;
-
-        TwuWaveData wd   = (TwuWaveData)GetWaveData  (in) ;
-        float [] data = null ;
-        try
-        {
-//            data = wd.GetFloatData() ;
-            data = wd.getData(4000).y ;
-        }
-        catch (  Exception e )
-        {
-            resetErrorstring(e.toString());
-            data = null ;
-        }
-        return data ;
-    }
-
-    //  ----------------------------------------------------
-    //  Methods for TwuAccess.
-    //  ----------------------------------------------------
-
-    public synchronized float[]
-    GetFloatArray (String in, boolean is_time) throws IOException
-    {
-        TwuWaveData wd = (TwuWaveData)GetWaveData(in) ; // TwuAccess wants to get the full signal data .
-        return is_time ? wd.GetXData() : wd.GetYData() ;
-    }
-
-    
-    
-    
-    public synchronized String GetSignalProperty (String prop, String in) throws IOException
-    {
-        TwuWaveData wd = (TwuWaveData) GetWaveData(in) ;
-        return wd.getTWUProperties().getProperty(prop);
-    }
-
-    //  -------------------------------------------------------
-    //     parsing of / extraction from input signal string
-    //  -------------------------------------------------------
-
-    public long[] GetShots(String in)
-    {
-        resetErrorstring(null);
-        long [] result;
-        String curr_in = in.trim();
-        if(curr_in.startsWith("[", 0))
-        {
-            if(curr_in.endsWith("]"))
-            {
-                curr_in = curr_in.substring(1, curr_in.length() - 1);
-                StringTokenizer st = new StringTokenizer(curr_in, ",", false);
-                result = new long[st.countTokens()];
-                int i = 0;
-                try
-                {
-                    while(st.hasMoreTokens())
-                      result[i++] = Integer.parseInt(st.nextToken());
-                    return result;
-                }
-                catch(Exception e) {}
-            }
-        }
-        else
-        {
-            if(curr_in.indexOf(":") != -1)
-            {
-                StringTokenizer st = new StringTokenizer(curr_in, ":");
-                int start, end;
-                if(st.countTokens() == 2)
-                {
-                    try
-                    {
-                        start = Integer.parseInt(st.nextToken());
-                        end = Integer.parseInt(st.nextToken());
-                        if(end < start)
-                          end = start;
-                        result = new long[end-start+1];
-                        for(int i = 0; i < end-start+1; i++)
-                          result[i] = start+i;
-                        return result;
-                    }
-                    catch(Exception e){}
-                }
-            }
-            else
-            {
-                result = new long[1];
-                try
-                {
-                    result[0] = Long.parseLong(curr_in);
-                    return result;
-                }
-                catch(Exception e){}
-            }
-        }
-        resetErrorstring("Error parsing shot number(s)");
-
-        return null;
-    }
-
-    //  -------------------------------------------
-    //     connection handling methods ....
-    //  -------------------------------------------
-
-    public synchronized void AddConnectionListener(ConnectionListener l)
-    {
-        if (l == null)
-          return;
-
-        connection_listener.addElement(l);
-    }
-
-    public synchronized void RemoveConnectionListener(ConnectionListener l)
-    {
-        if (l == null)
-          return;
-
-        connection_listener.removeElement(l);
-    }
-
-    protected void DispatchConnectionEvent(ConnectionEvent e)
-    {
-        if (connection_listener != null)
-        {
-            for(int i = 0; i < connection_listener.size(); i++)
-              ((ConnectionListener)connection_listener.elementAt(i)).processConnectionEvent(e);
-        }
-    }
-
-    //  -------------------------------------------
-    //  Constructor, other small stuff ...
-    //  -------------------------------------------
-
-    public synchronized void
-    Update(String experiment, long shot)
-    {
-        this.experiment = experiment;
-        this.shot = shot;
-        resetErrorstring(null);
-        lastWaveData = null;
-    }
-
-    protected synchronized String
-    getExperiment()
-    {
-        return experiment;
-    }
-
-    protected synchronized void
-    setErrorstring(String newErrStr)
-    {
-        if(error_string==null)
-          error_string = newErrStr;
-    }
-
-    protected synchronized void
-    resetErrorstring(String newErrStr)
-    {
-        error_string = newErrStr;
-    }
-
-
-    public TwuDataProvider()
-    {
-        super();
-    }
-
-    public static String
-    revision()
-    {
+    public static String revision() {
         return "$Id$";
     }
 
-    public TwuDataProvider(String user_agent)
-    {
-        this.user_agent = user_agent;
+    // DataProvider implementation
+    public static boolean SupportsCompression() {
+        return false;
+    }
+
+    public static boolean SupportsContinuous() {
+        return false;
+    }
+
+    public static boolean SupportsFastNetwork() {
+        return true;
+    }
+    private transient Vector<ConnectionListener> connection_listener = new Vector<ConnectionListener>();
+    private String                               error_string;
+    private String                               experiment;
+    private TwuWaveData                          lastWaveData        = null;
+    protected long                               shot;
+
+    public TwuDataProvider(){
+        super();
+    }
+
+    public TwuDataProvider(final String user_agent){
         // Could be used in the constructor for TWUProperties and in similar get URL actions.
         // A site could used this as a possible (internal) software distribution management
-        // tool.  In the log of a web-server you can, by checking the user_agent, see which
+        // tool. In the log of a web-server you can, by checking the user_agent, see which
         // machines are still running old software.
     }
-}
 
+    // -------------------------------------------
+    // connection handling methods ....
+    // -------------------------------------------
+    @Override
+    public synchronized void AddConnectionListener(final ConnectionListener l) {
+        if(l == null) return;
+        this.connection_listener.addElement(l);
+    }
+
+    @Override
+    public void AddUpdateEventListener(final UpdateEventListener l, final String event) {}
+
+    protected void DispatchConnectionEvent(final ConnectionEvent e) {
+        if(this.connection_listener != null){
+            for(int i = 0; i < this.connection_listener.size(); i++)
+                this.connection_listener.elementAt(i).processConnectionEvent(e);
+        }
+    }
+
+    @Override
+    public void Dispose() {}
+
+    // --------------------------------------------------------------------------------------------
+    // interface methods for getting *Data objects
+    // ---------------------------------------------------
+    public void enableAsyncUpdate(final boolean enable) {}
+
+    @Override
+    public String ErrorString() {
+        return this.error_string;
+    }
+
+    public synchronized TwuWaveData FindWaveData(final String in_y, final String in_x) {
+        if(this.lastWaveData == null || this.lastWaveData.notEqualsInputSignal(in_y, in_x, this.shot)){
+            this.lastWaveData = new TwuWaveData(this, in_y, in_x);
+            try{
+                // Ensure that the properties are fetched right away.
+                this.lastWaveData.getTWUProperties();
+            }catch(final IOException e){
+                this.setErrorstring("No Such Signal : " + TwuNameServices.GetSignalPath(in_y, this.shot));
+                // throw new IOException ("No Such Signal");
+            }
+        }
+        return this.lastWaveData;
+    }
+
+    protected synchronized String getExperiment() {
+        return this.experiment;
+    }
+
+    @Override
+    public double GetFloat(final String in) {
+        return new Double(in).doubleValue();
+    }
+
+    // ---------------------------------------------------------------------------------------------
+    public synchronized float[] GetFloatArray(final String in) {
+        this.resetErrorstring(null);
+        final TwuWaveData wd = (TwuWaveData)this.GetWaveData(in);
+        float[] data = null;
+        try{
+            // data = wd.GetFloatData() ;
+            data = wd.getData(4000).y;
+        }catch(final Exception e){
+            this.resetErrorstring(e.toString());
+            data = null;
+        }
+        return data;
+    }
+
+    // ----------------------------------------------------
+    // Methods for TwuAccess.
+    // ----------------------------------------------------
+    public synchronized float[] GetFloatArray(final String in, final boolean is_time) throws IOException {
+        final TwuWaveData wd = (TwuWaveData)this.GetWaveData(in); // TwuAccess wants to get the full signal data .
+        return is_time ? wd.GetXData() : wd.GetYData();
+    }
+
+    @Override
+    public FrameData GetFrameData(final String in_y, final String in_x, final float time_min, final float time_max) throws IOException {
+        return(new TwuSimpleFrameData(this, in_y, in_x, time_min, time_max));
+    }
+
+    public synchronized WaveData GetResampledWaveData(final String in, final double start, final double end, final int n_points) {
+        return this.GetResampledWaveData(in, null, start, end, n_points);
+    }
+
+    public synchronized WaveData GetResampledWaveData(final String in_y, final String in_x, final double start, final double end, final int n_points) {
+        final TwuWaveData find = this.FindWaveData(in_y, in_x);
+        find.setZoom((float)start, (float)end, n_points);
+        return find;
+    }
+
+    // -------------------------------------------------------
+    // parsing of / extraction from input signal string
+    // -------------------------------------------------------
+    @Override
+    public long[] GetShots(final String in) {
+        this.resetErrorstring(null);
+        long[] result;
+        String curr_in = in.trim();
+        if(curr_in.startsWith("[", 0)){
+            if(curr_in.endsWith("]")){
+                curr_in = curr_in.substring(1, curr_in.length() - 1);
+                final StringTokenizer st = new StringTokenizer(curr_in, ",", false);
+                result = new long[st.countTokens()];
+                int i = 0;
+                try{
+                    while(st.hasMoreTokens())
+                        result[i++] = Integer.parseInt(st.nextToken());
+                    return result;
+                }catch(final Exception e){}
+            }
+        }else{
+            if(curr_in.indexOf(":") != -1){
+                final StringTokenizer st = new StringTokenizer(curr_in, ":");
+                int start, end;
+                if(st.countTokens() == 2){
+                    try{
+                        start = Integer.parseInt(st.nextToken());
+                        end = Integer.parseInt(st.nextToken());
+                        if(end < start) end = start;
+                        result = new long[end - start + 1];
+                        for(int i = 0; i < end - start + 1; i++)
+                            result[i] = start + i;
+                        return result;
+                    }catch(final Exception e){}
+                }
+            }else{
+                result = new long[1];
+                try{
+                    result[0] = Long.parseLong(curr_in);
+                    return result;
+                }catch(final Exception e){}
+            }
+        }
+        this.resetErrorstring("Error parsing shot number(s)");
+        return null;
+    }
+
+    public synchronized String GetSignalProperty(final String prop, final String in) throws IOException {
+        final TwuWaveData wd = (TwuWaveData)this.GetWaveData(in);
+        return wd.getTWUProperties().getProperty(prop);
+    }
+
+    @Override
+    public String GetString(final String in) {
+        return in;
+    }
+
+    // ---------------------------------------------------
+    @Override
+    public synchronized WaveData GetWaveData(final String in) {
+        return this.GetWaveData(in, null);
+    }
+
+    @Override
+    public synchronized WaveData GetWaveData(final String in_y, final String in_x) {
+        final TwuWaveData find = this.FindWaveData(in_y, in_x);
+        find.setFullFetch();
+        return find;
+    }
+
+    @Override
+    public int InquireCredentials(final JFrame f, final DataServerItem server_item) {
+        return DataProvider.LOGIN_OK;
+    }
+
+    @Override
+    public synchronized void RemoveConnectionListener(final ConnectionListener l) {
+        if(l == null) return;
+        this.connection_listener.removeElement(l);
+    }
+
+    @Override
+    public void RemoveUpdateEventListener(final UpdateEventListener l, final String event) {}
+
+    protected synchronized void resetErrorstring(final String newErrStr) {
+        this.error_string = newErrStr;
+    }
+
+    @Override
+    public void SetArgument(final String arg) {}
+
+    public void SetCompression(final boolean state) {}
+
+    public void setContinuousUpdate() {}
+
+    @Override
+    public void SetEnvironment(final String s) {}
+
+    protected synchronized void setErrorstring(final String newErrStr) {
+        if(this.error_string == null) this.error_string = newErrStr;
+    }
+
+    @Override
+    public boolean SupportsTunneling() {
+        return false;
+    }
+
+    // -------------------------------------------
+    // Constructor, other small stuff ...
+    // -------------------------------------------
+    @Override
+    public synchronized void Update(final String experiment, final long shot) {
+        this.experiment = experiment;
+        this.shot = shot;
+        this.resetErrorstring(null);
+        this.lastWaveData = null;
+    }
+}
 // -------------------------------------------------------------------------------------------------
 // End of: $Id$
 // -------------------------------------------------------------------------------------------------

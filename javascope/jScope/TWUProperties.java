@@ -2,375 +2,227 @@ package jScope;
 
 /* ------------------------------------------------------------------------ */
 /*
- * TWUProperties: Handling the Web-Umbrella Signal Properties.
- *
- * Copyright (c) 2002...2003, J.G.krom, Forschungszentrum Juelich GmbH.
- * All rights reserved.
- * 
- * This class handles the properties 'file' as used in the TEC Web-Umbrella.
- *
- * NOTE:
- * The TWU* classes (with TWU in three capitals) are written so that they 
- * can also be used in other java based applications and not only by jScope.  
- * Please keep the code of these separate of jScope specific elements.
- *
- * This class does not throw any exceptions; this should be left so.  This is
- * because it is also used in contexts where the handling of such exceptions 
- * is somewhat troublesome. (E.g. JVMs running implicitly by matlab.)
- *
- * Author: Jon Krom, Forschungszentrum Juelich, Institut fuer Plasmaphysik.
- *
- * $Id$
- *
- * ------------------------------------------------------------------------ 
- * Derived from (matlab-) WUProperties.java Revision 1.6 2002/02/26 hrk/jgk
- * I removed the automatic CVS log from this file; it can be read
- * directly from the CVS repository with "cvs log".
+ * TWUProperties: Handling the Web-Umbrella Signal Properties. Copyright (c) 2002...2003, J.G.krom, Forschungszentrum Juelich GmbH. All rights reserved. This class handles the properties 'file' as used in the TEC Web-Umbrella. NOTE: The TWU* classes (with
+ * TWU in three capitals) are written so that they can also be used in other java based applications and not only by jScope. Please keep the code of these separate of jScope specific elements. This class does not throw any exceptions; this should be left
+ * so. This is because it is also used in contexts where the handling of such exceptions is somewhat troublesome. (E.g. JVMs running implicitly by matlab.) Author: Jon Krom, Forschungszentrum Juelich, Institut fuer Plasmaphysik. $Id$
+ * ------------------------------------------------------------------------ Derived from (matlab-) WUProperties.java Revision 1.6 2002/02/26 hrk/jgk I removed the automatic CVS log from this file; it can be read directly from the CVS repository with
+ * "cvs log".
  */
 /* ------------------------------------------------------------------------ */
-
-import java.net.*;
-import java.io.*;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.Properties;
 
-public class TWUProperties
-{
-    private   URL        signalURL   = null;
-    protected Properties signalProps = new Properties();
-    private   boolean    textRead    = false;
-    
-    /* -------------------------------------------------------------------- */
-    // Constructors
-
-    public
-    TWUProperties(String SigURL)
-    {
-        this (SigURL, null);
+public class TWUProperties{
+    // Allow, like many browsers do, URLs without protocol name (the
+    // 'http:' bit). Assume in these cases that we want 'http:'
+    // This allows. (at least in principle) other protocols.
+    private static String CompleteURL(final String in) {
+        if(in.indexOf("://") >= 0) return in;
+        return "http:" + in;
     }
 
-    public
-    TWUProperties(String SigURL, String user_agent)
-    {
-        final String
-            actual_user_agent = (user_agent!=null) ?  user_agent
-            : "TWUProperties.java for jScope ($Revision$)";
-        signalProps = new Properties();
+    public static void main(final String a[]) {
+        TWUProperties twup;
+        System.out.println();
+        System.out.println(TWUProperties.revision());
+        System.out.println();
+        System.out.println("Web-Umbrella data from a webserver.");
+        twup = new TWUProperties(
+                // "//localhost/textor/all/91100/vuv/spred-a/H-I_@_102,550"); // Existing
+                // "//localhost/textor/all/91100/vuv/spred-a/H-I_@_102,551"); // Non-existing
+                // ""); // Non-existing
+                null);
+        System.out.println(twup);
+        System.out.println(twup.summary());
+        System.out.println();
+        twup = new TWUProperties("//localhost/textor/all/91100/vuv/spred-a/H-I_@_102,550"); // Existing
+        System.out.println(twup);
+        System.out.println(twup.summary());
+        System.out.println();
+    }
 
-        if (SigURL==null)
-          return;
-                
-        final String fullURL = CompleteURL(SigURL);
+    public static String revision() {
+        return "$Id$";
+    }
+    protected Properties signalProps = new Properties();
+    private URL          signalURL   = null;
+    private boolean      textRead    = false;
 
-        try
-        {
-            signalURL   = new URL(fullURL);
+    /* -------------------------------------------------------------------- */
+    // Constructors
+    public TWUProperties(final String SigURL){
+        this(SigURL, null);
+    }
 
-            URLConnection con = signalURL.openConnection();
-            con.setRequestProperty("User-Agent",actual_user_agent);
-            String mime_type = con.getContentType();
-
+    public TWUProperties(final String SigURL, final String user_agent){
+        final String actual_user_agent = (user_agent != null) ? user_agent : "TWUProperties.java for jScope ($Revision$)";
+        this.signalProps = new Properties();
+        if(SigURL == null) return;
+        final String fullURL = TWUProperties.CompleteURL(SigURL);
+        try{
+            this.signalURL = new URL(fullURL);
+            final URLConnection con = this.signalURL.openConnection();
+            con.setRequestProperty("User-Agent", actual_user_agent);
+            final String mime_type = con.getContentType();
             // Assume (like browsers) that missing mime-type indicates text/html.
-            if(mime_type==null || mime_type.indexOf("text") >=0)
-            {
-                signalProps.load(con.getInputStream());
-                textRead = true;
+            if(mime_type == null || mime_type.indexOf("text") >= 0){
+                this.signalProps.load(con.getInputStream());
+                this.textRead = true;
             }
-        }
-        catch (Exception e) 
-        {
-            signalURL = null;
+        }catch(final Exception e){
+            this.signalURL = null;
             /* No need for further action; textRead will be left false. */
         }
     }
 
-    // Allow, like many browsers do, URLs without protocol name (the
-    // 'http:' bit).  Assume in these cases that we want 'http:'
-    // This allows. (at least in principle) other protocols.
-
-    private String CompleteURL(String in)
-    {
-        if(in.indexOf("://") >= 0)
-          return in;
-        return "http:" + in;
+    public double averageStep() {
+        final double span = this.Maximum() - this.Minimum();
+        int segments = this.LengthTotal() - 1;
+        if(this.Decrementing()) segments *= -1;
+        return(segments == 0 ? Double.NaN : span / segments);
     }
 
+    public boolean Decrementing() {
+        final String equidistant = this.signalProps.getProperty("Equidistant");
+        return (equidistant != null) && equidistant.equalsIgnoreCase("decrementing");
+    }
+
+    public int Dim0Length() {
+        final String ln0str = this.signalProps.getProperty("Length.dimension.0");
+        final Integer d0l = Integer.valueOf(ln0str == null ? "0" : ln0str);
+        return d0l.intValue();
+    }
+
+    public int Dim1Length() {
+        final String ln1str = this.signalProps.getProperty("Length.dimension.1");
+        final Integer d1l = Integer.valueOf(ln1str == null ? "0" : ln1str);
+        return d1l.intValue();
+    }
+
+    public int Dimensions() {
+        final String dimstr = this.signalProps.getProperty("Dimensions");
+        final Integer dim = Integer.valueOf(dimstr == null ? "0" : dimstr);
+        return dim.intValue();
+    }
+
+    public boolean equals(final String other_url) {
+        try{
+            return TWUProperties.CompleteURL(other_url).equals(this.signalURL.toString());
+        }catch(final Exception e){
+            return false;
+        }
+    }
+
+    public boolean Equidistant() {
+        return (this.Incrementing() || this.Decrementing()) && this.signalProps.getProperty("Signal.Minimum") != null && this.signalProps.getProperty("Signal.Maximum") != null;
+    }
+
+    public String FQAbscissa0Name() {
+        final String abs = this.signalProps.getProperty("Abscissa.URL.0");
+        return((abs == null || abs.equalsIgnoreCase("None")) ? null : abs);
+    }
+
+    public String FQAbscissa1Name() {
+        final String abs = this.signalProps.getProperty("Abscissa.URL.1");
+        return((abs == null || abs.equalsIgnoreCase("None")) ? null : abs);
+    }
+
+    public String FQAbscissaName() {
+        final String abs = this.signalProps.getProperty("Abscissa.URL.0");
+        return((abs == null || abs.equalsIgnoreCase("None")) ? null : abs);
+    }
+
+    public String FQBulkName() {
+        return this.signalProps.getProperty("Bulkfile.URL");
+    }
+
+    public String FQSignalName() {
+        return this.signalProps.getProperty("SignalURL");
+    }
 
     /* -------------------------------------------------------------------- */
-    // Accessors:
-
-    public boolean
-    valid()
-    {
-        // Should handle this pseudo-numerically
-        String version = signalProps.getProperty("TWU.properties.version");
-        return textRead 
-            && version!=null 
-            && (version.equals("0.7") || version.equals("0.8") );
+    // A generic getproperties method.
+    public String getProperty(final String keyword) {
+        return this.signalProps.getProperty(keyword);
     }
 
-    public int 
-    Dimensions()
-    {
-        String  dimstr = signalProps.getProperty("Dimensions");
-        Integer dim = Integer.valueOf(dimstr==null? "0" : dimstr);
-        return  dim.intValue();
-    }
-    
-    public int 
-    Dim0Length()
-    {
-        String  ln0str = signalProps.getProperty("Length.dimension.0");
-        Integer d0l = Integer.valueOf(ln0str==null? "0" : ln0str);
-        return  d0l.intValue();
-    }
-    
-    public int 
-    Dim1Length()
-    {
-        String  ln1str = signalProps.getProperty("Length.dimension.1");
-        Integer d1l = Integer.valueOf(ln1str==null? "0" : ln1str);
-        return  d1l.intValue();
-    }
-    
-    public int 
-    LengthTotal()
-    {
-        String  ltstr = signalProps.getProperty("Length.total");
-        Integer lt = Integer.valueOf(ltstr==null? "0" : ltstr);
-        return  lt.intValue();
-    }
-    
-    public String
-    Title()
-    {
-        String title = signalProps.getProperty("Title");
-        if(title == null)
-          title = signalProps.getProperty("SignalName");
-        return title;
+    public boolean hasAbscissa() {
+        return this.hasAbscissa0();
     }
 
-    public String
-    FQSignalName()
-    {
-        return signalProps.getProperty("SignalURL");
+    public boolean hasAbscissa0() {
+        final String abscissa = this.signalProps.getProperty("Abscissa.URL.0");
+        return((abscissa == null) ? false : (!abscissa.equalsIgnoreCase("None")));
     }
 
-    public String
-    SignalName()
-    {
-        return signalProps.getProperty("FullSignalName");
+    public boolean hasAbscissa1() {
+        final String abscissa = this.signalProps.getProperty("Abscissa.URL.1");
+        return((abscissa == null) ? false : (!abscissa.equalsIgnoreCase("None")));
     }
 
-    public String
-    Units()
-    {
-        String unitstr =  signalProps.getProperty("Unit");
-        return ((unitstr == null || unitstr.equalsIgnoreCase("None")) ? "" : unitstr) ;
+    public boolean Incrementing() {
+        final String equidistant = this.signalProps.getProperty("Equidistant");
+        return (equidistant != null) && equidistant.equalsIgnoreCase("incrementing");
     }
 
-    public String
-    FQBulkName()
-    {
-        return signalProps.getProperty("Bulkfile.URL");
-    }
-    
-    public boolean
-    hasAbscissa()
-    {
-        return hasAbscissa0();
+    public int LengthTotal() {
+        final String ltstr = this.signalProps.getProperty("Length.total");
+        final Integer lt = Integer.valueOf(ltstr == null ? "0" : ltstr);
+        return lt.intValue();
     }
 
-    public boolean
-    hasAbscissa0()
-    {
-        String abscissa = signalProps.getProperty("Abscissa.URL.0");
-        return ((abscissa == null) ? false : ( ! abscissa.equalsIgnoreCase("None"))) ;
+    public double Maximum() {
+        final String maxi = this.signalProps.getProperty("Signal.Maximum");
+        Double max = new Double(Double.NaN);
+        if(maxi != null) max = Double.valueOf(maxi);
+        return max.doubleValue();
     }
 
-    public boolean
-    hasAbscissa1()
-    {
-        String abscissa = signalProps.getProperty("Abscissa.URL.1");
-        return ((abscissa == null) ? false : ( ! abscissa.equalsIgnoreCase("None"))) ;
-    }
-
-    public boolean
-    Incrementing()
-    {
-        String equidistant = signalProps.getProperty("Equidistant");
-        return (equidistant!=null) && equidistant.equalsIgnoreCase("incrementing") ;
-    }
-
-    public boolean
-    Decrementing()
-    {
-        String equidistant = signalProps.getProperty("Equidistant");
-        return (equidistant!=null) && equidistant.equalsIgnoreCase("decrementing") ;
-    }
-
-    public boolean
-    Equidistant()
-    {
-        return
-            (Incrementing() || Decrementing()) 
-            && 
-            signalProps.getProperty("Signal.Minimum") !=null
-            && 
-            signalProps.getProperty("Signal.Maximum") !=null;
-    }
-
-    public double
-    Minimum()
-    {
-        String mini = signalProps.getProperty("Signal.Minimum");
-        Double min  = new Double(Double.NaN);
-        if (mini != null)
-          min = Double.valueOf(mini);
+    public double Minimum() {
+        final String mini = this.signalProps.getProperty("Signal.Minimum");
+        Double min = new Double(Double.NaN);
+        if(mini != null) min = Double.valueOf(mini);
         return min.doubleValue();
     }
 
-    public double
-    Maximum()
-    {
-        String maxi = signalProps.getProperty("Signal.Maximum");
-        Double max  = new Double(Double.NaN);
-        if (maxi != null)
-          max = Double.valueOf(maxi);
-        return max.doubleValue();
-    }
-    
-    public double
-    averageStep()
-    {
-        double span = Maximum()-Minimum();
-        int segments = LengthTotal()-1;
-        if (Decrementing())
-          segments *= -1;
-        return (segments==0 ? Double.NaN : span/segments);
-    }
-    
-    public String
-    FQAbscissaName()
-    {
-        String abs = signalProps.getProperty("Abscissa.URL.0");
-        return ((abs==null || abs.equalsIgnoreCase("None")) ? null : abs);
+    public boolean notEquals(final String other_url) {
+        return !this.equals(other_url);
     }
 
-    public String
-    FQAbscissa0Name()
-    {
-        String abs = signalProps.getProperty("Abscissa.URL.0");
-        return ((abs==null || abs.equalsIgnoreCase("None")) ? null : abs);
+    public String SignalName() {
+        return this.signalProps.getProperty("FullSignalName");
     }
 
-    public String
-    FQAbscissa1Name()
-    {
-        String abs = signalProps.getProperty("Abscissa.URL.1");
-        return ((abs==null || abs.equalsIgnoreCase("None")) ? null : abs);
+    public String summary() {
+        return "Valid                  : " + this.valid() + "\n" + "Title                  : " + this.Title() + "\n" + "Signal Name            : " + this.SignalName() + "\n" + "Full Signal Name       : " + this.FQSignalName() + "\n" + "Bulk File Name         : " + this.FQBulkName() + "\n" + "Dimensions             : " + this.Dimensions() + "\n" + "Total Length           : " + this.LengthTotal() + "\n" + "Equidistant            : " + this.Equidistant() + "\n" + "Signal.Minimum         : " + this.Minimum() + "\n" + "Signal.Maximum         : " + this.Maximum() + "\n" + "averageStep            : " + this.averageStep() + "\n" + "Dimension [0] length   : " + this.Dim0Length() + "\n" + "Abscissa [0] File Name : " + (this.hasAbscissa0() ? this.FQAbscissa0Name() : "No abscissa_0 for this signal") + "\n" + "Dimension [1] length   : " + this.Dim1Length() + "\n" + "Abscissa [1] File Name : " + (this.hasAbscissa1() ? this.FQAbscissa1Name() : "No abscissa_1 for this signal") + "\n";
+    }
+
+    public String Title() {
+        String title = this.signalProps.getProperty("Title");
+        if(title == null) title = this.signalProps.getProperty("SignalName");
+        return title;
     }
 
     /* -------------------------------------------------------------------- */
-
-    // A generic getproperties method.
-    public String
-    getProperty(String keyword)
-    {
-        return signalProps.getProperty(keyword);
+    @Override
+    public String toString() {
+        return this.signalURL == null ? "" : this.signalURL.toString();
     }
 
-    public boolean
-    equals(String other_url)
-    {
-        try
-        {
-            return CompleteURL(other_url).equals(signalURL.toString());
-        }
-        catch(Exception e)
-        {
-            return false;
-        }   
+    public String Units() {
+        final String unitstr = this.signalProps.getProperty("Unit");
+        return((unitstr == null || unitstr.equalsIgnoreCase("None")) ? "" : unitstr);
     }
-    
-    public boolean
-    notEquals(String other_url)
-    {
-        return ! equals(other_url);
-    }
-    
+
     /* -------------------------------------------------------------------- */
-    
-    public String 
-    toString()
-    {
-        return signalURL==null ? "" : signalURL.toString();
+    // Accessors:
+    public boolean valid() {
+        // Should handle this pseudo-numerically
+        final String version = this.signalProps.getProperty("TWU.properties.version");
+        return this.textRead && version != null && (version.equals("0.7") || version.equals("0.8"));
     }
-    
-        
-    public String 
-    summary()
-    {
-        return
-            "Valid                  : " + valid() + "\n" +
-            "Title                  : " + Title() + "\n" +
-            "Signal Name            : " + SignalName() + "\n" +
-            "Full Signal Name       : " + FQSignalName() + "\n" +
-            "Bulk File Name         : " + FQBulkName() + "\n" +
-            "Dimensions             : " + Dimensions() + "\n" +
-            "Total Length           : " + LengthTotal() + "\n" +
-            "Equidistant            : " + Equidistant() + "\n" +
-            "Signal.Minimum         : " + Minimum() + "\n" +
-            "Signal.Maximum         : " + Maximum() + "\n" +
-            "averageStep            : " + averageStep() + "\n" +
-            "Dimension [0] length   : " + Dim0Length() + "\n" +
-            "Abscissa [0] File Name : " + 
-            (hasAbscissa0() ? FQAbscissa0Name() : "No abscissa_0 for this signal") + "\n" +
-            "Dimension [1] length   : " + Dim1Length() + "\n" +
-            "Abscissa [1] File Name : " +
-            (hasAbscissa1() ? FQAbscissa1Name() : "No abscissa_1 for this signal") + "\n"; 
-    }
-    
-    public static String 
-    revision()
-    {
-        return "$Id$";
-    }
-
-    public static void 
-    main (String a[]) 
-    {
-        TWUProperties twup ;
-
-        System.out.println();
-        System.out.println(revision());
-
-        System.out.println();
-        System.out.println("Web-Umbrella data from a webserver.");
-
-        twup = new TWUProperties(
-//          "//localhost/textor/all/91100/vuv/spred-a/H-I_@_102,550"); // Existing
-//          "//localhost/textor/all/91100/vuv/spred-a/H-I_@_102,551"); // Non-existing
-//          ""); // Non-existing
-            null); 
-        
-        System.out.println(twup);
-        System.out.println(twup.summary());
-
-        System.out.println();
-
-        twup = new TWUProperties(
-            "//localhost/textor/all/91100/vuv/spred-a/H-I_@_102,550"); // Existing
-        
-        System.out.println(twup);
-        System.out.println(twup.summary());
-
-        System.out.println();
-    }
-
 }
-
-
-
 /* ------------------------------------------------------------------------ */
 // End of $Id$
 /* ------------------------------------------------------------------------ */

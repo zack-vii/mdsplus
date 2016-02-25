@@ -2,69 +2,62 @@
  * Extends MdsDataProvider to display an asynchronous waveform IN ADDITION to the waveform provided by the superclass
  * This is a template class.
  */
-
 package jScope;
-import java.util.*;
+
+import java.util.Vector;
 
 /**
- *
  * @author manduchi
  */
-public class MdsAsynchDataProvider extends MdsDataProvider
-{
-    //Inner class AsynchWaevdata handles the generation of the waveform 
-    class AsynchWaveData implements AsynchDataSource
-    {
-        double sinePeriod = 1;
-        Vector<WaveDataListener> listeners = new Vector<WaveDataListener>();
-        public void startGeneration(String expression)
-        {
-            //JUST A SAMPLE SINE GENERATION...TO BE REPLACED BY REAL WAVEFORMS
-            //JUST ASSUMED THAT THE PASSED EXPRESSION IS THE SINE PERIOD
-            try {
-                sinePeriod = Double.parseDouble(expression);
-            }catch(Exception exc){}
-            (new Thread() {
-                public void run()
-                {
-                    for(int i = 0; i < 100; i++)
-                    {
-                        
-                        try {
-                             Thread.currentThread().sleep(100);
-                        }catch(InterruptedException exc){}
-                        if(!asynchEnabled)
-                        {
+public class MdsAsynchDataProvider extends MdsDataProvider{
+    // Inner class AsynchWaevdata handles the generation of the waveform
+    class AsynchWaveData implements AsynchDataSource{
+        Vector<WaveDataListener> listeners  = new Vector<WaveDataListener>();
+        double                   sinePeriod = 1;
+
+        @Override
+        public void addDataListener(final WaveDataListener listener) {
+            this.listeners.addElement(listener);
+        }
+
+        @Override
+        public void startGeneration(final String expression) {
+            // JUST A SAMPLE SINE GENERATION...TO BE REPLACED BY REAL WAVEFORMS
+            // JUST ASSUMED THAT THE PASSED EXPRESSION IS THE SINE PERIOD
+            try{
+                this.sinePeriod = Double.parseDouble(expression);
+            }catch(final Exception exc){}
+            (new Thread(){
+                @Override
+                public void run() {
+                    for(int i = 0; i < 100; i++){
+                        try{
+                            Thread.sleep(100);
+                        }catch(final InterruptedException exc){}
+                        if(!MdsAsynchDataProvider.this.asynchEnabled){
                             System.out.println("NOT ENABLED");
                             continue;
                         }
-                        double x[] = new double[]{i};
-                        float y[] = new float[]{(float)Math.sin(2 * Math.PI * sinePeriod * i/100.)};
-                        for(int j = 0; j < listeners.size(); j++)
-                        {
-                            listeners.elementAt(j).dataRegionUpdated(x, y, Double.MAX_VALUE);
-                            listeners.elementAt(j).legendUpdated("CICCIO"+i);
+                        final double x[] = new double[]{i};
+                        final float y[] = new float[]{(float)Math.sin(2 * Math.PI * AsynchWaveData.this.sinePeriod * i / 100.)};
+                        for(int j = 0; j < AsynchWaveData.this.listeners.size(); j++){
+                            AsynchWaveData.this.listeners.elementAt(j).dataRegionUpdated(x, y, Double.POSITIVE_INFINITY);
+                            AsynchWaveData.this.listeners.elementAt(j).legendUpdated("CICCIO" + i);
                         }
                     }
-                    
                 }
             }).start();
         }
-        public void addDataListener(WaveDataListener listener)
-        {
-            listeners.addElement(listener);
-        }
-    } //End inner class AsynchWaveData
-    
+    } // End inner class AsynchWaveData
     boolean asynchEnabled = true;
-    public void enableAsyncUpdate(boolean asynchEnabled)
-    {
-        asynchEnabled = asynchEnabled;
+
+    @Override
+    public void enableAsyncUpdate(final boolean asynchEnabled) {
+        this.asynchEnabled = asynchEnabled;
     }
-    
-    public AsynchDataSource getAsynchSource()
-    {
+
+    @Override
+    public AsynchDataSource getAsynchSource() {
         return new AsynchWaveData();
     }
 }
- 

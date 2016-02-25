@@ -1,6 +1,6 @@
 include Makefile.common
 
-CLASSPATH = -classpath .;..\java\classes\MindTerm.jar
+CLASSPATH = -classpath .;..\java\classes\MindTerm.jar;..\java\classes\W7XDataProvider.jar
 JAVAC = "$(JDK_DIR)\bin\javac.exe"
 JAR = "$(JDK_DIR)\bin\jar.exe"
 JARDIR = ..\java\classes
@@ -8,7 +8,7 @@ JARDIR = ..\java\classes
 SOURCES = $(COMMON_SRC) $(JSCOPE_SRC) $(WAVEDISPLAY_SRC)
 WAVECLASSES = $(COMMON_SRC:.java=*.class)
 CLASSES = $(WAVECLASSES) $(JSCOPE_SRC:.java=*.class)
-all: $(JARDIR) $(JARDIR)\jScope.properties $(JARDIR)\MindTerm.jar $(JARDIR)\jScope.jar $(JARDIR)\WaveDisplay.jar
+all: $(JARDIR) $(JARDIR)\jScope.properties $(JARDIR)\MindTerm.jar $(JARDIR)\W7XDataProvider.jar $(JARDIR)\jScope.jar $(JARDIR)\WaveDisplay.jar
 	rem done
 
 $(JARDIR):
@@ -21,6 +21,9 @@ $(JARDIR)\jScope.properties: jScope.properties
 $(JARDIR)\MindTerm.jar: MindTerm.jar
 	copy $** $@
 
+$(JARDIR)\W7XDataProvider.jar: W7XDataProvider.jar
+	copy $** $@
+
 class.stamp: $(SOURCES)
 	$(JAVAC) $(CLASSPATH) $(SOURCES)
 	echo x > class.stamp
@@ -29,7 +32,7 @@ $(JARDIR)\jScope.jar: class.stamp
 	- del/q/f/s docs
 	- mkdir docs
 	for %I in ($(DOCS)) do copy %I docs
-	$(JAR) -cf $@ $(CLASSES) docs
+	$(JAR) -cmf jScopeManifest.mf $@ $(CLASSES) docs
 	- del/q/f/s docs
 	- rmdir docs
 

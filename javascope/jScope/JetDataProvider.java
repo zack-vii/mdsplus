@@ -1,553 +1,538 @@
 package jScope;
 
 /* $Id$ */
-import jScope.ConnectionEvent;
-import jScope.ConnectionListener;
-import jScope.Base64;
-import java.io.*;
-import java.net.*;
-import java.util.*;
-import java.awt.*;
-import javax.swing.*;
-import java.awt.event.*;
-import java.lang.InterruptedException;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.Rectangle;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.StringTokenizer;
+import java.util.Vector;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JTextField;
 
-class JetDataProvider implements DataProvider
-{
-    static final int DATA = 0, X = 1, Y = 2;
-
-    String provider;
-    String experiment;
-    long shot;
-    String username, passwd;
-    String encoded_credentials;
-    String error_string;
-    URL url;
-    byte []buffer;
-    Base64 translator = new Base64();
-    BufferedInputStream br;
-    int content_len;
-    private String last_url_name;
-    private float [] last_data, last_x, last_y;
-    private int dimension;
-    JDialog inquiry_dialog;
-    JFrame owner_f;
-    private int login_status;
-    private boolean evaluate_url = false;
-    private String url_source = "http://data.jet.uk/";
-
-    private   Vector    connection_listener = new Vector();
-
-    JTextField user_text;
-    JPasswordField passwd_text;
-
-    JetDataProvider() {this(null, null);}
-
-    JetDataProvider(String username, String passwd)
-    {
-        provider = "Jet Data";
-        String credentials = username+":"+passwd;
-        try{
-            encoded_credentials = translator.encode(credentials);
-        }catch(Exception e){}
-    }
-
-//DataProvider implementation
-//  public float[] GetFrameTimes(String in_frame){return null;}
-//  public byte[]  GetFrameAt(String in_frame, int frame_idx){return null;}
-//  public byte[]  GetAllFrames(String in_frame){return null;}
-    public FrameData GetFrameData(String in_y, String in_x, float time_min, float time_max) throws IOException
-    {
-        throw(new IOException("Frames visualization on JetDataProvider not implemented"));
-    }
-    public void enableAsyncUpdate(boolean enable){}
-    public void    SetEnvironment(String s) {}
-    public void    Dispose(){}
-    public String  GetString(String in) {return in; }
-    public double   GetFloat(String in){ return new Double(in).doubleValue(); }
-    public String  ErrorString() { return error_string; }
-    public void    AddUpdateEventListener(UpdateEventListener l, String event){}
-    public void    RemoveUpdateEventListener(UpdateEventListener l, String event){}
-    public boolean SupportsContinuous() {return false; }
-    public boolean DataPending() {return  false;}
-    public boolean SupportsFastNetwork(){return false;}
-    public void    SetArgument(String arg){};
-    public boolean SupportsTunneling() {return false; }
-    public void setContinuousUpdate(){}
-
-    class SimpleWaveData implements WaveData
-    {
+class JetDataProvider implements DataProvider{
+    class SimpleWaveData implements WaveData{
         String in_x, in_y;
 
-        public SimpleWaveData(String in_y)
-        {
+        public SimpleWaveData(final String in_y){
             this.in_y = in_y;
         }
-        public SimpleWaveData(String in_y, String in_x)
-        {
+
+        public SimpleWaveData(final String in_y, final String in_x){
             this.in_y = in_y;
             this.in_x = in_x;
         }
 
-        public void setContinuousUpdate(boolean continuopusUpdate){}
-        public int getNumDimension()throws IOException
-        {
-            GetFloatArray(in_y, DATA);
-            return dimension;
+        @Override
+        public void addWaveDataListener(final WaveDataListener listener) {}
+
+        @Override
+        public XYData getData(final double xmin, final double xmax, final int numPoints) throws Exception {
+            final double x[] = this.GetXDoubleData();
+            final float y[] = this.GetFloatData();
+            return new XYData(x, y, Double.POSITIVE_INFINITY);
         }
 
-        public float[] GetFloatData() throws IOException
-        {
-            return GetFloatArray(in_y, DATA);
+        @Override
+        public XYData getData(final int numPoints) throws Exception {
+            final double x[] = this.GetXDoubleData();
+            final float y[] = this.GetFloatData();
+            return new XYData(x, y, Double.POSITIVE_INFINITY);
         }
 
-        public double[] GetXDoubleData(){return null;}
-        public long[] GetXLongData(){return null;}
-        public float[] GetXData()   throws IOException
-        {
-            if(in_x != null)
-                return GetFloatArray(in_x, X);
-            else
-                return GetFloatArray(in_y, X);
+        @Override
+        public void getDataAsync(final double lowerBound, final double upperBound, final int numPoints) {}
+
+        public float[] GetFloatData() throws IOException {
+            return JetDataProvider.this.GetFloatArray(this.in_y, JetDataProvider.DATA);
         }
 
-        public float[] GetYData()   throws IOException
-        {
-            return GetFloatArray(in_y, Y);
+        @Override
+        public int getNumDimension() throws IOException {
+            JetDataProvider.this.GetFloatArray(this.in_y, JetDataProvider.DATA);
+            return JetDataProvider.this.dimension;
         }
 
-        public String GetTitle()   throws IOException
-        {
+        @Override
+        public String GetTitle() throws IOException {
             return null;
         }
-        public String GetXLabel()  throws IOException
-        {
+
+        @Override
+        public double[] getX2D() {
+            System.out.println("BADABUM!!");
             return null;
         }
-        public String GetYLabel()  throws IOException
-        {
+
+        @Override
+        public long[] getX2DLong() {
+            System.out.println("BADABUM!!");
             return null;
         }
-        public String GetZLabel()  throws IOException
-        {
+
+        public float[] GetXData() throws IOException {
+            if(this.in_x != null) return JetDataProvider.this.GetFloatArray(this.in_x, JetDataProvider.X);
+            return JetDataProvider.this.GetFloatArray(this.in_y, JetDataProvider.X);
+        }
+
+        public double[] GetXDoubleData() {
             return null;
         }
-                public XYData getData(double xmin, double xmax, int numPoints) throws Exception
-         {
-             double x[] = GetXDoubleData();
-             float y[] = GetFloatData();
-             return new XYData(x, y, Double.MAX_VALUE);
-         }
-         public XYData getData(int numPoints)throws Exception
-         {
-             double x[] = GetXDoubleData();
-             float y[] = GetFloatData();
-             return new XYData(x, y, Double.MAX_VALUE);
-         }
 
-        public float[] getZ(){System.out.println("BADABUM!!"); return null;}
-        public double[] getX2D(){System.out.println("BADABUM!!"); return null;}
-        public long[] getX2DLong(){System.out.println("BADABUM!!"); return null;}
-        public float[] getY2D(){System.out.println("BADABUM!!"); return null;} 
-        public double[] getXLimits(){System.out.println("BADABUM!!"); return null;}
-        public long []getXLong(){System.out.println("BADABUM!!"); return null;}
-        public boolean isXLong(){return false;}
-        public void addWaveDataListener(WaveDataListener listener){}
-        public void getDataAsync(double lowerBound, double upperBound, int numPoints){}
-
-
-
-   }
-
-    public WaveData GetWaveData(String in)
-    {
-        return new SimpleWaveData(in);
-    }
-    public WaveData GetWaveData(String in_y, String in_x)
-    {
-        return new SimpleWaveData(in_y, in_x);
-    }
-    public WaveData GetResampledWaveData(String in, double start, double end, int n_points)
-    {
-        return null;
-    }
-    public WaveData GetResampledWaveData(String in_y, String in_x, double start, double end, int n_points)
-    {
-        return null;
-    }
-
-
-    public int GetLoginStatus()
-    {
-        return login_status;
-    }
-
-    public void setEvaluateUrl(boolean state)
-    {
-        evaluate_url = state;
-    }
-
-    public void setUrlSource(String url_source)
-    {
-        this.url_source = url_source;
-        //System.out.println(url_source);
-    }
-
-    public boolean SupportsCompression(){return false;}
-    public void    SetCompression(boolean state){}
-
-    public int InquireCredentials(JFrame f, DataServerItem server_item)
-    {
-        String user = server_item.user;
-
-        login_status = DataProvider.LOGIN_OK;
-        owner_f = f;
-        inquiry_dialog = new JDialog(f, "JET data server login", true);
-
-        inquiry_dialog.getContentPane().setLayout(new BorderLayout());
-        JPanel p = new JPanel();
-        p.add(new JLabel("Username: "));
-        user_text = new JTextField(15);
-        p.add(user_text);
-        if(user != null)
-            user_text.setText(user);
-        inquiry_dialog.getContentPane().add(p, "North");
-        p = new JPanel();
-        p.add(new JLabel("Password: "));
-        passwd_text = new JPasswordField(15);
-        passwd_text.setEchoChar('*');
-        p.add(passwd_text);
-        inquiry_dialog.getContentPane().add(p, "Center");
-        p = new JPanel();
-        JButton ok_b = new JButton("Ok");
-        ok_b.setDefaultCapable(true);
-        ok_b.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e)
-                {
-                    username = user_text.getText();
-                    passwd = new String(passwd_text.getPassword());
-                    if(!CheckPasswd(username, passwd))
-                    {
- 		                JOptionPane.showMessageDialog(inquiry_dialog, "Login ERROR : " + ((error_string != null) ? error_string : "no further information"),
-		                                "alert", JOptionPane.ERROR_MESSAGE);
-                        login_status = DataProvider.LOGIN_ERROR;
-                    } else {
-                        inquiry_dialog.setVisible(false);
-                        login_status = DataProvider.LOGIN_OK;
-                    }
-                }});
-        p.add(ok_b);
-        JButton clear_b = new JButton("Clear");
-        clear_b.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e)
-                {
-                    user_text.setText("");
-                    passwd_text.setText("");
-                }});
-        p.add(clear_b);
-        JButton cancel_b = new JButton("Cancel");
-        cancel_b.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e)
-                {
-                    login_status = DataProvider.LOGIN_CANCEL;
-                    inquiry_dialog.setVisible(false);
-                }});
-        p.add(cancel_b);
-        inquiry_dialog.getContentPane().add(p, "South");
-        inquiry_dialog.pack();
-        if(f != null)
-        {
-            Rectangle r = f.getBounds();
-            inquiry_dialog.setLocation(r.x + r.width/2 - inquiry_dialog.getBounds().width/2,
-			    r.y + r.height/2 - inquiry_dialog.getBounds().height/2);
-		}
-		else
-		{
-		   Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-	       inquiry_dialog.setLocation(screenSize.width/2 - inquiry_dialog.getSize().width/2,
-				                      screenSize.height/2 - inquiry_dialog.getSize().height/2);
-		}
-        inquiry_dialog.setVisible(true);
-        return login_status;
-    }
-
-   public boolean CheckPasswd(String encoded_credentials)
-   {
-            this.encoded_credentials = encoded_credentials;
-            //System.out.println(encoded_credentials);
-            try{
-            URLConnection urlcon;
-            url = new URL(url_source);
-            urlcon = url.openConnection();
-            urlcon.setRequestProperty("Authorization", "Basic "+encoded_credentials);
-            br = new BufferedInputStream(urlcon.getInputStream());
-            content_len = urlcon.getContentLength();
-            if(content_len <= 0) return false;
-            buffer = new byte[content_len];
-            int num_read_bytes = 0;
-            while(num_read_bytes < content_len)
-                num_read_bytes += br.read(buffer, num_read_bytes, buffer.length - num_read_bytes);
-            br.close();
-            br = null;
+        @Override
+        public String GetXLabel() throws IOException {
+            return null;
         }
-        catch(Exception e)
-        {
-            error_string = e.getMessage();
+
+        public double[] getXLimits() {
+            System.out.println("BADABUM!!");
+            return null;
+        }
+
+        public long[] getXLong() {
+            System.out.println("BADABUM!!");
+            return null;
+        }
+
+        public long[] GetXLongData() {
+            return null;
+        }
+
+        @Override
+        public float[] getY2D() {
+            System.out.println("BADABUM!!");
+            return null;
+        }
+
+        public float[] GetYData() throws IOException {
+            return JetDataProvider.this.GetFloatArray(this.in_y, JetDataProvider.Y);
+        }
+
+        @Override
+        public String GetYLabel() throws IOException {
+            return null;
+        }
+
+        @Override
+        public float[] getZ() {
+            System.out.println("BADABUM!!");
+            return null;
+        }
+
+        @Override
+        public String GetZLabel() throws IOException {
+            return null;
+        }
+
+        @Override
+        public boolean isXLong() {
             return false;
         }
-        String out = new String(buffer);
-        if(out.indexOf("incorrect password") != -1)
-        {
-            error_string = "Incorrect password";
+
+        @Override
+        public void setContinuousUpdate(final boolean continuopusUpdate) {}
+    }
+    static final int DATA = 0, X = 1, Y = 2;
+
+    public static boolean DataPending() {
+        return false;
+    }
+
+    public static WaveData GetResampledWaveData(final String in, final double start, final double end, final int n_points) {
+        return null;
+    }
+
+    public static WaveData GetResampledWaveData(final String in_y, final String in_x, final double start, final double end, final int n_points) {
+        return null;
+    }
+
+    public static boolean SupportsCompression() {
+        return false;
+    }
+
+    public static boolean SupportsContinuous() {
+        return false;
+    }
+
+    public static boolean SupportsFastNetwork() {
+        return false;
+    }
+    BufferedInputStream                      br;
+    byte[]                                   buffer;
+    private final Vector<ConnectionListener> connection_listener = new Vector<ConnectionListener>();
+    int                                      content_len;
+    private int                              dimension;
+    String                                   encoded_credentials;
+    String                                   error_string;
+    private boolean                          evaluate_url        = false;
+    String                                   experiment;
+    JDialog                                  inquiry_dialog;
+    private float[]                          last_data, last_x, last_y;
+    private String                           last_url_name;
+    private int                              login_status;
+    JFrame                                   owner_f;
+    JPasswordField                           passwd_text;
+    String                                   provider;
+    long                                     shot;
+    URL                                      url;
+    private String                           url_source          = "http://data.jet.uk/";
+    JTextField                               user_text;
+    String                                   username, passwd;
+
+    JetDataProvider(){
+        this(null, null);
+    }
+
+    JetDataProvider(final String username, final String passwd){
+        this.provider = "Jet Data";
+        final String credentials = username + ":" + passwd;
+        try{
+            this.encoded_credentials = Base64.encode(credentials);
+        }catch(final Exception e){}
+    }
+
+    @Override
+    public void AddConnectionListener(final ConnectionListener l) {
+        if(l == null){ return; }
+        this.connection_listener.addElement(l);
+    }
+
+    @Override
+    public void AddUpdateEventListener(final UpdateEventListener l, final String event) {}
+
+    public boolean CheckPasswd(final String encoded_credentials) {
+        this.encoded_credentials = encoded_credentials;
+        // System.out.println(encoded_credentials);
+        try{
+            URLConnection urlcon;
+            this.url = new URL(this.url_source);
+            urlcon = this.url.openConnection();
+            urlcon.setRequestProperty("Authorization", "Basic " + encoded_credentials);
+            this.br = new BufferedInputStream(urlcon.getInputStream());
+            this.content_len = urlcon.getContentLength();
+            if(this.content_len <= 0) return false;
+            this.buffer = new byte[this.content_len];
+            int num_read_bytes = 0;
+            while(num_read_bytes < this.content_len)
+                num_read_bytes += this.br.read(this.buffer, num_read_bytes, this.buffer.length - num_read_bytes);
+            this.br.close();
+            this.br = null;
+        }catch(final Exception e){
+            this.error_string = e.getMessage();
+            return false;
+        }
+        final String out = new String(this.buffer);
+        if(out.indexOf("incorrect password") != -1){
+            this.error_string = "Incorrect password";
             return false;
         }
         return true;
-   }
-
-
-   boolean CheckPasswd(String username, String passwd)
-   {
-        String credentials = username+":"+passwd;
-        encoded_credentials = translator.encode(credentials);
-        return CheckPasswd(encoded_credentials);
-   }
-
-    public void Update(String experiment, long shot)
-    {
-        this.experiment = experiment;
-        this.shot = shot;
-        error_string = null;
     }
 
+    boolean CheckPasswd(final String username, final String passwd) {
+        final String credentials = username + ":" + passwd;
+        this.encoded_credentials = Base64.encode(credentials);
+        return this.CheckPasswd(this.encoded_credentials);
+    }
 
-    public float[] GetFloatArray(String in, int type) throws IOException
-    {
-        float out[] = null;
-        String in_expr = new String(in);
-
-        error_string = null;
-        boolean is_time = (type == X);
-        boolean is_y = (type == Y);
-        String url_name;
-
-        if(evaluate_url)
-        {
-            url_name = in;
+    protected void DispatchConnectionEvent(final ConnectionEvent e) {
+        if(this.connection_listener != null){
+            for(int i = 0; i < this.connection_listener.size(); i++){
+                this.connection_listener.elementAt(i).processConnectionEvent(e);
+            }
         }
-        else
-        {
-            if(experiment == null)
-            {
-                StringTokenizer st = new StringTokenizer(in, "/", true);
-                url_name = st.nextToken() + "/" + shot ;
+    }
+
+    @Override
+    public void Dispose() {};
+
+    public void enableAsyncUpdate(final boolean enable) {}
+
+    @Override
+    public String ErrorString() {
+        return this.error_string;
+    }
+
+    @Override
+    public double GetFloat(final String in) {
+        return new Double(in).doubleValue();
+    }
+
+    public float[] GetFloatArray(final String in, final int type) throws IOException {
+        float out[] = null;
+        this.error_string = null;
+        final boolean is_time = (type == JetDataProvider.X);
+        final boolean is_y = (type == JetDataProvider.Y);
+        String url_name;
+        if(this.evaluate_url){
+            url_name = in;
+        }else{
+            if(this.experiment == null){
+                final StringTokenizer st = new StringTokenizer(in, "/", true);
+                url_name = st.nextToken() + "/" + this.shot;
                 while(st.hasMoreTokens())
                     url_name = url_name + st.nextToken();
-            }
-            else
-                url_name = experiment + "/" + shot + "/" + in;
+            }else url_name = this.experiment + "/" + this.shot + "/" + in;
         }
-
         out = null;
-
-        ConnectionEvent e = new ConnectionEvent(this, "Network");
-        DispatchConnectionEvent(e);
-
-        if((last_url_name != null && url_name.equals(last_url_name)) || out!= null)
-        {
-            if(out != null)
-                return out;
-
-            if(is_time)
-                return last_x;
-            else
-                if(is_y)
-                    return last_y;
-                else
-                    return last_data;
+        final ConnectionEvent e = new ConnectionEvent(this, "Network");
+        this.DispatchConnectionEvent(e);
+        if((this.last_url_name != null && url_name.equals(this.last_url_name)) || out != null){
+            if(out != null) return out;
+            if(is_time) return this.last_x;
+            if(is_y) return this.last_y;
+            return this.last_data;
         }
-        else
-        {
-            last_x = last_data = last_y = null;
-            try
-            {
-                dimension = 1;
-                last_url_name = url_name;
-                URLConnection urlcon;
-                url = new URL(url_source + url_name);
-                urlcon = url.openConnection();
-                //urlcon.setRequestProperty("Connection", "Keep-Alive");
-                urlcon.setRequestProperty("Authorization", "Basic " + encoded_credentials);
-                InputStream is = urlcon.getInputStream();
-                br = new BufferedInputStream(is);
-                content_len = urlcon.getContentLength();
-                if(content_len <= 0)
-                {
-                    last_url_name = null;
-                    error_string = "Error reading URL " + url_name + " : null content length";
-                    throw(new IOException(error_string));
-                    //return null;
-                }
-                buffer = new byte[content_len];
-                int num_read_bytes = 0;
-                while(num_read_bytes < content_len)
-                    num_read_bytes += br.read(buffer, num_read_bytes, buffer.length - num_read_bytes);
-                br.close();
-                br = null;
-
-                JiNcSource jns = new JiNcSource("myname", new RandomAccessData(buffer));
-
-                JiVar jvarData = jns.getVar("SIGNAL");
-                int ndims = jvarData.getDims().length;
-                JiDim jdimTime = jvarData.getDims()[ndims-1];
-                JiVar jvarTime = jns.getVar(jdimTime.mName);
-
-
-                JiDim jdimXData = null;
-                JiVar jvarXData = null;
-                if (ndims >= 2){
-                    jdimXData = jvarData.getDims()[ndims-2];
-                    if (jdimXData != null){
-                        jvarXData = jns.getVar(jdimXData.mName);
-                    }
-                }
-
-                JiDim[] dims = jvarTime.getDims();
-                double[] time = jvarTime.readDouble(dims);
-                last_x = new float[time.length];
-                for(int i = 0; i < time.length; i++)
-                    last_x[i] = (float)time[i];
-                time = null;
-
-                dims = jvarData.getDims();
-                last_data = jvarData.readFloat(dims);
-
-                if(jvarXData != null)
-                {
-                    dimension = 2;
-                    dims = jvarXData.getDims();
-                    last_y = jvarXData.readFloat(dims);
-                }
-
+        this.last_x = this.last_data = this.last_y = null;
+        try{
+            this.dimension = 1;
+            this.last_url_name = url_name;
+            URLConnection urlcon;
+            this.url = new URL(this.url_source + url_name);
+            urlcon = this.url.openConnection();
+            // urlcon.setRequestProperty("Connection", "Keep-Alive");
+            urlcon.setRequestProperty("Authorization", "Basic " + this.encoded_credentials);
+            final InputStream is = urlcon.getInputStream();
+            this.br = new BufferedInputStream(is);
+            this.content_len = urlcon.getContentLength();
+            if(this.content_len <= 0){
+                this.last_url_name = null;
+                this.error_string = "Error reading URL " + url_name + " : null content length";
+                throw(new IOException(this.error_string));
+                // return null;
             }
-            catch(Exception ex)
-            {
-                error_string = "Error reading URL " + url_name + " : " + ex;
-                last_url_name = null;
-                throw(new IOException(error_string));
+            this.buffer = new byte[this.content_len];
+            int num_read_bytes = 0;
+            while(num_read_bytes < this.content_len)
+                num_read_bytes += this.br.read(this.buffer, num_read_bytes, this.buffer.length - num_read_bytes);
+            this.br.close();
+            this.br = null;
+            final JiNcSource jns = new JiNcSource("myname", new RandomAccessData(this.buffer));
+            final JiVar jvarData = jns.getVar("SIGNAL");
+            final int ndims = jvarData.getDims().length;
+            final JiDim jdimTime = jvarData.getDims()[ndims - 1];
+            final JiVar jvarTime = jns.getVar(jdimTime.mName);
+            JiDim jdimXData = null;
+            JiVar jvarXData = null;
+            if(ndims >= 2){
+                jdimXData = jvarData.getDims()[ndims - 2];
+                if(jdimXData != null){
+                    jvarXData = jns.getVar(jdimXData.mName);
+                }
             }
-
-
-            if(is_time)
-                return last_x;
-             else
-                if(is_y)
-                    return last_y;
-                else
-                    return last_data;
-
+            JiDim[] dims = jvarTime.getDims();
+            double[] time = jvarTime.readDouble(dims);
+            this.last_x = new float[time.length];
+            for(int i = 0; i < time.length; i++)
+                this.last_x[i] = (float)time[i];
+            time = null;
+            dims = jvarData.getDims();
+            this.last_data = jvarData.readFloat(dims);
+            if(jvarXData != null){
+                this.dimension = 2;
+                dims = jvarXData.getDims();
+                this.last_y = jvarXData.readFloat(dims);
+            }
+        }catch(final Exception ex){
+            this.error_string = "Error reading URL " + url_name + " : " + ex;
+            this.last_url_name = null;
+            throw(new IOException(this.error_string));
         }
+        if(is_time) return this.last_x;
+        if(is_y) return this.last_y;
+        return this.last_data;
     }
 
-    public long[] GetShots(String in) throws IOException
-    {
-        error_string = null;
-        long [] result;
+    // DataProvider implementation
+    // public float[] GetFrameTimes(String in_frame){return null;}
+    // public byte[] GetFrameAt(String in_frame, int frame_idx){return null;}
+    // public byte[] GetAllFrames(String in_frame){return null;}
+    @Override
+    public FrameData GetFrameData(final String in_y, final String in_x, final float time_min, final float time_max) throws IOException {
+        throw(new IOException("Frames visualization on JetDataProvider not implemented"));
+    }
+
+    public int GetLoginStatus() {
+        return this.login_status;
+    }
+
+    @Override
+    public long[] GetShots(final String in) throws IOException {
+        this.error_string = null;
+        long[] result;
         String curr_in = in.trim();
-        if(curr_in.startsWith("[", 0))
-        {
-            if(curr_in.endsWith("]"))
-            {
+        if(curr_in.startsWith("[", 0)){
+            if(curr_in.endsWith("]")){
                 curr_in = curr_in.substring(1, curr_in.length() - 1);
-                StringTokenizer st = new StringTokenizer(curr_in, ",", false);
+                final StringTokenizer st = new StringTokenizer(curr_in, ",", false);
                 result = new long[st.countTokens()];
                 int i = 0;
                 try{
                     while(st.hasMoreTokens())
                         result[i++] = Long.parseLong(st.nextToken());
                     return result;
-                } catch(Exception e) {}
+                }catch(final Exception e){}
             }
-        }
-        else
-        {
-            if(curr_in.indexOf(":") != -1)
-            {
-                StringTokenizer st = new StringTokenizer(curr_in, ":");
+        }else{
+            if(curr_in.indexOf(":") != -1){
+                final StringTokenizer st = new StringTokenizer(curr_in, ":");
                 int start, end;
-                if(st.countTokens() == 2)
-                {
+                if(st.countTokens() == 2){
                     try{
                         start = Integer.parseInt(st.nextToken());
                         end = Integer.parseInt(st.nextToken());
                         if(end < start) end = start;
-                        result = new long[end-start+1];
-                        for(int i = 0; i < end-start+1; i++)
-                            result[i] = start+i;
+                        result = new long[end - start + 1];
+                        for(int i = 0; i < end - start + 1; i++)
+                            result[i] = start + i;
                         return result;
-                    }catch(Exception e){}
+                    }catch(final Exception e){}
                 }
-            }
-            else
-            {
+            }else{
                 result = new long[1];
-                try {
+                try{
                     result[0] = Long.parseLong(curr_in);
                     return result;
-                }catch(Exception e){}
+                }catch(final Exception e){}
             }
         }
-        error_string = "Error parsing shot number(s)";
-        throw(new IOException(error_string));
+        this.error_string = "Error parsing shot number(s)";
+        throw(new IOException(this.error_string));
     }
 
-
-    public void AddConnectionListener(ConnectionListener l)
-    {
-	    if (l == null) {
-	        return;
-	    }
-        connection_listener.addElement(l);
+    @Override
+    public String GetString(final String in) {
+        return in;
     }
 
-    public void RemoveConnectionListener(ConnectionListener l)
-    {
-	    if (l == null) {
-	        return;
-	    }
-        connection_listener.removeElement(l);
+    @Override
+    public WaveData GetWaveData(final String in) {
+        return new SimpleWaveData(in);
     }
 
-    protected void DispatchConnectionEvent(ConnectionEvent e)
-    {
-        if (connection_listener != null)
-        {
-            for(int i = 0; i < connection_listener.size(); i++)
-            {
-                ((ConnectionListener)connection_listener.elementAt(i)).processConnectionEvent(e);
+    @Override
+    public WaveData GetWaveData(final String in_y, final String in_x) {
+        return new SimpleWaveData(in_y, in_x);
+    }
+
+    @Override
+    public int InquireCredentials(final JFrame f, final DataServerItem server_item) {
+        final String user = server_item.user;
+        this.login_status = DataProvider.LOGIN_OK;
+        this.owner_f = f;
+        this.inquiry_dialog = new JDialog(f, "JET data server login", true);
+        this.inquiry_dialog.getContentPane().setLayout(new BorderLayout());
+        JPanel p = new JPanel();
+        p.add(new JLabel("Username: "));
+        this.user_text = new JTextField(15);
+        p.add(this.user_text);
+        if(user != null) this.user_text.setText(user);
+        this.inquiry_dialog.getContentPane().add(p, "North");
+        p = new JPanel();
+        p.add(new JLabel("Password: "));
+        this.passwd_text = new JPasswordField(15);
+        this.passwd_text.setEchoChar('*');
+        p.add(this.passwd_text);
+        this.inquiry_dialog.getContentPane().add(p, "Center");
+        p = new JPanel();
+        final JButton ok_b = new JButton("Ok");
+        ok_b.setDefaultCapable(true);
+        ok_b.addActionListener(new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JetDataProvider.this.username = JetDataProvider.this.user_text.getText();
+                JetDataProvider.this.passwd = new String(JetDataProvider.this.passwd_text.getPassword());
+                if(!JetDataProvider.this.CheckPasswd(JetDataProvider.this.username, JetDataProvider.this.passwd)){
+                    JOptionPane.showMessageDialog(JetDataProvider.this.inquiry_dialog, "Login ERROR : " + ((JetDataProvider.this.error_string != null) ? JetDataProvider.this.error_string : "no further information"), "alert", JOptionPane.ERROR_MESSAGE);
+                    JetDataProvider.this.login_status = DataProvider.LOGIN_ERROR;
+                }else{
+                    JetDataProvider.this.inquiry_dialog.setVisible(false);
+                    JetDataProvider.this.login_status = DataProvider.LOGIN_OK;
+                }
             }
+        });
+        p.add(ok_b);
+        final JButton clear_b = new JButton("Clear");
+        clear_b.addActionListener(new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JetDataProvider.this.user_text.setText("");
+                JetDataProvider.this.passwd_text.setText("");
+            }
+        });
+        p.add(clear_b);
+        final JButton cancel_b = new JButton("Cancel");
+        cancel_b.addActionListener(new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JetDataProvider.this.login_status = DataProvider.LOGIN_CANCEL;
+                JetDataProvider.this.inquiry_dialog.setVisible(false);
+            }
+        });
+        p.add(cancel_b);
+        this.inquiry_dialog.getContentPane().add(p, "South");
+        this.inquiry_dialog.pack();
+        if(f != null){
+            final Rectangle r = f.getBounds();
+            this.inquiry_dialog.setLocation(r.x + r.width / 2 - this.inquiry_dialog.getBounds().width / 2, r.y + r.height / 2 - this.inquiry_dialog.getBounds().height / 2);
+        }else{
+            final Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+            this.inquiry_dialog.setLocation(screenSize.width / 2 - this.inquiry_dialog.getSize().width / 2, screenSize.height / 2 - this.inquiry_dialog.getSize().height / 2);
         }
+        this.inquiry_dialog.setVisible(true);
+        return this.login_status;
     }
 
+    @Override
+    public void RemoveConnectionListener(final ConnectionListener l) {
+        if(l == null){ return; }
+        this.connection_listener.removeElement(l);
+    }
 
+    @Override
+    public void RemoveUpdateEventListener(final UpdateEventListener l, final String event) {}
 
-public static void main(String args[])
-{
-    System.out.println("\nStart readout PPF/40573/MAGN/IPLA");
-    JetDataProvider dp = new JetDataProvider("obarana", "clublatino");
-    dp.setEvaluateUrl(true);
-    float data[], y[], x[];
-    try
-    {
-    data = dp.GetFloatArray("PPF/40573/MAGN/BPOL", JetDataProvider.DATA);
-    x = dp.GetFloatArray("PPF/40573/MAGN/BPOL", JetDataProvider.X);
-    y = dp.GetFloatArray("X:PPF/40573/MAGN/BPOL", JetDataProvider.Y);
+    @Override
+    public void SetArgument(final String arg) {}
 
-    for(int i = 0; i < x.length; i++)
-        System.out.println(x[i] + "  " +data[i]);
+    public void SetCompression(final boolean state) {}
 
-    System.out.println("Num. points: "+data.length);
-    } catch (IOException exc){}
- }
+    public void setContinuousUpdate() {}
 
+    @Override
+    public void SetEnvironment(final String s) {}
+
+    public void setEvaluateUrl(final boolean state) {
+        this.evaluate_url = state;
+    }
+
+    public void setUrlSource(final String url_source) {
+        this.url_source = url_source;
+        // System.out.println(url_source);
+    }
+
+    @Override
+    public boolean SupportsTunneling() {
+        return false;
+    }
+
+    @Override
+    public void Update(final String experiment, final long shot) {
+        this.experiment = experiment;
+        this.shot = shot;
+        this.error_string = null;
+    }
 }
-

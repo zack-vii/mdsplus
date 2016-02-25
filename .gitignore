@@ -19,7 +19,7 @@ lib/
 lib32/
 lib64/
 *.class
-*.jar
+java
 *.manifest
 *.egg-info
 *.stamp
