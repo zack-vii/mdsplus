@@ -156,10 +156,10 @@ final class jScopeWaveContainer extends WaveformContainer{
                     /*
                                         StringTokenizer tokenLocalIp = new StringTokenizer(localIpAdddress, ".");
                                         StringTokenizer clientMaskIp = new StringTokenizer(clientMask, ".");
-
+                    
                                         if(tokenLocalIp.countTokens() != clientMaskIp.countTokens())
                                             continue;
-
+                    
                                         while(tokenLocalIp.hasMoreElements() && clientMaskIp.hasMoreTokens())
                                         {
                                             String tl = tokenLocalIp.nextToken();
@@ -407,9 +407,8 @@ final class jScopeWaveContainer extends WaveformContainer{
             }
         }
         prop = pr.getProperty(prompt + ".reversed");
-        if(prop != null){
-            this.reversed = new Boolean(prop).booleanValue();
-        }
+        if(prop != null) this.reversed = new Boolean(prop).booleanValue();
+        else this.reversed = false;
         this.def_vals.xmax = pr.getProperty(prompt + ".global_1_1.xmax");
         this.def_vals.xmin = pr.getProperty(prompt + ".global_1_1.xmin");
         this.def_vals.xlabel = pr.getProperty(prompt + ".global_1_1.x_label");
@@ -453,7 +452,7 @@ final class jScopeWaveContainer extends WaveformContainer{
                 w = (jScopeMultiWave)this.getGridComponent(k);
                 ((MdsWaveInterface)w.wi).FromFile(pr, "Scope.plot_" + (r + 1) + "_" + (c + 1), cmd);
                 ((MdsWaveInterface)w.wi).mapColorIndex(colorMapping);
-                SetWaveParams(w);
+                this.SetWaveParams(w);
                 k++;
             }
         }
@@ -1129,7 +1128,7 @@ final class jScopeWaveContainer extends WaveformContainer{
                                         "Signal cache must be disabled when public varibles are set.\n" +
                                         "Cache operation is automatically disabled.",
                                         "alert", JOptionPane.WARNING_MESSAGE);
-
+                
                                     SetCacheState(false);
                                 }
                  */

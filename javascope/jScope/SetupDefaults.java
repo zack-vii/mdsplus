@@ -32,9 +32,9 @@ final public class SetupDefaults extends JDialog implements ActionListener{
             t.setText(val);
         }
     }
-    int                 curr_grid_mode = 0, x_curr_lines_grid = 3, y_curr_lines_grid = 3, curr_legend_mode = 0;
-    JTextField          def_node, upd_event;
-    jScopeDefaultValues def_vals;
+    int                     curr_grid_mode = 0, x_curr_lines_grid = 3, y_curr_lines_grid = 3, curr_legend_mode = 0;
+    JTextField              def_node, upd_event;
+    jScopeDefaultValues     def_vals;
     private final JComboBox grid_mode, legend_mode, auto_color_mode;
     JLabel                  lab;
     jScopeFacade            main_scope;
@@ -260,9 +260,8 @@ final public class SetupDefaults extends JDialog implements ActionListener{
         int val = 0;
         if(js_prop == null) return;
         prop = js_prop.getProperty("jScope.reversed");
-        if(prop != null && (prop.equals("true") || prop.equals("false"))){
-            this.reversed = new Boolean(prop).booleanValue();
-        }
+        if(prop != null && (prop.equals("true") || prop.equals("false"))) this.reversed = new Boolean(prop).booleanValue();
+        else this.reversed = false;
         prop = js_prop.getProperty("jScope.grid_mode");
         if(prop != null && (val = SetupDefaults.IsGridMode(prop)) > 0) this.curr_grid_mode = val;
         prop = js_prop.getProperty("jScope.x_grid");
