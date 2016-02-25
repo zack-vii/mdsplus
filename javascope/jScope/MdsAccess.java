@@ -65,7 +65,7 @@ public class MdsAccess implements DataAccess
         return st.nextToken().equals("mds");
     }
 
-    
+
     public void setProvider(String url) throws IOException
     {
         if ((url != null) && (this.prevUrl != null) && (this.prevUrl.equals(url))) {
@@ -111,7 +111,7 @@ public class MdsAccess implements DataAccess
 
           String pp = np.GetString("getenv('dico28_path')");
 
-          
+
 
           this.np.Update(this.experiment, shot, true);
         }

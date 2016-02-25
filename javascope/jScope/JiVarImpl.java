@@ -5,7 +5,7 @@ package jScope;
 import java.io.*;
 import java.util.*;
 
-public abstract class JiVarImpl implements JiVar 
+public abstract class JiVarImpl implements JiVar
 {
 	protected JiDataSource mSource;	// Source object for this variable
 	protected String mName;
@@ -15,7 +15,7 @@ public abstract class JiVarImpl implements JiVar
 	  {
 	  mName = name;
 	  mSource = s;
-	  }  
+	  }
 	/**
 	 * Get a attribute named 'name'
 	 *
@@ -45,15 +45,15 @@ public abstract class JiVarImpl implements JiVar
 	public String getName()
 	  {
 	  return mName;
-	  }  
+	  }
 	public JiDataSource getSource()
 	  {
 	  return mSource;
-	  }  
+	  }
 	public int getType()
 	  {
 	  return mType;
-	  }  
+	  }
 	public String getTypeString()
 	  {
 	  switch(mType){
@@ -72,19 +72,19 @@ public abstract class JiVarImpl implements JiVar
 	    default:
 	      return "unknown";
 	  }
-	  }  
+	  }
 	public abstract Object read(JiDim[] dim)
-	  throws IOException;  
+	  throws IOException;
 	public abstract byte[] readByte(JiDim[] dim)
-	  throws IOException;  
+	  throws IOException;
 	public abstract char[] readChar(JiDim[] dim)
-	  throws IOException;  
+	  throws IOException;
 	public abstract double[] readDouble(JiDim[] dim)
-	  throws IOException;  
+	  throws IOException;
 	public abstract float[] readFloat(JiDim[] dim)
-	  throws IOException;  
+	  throws IOException;
 	public abstract int[] readInt(JiDim[] dim)
-	  throws IOException;  
+	  throws IOException;
 	public abstract short[] readShort(JiDim[] dim)
-	  throws IOException;  
+	  throws IOException;
 }

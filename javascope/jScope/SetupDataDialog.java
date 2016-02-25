@@ -61,8 +61,8 @@ import javax.swing.event.*;
 
     //GAB 2014
     JCheckBox continuous_update_b = new JCheckBox("Continuous Update");
-    
-    
+
+
     JCheckBox upd_limits_b = new JCheckBox("");
     JCheckBox upd_limits = new JCheckBox("Upd. Limits");
 
@@ -555,16 +555,16 @@ import javax.swing.event.*;
 	    marker.setSelectedIndex(ws.marker);
 	    marker_step_t.setText(""+ws.marker_step);
 	    setMarkerTextState(ws.marker);
-            
+
             try
             {
                 color.setSelectedIndex(ws.color_idx);
             }
             catch(Exception exc)
             {
-                color.setSelectedIndex(0);                
+                color.setSelectedIndex(0);
             }
-            
+
 	    if(error_w.isVisible())
 	        error_w.setError(ws);
       }
@@ -1130,10 +1130,10 @@ import javax.swing.event.*;
 
 		p6.add(x_max_b);
 		p6.add(x_max);
-                
+
                 p6.add(continuous_update_b);
 
- 
+
 
 		p6.add(keep_ratio_b);
 		keep_ratio_b.setVisible(false);
@@ -1152,8 +1152,8 @@ import javax.swing.event.*;
         pp1.setBorder(bb);
 		pp1.add(upd_limits);
 		p7.add(pp1);
-                
-                
+
+
 		p7.add(horizontal_flip_b);
 		horizontal_flip_b.setVisible(false);
 
@@ -1251,18 +1251,18 @@ import javax.swing.event.*;
     {
       wave_coord = new Point(row, col);
       wave = (jScopeMultiWave)w;
-      
+
 //    wave.addWaveformListener(this);
       wi = (MdsWaveInterface)wave.wi;
 
-      
+
       wi = new MdsWaveInterface(wave,
                                 ((MdsWaveInterface)wave.wi).dp,
                                 ((MdsWaveInterface)wave.wi).def_vals,
                                 wave.wi.cache_enabled);
 
       wi.defaults = ((MdsWaveInterface)wave.wi).defaults;
-      
+
       putWindowSetup((MdsWaveInterface)wave.wi);
       updateDataSetup();
       setLocationRelativeTo(w.getParent());
@@ -1474,7 +1474,7 @@ import javax.swing.event.*;
        setImageDialog(wi.is_image);
 
        //this.wi.evaluated_shot = wi.evaluated_shot;
-       
+
        this.wi.colorMap = wi.colorMap;
 
        this.wi.cexperiment = wi.cexperiment;
@@ -1502,7 +1502,7 @@ import javax.swing.event.*;
        this.wi.legend_y = wi.legend_y;
        this.wi.show_legend = wi.show_legend;
        this.wi.reversed = wi.reversed;
-       
+
        this.wi.is_image = wi.is_image;
        this.wi.keep_ratio = wi.keep_ratio;
        this.wi.horizontal_flip = wi.horizontal_flip;
@@ -1523,10 +1523,10 @@ import javax.swing.event.*;
        y_expr.setText("");
        x_log.setSelected(wi.x_log);
        y_log.setSelected(wi.y_log);
-       
+
        //GAB 2014
        continuous_update_b.setSelected(wi.isContinuousUpdate);
-       
+
        //upd_limits.setSelected(wi.cin_upd_limits);
 //	}
 //	else {
@@ -1559,7 +1559,7 @@ import javax.swing.event.*;
 		x_min_b.setVisible(false);
                 //GAB 2014
                 continuous_update_b.setVisible(false);
-                
+
 		pix_y_max.setVisible(true);
 		pix_y_min.setVisible(true);
 		y_max_b.setVisible(false);
@@ -1691,20 +1691,20 @@ import javax.swing.event.*;
 	if(!main_scope.equalsString(y_min.getText(),   wave_wi.cin_ymin))     return true;
         if(!main_scope.equalsString(y_label.getText(), wave_wi.cin_ylabel))   return true;
 	if(y_log.isSelected() != wave_wi.y_log)				            return true;
-        
+
        // if(!main_scope.equalsString(shot.getText(),   wave_wi.cin_shot))            return true;
        if(!main_scope.equalsString(shot.getText(),   wave_wi.in_shot))         return true;
 
-        
+
         if(!main_scope.equalsString(upd_event.getText(),   wave_wi.cin_upd_event))  return true;
         if(!main_scope.equalsString(def_node.getText(),    wave_wi.cin_def_node))   return true;
 	if(!main_scope.equalsString(experiment.getText(), wave_wi.cexperiment))     return true;
 	if(getDefaultFlags() != wave_wi.defaults)				                  return true;
 	if(image_b.isSelected() != wave_wi.is_image)				                  return true;
-	if(keep_ratio_b.isSelected() != wave_wi.keep_ratio)				          return true;        
+	if(keep_ratio_b.isSelected() != wave_wi.keep_ratio)				          return true;
 	if(horizontal_flip_b.isSelected() != wave_wi.horizontal_flip)				  return true;
 	if(vertical_flip_b.isSelected() != wave_wi.vertical_flip)				  return true;
-        
+
         for(int i = 0 ; i < wave_wi.num_waves; i++)
 	{
 	    if(!main_scope.equalsString(s[i].x_expr,  wave_wi.in_x[i]))        return true;
@@ -1765,7 +1765,7 @@ import javax.swing.event.*;
 	    wi.cin_xlabel    = x_label.getText();
       if(!y_label_b.isSelected() && !main_scope.equalsString(y_label.getText(), wi.cin_ylabel))
 	    wi.cin_ylabel    = y_label.getText();
-      
+
       //GAB 2014
       //wi.isContinuousUpdate = continuous_update_b.isSelected();
       wi.isContinuousUpdate = false;
@@ -1793,8 +1793,8 @@ import javax.swing.event.*;
           wi.horizontal_flip = horizontal_flip_b.isSelected();
           wi.vertical_flip = vertical_flip_b.isSelected();
 
-          
-          
+
+
           if(!wi.getModified())
           {
 /*
@@ -1807,7 +1807,7 @@ import javax.swing.event.*;
                     }
                     return 0;
                 }
-*/              
+*/
                 for(int i = 0; i < wave.wi.num_waves; i++)
                 {
                     wave.wi.markers[i]      = s[i].marker;

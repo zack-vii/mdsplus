@@ -6,9 +6,9 @@ import java.io.IOException;
 
 /**
  * When a Frame sequence is requested to a DataProvider implementation, it is returned by means of an object
- * implementing the FrameData interface. FrameData defines therefore all the access methods required to handle 
+ * implementing the FrameData interface. FrameData defines therefore all the access methods required to handle
  * a sequence of frames.
- * 
+ *
  * @see DataProvider
  */
 interface FrameData
@@ -29,9 +29,9 @@ interface FrameData
      *  content of a gif or jpeg file.
      * <br>
      * -FramDeata.JAI_IMAGE meaning that method GetFrameAt will return a byte vector representing the binary
-     *  content of every image file supported by the JAI (Java Advanced Imaging) package. The JAI package needs not 
+     *  content of every image file supported by the JAI (Java Advanced Imaging) package. The JAI package needs not
      *  to be installed unless file formats other than gif or jpeg are used.
-     * 
+     *
      * @return The type of the corresponding frame.
      * @exception java.io.IOException
      */
@@ -39,7 +39,7 @@ interface FrameData
 
     /**
      * Returns the number of frames in the sequence.
-     * 
+     *
      * @return The number of frames in the sequence.
      * @exception java.io.IOException
      */
@@ -47,16 +47,16 @@ interface FrameData
 
     /**
      * Return the dimension of a frame. All the frames in the sequence must have the same dimension.
-     * 
+     *
      * @return The frame dimension.
      * @exception java.io.IOException
      */
     public Dimension GetFrameDimension()throws Exception;
 
     /**
-     * Return the times associated with every frame of the sequence. This information is required to correlate 
+     * Return the times associated with every frame of the sequence. This information is required to correlate
      * the frame sequence with the other signals displayed by jScope.
-     * 
+     *
      * @return The time array for the frame sequence.
      * @exception java.io.IOException
      */
@@ -64,7 +64,7 @@ interface FrameData
 
     /**
      * Return the frame at the given position.
-     * 
+     *
      * @param idx The index of the requested frame in the frame sequence.
      * @return The frame as a byte array. If the frame type is FrameData.BITMAP_IMAGE, the matrix uses row major
      * ordering.

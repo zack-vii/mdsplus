@@ -297,8 +297,7 @@ public class WavePopup
         {
             public void actionPerformed(ActionEvent e)
             {
-                ( (WaveformManager) WavePopup.this.parent).AllSameXScaleAutoY(
-                    wave);
+                ( (WaveformManager) WavePopup.this.parent).AllSameXScaleAutoY(wave);
             }
         }
         );
@@ -399,7 +398,7 @@ public class WavePopup
             }
         }
         );
-        
+
         sep3 = new JSeparator();
         saveAsText = new JMenuItem("Save as text ...");
         saveAsText.addActionListener(new ActionListener()
@@ -470,7 +469,7 @@ public class WavePopup
             {
                 maximize.setText("Maximize Panel");
             }
-        }    
+        }
 
         if (is_image)
         {

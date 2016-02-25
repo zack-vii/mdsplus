@@ -238,7 +238,7 @@ public class WaveformContainer extends RowColumnContainer implements WaveformMan
                 {
                     Double tf = new Double(e.time_value);
                     Double nan_d = new Double(Double.NaN);
-                    
+
                     double x = e.point_x;
                     double y = e.point_y;
                     if(w.IsImage())
@@ -246,8 +246,8 @@ public class WaveformContainer extends RowColumnContainer implements WaveformMan
             else
             if(e.is_mb2)
                 AllSameXScaleAutoY(w);
-                    //Set x to time_value allows pannels synchronization from 2D 
-                    //signal viewed in MODE_YX  
+                    //Set x to time_value allows pannels synchronization from 2D
+                    //signal viewed in MODE_YX
                     if( ! tf.equals(nan_d))
                         x = e.time_value;
                     UpdatePoints(x, y, (Waveform)e.getSource());
@@ -649,12 +649,7 @@ public class WaveformContainer extends RowColumnContainer implements WaveformMan
     }
 
 
-    public void SetParams(int mode,
-                          int grid_mode,
-                          int legend_mode,
-                          int x_grid_lines,
-                          int y_grid_lines,
-                          boolean reversed)
+    public void SetParams(int mode,int grid_mode,int legend_mode,int x_grid_lines,int y_grid_lines,boolean reversed)
     {
         SetReversed(reversed);
         SetMode(mode);
@@ -1015,7 +1010,7 @@ public class WaveformContainer extends RowColumnContainer implements WaveformMan
         RepaintManager currentManager = RepaintManager.currentManager(c);
         currentManager.setDoubleBufferingEnabled(true);
     }
-    
+
 
    private String getFileName(Waveform w)
    {
@@ -1122,7 +1117,7 @@ public class WaveformContainer extends RowColumnContainer implements WaveformMan
 
                 try
                 {
-                    
+
                     BufferedWriter out = new BufferedWriter(new FileWriter(txtsig_file));
                     out.write("% Title: "+ w.GetTitle());
                     out.newLine();

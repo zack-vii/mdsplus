@@ -138,7 +138,7 @@ public class MdsMessage extends Object
  //   protected /*synchronized */void ReadBuf(byte buf[], DataInputStream dis) throws IOException
     protected synchronized  void ReadBuf(byte buf[], InputStream dis) throws IOException
     {
-        
+
         ConnectionEvent e;
         int bytes_to_read = buf.length, read_bytes = 0, curr_offset = 0;
         boolean send = false;
@@ -149,9 +149,9 @@ public class MdsMessage extends Object
 	        dispatchConnectionEvent(e);
         }
 
-        
+
         while(bytes_to_read > 0)
-        {                
+        {
             read_bytes     = dis.read(buf, curr_offset, bytes_to_read);
 	        curr_offset   += read_bytes;
 	        bytes_to_read -= read_bytes;
@@ -176,7 +176,7 @@ public class MdsMessage extends Object
         dos.writeByte(ndims);
         for(int i = 0; i < Descriptor.MAX_DIM; i++)
 	        dos.writeInt(dims[i]);
-        dos.write(body, 0, body.length);        
+        dos.write(body, 0, body.length);
         dos.flush();
 
         if(descr_idx == (nargs - 1)) msgid++;

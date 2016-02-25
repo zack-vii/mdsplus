@@ -82,8 +82,9 @@ public class MultiWaveform extends Waveform
                 signals.removeAllElements();
             Vector<Signal> s = w.GetSignals();
             for (i = 0; i < s.size(); i++)
-            {    
+            {
                 signals.addElement(new Signal(s.elementAt(i)));
+                if(DEBUG.D){System.out.println("Copy: "+signals.elementAt(i));}
                 signals.elementAt(i).registerSignalListener(this);
             }
             show_legend = w.show_legend;
@@ -630,26 +631,26 @@ public class MultiWaveform extends Waveform
         else
             i = curr_point_sig_idx;
         waveform_signal = new Signal(signals.elementAt(i));
-
-        //Check if any of the elements of signals vector refers to absolute time. 
+        if(DEBUG.D){System.out.println("UpdateLimits: "+waveform_signal);}
+        //Check if any of the elements of signals vector refers to absolute time.
         //In this case set minimum and maximum X value of reference waveform_signal to its limits
         boolean anyLongX = false;
         for (i = 0; i < signals.size(); i++)
         {
-            if ( (Signal) signals.elementAt(i) == null)
+            if(signals.elementAt(i) == null)
                 continue;
-            if(((Signal) signals.elementAt(i)).isLongX())
+            if(signals.elementAt(i).isLongX())
             {
                 anyLongX = true;
-                waveform_signal.setXLimits(((Signal) signals.elementAt(i)).getXmin(), waveform_signal.getXmax(), Signal.AT_CREATION);
+                waveform_signal.setXLimits(signals.elementAt(i).getXmin(), waveform_signal.getXmax(), Signal.AT_CREATION);
                 break;
             }
-        }       
+        }
         for (i = 0; i < signals.size(); i++)
         {
             if (signals.elementAt(i) == null) continue;
             //Avoid introducing 0 as limits for absolute times
-            if(anyLongX && !((Signal) signals.elementAt(i)).isLongX()) continue;
+            if(anyLongX && !signals.elementAt(i).isLongX()) continue;
             if (waveform_signal.getXmax() < signals.elementAt(i).getXmax())
                 waveform_signal.setXLimits(waveform_signal.getXmin(), signals.elementAt(i).getXmax(), Signal.AT_CREATION);
             if(waveform_signal.getXmin() > signals.elementAt(i).getXmin())
@@ -1119,7 +1120,7 @@ public class MultiWaveform extends Waveform
             return signals.elementAt(curr_point_sig_idx);
         else
             return null;
-                 
+
     }
 
     public int getSignalMode1D(int idx)
@@ -1310,7 +1311,7 @@ public class MultiWaveform extends Waveform
         ReportChanges();
     }
 
-    public void SetXScale(Waveform w) 
+    public void SetXScale(Waveform w)
     {
         if (waveform_signal == null) return;
         waveform_signal.setXLimits(w.waveform_signal.getXmin(), w.waveform_signal.getXmax(), Signal.SIMPLE);
@@ -1405,18 +1406,18 @@ public class MultiWaveform extends Waveform
     }
 
     protected void SetMode(int mod){super.SetMode(mod);}
-    
+
     //Inherits from parent in order to force UpdateLimits
     public  void signalUpdated(boolean changeLimits)
     {
         change_limits = changeLimits;
         not_drawn = true;
         boolean anyLongX = false;
-        //Check if any of the elements of signals vector refers to absolute time. 
+        //Check if any of the elements of signals vector refers to absolute time.
         //In this case set minimum and maximum X value of reference waveform_signal to its limits
         for (int i = 1; i < signals.size(); i++)
         {
-            if ( (Signal) signals.elementAt(i) == null)
+            if(signals.elementAt(i) == null)
                 continue;
             if(signals.elementAt(i).isLongX())
             {

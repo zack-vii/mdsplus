@@ -318,7 +318,7 @@ remove 28/06/2005
     }
 
 
- 
+
     public void FreeCache()
     {
         WaveInterface.FreeCache();
@@ -363,19 +363,12 @@ remove 28/06/2005
         if (browse_sig != null)
         {
             if (!browse_sig.isConnected())
-            {
                 try
                 {
                     browse_sig.connectToBrowser(server_item.browse_url);
                     browse_sig.setTitle("URL : " + server_item.browse_url);
                 }
-                catch (Exception e)
-                {
-                    JOptionPane.showMessageDialog(this, e.getMessage(),
-                                                  "alert",
-                                                  JOptionPane.ERROR_MESSAGE);
-                }
-            }
+                catch (Exception e){JOptionPane.showMessageDialog(this, e.getMessage(), "alert", JOptionPane.ERROR_MESSAGE);}
             browse_sig.setVisible(true);
         }
         else
@@ -384,43 +377,33 @@ remove 28/06/2005
             if (this.GetBrowseUrl() == null)
                 msg = "Signals browser not yet implemented on this data server";
             else
-            {
                 msg = "jScope is unable to locate the signal server page at " +
-                    this.GetBrowseUrl();
-                msg = msg +
-                    "\nModify browse_url property for this data server in jScope.properties file.";
-            }
-            JOptionPane.showMessageDialog(null, msg, "alert",
-                                          JOptionPane.ERROR_MESSAGE);
+                      this.GetBrowseUrl() +
+                      "\nModify browse_url property for this data server in jScope.properties file.";
+            JOptionPane.showMessageDialog(null, msg, "alert", JOptionPane.ERROR_MESSAGE);
         }
     }
 
     public void StartPrint(DocPrintJob prnJob, PrintRequestAttributeSet attrs)
     {
-        try
-        {
+        try{
             getjScopeMultiWave();
             UpdateAllWave();
             PrintAllWaves(prnJob, attrs);
         }
-        catch (InterruptedException e)
-        {}
-        catch (PrinterException e)
-        {}
-        catch (Exception e)
-        {}
+        catch (InterruptedException e){}
+        catch (PrinterException e){}
+        catch (Exception e){}
     }
 
-    public void PrintAllWaves(DocPrintJob prnJob, PrintRequestAttributeSet attrs) throws
-        PrinterException, PrintException
+    public void PrintAllWaves(DocPrintJob prnJob, PrintRequestAttributeSet attrs) throws PrinterException, PrintException
     {
         DocFlavor flavor = DocFlavor.SERVICE_FORMATTED.PRINTABLE;
         Doc doc = new SimpleDoc(this, flavor, null);
         prnJob.print(doc, attrs);
     }
 
-    public int print(Graphics g, PageFormat pf, int pageIndex) throws
-        PrinterException
+    public int print(Graphics g, PageFormat pf, int pageIndex) throws PrinterException
     {
         int st_x = 0, st_y = 0;
         double height = pf.getImageableHeight();
@@ -649,7 +632,7 @@ remove 28/06/2005
         return (server_item != null ? server_item.enable_cache : false);
     }
 
- 
+
     public void SetModifiedState(boolean state)
     {
         jScopeMultiWave w;
@@ -723,7 +706,7 @@ remove 28/06/2005
             else
                 abort = false;
 
-            
+
             if( def_vals != null && !def_vals.getIsEvaluated() )
             {
                 dp.SetEnvironment(def_vals.getPublicVariables());
@@ -842,7 +825,7 @@ remove 28/06/2005
                     }
                 }
             }
-            
+
             for (int i = 0, k = 0; i < 4; i++)
             {
                 for (int j = 0; j < rows[i]; j++, k++)
@@ -853,9 +836,9 @@ remove 28/06/2005
                     }
                 }
             }
-             
+
             wave_all = null;
-            
+
         }
         catch (Exception e)
         {
@@ -1042,17 +1025,12 @@ remove 28/06/2005
             server_item = new DataServerItem();
             server_item.name = prop;
 
-            server_item.argument = pr.getProperty(prompt +
-                                                  ".data_server_argument");
+            server_item.argument = pr.getProperty(prompt + ".data_server_argument");
             server_item.user = pr.getProperty(prompt + ".data_server_user");
-            server_item.class_name = pr.getProperty(prompt +
-                ".data_server_class");
-            server_item.browse_class = pr.getProperty(prompt +
-                ".data_server_browse_class");
-            server_item.browse_url = pr.getProperty(prompt +
-                ".data_server_browse_url");
-            server_item.tunnel_port = pr.getProperty(prompt +
-                ".data_server_tunnel_port");
+            server_item.class_name = pr.getProperty(prompt + ".data_server_class");
+            server_item.browse_class = pr.getProperty(prompt + ".data_server_browse_class");
+            server_item.browse_url = pr.getProperty(prompt + ".data_server_browse_url");
+            server_item.tunnel_port = pr.getProperty(prompt + ".data_server_tunnel_port");
             try
             {
                 server_item.fast_network_access = new Boolean(pr.getProperty(
@@ -1065,8 +1043,7 @@ remove 28/06/2005
 
             try
             {
-                server_item.enable_cache = new Boolean(pr.getProperty(prompt +
-                    ".enable_cache")).booleanValue();
+                server_item.enable_cache = new Boolean(pr.getProperty(prompt + ".enable_cache")).booleanValue();
             }
             catch (Exception exc)
             {
@@ -1077,14 +1054,13 @@ remove 28/06/2005
         return server_item;
     }
 
-    public void FromFile(Properties pr, String prompt, int colorMapping[], ColorMapDialog cmd) throws
-        IOException
+    public void FromFile(Properties pr, String prompt, int colorMapping[], ColorMapDialog cmd) throws IOException
     {
         String prop;
         int read_rows[] = {0, 0, 0, 0};
 
         resetMaximizeComponent();
-                
+
         prop = pr.getProperty(prompt + ".columns");
         if (prop == null)
             throw (new IOException("missing columns keyword"));
@@ -1220,8 +1196,7 @@ remove 28/06/2005
             for (int r = 0; r < read_rows[c]; r++)
             {
                 w = (jScopeMultiWave) getGridComponent(k);
-                ( (MdsWaveInterface) w.wi).FromFile(pr,
-                    "Scope.plot_" + (r + 1) + "_" + (c + 1) , cmd);
+                ( (MdsWaveInterface) w.wi).FromFile(pr, "Scope.plot_" + (r + 1) + "_" + (c + 1) , cmd);
                 ( (MdsWaveInterface) w.wi).mapColorIndex(colorMapping);
                 SetWaveParams(w);
                 k++;
@@ -1310,15 +1285,14 @@ remove 28/06/2005
     }
 
     @SuppressWarnings("rawtypes")
-    public void SetDataServer(DataServerItem server_item, UpdateEventListener l) throws
-        Exception
+    public void SetDataServer(DataServerItem server_item, UpdateEventListener l) throws Exception
     {
         DataProvider new_dp = null;
         String error = null;
-
+        if (DEBUG.D){System.out.println("server_item.name "+server_item.name);}
         if (server_item == null || server_item.name.trim().length() == 0)
             throw (new Exception("Defined null or empty data server name"));
-
+        if (DEBUG.D){System.out.println("server_item.class_name "+server_item.class_name);}
         if (server_item.class_name != null)
         {
             try
@@ -1634,7 +1608,7 @@ remove 28/06/2005
         */
         if (def_vals != null && def_vals.isSet() )
         {
-            this.SetCacheState(false);            
+            this.SetCacheState(false);
         }
 
         WaveContainerEvent wce = new WaveContainerEvent(this,
@@ -1646,17 +1620,17 @@ remove 28/06/2005
         //is evaluated, in the other cases, refresh from popup menu
         //or event update, all signals in the waveform must be
         //evaluated
-        
+
         /*
         if (!add_sig)
             ( (jScopeMultiWave) w).wi.setModified(true);
         */
-        
+
         w.Refresh();
 
         if (add_sig)
             resetSplitPosition();
-        
+
 
     }
 
@@ -1666,7 +1640,7 @@ remove 28/06/2005
         Vector<jScopeMultiWave> panel = new Vector<jScopeMultiWave>();
         MdsWaveInterface wi;
         jScopeMultiWave wave;
-	    
+	
         if (!all &&
             (w == null || w.wi == null || w.wi.signals == null ||
              w.wi.signals.length == 0))
@@ -1885,7 +1859,7 @@ remove 28/06/2005
         }
         file_diag = null;
     }
-    
+
     ProgressMonitor progressMonitor;
     public void startUpdatingPanel()
     {
@@ -1898,5 +1872,5 @@ remove 28/06/2005
     {
         progressMonitor.close();
     }
-    
+
 }

@@ -4,16 +4,16 @@ package jScope;
 import java.io.*;
 import java.util.*;
 
-class JiNcVarDouble extends JiNcVarImp 
+class JiNcVarDouble extends JiNcVarImp
 {
 	public JiNcVarDouble(RandomAccessData in, JiNcVar parent, long offset)
 	  {
 	  super(in, parent, offset);
-	  }  
+	  }
 	public Object read(JiDim[] dims) throws IOException
 	  {
 	  return readDouble(dims);
-	  }  
+	  }
 	public double[] readDouble(JiDim[] dims) throws IOException
 	  {
 	  double[] rval = null;
@@ -34,9 +34,9 @@ class JiNcVarDouble extends JiNcVarImp
 	      }
 	  }
 	  return rval;
-	  }  
+	  }
 	public int sizeof()
 	  {
 	  return 8;
-	  }  
+	  }
 }

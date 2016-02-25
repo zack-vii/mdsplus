@@ -190,7 +190,7 @@ public interface DataProvider
         public FrameData  GetFrameData(String in_frame, String in_times, float start_time, float end_time) throws IOException;
 
        // public void enableAsyncUpdate(boolean enable);
-        
+
         /**
          * Method Dispose is called by jScope each time a DataProvider is no more used. Unlike Object.finalize(),
          * method Dispose is guaranteed to be called at the time the DataProvider implementation is no more
@@ -263,9 +263,9 @@ public interface DataProvider
         public void    SetArgument(String arg) throws IOException;
 
         /**
-         * Evaluate the passed string to provide am array of shot numbers. 
-         * For MDSplus data provider it will carry out the execution of the corresponding expression 
+         * Evaluate the passed string to provide am array of shot numbers.
+         * For MDSplus data provider it will carry out the execution of the corresponding expression
          */
         public long[]   GetShots(String in) throws IOException;
-        
+
      }

@@ -4,7 +4,7 @@ package jScope;
 import java.awt.AWTEvent;
 import java.awt.Event;
 
-public class WaveContainerEvent extends AWTEvent 
+public class WaveContainerEvent extends AWTEvent
 {
     static final long serialVersionUID = 5348434867648L;
     static final int START_UPDATE   = AWTEvent.RESERVED_ID_MAX + 4;
@@ -14,13 +14,13 @@ public class WaveContainerEvent extends AWTEvent
     String info;
     AWTEvent we;
 
-    public WaveContainerEvent (Object source, int event_id, String info) 
+    public WaveContainerEvent (Object source, int event_id, String info)
     {
         super(source, event_id);
         this.info = info;
     }
 
-    public WaveContainerEvent (Object source, AWTEvent we) 
+    public WaveContainerEvent (Object source, AWTEvent we)
     {
         super(source, WAVEFORM_EVENT);
         this.we = we;

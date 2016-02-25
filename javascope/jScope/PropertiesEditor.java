@@ -47,9 +47,9 @@ public class PropertiesEditor extends JDialog
                     try
                     {
                         text.write(new FileWriter(prFile));
- 		                JOptionPane.showMessageDialog(PropertiesEditor.this,
- 		                                          "The changes will take effect the next time you restart jScope.",
-		                                          "Info", JOptionPane.WARNING_MESSAGE);
+                        JOptionPane.showMessageDialog(PropertiesEditor.this,
+                                                  "The changes will take effect the next time you restart jScope.",
+                                                  "Info", JOptionPane.WARNING_MESSAGE);
                     }
                     catch (IOException exc){exc.printStackTrace();};
                 }

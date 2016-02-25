@@ -151,7 +151,7 @@ public class Waveform extends JComponent implements SignalListener
         setSelectBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED,
             Color.red,
             Color.red));
-    
+
         play_timer = new javax.swing.Timer(100, new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
                 frame = frames.getNextFrameIdx();
@@ -159,7 +159,7 @@ public class Waveform extends JComponent implements SignalListener
                     frame = 0;
                 }
                 repaint();
-        
+
                 if (mode == MODE_POINT) {
                     sendUpdateEvent();
                     if (send_profile) {
@@ -168,7 +168,7 @@ public class Waveform extends JComponent implements SignalListener
                 }
             }
         });
-    
+
         prev_point_x = prev_point_y = -1;
         update_timestamp = 0;
         waveform_signal = null;
@@ -189,7 +189,7 @@ public class Waveform extends JComponent implements SignalListener
         double end_xs;
         double start_ys;
         double end_ys;
-        
+
         ZoomRegion(double start_xs, double end_xs, double start_ys, double end_ys)
         {
             if (DEBUG.ON){System.out.println("Waveform.ZoomRegion()");}
@@ -283,7 +283,7 @@ public class Waveform extends JComponent implements SignalListener
         // Dimension dim = getSize();
         return new Dimension(dim.width - getRightSize(), dim.height - getBottomSize());
     }
-  
+
     protected Dimension getWaveSize()
     {
         if (DEBUG.ON){System.out.println("Waveform.getWaveSize()");}
@@ -322,7 +322,7 @@ public class Waveform extends JComponent implements SignalListener
         colors = _colors;
         colors_name = _colors_name;
     }
-  
+
     public WaveformMetrics GetWaveformMetrics() {return wm;}
 
     static public String[] getColorsName()
@@ -330,13 +330,13 @@ public class Waveform extends JComponent implements SignalListener
       colors_changed = false;
       return colors_name;
     }
-  
+
     static public Color[] getColors()
     {
       colors_changed = false;
       return colors;
     }
-  
+
     public int GetColorIdx()
     {
         if (DEBUG.ON){System.out.println("Waveform.GetColorIdx()");}
@@ -346,16 +346,16 @@ public class Waveform extends JComponent implements SignalListener
             return frames.GetColorIdx();
         return 0;
     }
-  
-    public void SetColorIdx(int idx) 
+
+    public void SetColorIdx(int idx)
     {
         if (DEBUG.ON){System.out.println("Waveform.GetColorIdx()");}
         idx = idx % colors.length;
         if (waveform_signal != null)
             waveform_signal.setColorIdx(idx);
-        else 
+        else
         {
-            if (frames != null) 
+            if (frames != null)
             {
                 idx = (idx == 0 ? 1 : idx);
                 frames.SetColorIdx(idx);
@@ -364,8 +364,8 @@ public class Waveform extends JComponent implements SignalListener
         }
         this.SetCrosshairColor(idx);
     }
-  
-    public String getSignalName() 
+
+    public String getSignalName()
     {
         if (DEBUG.ON){System.out.println("Waveform.getSignalName()");}
         if (is_image && frames != null)
@@ -373,7 +373,7 @@ public class Waveform extends JComponent implements SignalListener
         else
             return (waveform_signal != null ? waveform_signal.getName() : "");
     }
-  
+
     public int getSignalType() {return (waveform_signal != null ? waveform_signal.getType() : -1);}
     public Signal GetSignal() {return waveform_signal;}
     public boolean GetInterpolate() {return (waveform_signal != null ? waveform_signal.getInterpolate() : true);}
@@ -394,7 +394,7 @@ public class Waveform extends JComponent implements SignalListener
             waveform_signal.setMarkerStep(step);
         }
     }
-  
+
     public int getSignalMode1D()
     {
         if (DEBUG.ON){System.out.println("Waveform.getSignalMode1D()");}
@@ -403,7 +403,7 @@ public class Waveform extends JComponent implements SignalListener
             mode = waveform_signal.getMode1D();
         return mode;
     }
-  
+
     public void setSignalMode1D(int mode)
     {
         if (DEBUG.ON){System.out.println("Waveform.SetMarkerStep("+mode+")");}
@@ -414,7 +414,7 @@ public class Waveform extends JComponent implements SignalListener
             repaint();
         }
     }
-  
+
     public int getSignalMode2D()
     {
         if (DEBUG.ON){System.out.println("Waveform.SetMarkerStep("+mode+")");}
@@ -423,7 +423,7 @@ public class Waveform extends JComponent implements SignalListener
             mode = waveform_signal.getMode2D();
         return mode;
     }
-  
+
     public void setSignalMode2D(int mode)
     {
         if (DEBUG.ON){System.out.println("Waveform.SetMarkerStep("+mode+")");}
@@ -439,8 +439,8 @@ public class Waveform extends JComponent implements SignalListener
             repaint();
         }
     }
-  
-  
+
+
     public void SetSignalState(boolean state)
     {
         if (DEBUG.ON){System.out.println("Waveform.SetMarkerStep("+mode+")");}
@@ -450,7 +450,7 @@ public class Waveform extends JComponent implements SignalListener
             waveform_signal.setMarker(Signal.NONE);
         }
     }
-  
+
     public int GetShowSignalCount() {return (waveform_signal != null) ? 1 : 0;}
 
     public Dimension getMinimumSize()
@@ -459,7 +459,7 @@ public class Waveform extends JComponent implements SignalListener
         Insets i = getInsets();
         return new Dimension(MIN_W + i.right + i.left, MIN_H + i.top + i.bottom);
     }
-  
+
     public void SetPointMeasure()
     {
         if (DEBUG.ON){System.out.println("Waveform.getMinimumSize()");}
@@ -479,7 +479,7 @@ public class Waveform extends JComponent implements SignalListener
             mark_point_y = curr_y = wave_point_y; //wm.YValue(p.y, d);
         }
     }
-  
+
     protected float convertX(int x)
     {
         if (DEBUG.ON){System.out.println("Waveform.convertX("+x+")");}
@@ -509,7 +509,7 @@ public class Waveform extends JComponent implements SignalListener
         curr_y = wave_point_y;
         return " " + mark_point_x + " " + mark_point_y + " " + curr_x + " " + curr_y;
     }
-  
+
     synchronized public void StopFrame()
     {
         if (DEBUG.ON){System.out.println("Waveform.StopFrame()");}
@@ -519,7 +519,7 @@ public class Waveform extends JComponent implements SignalListener
             play_timer.stop();
         }
     }
-  
+
     public void PlayFrame()
     {
         if (DEBUG.ON){System.out.println("Waveform.PlayFrame()");}
@@ -629,10 +629,10 @@ public class Waveform extends JComponent implements SignalListener
                 {
                     int x = e.getX() - i.right;
                     int y = e.getY() - i.top;
-          
+
                     if (mode != MODE_POINT)
                         update_timestamp++;
-        
+
                     start_x = end_x = prev_point_x = orig_x = x;
                     start_y = end_y = prev_point_y = orig_y = y;
                     dragging = true;
@@ -710,16 +710,16 @@ public class Waveform extends JComponent implements SignalListener
             {
                 if (getCursor().getType() == Cursor.WAIT_CURSOR)
                     return;
-        
+
                 Insets i = getInsets();
                 int idx;
                 Dimension d = getWaveSize();
-        
+
                 dragging = false;
-        
+
                 int x = e.getX() - i.right;
                 int y = e.getY() - i.top;
-        
+
                 if (mode == MODE_POINT && is_image && frames != null)
                     /*Save current point position*/
                     frames.setFramePoint(new Point(end_x, end_y), d);
@@ -736,7 +736,7 @@ public class Waveform extends JComponent implements SignalListener
                         performZoom();
                     not_drawn = true;
                 }
-        
+
                 if (mode == MODE_ZOOM && zoom_on_mb1 && x == orig_x && y == orig_y && !is_image)
                 {
                     if ( (e.getModifiers() & Event.ALT_MASK) != 0)
@@ -744,7 +744,7 @@ public class Waveform extends JComponent implements SignalListener
                     else
                         Resize(x, y, true);
                 }
-        
+
                 if (mode == MODE_PAN && !is_image)
                 {
                     NotifyZoom(MinXSignal(), MaxXSignal(), MinYSignal(), MaxYSignal(), update_timestamp);
@@ -756,7 +756,7 @@ public class Waveform extends JComponent implements SignalListener
                         setXlimits((float)MinXSignal(), (float)MaxXSignal());
                     }catch(Exception exc){System.out.println(exc);}
                 }
-        
+
                 prev_point_x = prev_point_y = -1;
                 if (!is_image)
                     curr_rect = null;
@@ -776,22 +776,22 @@ public class Waveform extends JComponent implements SignalListener
             {
                 if (getCursor().getType() == Cursor.WAIT_CURSOR)
                     return;
-        
+
                 if (waveform_signal == null && !is_image || is_mb2)
                     return;
-        
+
                 //if(is_image && is_playing) return;
-        
+
                 Insets i = getInsets();
                 Dimension d = getWaveSize();
-        
+
                 int curr_width, curr_height;
                 int x = e.getX() - i.right;
                 int y = e.getY() - i.top;
-        
+
                 if ( (e.getModifiers() & Event.META_MASK) != 0 || is_mb3 ||e.isPopupTrigger()) //Se e' MB3
                     return;
-        
+
                 if (mode == MODE_ZOOM && x < orig_x)
                 {
                     start_x = x;
@@ -802,7 +802,7 @@ public class Waveform extends JComponent implements SignalListener
                     end_x = x;
                     start_x = orig_x;
                 }
-        
+
                 if (mode == MODE_ZOOM && y < orig_y)
                 {
                     end_y = orig_y;
@@ -813,7 +813,7 @@ public class Waveform extends JComponent implements SignalListener
                     end_y = y;
                     start_y = orig_y;
                 }
-        
+
                 if (is_image && frames != null)
                 {
                     /*Chech if point is out of the image*/
@@ -821,7 +821,7 @@ public class Waveform extends JComponent implements SignalListener
                         return;
                     setMousePoint();
                 }
-        
+
                 if (mode == MODE_ZOOM)
                 {
                     if (is_image && is_playing)
@@ -829,7 +829,7 @@ public class Waveform extends JComponent implements SignalListener
                         restart_play = true;
                         play_timer.stop();
                     }
-          
+
                     if (curr_rect == null)
                         curr_rect = new Rectangle(start_x, start_y, end_x - start_x, end_y - start_y);
                     else
@@ -839,7 +839,7 @@ public class Waveform extends JComponent implements SignalListener
                 }
                 else {
                   curr_rect = null;
-        
+
                 }
                 if (mode == MODE_POINT) {
                     not_drawn = false;
@@ -848,7 +848,7 @@ public class Waveform extends JComponent implements SignalListener
                     if (is_image && send_profile)
                         sendProfileEvent();
                 }
-      
+
                 if (mode == MODE_PAN && !is_image)
                 {
                     if (wm.x_log)
@@ -929,7 +929,7 @@ public class Waveform extends JComponent implements SignalListener
             setBorder(select_border);
         }
     }
-  
+
     public void DeselectWave()
     {
         if (DEBUG.ON){System.out.println("Waveform.SelectWave()");}
@@ -939,7 +939,7 @@ public class Waveform extends JComponent implements SignalListener
             not_drawn = true;
         setBorder(unselect_border);
     }
-  
+
     public void Update(float x[], float y[])
     {
         if (DEBUG.ON){System.out.println("Waveform.Update("+x+", "+y+")");}
@@ -967,7 +967,7 @@ public class Waveform extends JComponent implements SignalListener
         not_drawn = true;
         repaint();
     }
-  
+
     public void Update()
     {
         if (DEBUG.ON){System.out.println("Waveform.Update()");}
@@ -991,7 +991,7 @@ public class Waveform extends JComponent implements SignalListener
         not_drawn = true;
         repaint();
     }
-  
+
     public void UpdateImage(Frames frames)
     {
         if (DEBUG.ON){System.out.println("Waveform.UpdateImage("+frames+")");}
@@ -1017,7 +1017,7 @@ public class Waveform extends JComponent implements SignalListener
         not_drawn = true;
         //repaint();
     }
-  
+
     private void setMousePoint()
     {
         if (DEBUG.ON){System.out.println("Waveform.setMousePoint()");}
@@ -1096,7 +1096,7 @@ public class Waveform extends JComponent implements SignalListener
         int x[] = new int[waveform_signal.getNumPoints()];
         int y[] = new int[waveform_signal.getNumPoints()];
         points = new Point[waveform_signal.getNumPoints()];
-    
+
         if (curr_mode == Signal.MODE_STEP)
         {
             for (i = 1; i < waveform_signal.getNumPoints() - 1; i += 2)
@@ -1136,7 +1136,7 @@ public class Waveform extends JComponent implements SignalListener
             prev_frame = -1;
             curr_rect = null;
         }
-    
+
          grid = new Grid(xmax, ymax, xmin, ymin, x_log, y_log, grid_mode, x_label,
                         y_label,
                         title, wave_error, grid_step_x, grid_step_y, int_xlabel,
@@ -1145,14 +1145,14 @@ public class Waveform extends JComponent implements SignalListener
             grid.paint(g, d, this, null);
     }
 
-    synchronized protected void PaintSignal(Graphics g, Dimension dim, int print_mode) 
+    synchronized protected void PaintSignal(Graphics g, Dimension dim, int print_mode)
     {
         if (DEBUG.ON){System.out.println("Waveform.PaintSignal("+g+", "+dim+", "+print_mode+")");}
         Dimension d;
         String orizLabel = x_label;
         String vertLabel = y_label;
         String sigTitle = title;
-    
+
         if (print_mode == NO_PRINT)
             d = getWaveSize();
         else
@@ -1172,8 +1172,8 @@ public class Waveform extends JComponent implements SignalListener
                 xmin =  MinXSignal();
                 ymax =  MaxYSignal();
                 ymin =  MinYSignal();
-                
-                    
+
+
                 if(xmax != Double.POSITIVE_INFINITY  && xmin != Double.NEGATIVE_INFINITY)
                 {
                     double xrange = xmax - xmin;
@@ -1210,7 +1210,7 @@ public class Waveform extends JComponent implements SignalListener
         if (resizing || grid == null || wm == null || change_limits)
         {
             change_limits = false;
-      
+
             grid = new Grid(xmax, ymax, xmin, ymin, x_log, y_log, grid_mode,
                             orizLabel, vertLabel,
                             sigTitle, wave_error, grid_step_x, grid_step_y,
@@ -1228,7 +1228,7 @@ public class Waveform extends JComponent implements SignalListener
                               reversed);
             grid.setLabels(sigTitle, orizLabel, vertLabel);
         }
-    
+
         if(waveform_signal != null)
             grid.setXaxisHMS(waveform_signal.isLongX());
 
@@ -1243,7 +1243,7 @@ public class Waveform extends JComponent implements SignalListener
             g.setColor(Color.lightGray);
         g.fillRect(1, 1, d.width - 2, d.height - 2);
 
-    
+
         if (waveform_signal != null)
         {
             wave_b_box = new Rectangle(wm.XPixel(MinXSignal(), d),
@@ -1252,7 +1252,7 @@ public class Waveform extends JComponent implements SignalListener
                                        wm.XPixel(MinXSignal(), d) + 1,
                                        wm.YPixel(MinYSignal(), d) -
                                        wm.YPixel(MaxYSignal(), d) + 1);
-      
+
             if (print_mode == NO_PRINT)
             {
                g.clipRect(curr_display_limits.width, 0,
@@ -1261,7 +1261,7 @@ public class Waveform extends JComponent implements SignalListener
             }
             drawSignal(g, d, print_mode);
         }
-    
+
         if(print_mode == PRINT && mode == MODE_POINT)
         {
           /*
@@ -1269,9 +1269,9 @@ public class Waveform extends JComponent implements SignalListener
           */
            double curr_x = wm.XValue(end_x, d);
            double curr_y = wm.YValue(end_y, d);
-    
+
            Point p = FindPoint(curr_x, curr_y, d, true);
-    
+
            if (p != null)
            {
                Color prev_color = g.getColor();
@@ -1282,62 +1282,62 @@ public class Waveform extends JComponent implements SignalListener
                g.setColor(prev_color);
            }
         }
-    
+
         if (!is_min_size && grid != null)
             grid.paint(g, d, this, wm);
     }
-  
+
     //Send Waveform event routines
     public void sendPasteEvent()
     {
         WaveformEvent we = new WaveformEvent(this, WaveformEvent.COPY_PASTE);
         dispatchWaveformEvent(we);
     }
-  
+
     public void sendCutEvent()
     {
         WaveformEvent we = new WaveformEvent(this, WaveformEvent.COPY_CUT);
         dispatchWaveformEvent(we);
     }
-  
+
     public void sendUpdateEvent()
     {
         if (DEBUG.ON){System.out.println("Waveform.sendUpdateEvent()");}
         double curr_x, curr_y;
         WaveformEvent we;
         Dimension d = getWaveSize();
-    
+
         if (is_image && frames != null && frames.getNumFrame() != 0)
         {
             Point p = frames.getFramePoint(new Point(end_x, end_y), d);
             //int frame_type = frames.getFrameType(frames.GetFrameIdx());
             int frame_type = frames.getFrameType();
-    
+
             we = new WaveformEvent(this, WaveformEvent.POINT_UPDATE,
                                    p.x, p.y,
                                    frames.GetFrameTime(), 0,
                                    frames.getPixel(frames.GetFrameIdx(), p.x, p.y),
                                    0);
-    
+
             if (frame_type == FrameData.BITMAP_IMAGE_32 || frame_type == FrameData.BITMAP_IMAGE_16 || frame_type == FrameData.BITMAP_IMAGE_8 )
                 we.setPointValue(frames.getPointValue(frames.GetFrameIdx(), p.x, p.y));
             we.setFrameType(frame_type);
-    
+
             dispatchWaveformEvent(we);
         }
         else if (waveform_signal != null && wm != null)
         {
             curr_x = wm.XValue(end_x, d);
             curr_y = wm.YValue(end_y, d);
-    
+
             Point p = FindPoint(curr_x, curr_y, first_set_point);
             first_set_point = false;
-    
+
             curr_x = curr_point = wave_point_x;
             curr_y = curr_point_y = wave_point_y;
-    
+
             //System.out.println("Curr point "+curr_point+" on "+getName());
-    
+
             double dx = 0, dy = 0;
             int event_id;
             dx = curr_x - mark_point_x;
@@ -1396,28 +1396,28 @@ public class Waveform extends JComponent implements SignalListener
         dispatchWaveformEvent(we);
       }
     }
-  
+
     private void ImageActions(Graphics g, Dimension d) {
         if (DEBUG.ON){System.out.println("Waveform.ImageActions("+g+", "+d+")");}
       double curr_x, curr_y;
       int plot_y;
-  
+
       if (frames != null && frames.getNumFrame() != 0 &&
           (mode == MODE_POINT || mode == MODE_ZOOM)
           && !not_drawn && !is_min_size
           || (frames != null && send_profile && prev_frame != frame)) {
-  
+
         //if(!is_playing )
         {
-  
+
           if (mode == MODE_POINT) {
             Color prev_color = g.getColor();
             if (crosshair_color != null)
               g.setColor(crosshair_color);
-  
+
             g.drawLine(0, end_y, d.width, end_y);
             g.drawLine(end_x, 0, end_x, d.height);
-  
+
             if (show_measure) {
               g.setColor(Color.green);
               Point mp = frames.getMeasurePoint(d);
@@ -1428,22 +1428,22 @@ public class Waveform extends JComponent implements SignalListener
         }
       }
     }
-  
-  
+
+
     private void SignalActions(Graphics g, Dimension d) {
         if (DEBUG.ON){System.out.println("Waveform.SignalActions("+g+", "+d+")");}
       double curr_x, curr_y;
       int plot_y, plot_x;
-  
+
       if (waveform_signal != null && mode == MODE_POINT
           && !not_drawn && !is_min_size && wm != null) {
-  
+
         curr_x = curr_point;
         curr_y = wm.YValue(end_y, d);
-  
+
         Point p = FindPoint(curr_x, curr_y, first_set_point);
         first_set_point = false;
-  
+
         if (p != null) {
           if(curr_point_y != Double.NaN)
                p.y = wm.YPixel(curr_point_y, d);
@@ -1454,13 +1454,13 @@ public class Waveform extends JComponent implements SignalListener
               g.setColor(crosshair_color);
           g.drawLine(0, p.y, d.width, p.y);
           g.drawLine(p.x, 0, p.x, d.height);
-  
+
           g.setColor(prev_color);
           prev_point_x = p.x;
           prev_point_y = p.y;
         }
       }
-  
+
       if (mode == MODE_PAN && dragging && waveform_signal != null) {
         waveform_signal.Traslate(pan_delta_x, pan_delta_y, wm.x_log, wm.y_log);
         wm = new WaveformMetrics(MaxXSignal(), MinXSignal(), MaxYSignal(),
@@ -1488,11 +1488,11 @@ public class Waveform extends JComponent implements SignalListener
       Insets i = this.getInsets();
       Dimension d = getSize();
       paint(g, d, NO_PRINT);
-      if (mode == MODE_POINT && send_profile) 
+      if (mode == MODE_POINT && send_profile)
           sendProfileEvent();
     }
-  
-  
+
+
     boolean appendPaintFlag = false;
     synchronized public void appendPaint(Graphics g, Dimension d)
     {
@@ -1511,7 +1511,7 @@ public class Waveform extends JComponent implements SignalListener
             }
             else
                 PaintSignal(g, d, NO_PRINT);
-  
+
         }
         else
             PaintImage(g, d, NO_PRINT);
@@ -1524,9 +1524,9 @@ public class Waveform extends JComponent implements SignalListener
         Insets i = this.getInsets();
         setFont(g);
         Dimension dim;
-  
+
         Graphics2D g2D = (Graphics2D) g;
-  
+
         if (   not_drawn
             || prev_width != d.width
             || prev_height != d.height
@@ -1615,12 +1615,12 @@ public class Waveform extends JComponent implements SignalListener
                 g.setColor(reversed ? Color.white : Color.black);
             g.drawRect(curr_rect.x, curr_rect.y, curr_rect.width, curr_rect.height);
         }
-  
+
         if (is_image)
             ImageActions(g, d = getWaveSize());
         else
             SignalActions(g, d = getWaveSize());
-  
+
         if (show_measure && mode == MODE_POINT)
         {
             int mark_px, mark_py;
@@ -1639,14 +1639,14 @@ public class Waveform extends JComponent implements SignalListener
                 mark_px = wm.XPixel(mark_point_x, d);
                 mark_py = wm.YPixel(mark_point_y, d);
             }
-  
+
             g.drawLine(mark_px, 0, mark_px, d.height);
             g.drawLine(0, mark_py, d.width, mark_py);
             g.setColor(c);
         }
         g.translate( -i.right, -i.top);
     }
-  
+
     protected int GetSelectedSignal() {return 0;}
 
     protected Point FindPoint(Signal s, double curr_x, double curr_y,  Dimension d) {
@@ -1656,7 +1656,7 @@ public class Waveform extends JComponent implements SignalListener
       if ( s == null ) {
         return null;
       }
-  
+
       if (s.getType() == Signal.TYPE_2D)
       {
           Point p;
@@ -1697,18 +1697,18 @@ public class Waveform extends JComponent implements SignalListener
             s.getMode1D() != Signal.MODE_STEP || s.findNaN()) {
           double val;
           boolean increase = s.getX(idx) < s.getX(idx + 1);
-  
+
           if (increase) {
             val = s.getX(idx) + s.getX(idx + 1) - s.getX(idx) / 2;
           }
           else {
             val = s.getX(idx + 1) + s.getX(idx) - s.getX(idx + 1) / 2;
-  
+
             //Patch to elaborate strange RFX signal (roprand bar error signal)
           }
           if (s.getX(idx) == s.getX(idx + 1) && !Double.isNaN(s.getY(idx + 1))) {
             val += curr_x;
-  
+
           }
           if (curr_x < val) {
             y = s.getY(idx + (increase ? 0 : 1));
@@ -1742,18 +1742,18 @@ public class Waveform extends JComponent implements SignalListener
            s.getMode1D() != Signal.MODE_STEP || s.findNaN()) {
          double val;
          boolean increase = s.getX(idx) < s.getX(idx + 1);
-  
+
          if (increase) {
            val = s.getX(idx) + (s.getX(idx + 1) - s.getX(idx)) / 2;
          }
          else {
            val = s.getX(idx + 1) + (s.getX(idx) - s.getX(idx + 1)) / 2;
-  
+
            //Patch to elaborate strange RFX signal (roprand bar error signal)
          }
          if (s.getX(idx) == s.getX(idx + 1) && !Double.isNaN(s.getY(idx + 1))) {
            val += curr_x;
-  
+
          }
          if (curr_x < val) {
            y = s.getY(idx + (increase ? 0 : 1));
@@ -1778,31 +1778,31 @@ public class Waveform extends JComponent implements SignalListener
          catch (ArrayIndexOutOfBoundsException e) {
            //System.out.println("Exception on " + getName() + " " + s.getLength() + " " + idx);
          }
-       } 
+       }
      } */
       wave_point_x = x;
       wave_point_y = y;
       return new Point(wm.XPixel(x, d), wm.YPixel(y, d));
     }
-  
+
     protected Point FindPoint(double curr_x, double curr_y, boolean is_first) {
       return FindPoint(waveform_signal, curr_x, curr_y, getWaveSize());
     }
-  
+
     protected Point FindPoint(double curr_x, double curr_y, Dimension d, boolean is_first) {
       return FindPoint(waveform_signal, curr_x, curr_y, d);
     }
-  
-  
+
+
     Rectangle frame_zoom = null;
-  
+
     protected boolean DrawFrame(Graphics g, Dimension d, int frame_idx) {
         if (DEBUG.ON){System.out.println("Waveform.DrawFrame("+g+", "+d+", "+frame_idx+")");}
       wave_error = null;
       Object img;
-  
+
       if (mode == MODE_ZOOM && curr_rect != null) {
-  
+
         Rectangle rect = new Rectangle(start_x, start_y, Math.abs(start_x - end_x),
                                        Math.abs(start_y - end_y));
         frame_idx = frames.GetFrameIdx();
@@ -1810,37 +1810,37 @@ public class Waveform extends JComponent implements SignalListener
         curr_rect = null;
       }
       img = frames.GetFrame(frame_idx, d);
-  
+
       if (img == null) {
         wave_error = " No frame at time " + curr_point;//frames.GetTime(frame_idx);
         return false;
       }
-  
+
       Dimension dim = frames.getFrameSize(frame_idx, getWaveSize());
   //    int type = frames.frame_type[frame_idx];
       int type = frames.getFrameType();
-  
+
       DrawImage(g, img, dim, type);
-  
+
       return true;
-  
+
     }
-  
+
     protected void DrawImage(Graphics g, Object img, Dimension dim, int type) {
         if (DEBUG.ON){System.out.println("Waveform.DrawImage("+g+", "+img+", "+dim+", "+type+")");}
 
       Rectangle r = frames.GetZoomRect();
       Graphics2D g2 = (Graphics2D)g;
       Dimension imgDim = new Dimension(((BufferedImage)img).getWidth(),((BufferedImage)img).getHeight());
-      
-      
+
+
       // Turn on antialiasing.
       g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                           RenderingHints.VALUE_ANTIALIAS_ON);
-  
+
       if ( type != FrameData.JAI_IMAGE )
       {
-          
+
       int dx1;// the x coordinate of the first corner of the destination rectangle.
       int dy1;// the y coordinate of the first corner of the destination rectangle.
       int dx2;// the x coordinate of the second corner of the destination rectangle.
@@ -1849,20 +1849,20 @@ public class Waveform extends JComponent implements SignalListener
       int sy1;// the y coordinate of the first corner of the source rectangle.
       int sx2;// the x coordinate of the second corner of the source rectangle.
       int sy2;// the y coordinate of the second corner of the source rectangle.
-  
-     
+
+
         dx1 = 1;
         dy1 = 1;
         dx2 = dim.width;
         dy2 = dim.height;
-  
+
         sx1 = r == null ? 0 : r.x;
-        sy1 = r == null ? 0 : r.y;          
+        sy1 = r == null ? 0 : r.y;
         sx2 = r == null ? imgDim.width  : r.x + r.width ;
         sy2 = r == null ? imgDim.height : r.y + r.height ;
-  
-      
-        if( frames.getVerticalFlip() && frames.getHorizontalFlip() )  
+
+
+        if( frames.getVerticalFlip() && frames.getHorizontalFlip() )
         {
           dx1 = dim.width;
           dy1 = dim.height;
@@ -1872,13 +1872,13 @@ public class Waveform extends JComponent implements SignalListener
         else
         {
             if( frames.getVerticalFlip() )
-            {              
-  
+            {
+
                   dx1 = dim.width;
                   dy1 = 1;
                   dx2 = 1;
                   dy2 = dim.height;
-                
+
             }
             else
             {
@@ -1887,14 +1887,14 @@ public class Waveform extends JComponent implements SignalListener
                   dx1 = 1;
                   dy1 = dim.height;
                   dx2 = dim.width;
-                  dy2 = 1;                
+                  dy2 = 1;
                 }
             }
         }
-            
+
         //g2.drawImage( (Image) img, 1, 1, dim.width, dim.height, this);
         g2.drawImage( (Image) img, dx1, dy1, dx2, dy2, sx1, sy1, sx2, sy2, this);
-  /*        
+  /*
         if (r == null) {
           g2.drawImage( (Image) img, 1, 1, dim.width, dim.height, this);
         }
@@ -1909,18 +1909,18 @@ public class Waveform extends JComponent implements SignalListener
                       r.x + r.width,
                       r.y + r.height,
                       this);
-   
+
         }
    */
       }
-      else 
+      else
       {
         g2.clearRect(0, 0, dim.width, dim.height);
         g2.drawRenderedImage( (RenderedImage) img, new AffineTransform(1f, 0f, 0f, 1f, 0F, 0F));
       }
     }
-  
-  
+
+
     protected void drawSignalContour(Signal s, Graphics g, Dimension d)
     {
         if (DEBUG.ON){System.out.println("Waveform.drawSignalContour("+s+", "+g+", "+d+")");}
@@ -1929,7 +1929,7 @@ public class Waveform extends JComponent implements SignalListener
       int numLevel = cs.size();
       Vector<Vector<Point2D.Double>> cOnLevel;
       float level;
-  
+
       for (int l = 0; l < numLevel; l++)
       {
         cOnLevel = cs.elementAt(l);
@@ -1939,16 +1939,16 @@ public class Waveform extends JComponent implements SignalListener
         zMin = zMax = z[0];
         for(int i = 0; i < z.length; i++)
         {
-            if(z[i] < zMin) 
+            if(z[i] < zMin)
                 zMin = z[i];
-            if(z[i] > zMax) 
+            if(z[i] > zMax)
                 zMax = z[i];
         }
         g.setColor(colorMap.getColor(level, zMin, zMax));
         drawContourLevel(cOnLevel, g, d);
       }
     }
-  
+
     public void drawContourLevel(Vector<Vector<Point2D.Double>> cOnLevel, Graphics g, Dimension d)
     {
         if (DEBUG.ON){System.out.println("Waveform.drawContourLevel("+cOnLevel+", "+g+", "+d+")");}
@@ -1969,17 +1969,17 @@ public class Waveform extends JComponent implements SignalListener
         g.drawPolyline(cx, cy, c.size());
       }
     }
-  
+
     protected void drawSignal(Graphics g)
     {
       drawSignal(g, getWaveSize(), NO_PRINT);
     }
-  
+
     protected void drawSignal(Graphics g, Dimension d, int print_mode) {
       drawSignal(waveform_signal, g, d);
     }
-  
-  
+
+
     protected void drawSignal(Signal s, Graphics g, Dimension d)
     {
         if (DEBUG.ON){System.out.println("Waveform.drawSignal("+s+", "+g+", "+d+")");}
@@ -2002,39 +2002,31 @@ public class Waveform extends JComponent implements SignalListener
                   }
                   return;
           }
-  
+
       }
       drawWave(s, g, d);
       drawMarkers(s, g, d);
       drawError(s, g, d);
     }
-  
+
     void drawWave(Signal s, Graphics g, Dimension d)
     {
         if (DEBUG.ON){System.out.println("Waveform.drawWave("+s+", "+g+", "+d+")");}
       Vector<Polygon> segments = wm.ToPolygons(s, d, appendDrawMode);
       Polygon curr_polygon;
-  
+
       if (s.getColor() != null)
-      {
-        g.setColor(s.getColor());
-      }
+          g.setColor(s.getColor());
       else
-      {
-        g.setColor(colors[s.getColorIdx() % colors.length]);
-  
-      }
+          g.setColor(colors[s.getColorIdx() % colors.length]);
       for (int k = 0; k < segments.size(); k++)
       {
         curr_polygon = segments.elementAt(k);
         if (s.getInterpolate())
-        {
-          g.drawPolyline(curr_polygon.xpoints, curr_polygon.ypoints,
-                         curr_polygon.npoints);
-        }
+          g.drawPolyline(curr_polygon.xpoints, curr_polygon.ypoints, curr_polygon.npoints);
       }
     }
-  
+
     protected void drawMarkers(Signal s, Graphics g, Dimension d)
     {
         if (DEBUG.ON){System.out.println("Waveform.drawMarkers("+s+", "+g+", "+d+")");}
@@ -2044,7 +2036,7 @@ public class Waveform extends JComponent implements SignalListener
         drawMarkers(g, segments, s.getMarker(), s.getMarkerStep(), s.getMode1D());
       }
     }
-  
+
     public void setFixedLimits(float xmin, float xmax, float ymin, float ymax)
     {
         if (DEBUG.ON){System.out.println("Waveform.setFixedLimits("+xmin+", "+xmax+", "+ymin+", "+ymax+")");}
@@ -2054,8 +2046,8 @@ public class Waveform extends JComponent implements SignalListener
         ly_min = ymin;
         setFixedLimits();
     }
-  
-  
+
+
       public void setFixedLimits() {
         if (DEBUG.ON){System.out.println("Waveform.setFixedLimits()");}
           try {
@@ -2064,7 +2056,7 @@ public class Waveform extends JComponent implements SignalListener
           setYlimits(ly_min, ly_max);
       change_limits = true;
     }
-  
+
     public void setXlimits(float xmin, float xmax)
     {
         if (DEBUG.ON){System.out.println("Waveform.setXlimits("+xmin+", "+xmax+")");}
@@ -2073,7 +2065,7 @@ public class Waveform extends JComponent implements SignalListener
                 waveform_signal.setXLimits(xmin, xmax, Signal.SIMPLE);
             }catch(Exception exc){System.err.println(exc);}
     }
-  
+
     public void setYlimits(float ymin, float ymax)
     {
         if (DEBUG.ON){System.out.println("Waveform.setYlimits("+ymin+", "+ymax+")");}
@@ -2088,7 +2080,7 @@ public class Waveform extends JComponent implements SignalListener
             return 0.;
         return waveform_signal.getXmin();
     }
-  
+
     protected double MaxXSignal()
     {
         if (DEBUG.ON){System.out.println("Waveform.MaxXSignal()");}
@@ -2096,7 +2088,7 @@ public class Waveform extends JComponent implements SignalListener
             return 1.;
         return waveform_signal.getXmax();
     }
-  
+
     protected double MinYSignal()
     {
         if (DEBUG.ON){System.out.println("Waveform.MinYSignal()");}
@@ -2173,7 +2165,7 @@ public class Waveform extends JComponent implements SignalListener
         Polygon currPolygon;
         int pntX[];
         int pntY[];
-      
+
         for (int k = 0; k < segments.size(); k++)
         {
             currPolygon = segments.elementAt(k);
@@ -2236,14 +2228,14 @@ public class Waveform extends JComponent implements SignalListener
                 else
                     low = wm.YPixel(sig.getY(i) - low_error[i], d);
                 x = wm.XPixel(sig.getX(i), d);
-    
+
                 g.drawLine(x, up, x, low);
                 g.drawLine(x - 2, up, x + 2, up);
                 g.drawLine(x - 2, low, x + 2, low);
             }catch(Exception exc){}
         }
     }
-  
+
     public void UpdatePoint(double curr_x) {UpdatePoint(curr_x, Double.NaN);}
 
     public synchronized void UpdatePoint(double curr_x, double curr_y)
@@ -2251,17 +2243,17 @@ public class Waveform extends JComponent implements SignalListener
         if (DEBUG.ON){System.out.println("Waveform.UpdatePoint("+curr_x+", "+curr_y+")");}
         Dimension d = getWaveSize();
         Insets i = getInsets();
-    
+
         if (curr_x == curr_point && !dragging)
             return;
         curr_point = curr_x;
         curr_point_y = curr_y;
-    
+
         if (!is_image)
         {
             if (mode != MODE_POINT || waveform_signal == null)
                 return;
-            
+
             if(waveform_signal.getType() == Signal.TYPE_2D &&
             waveform_signal.getMode2D() ==  Signal.MODE_YZ)
             {
@@ -2279,21 +2271,18 @@ public class Waveform extends JComponent implements SignalListener
               sendProfileEvent();
         }
     }
-  
+
     protected void NotifyZoom(double start_xs,double end_xs,double start_ys,double end_ys,int timestamp)
     {
         if (DEBUG.ON){System.out.println("Waveform.NotifyZoom("+start_xs+", "+end_xs+", "+start_ys+", "+end_ys+", "+timestamp+")");}
     }
-  
+
     protected void ReportLimits(ZoomRegion r, boolean add_undo)
     {
         if (DEBUG.ON){System.out.println("Waveform.ReportLimits("+r+", "+add_undo+")");}
         if (add_undo)
         {
-            ZoomRegion r_prev = new ZoomRegion(waveform_signal.getXmin(),
-                                               waveform_signal.getXmax(),
-                                               waveform_signal.getYmax(),
-                                               waveform_signal.getYmin());
+            ZoomRegion r_prev = new ZoomRegion(waveform_signal.getXmin(),waveform_signal.getXmax(),waveform_signal.getYmax(),waveform_signal.getYmin());
             undo_zoom.addElement(r_prev);
         }
         else
@@ -2310,7 +2299,7 @@ public class Waveform extends JComponent implements SignalListener
         change_limits = true;
         if(add_undo) waveform_signal.freeze();
     }
-  
+
     public void Autoscale()
     {
         if (DEBUG.ON){System.out.println("Waveform.Autoscale()");}
@@ -2350,26 +2339,26 @@ public class Waveform extends JComponent implements SignalListener
         waveform_signal.setXLimits(w.waveform_signal.getXmin(), w.waveform_signal.getXmax(), Signal.SIMPLE);
         ReportChanges();
     }
-  
+
     public void SetYScale(Waveform w) {
       double ymin, ymax;
-  
+
       if (waveform_signal == null)
           return;
       waveform_signal.setYmin(w.waveform_signal.getYmin(), Signal.SIMPLE);
       waveform_signal.setYmax(w.waveform_signal.getYmax(), Signal.SIMPLE);
       ReportChanges();
     }
-  
+
     public void SetXScaleAutoY(Waveform w) {
-  
+
       if (waveform_signal == null)
           return;
       waveform_signal.setXLimits(w.waveform_signal.getXmin(), w.waveform_signal.getXmax(), Signal.SIMPLE);
       waveform_signal.AutoscaleY();
       ReportChanges();
     }
-  
+
     public void ResetScales() {
       if (waveform_signal == null) {
         return;
@@ -2379,17 +2368,17 @@ public class Waveform extends JComponent implements SignalListener
       waveform_signal.unfreeze();
       ReportChanges();
     }
-  
+
     protected void Resize(int x, int y, boolean enlarge) {
         if (DEBUG.ON){System.out.println("Waveform.Resize("+x+", "+y+", "+enlarge+")");}
         Dimension d = getWaveSize();
         double curr_x = wm.XValue(x, d), curr_y = wm.YValue(y, d);
         double new_xmax, new_xmin, new_ymax, new_ymin;
         double factor = enlarge ? .5 : 2.;
-        new_xmax = curr_x + (wm.XMax() - curr_x) * factor;
         new_xmin = curr_x - (curr_x - wm.XMin()) * factor;
-        new_ymax = curr_y + (wm.YMax() - curr_y) * factor;
+        new_xmax = curr_x + (wm.XMax() - curr_x) * factor;
         new_ymin = curr_y - (curr_y - wm.YMin()) * factor;
+        new_ymax = curr_y + (wm.YMax() - curr_y) * factor;
         ReportLimits(new ZoomRegion(new_xmin, new_xmax, new_ymax, new_ymin), true);
         not_drawn = true;
     }
@@ -2412,7 +2401,7 @@ public class Waveform extends JComponent implements SignalListener
 
     public String GetTitle(){return title;}
     public void SetTitle(String title){this.title = title;}
-    public String GetXLabel(){return x_label;} 
+    public String GetXLabel(){return x_label;}
     public void SetXLabel(String x_label){this.x_label = x_label;}
     public String GetYLabel(){return y_label;}
     public void SetYLabel(String y_label){this.y_label = y_label;}
@@ -2439,7 +2428,7 @@ public class Waveform extends JComponent implements SignalListener
     }
 
     public boolean IsImage(){return is_image;};
-    public boolean IsSelected(){return is_select;}  
+    public boolean IsSelected(){return is_select;}
 
     public boolean IsCopySelected(){return copy_selected;}
     public void SetCopySelected(boolean selec)
@@ -2449,7 +2438,7 @@ public class Waveform extends JComponent implements SignalListener
       repaint();
     }
 
-    public boolean ShowMeasure(){return show_measure;};   
+    public boolean ShowMeasure(){return show_measure;};
     public void SetShowMeasure(boolean state){show_measure = state;}
     public Image GetImage(){return off_image;}
     public void SetFrames(Frames frames){this.frames = frames;}
@@ -2513,7 +2502,7 @@ public class Waveform extends JComponent implements SignalListener
       for (int i = 0; i < waveform_listener.size(); i++)
           waveform_listener.elementAt(i).processWaveformEvent(e);
     }
-  
+
     class SymContainer
         extends java.awt.event.ContainerAdapter {
       public void componentAdded(java.awt.event.ContainerEvent event) {

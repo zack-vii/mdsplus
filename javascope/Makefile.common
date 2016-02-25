@@ -65,7 +65,7 @@ COMMON_SRC = \
 	jScope/WaveformMetrics.java           jScope/WaveInterface.java           jScope/WavePopup.java             \
         jScope/XYData.java		      jScope/XYWaveData.java		  jScope/WaveDataListener.java
 
-WAVEDISPLAY_SRC = 
+WAVEDISPLAY_SRC =
 
 JSCOPE_SRC = \
 	jScope.java \

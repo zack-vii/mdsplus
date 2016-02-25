@@ -58,9 +58,9 @@ Interface  DataProvider</H2>
 
 <P>
 The DataProvider interface is used by jScope to deal with signals, regardless their origin.
- DataProvider defines a set of method for providing the signal and supporting several features 
+ DataProvider defines a set of method for providing the signal and supporting several features
  which may be enabled or disabled depending on the current implementation of the DataProvider
- interface. Signals are not directly returned by DataProvider access methods as vectors (as it was done 
+ interface. Signals are not directly returned by DataProvider access methods as vectors (as it was done
  in earlier jScope versions). Rather DataProvider GetWaveData method returns an implementation of
  WaveData. Interface WaveData defines the methods for collecting signal data.
 <P>
@@ -142,7 +142,7 @@ The DataProvider interface is used by jScope to deal with signals, regardless th
 <TD><CODE><B><A HREF="DataProvider.html#DataPending()">DataPending</A></B>()</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Method DataPending is called by jScope to verify whether the current signal has been fully 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Method DataPending is called by jScope to verify whether the current signal has been fully
  displayed. </TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
@@ -159,7 +159,7 @@ The DataProvider interface is used by jScope to deal with signals, regardless th
 <TD><CODE><B><A HREF="DataProvider.html#ErrorString()">ErrorString</A></B>()</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;If an error is encountered in the evaluation of a signal (GetWaveData or 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;If an error is encountered in the evaluation of a signal (GetWaveData or
  GetResampledWaveData returning null or generation IOException), jScope calls ErrorString
  method to retrieve the description of the error just occurred.</TD>
 </TR>
@@ -169,7 +169,7 @@ The DataProvider interface is used by jScope to deal with signals, regardless th
 <TD><CODE><B><A HREF="DataProvider.html#GetFloat(java.lang.String)">GetFloat</A></B>(java.lang.String&nbsp;in)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Method GetFloat is called by jScope to evaluate x min, x max, y min, y max when defined 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Method GetFloat is called by jScope to evaluate x min, x max, y min, y max when defined
  in the stup data source popup form. </TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
@@ -205,7 +205,7 @@ The DataProvider interface is used by jScope to deal with signals, regardless th
                      int&nbsp;n_points)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Same as the GetResampledWaveData, except that it is called when both X and Y axis are 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Same as the GetResampledWaveData, except that it is called when both X and Y axis are
  specified.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
@@ -241,7 +241,7 @@ The DataProvider interface is used by jScope to deal with signals, regardless th
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Method GetWaveData is called by jScope when a waveform has to be avaluated and both X and
- Y axis are defined. 
+ Y axis are defined.
  </TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
@@ -269,7 +269,7 @@ The DataProvider interface is used by jScope to deal with signals, regardless th
                           java.lang.String&nbsp;event)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Method RemoveUpdateEventListeneris called by jScope when the display of a waveform panel is 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Method RemoveUpdateEventListeneris called by jScope when the display of a waveform panel is
  no more triggered by an event.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
@@ -278,8 +278,8 @@ The DataProvider interface is used by jScope to deal with signals, regardless th
 <TD><CODE><B><A HREF="DataProvider.html#SetArgument(java.lang.String)">SetArgument</A></B>(java.lang.String&nbsp;arg)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;As DataProvider implementations are instantiated by jScope by means of the 
- Class.newInstance(), no arguments can be passed to the constructor method. 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;As DataProvider implementations are instantiated by jScope by means of the
+ Class.newInstance(), no arguments can be passed to the constructor method.
  </TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
@@ -305,7 +305,7 @@ The DataProvider interface is used by jScope to deal with signals, regardless th
 <TD><CODE><B><A HREF="DataProvider.html#SupportsCompression()">SupportsCompression</A></B>()</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns tre if the DataProvider impementation supports data compression in communication. 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns tre if the DataProvider impementation supports data compression in communication.
  jScope does not make any assumption about compression, simply provides the user interface for enablin
  or disabling compression, by means Network->Enable compression option. </TD>
 </TR>
@@ -334,7 +334,7 @@ The DataProvider interface is used by jScope to deal with signals, regardless th
        int&nbsp;s)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Method Update is called by jScope to notify the experiment name and the shot number. 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Method Update is called by jScope to notify the experiment name and the shot number.
  </TD>
 </TR>
 </TABLE>
@@ -396,8 +396,8 @@ public void <B>SetEnvironment</B>(java.lang.String&nbsp;exp)
 <DD>Defines the environment for data retrieval.
  Depending on the nature of the provider of data, some environment variable may be defined.
  For example the MdsDataProvider allows the definition of TDI variables which may be useful
- for configuring remote data access. 
- jScope allows the definition of an arbitrary set of environment variable using the 
+ for configuring remote data access.
+ jScope allows the definition of an arbitrary set of environment variable using the
  customize->public variables... option. As jScope does not make any assumption on the
  syntax of the defined variables, each variable definition is passed to the Data provider
  by means of the SetEnvironment method, whose argument is a String which defines <name value>
@@ -413,7 +413,7 @@ Update</H3>
 public void <B>Update</B>(java.lang.String&nbsp;exp,
                    int&nbsp;s)</PRE>
 <DL>
-<DD>Method Update is called by jScope to notify the experiment name and the shot number. 
+<DD>Method Update is called by jScope to notify the experiment name and the shot number.
  Update can be called several time by jScope dfor the same DataProvider implementation
  in the case user changes either the experiment name or the shot number.<DD><DL>
 <DT><B>Parameters:</B><DD><CODE>exp</CODE> - The experiment name<DD><CODE>s</CODE> - The shot number.</DL>
@@ -442,7 +442,7 @@ GetFloat</H3>
 public float <B>GetFloat</B>(java.lang.String&nbsp;in)
                throws java.io.IOException</PRE>
 <DL>
-<DD>Method GetFloat is called by jScope to evaluate x min, x max, y min, y max when defined 
+<DD>Method GetFloat is called by jScope to evaluate x min, x max, y min, y max when defined
  in the stup data source popup form. The argument is in fact the string typed by the user in
  the form.
  In its simplest implementation, method GetFloat converts the string into a float value and
@@ -463,9 +463,9 @@ public <A HREF="WaveData.html">WaveData</A> <B>GetWaveData</B>(java.lang.String&
  to the data provider implementation to retrieve X and Y axis.
  The evaluated signal is not directly treturned as a vector, rather as a object implementing
  the WaveData interface. The WaveData interface defines the following methods:
- 
+
  <br>- int GetNumDimensions() returns the number of dimensions. Currently only signals (dimension=1)
- 		are supported. 
+ 		are supported.
  <br>- float[] GetFloatData() returns the Y axis of the signal as a float array. For bidimensional
  	signals (not yet supported) the array is organized in row order;
  <br>- float[] GetXData() returns the X axis of the signal;
@@ -474,7 +474,7 @@ public <A HREF="WaveData.html">WaveData</A> <B>GetWaveData</B>(java.lang.String&
  <br>- String GetXLabel()   returns the associated X label(if no X label is defined in the setup data popup dialog);
  <br>- String GetYLabel()   returns the associated Y label(if no Y label is defined in the setup data popup dialog);
  <br>- String GetZLabel()   returns the associated Z label(if no Z label is defined in the setup data popup dialog);<DD><DL>
-<DT><B>Parameters:</B><DD><CODE>in</CODE> - The specification of the signal, typed in the Y axis field of the setup data source 
+<DT><B>Parameters:</B><DD><CODE>in</CODE> - The specification of the signal, typed in the Y axis field of the setup data source
  popup form, or in the lower right window of jScope.<DT><B>Returns:</B><DD>The evaluated signal, embedded in a WaveData object, or null if an error is encountered.<DT><B>See Also: </B><DD><A HREF="WaveData.html"><CODE>WaveData</CODE></A></DL>
 </DD>
 </DL>
@@ -487,7 +487,7 @@ public <A HREF="WaveData.html">WaveData</A> <B>GetWaveData</B>(java.lang.String&
                             java.lang.String&nbsp;in_x)</PRE>
 <DL>
 <DD>Method GetWaveData is called by jScope when a waveform has to be avaluated and both X and
- Y axis are defined. 
+ Y axis are defined.
  The evaluated signal is not directly treturned as a vector, rather as a object implementing
  the WaveData interface. jScope the uses the returned object to retieve X and Y axis.<DD><DL>
 <DT><B>Parameters:</B><DD><CODE>in_y</CODE> - Y axis specification as typed in the setup data source popupo dialog.<DD><CODE>in_x</CODE> - X axis specification as typed in the setup data source popupo dialog.<DT><B>Returns:</B><DD>The evaluated signal, embedded in a WaveData object, or null if an error is encountered.<DT><B>See Also: </B><DD><A HREF="WaveData.html"><CODE>WaveData</CODE></A></DL>
@@ -526,7 +526,7 @@ public <A HREF="WaveData.html">WaveData</A> <B>GetResampledWaveData</B>(java.lan
                                      float&nbsp;end,
                                      int&nbsp;n_points)</PRE>
 <DL>
-<DD>Same as the GetResampledWaveData, except that it is called when both X and Y axis are 
+<DD>Same as the GetResampledWaveData, except that it is called when both X and Y axis are
  specified.<DD><DL>
 <DT><B>Parameters:</B><DD><CODE>in_y</CODE> - Y axis definition for the requested signal.<DD><CODE>in_x</CODE> - X axis definition for the requested signal.<DD><CODE>start</CODE> - Start X value.<DD><CODE>end</CODE> - End X value.<DD><CODE>n_points</CODE> - Number of points for the resampling.<DT><B>Returns:</B><DD>The evaluated signal, embedded in a WaveData object, or null if an error is encountered.<DT><B>See Also: </B><DD><A HREF="WaveData.html"><CODE>WaveData</CODE></A></DL>
 </DD>
@@ -554,7 +554,7 @@ ErrorString</H3>
 <PRE>
 public java.lang.String <B>ErrorString</B>()</PRE>
 <DL>
-<DD>If an error is encountered in the evaluation of a signal (GetWaveData or 
+<DD>If an error is encountered in the evaluation of a signal (GetWaveData or
  GetResampledWaveData returning null or generation IOException), jScope calls ErrorString
  method to retrieve the description of the error just occurred.<DD><DL>
 <DT><B>Returns:</B><DD>A verbose description of the last error.</DL>
@@ -571,10 +571,10 @@ public void <B>AddUpdateEventListener</B>(<A HREF="UpdateEventListener.html">Upd
 <DL>
 <DD>Method AddUpdateEventListener is called by jScope when asynchronous update on event is
  defined. To connect data visualization to asynchronous event an event name has to be defined
- in the Update event field of the setup data form popup dialog. 
+ in the Update event field of the setup data form popup dialog.
  DataProvider implementations supporting aynchronous signal updating should
  notify event occurrence to all registered listeners by calling method processUpdateEvent(UpdateEvent e).
- UpdateEvent defines the following field, in addition to those defined in the AWTEvent 
+ UpdateEvent defines the following field, in addition to those defined in the AWTEvent
  superclass:
  <br>- String name: the name of the event
  <br>
@@ -582,16 +582,16 @@ public void <B>AddUpdateEventListener</B>(<A HREF="UpdateEventListener.html">Upd
  is used during data acquisition, for an atomatic display update when a signal has been
  acquired. In this case the data acquisition system would generate an event when the
  signal has been acquired, and the DataProvider implementation would call method
- processUpdateEvent (defined in UpdateEventListener inetrafce) to request the display update to 
+ processUpdateEvent (defined in UpdateEventListener inetrafce) to request the display update to
  jScope.
  <br>
- If the DataProvider implementation does not support asynchronous events, the method is defined 
+ If the DataProvider implementation does not support asynchronous events, the method is defined
  empty.
  <br>
- NOTE: asynchronous update on event is not required for displaying evolving signals 
+ NOTE: asynchronous update on event is not required for displaying evolving signals
  such as trend recording. See the description of methods SupportsContinuous() and
  DataPending() for the management of evolving signals.<DD><DL>
-<DT><B>Parameters:</B><DD><CODE>l</CODE> - The passed instance of UpdateEventListener.<DD><CODE>event</CODE> - The name of the event for which the UpdateEventListener is registering.<DT><B>Throws:</B><DD><CODE>java.io.IOException</CODE> - &nbsp;<DT><B>See Also: </B><DD><A HREF="UpdateEventListener.html"><CODE>UpdateEventListener</CODE></A>, 
+<DT><B>Parameters:</B><DD><CODE>l</CODE> - The passed instance of UpdateEventListener.<DD><CODE>event</CODE> - The name of the event for which the UpdateEventListener is registering.<DT><B>Throws:</B><DD><CODE>java.io.IOException</CODE> - &nbsp;<DT><B>See Also: </B><DD><A HREF="UpdateEventListener.html"><CODE>UpdateEventListener</CODE></A>,
 <A HREF="UpdateEvent.html"><CODE>UpdateEvent</CODE></A></DL>
 </DD>
 </DL>
@@ -604,7 +604,7 @@ public void <B>RemoveUpdateEventListener</B>(<A HREF="UpdateEventListener.html">
                                       java.lang.String&nbsp;event)
                                throws java.io.IOException</PRE>
 <DL>
-<DD>Method RemoveUpdateEventListeneris called by jScope when the display of a waveform panel is 
+<DD>Method RemoveUpdateEventListeneris called by jScope when the display of a waveform panel is
  no more triggered by an event.<DD><DL>
 <DT><B>Parameters:</B><DD><CODE>l</CODE> - The instance of UpdateEventListener proeviously registered.<DD><CODE>event</CODE> - The event to which the listener was previously registered.<DT><B>Throws:</B><DD><CODE>java.io.IOException</CODE> - &nbsp;<DT><B>See Also: </B><DD><A HREF="UpdateEventListener.html"><CODE>UpdateEventListener</CODE></A></DL>
 </DD>
@@ -625,16 +625,16 @@ public <A HREF="FrameData.html">FrameData</A> <B>GetFrameData</B>(java.lang.Stri
  The methods defined in the FrameData interface are the following:
  <br>- int GetFrameType() returning the type of the corresponding frames, as returned by GetFrameAt, which can be:
  <br>	-FramesData.BITMAP if the frames are returned by method GetFrameAt as a byte matrix
- <br>	-FrameData.AWT_IMAGE   if the frames are returned by method GetFrameAt as the 
+ <br>	-FrameData.AWT_IMAGE   if the frames are returned by method GetFrameAt as the
  <br>	content of a gif or jpg file
- <br>	-FrameData.JAI_IMAGE  if the frames are returned by method GetFrameAt as the content of 
+ <br>	-FrameData.JAI_IMAGE  if the frames are returned by method GetFrameAt as the content of
  	every other file format supported by JAI.
- 
+
  <br>- int GetNumFrames() returning the number of frames in the sequence
  <br>- Dimension GetFrameDimension() returning the dimension of the single frame
  <br>- float [] GetFrameTimes returning the times associated with each frame
  <br>- byte[] GetFrameAt(int idx) returning the corresponding frame<DD><DL>
-<DT><B>Parameters:</B><DD><CODE>in_frame</CODE> - The frame sequence specification as defined in the frames field of the setup data popup dialog<DD><CODE>start_time</CODE> - Initial considered time for the frame sequence.<DD><CODE>end_time</CODE> - Final considered time for the frame sequence.<DD><CODE>in_times</CODE> - The definition of the time specification for the frame list as defined in the times field 
+<DT><B>Parameters:</B><DD><CODE>in_frame</CODE> - The frame sequence specification as defined in the frames field of the setup data popup dialog<DD><CODE>start_time</CODE> - Initial considered time for the frame sequence.<DD><CODE>end_time</CODE> - Final considered time for the frame sequence.<DD><CODE>in_times</CODE> - The definition of the time specification for the frame list as defined in the times field
  of the setup data popup dialog.<DT><B>Returns:</B><DD>An implementation of the FrameData interface representing the corresponding frame sequence<DT><B>Throws:</B><DD><CODE>java.io.IOException</CODE> - &nbsp;<DT><B>See Also: </B><DD><A HREF="FrameData.html"><CODE>FrameData</CODE></A></DL>
 </DD>
 </DL>
@@ -650,7 +650,7 @@ public boolean <B>SupportsContinuous</B>()</PRE>
  a new set of samples has been acquired. More generally, an arbitrarily evolving signal
  can be diaplayed this way.
  If a DataProvider implentation returns true, a separate thread calls repeadetly methods
- GetWaveData() and DataPending() until the second method returns false. In this case 
+ GetWaveData() and DataPending() until the second method returns false. In this case
  GetWaveData() will wait until a new set of samples is ready and has to be dispalyed by jScope,
  while method DataPending() notifies to jScope whether new data has to be displayed for
  the signal, i.e. whether the signal has not yet finished to be produced.
@@ -670,11 +670,11 @@ DataPending</H3>
 <PRE>
 public boolean <B>DataPending</B>()</PRE>
 <DL>
-<DD>Method DataPending is called by jScope to verify whether the current signal has been fully 
+<DD>Method DataPending is called by jScope to verify whether the current signal has been fully
  displayed. It DataPending returns false, method GetWaveData is alled again to retrieve a new
  version (usually with some more saples) of the signal.
  <br>
- If method SupportsContinuous() returned false, DataPending is never called by jScope, and 
+ If method SupportsContinuous() returned false, DataPending is never called by jScope, and
  can therefore be empty.<DD><DL>
 <DT><B>Returns:</B><DD>Indicates whether the current signal is complete.</DL>
 </DD>
@@ -686,7 +686,7 @@ SupportsCompression</H3>
 <PRE>
 public boolean <B>SupportsCompression</B>()</PRE>
 <DL>
-<DD>Returns tre if the DataProvider impementation supports data compression in communication. 
+<DD>Returns tre if the DataProvider impementation supports data compression in communication.
  jScope does not make any assumption about compression, simply provides the user interface for enablin
  or disabling compression, by means Network->Enable compression option. If compression
  is not supported by the DataProvider implementation, the Network->Enable option id disabled.<DD><DL>
@@ -728,7 +728,7 @@ public void <B>AddConnectionListener</B>(<A HREF="ConnectionListener.html">Conne
  implementation has to handle the transfer of large chuncks of data (e.g. frame sequences)
  requiring a relatively long time, it should be able to communicate the current status of
  the transfer to jScope which displays then a status bar. To do this, the DataProvider
- implementation calls ConnectionListener's method processConnectionEvent, passing an istance of 
+ implementation calls ConnectionListener's method processConnectionEvent, passing an istance of
  ConnectionEvent as argument.
  Class ConnectionEvent defines the following information:
  <br>	- int    total_size: total size of the data to be transferred
@@ -737,7 +737,7 @@ public void <B>AddConnectionListener</B>(<A HREF="ConnectionListener.html">Conne
  <br>
  If the DataProvider implementation does not support transfer notification, method AddConnectionListener
  is empty.<DD><DL>
-<DT><B>Parameters:</B><DD><CODE>l</CODE> - The ConnectionListener which has to be notified by means of method processConnectionEvent(ConnenctionEvent)<DT><B>See Also: </B><DD><A HREF="ConnectionListener.html"><CODE>ConnectionListener</CODE></A>, 
+<DT><B>Parameters:</B><DD><CODE>l</CODE> - The ConnectionListener which has to be notified by means of method processConnectionEvent(ConnenctionEvent)<DT><B>See Also: </B><DD><A HREF="ConnectionListener.html"><CODE>ConnectionListener</CODE></A>,
 <A HREF="ConnectionEvent.html"><CODE>ConnectionEvent</CODE></A></DL>
 </DD>
 </DL>
@@ -748,7 +748,7 @@ RemoveConnectionListener</H3>
 <PRE>
 public void <B>RemoveConnectionListener</B>(<A HREF="ConnectionListener.html">ConnectionListener</A>&nbsp;l)</PRE>
 <DL>
-<DD>Called by jScope when transfer notification is no more requested. Empty if the DataProvider 
+<DD>Called by jScope when transfer notification is no more requested. Empty if the DataProvider
  implementation does not support transfer status notification.<DD><DL>
 <DT><B>Parameters:</B><DD><CODE>l</CODE> - The previously registered ConnectionListener.<DT><B>See Also: </B><DD><A HREF="ConnectionListener.html"><CODE>ConnectionListener</CODE></A></DL>
 </DD>
@@ -762,13 +762,13 @@ public int <B>InquireCredentials</B>(javax.swing.JFrame&nbsp;f,
                               java.lang.String&nbsp;user)</PRE>
 <DL>
 <DD>Some DataProvider implemenations, such as Jet RDA provider, may require additional information
- (e.g. username and password) typed by users in a login form. As jScope does not make any assumption 
+ (e.g. username and password) typed by users in a login form. As jScope does not make any assumption
  on this kind of information it is up to the DataProvider implementation to realize such a form
  (if any). For this reason jScope calls method InquireCredential passingf as argument the container JFrame.
  InquireCredentials may return:
  <br>	-DataProvider.LOGIN_OK if the DataProvider has been succesfully validated
  <br>	-DataProvider.LOGIN_ERROR if the DataProvided did not succeed in validation
- <br>	-DataProvider.LOGIN_CANCEL if the login proess has been aborted by user (usually pressing 
+ <br>	-DataProvider.LOGIN_CANCEL if the login proess has been aborted by user (usually pressing
  <br>	a canel button)
  <br>
  Only in the first case jScope will proceede with the usega of the DataProvider implementation. In the
@@ -784,9 +784,9 @@ SetArgument</H3>
 public void <B>SetArgument</B>(java.lang.String&nbsp;arg)
                  throws java.io.IOException</PRE>
 <DL>
-<DD>As DataProvider implementations are instantiated by jScope by means of the 
- Class.newInstance(), no arguments can be passed to the constructor method. 
- If an additional argument is required fotr the proper initialization of the 
+<DD>As DataProvider implementations are instantiated by jScope by means of the
+ Class.newInstance(), no arguments can be passed to the constructor method.
+ If an additional argument is required fotr the proper initialization of the
  DataProvider implementation (e.g. the ip address for the MdsDataProvider), the argument,
  defined in the server_n.argument item of the property file is passed through method SetArgument
  called by jScope just after the DataProvider instantiation.<DD><DL>

@@ -4,7 +4,7 @@ package jScope;
 import java.io.*;
 import java.util.*;
 
-class JiSlab 
+class JiSlab
 {
 	public int mOffset, mSize;
 	public JiSlab(int offset, int size){

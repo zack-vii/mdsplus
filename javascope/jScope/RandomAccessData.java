@@ -10,7 +10,7 @@ import java.io.*;
 public class RandomAccessData {
    byte buffer[];
    int position = 0;
-      
+
 /**
  * RandomAccessData constructor comment.
  */
@@ -41,8 +41,8 @@ public long getFilePointer() {
  * @param size int
  */
 public void readFully(byte data[]) {
-    
-    
+
+
     int len = data.length;
     for(int i = 0; i < data.length; i++)
         data[i] = buffer[position+i];
@@ -101,7 +101,7 @@ public void seek(long pos) throws java.io.IOException {
  * Creation date: (15/10/99 17:16:08)
  * @param amount int
  */
-public void skipBytes(int amount) 
+public void skipBytes(int amount)
 {
     position += amount;
 }

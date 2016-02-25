@@ -60,7 +60,7 @@ public final class DEBUG
             {
                 s = ", ";
                 for(int w = 0; w < width && i<0x10000; w++)
-                {   
+                {
                     for(int b = 0; b < byteblock && i<0x10000; b++)
                     {
                        StringBuilder sb = new StringBuilder();
@@ -90,7 +90,7 @@ public final class DEBUG
             {
                 s = ", ";
                 for(int w = 0; w < width && i<0x10000; w++)
-                {   
+                {
                     for(int b = 0; b < byteblock && i<0x10000; b++)
                     {
                        StringBuilder sb = new StringBuilder();

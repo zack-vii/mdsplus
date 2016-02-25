@@ -1,24 +1,24 @@
 package jScope;
 
 /* $Id$ */
-import java.net.*; 
+import java.net.*;
 import java.io.*;
 import java.util.*;
 import javax.swing.JOptionPane;
 
 public class MdsPlusBrowseSignals extends jScopeBrowseSignals
-{   
+{
     static final long serialVersionUID = 8643838486846L;
     String path;
     String shot;
     String tree;
     String server_url;
-    
+
     protected String getSignal(String url_name)
     {
         String sig_path = null, curr_line;
         try
-        {            
+        {
             if(url_name != null)
             {
                 String name;
@@ -38,22 +38,22 @@ public class MdsPlusBrowseSignals extends jScopeBrowseSignals
                     name =  st.nextToken("=").substring(1);
                     value = st.nextToken("&").substring(1);
                     pr.put(name, value);
-                    
+
                     tree = pr.getProperty("experiment");
                     shot = pr.getProperty("shot");
                     sig_path = pr.getProperty("path");
-                    
+
                 }
             }
-        } 
+        }
         catch (Exception exc)
         {
             sig_path = null;
         }
-        
+
         return sig_path;
     }
-    
+
     protected String getTree(){return tree;}
     protected String getShot(){return shot;}
     protected String getServerAddr(){return server_url;}

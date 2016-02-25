@@ -236,9 +236,9 @@ class TwuWaveData
     {
         return mainSignal.getTWUProperties(shotOfThisData) ;
     }
-    
+
             //GAB JULY 2014 NEW WAVEDATA INTERFACE RAFFAZZONATA
-        
+
          public XYData getData(double xmin, double xmax, int numPoints) throws Exception
          {
              double x[] = GetXDoubleData();
@@ -255,7 +255,7 @@ class TwuWaveData
     public float[] getZ(){System.out.println("BADABUM!!"); return null;}
     public double[] getX2D(){System.out.println("BADABUM!!"); return null;}
     public long[] getX2DLong(){System.out.println("BADABUM!!"); return null;}
-    public float[] getY2D(){System.out.println("BADABUM!!"); return null;} 
+    public float[] getY2D(){System.out.println("BADABUM!!"); return null;}
     public double[] getXLimits(){System.out.println("BADABUM!!"); return null;}
     public long []getXLong(){System.out.println("BADABUM!!"); return null;}
     public boolean isXLong(){return false;}

@@ -31,7 +31,7 @@ public class WaveInterface
     public String experiment;
     public int in_grid_mode;
     public int height;
-    
+
     public boolean isContinuousUpdate = false;
 
     public String in_shot;
@@ -328,7 +328,7 @@ public class WaveInterface
         return modified;
     }
 
-    
+
     public void SetLegendPosition(double x, double y)
     {
         if (DEBUG.ON){System.out.println("WaveInterface.SetLegendPosition("+x+", "+y+")");}
@@ -476,13 +476,13 @@ public class WaveInterface
         if (DEBUG.ON){System.out.println("WaveInterface.getFrames()");}
         return frames;
     }
-    
+
     public void setFrames(Frames f)
     {
         if (DEBUG.ON){System.out.println("WaveInterface.setFrames("+frames+")");}
         frames = f;
     }
-    
+
     public void AddFrames(String frames)
     {
         if (DEBUG.ON){System.out.println("WaveInterface.AddFrames(\""+frames+"\")");}
@@ -1184,22 +1184,22 @@ public class WaveInterface
         return curr_shots;
     }
 
-    
+
     static String processShotExpression(String shotExpr, String exp)
     {
         if (DEBUG.ON){System.out.println("WaveInterface.processShotExpression(\""+shotExpr+"\", "+exp+"\")");}
         String outStr = "";
         int idx = 0;
         int prevIdx = 0;
-        
+
         shotExpr = shotExpr.trim();
-        
+
         if( exp == null || exp.length() == 0 )
             return shotExpr;
-             
+
         while( (idx = shotExpr.indexOf('0', prevIdx) ) != -1 )
         {
-            
+
             if( ( idx > 0 && Character.isLetterOrDigit( shotExpr.charAt( idx - 1 )) ) ||
                 ( idx < ( shotExpr.length() - 1 ) && Character.isLetterOrDigit( shotExpr.charAt( idx + 1 )) ) )
             {
@@ -1209,7 +1209,7 @@ public class WaveInterface
             {
                 outStr += shotExpr.substring(prevIdx, idx) + "current_shot(\""+exp+"\")";
             }
-            prevIdx = idx + 1;                
+            prevIdx = idx + 1;
         }
         if( outStr.length() == 0 )
             return shotExpr;
@@ -1217,7 +1217,7 @@ public class WaveInterface
             outStr += ( prevIdx < shotExpr.length() ? shotExpr.substring(prevIdx, shotExpr.length()) :"" );
         return outStr;
     }
-    
+
     static public long[] GetShotArray(String in_shots, String exp, DataProvider dp) throws IOException
     {
         if (DEBUG.ON){System.out.println("WaveInterface.GetShotArray(\""+in_shots+"\", "+exp+"\", "+dp+")");}
@@ -1286,7 +1286,7 @@ public class WaveInterface
 
                 out_signal.setXLimits(xmin, xmax,
                                        Signal.AT_CREATION | Signal.FIXED_LIMIT);
- 
+
                 if (in_ymax != null && (in_ymax.trim()).length() != 0 &&
                     in_upd_limits)
                     out_signal.setYmax(ymax,
@@ -1314,7 +1314,7 @@ public class WaveInterface
         WaveData up_err = null, low_err = null;
         WaveData wd = null;
         WaveData xwd = null;
-        
+
         int xDimension = 1;
         int yDimension = 1;
         Signal out_signal;
@@ -1330,22 +1330,22 @@ public class WaveInterface
             error = dp.ErrorString();
             return null;
         }
-        
+
         if( in_def_node != null && in_def_node.length() > 0 )
         {
             dp.SetEnvironment("__default_node = " + in_def_node);
-        } 
-        else 
+        }
+        else
         {
             dp.SetEnvironment("__default_node = " + experiment + "::TOP");
         }
-            
+
         if (dp.ErrorString() != null)
         {
             error = dp.ErrorString();
             return null;
         }
-     
+
         try
         {
             wd = dp.GetWaveData(in_y[curr_wave]);
@@ -1357,7 +1357,7 @@ public class WaveInterface
         {
             yDimension = 1;
         }
-        
+
         if (in_x[curr_wave] != null && (in_x[curr_wave].trim()).length() > 0)
         {
  //         dimension = 1;
@@ -1376,17 +1376,17 @@ public class WaveInterface
             {
                 curr_error = dp.ErrorString();
                 return null;
-            }       
+            }
 */
         }
-        
- 
+
+
         if (dp.ErrorString() != null)
         {
             curr_error = dp.ErrorString();
             return null;
         }
-        
+
         if ( xDimension > 2 || yDimension > 2 )
         {
             curr_error = "Can't display signal with more than two X or Y Dimensions ";
@@ -1422,7 +1422,7 @@ public class WaveInterface
         {
             if (wd == null)
                 wd = dp.GetWaveData(in_y[curr_wave]);
-/*            
+/*
             if (yDimension > 1)
             {
                 if (wd == null)
@@ -1435,7 +1435,7 @@ public class WaveInterface
                     wd = dp.GetWaveData(in_y[curr_wave]);
                 }
             }
-*/ 
+*/
             if (yDimension == 1)
             {
                 if (in_up_err != null &&
@@ -1464,13 +1464,13 @@ public class WaveInterface
             out_signal = new Signal(wd, xwd, xmin, xmax, low_err, up_err);
         else
             out_signal = new Signal(wd, xwd, xmin, xmax);
-            
-        
+
+
         if(yDimension > 1)
             out_signal.setMode2D(mode2D[curr_wave]);
         else
             out_signal.setMode1D(mode1D[curr_wave]);
- 
+
         if (wd != null)
             title = wd.GetTitle();
 

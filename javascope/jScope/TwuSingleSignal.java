@@ -5,7 +5,7 @@ package jScope;
 // A support class of "TwuDataProvider".
 //
 // $Id$
-// 
+//
 // -------------------------------------------------------------------------------------------------
 
 import jScope.TWUProperties;
@@ -66,36 +66,36 @@ public class TwuSingleSignal
     // Access to our DataProvider should only be necessary to access its
     // event connection methods.
 
-    private void 
-    DispatchConnectionEvent(ConnectionEvent e) 
+    private void
+    DispatchConnectionEvent(ConnectionEvent e)
     {
         if (provider != null)
           provider.DispatchConnectionEvent(e);
     }
-    
-    private ConnectionEvent 
-    makeConnectionEvent(String info, int total_size, int current_size) 
+
+    private ConnectionEvent
+    makeConnectionEvent(String info, int total_size, int current_size)
     {
         return
-            new ConnectionEvent( (provider != null)?provider:(Object)this, 
+            new ConnectionEvent( (provider != null)?provider:(Object)this,
                                  info, total_size, current_size) ;
     }
 
-    private ConnectionEvent 
-    makeConnectionEvent(String info ) 
+    private ConnectionEvent
+    makeConnectionEvent(String info )
     {
         return
-            new ConnectionEvent( (provider != null)?provider:(Object)this, 
+            new ConnectionEvent( (provider != null)?provider:(Object)this,
                                  info) ;
     }
 
-    private void 
+    private void
     setErrorString(String errmsg)
     {
         if (provider != null)
           provider.setErrorstring(errmsg);
     }
-    
+
 
 
     //-----------------------------------------------------------------------------
@@ -106,7 +106,7 @@ public class TwuSingleSignal
         return properties ;
     }
 
-    public TWUProperties  
+    public TWUProperties
     getTWUProperties(long requestedShot)
         throws IOException
     {
@@ -140,8 +140,8 @@ public class TwuSingleSignal
     // if (and when) it is needed. it's less likely to do redundant work than
     // if I'd get the properties in the constructor.
 
-    private void 
-    fetchProperties() 
+    private void
+    fetchProperties()
         throws Exception
     {
         try
@@ -164,8 +164,8 @@ public class TwuSingleSignal
         checkForError() ;
     }
 
-    private void 
-    fetch_X_Properties() 
+    private void
+    fetch_X_Properties()
         throws Exception
     {
         checkForError( mainSignal ) ;
@@ -185,21 +185,21 @@ public class TwuSingleSignal
         fetch_my_Properties (mypropsurl, "X");
     }
 
-    private void 
-    fetch_Y_Properties() 
+    private void
+    fetch_Y_Properties()
         throws Exception
     {
         if (source == null)
           throwError ("No input signal set !");
 
-        String propsurl = 
+        String propsurl =
             TwuNameServices.GetSignalPath (source, shotOfTheProperties);
 
         fetch_my_Properties (propsurl, "Y");
     }
 
-    private void 
-    fetch_my_Properties(String propsurl, String XorY ) 
+    private void
+    fetch_my_Properties(String propsurl, String XorY )
         throws Exception
     {
         DispatchConnectionEvent ( makeConnectionEvent ("Load Properties", 0, 0));
@@ -213,7 +213,7 @@ public class TwuSingleSignal
         }
     }
 
-    private void 
+    private void
     fake_my_Properties()
     {
         int len = mainSignal.getTWUProperties().LengthTotal() ;
@@ -323,13 +323,13 @@ public class TwuSingleSignal
         ce = makeConnectionEvent("Start Loading "+ (isAbscissa ? "X" : "Y"));
         DispatchConnectionEvent(ce);
 
-        TWUSignal bulk = new TWUSignal (properties, 
+        TWUSignal bulk = new TWUSignal (properties,
                                         opt.getStart(), opt.getStep(), opt.getTotal());
 
         return SimplifiedGetFloats(bulk, opt.getTotal());
     }
 
-    private float [] 
+    private float []
     SimplifiedGetFloats(final TWUSignal bulk, final int n_point)
     {
         ConnectionEvent ce;
@@ -337,21 +337,21 @@ public class TwuSingleSignal
         DispatchConnectionEvent(ce);
 
         int inc = Waveform.MAX_POINTS!=0 ? n_point/Waveform.MAX_POINTS : 0;
-        if (inc<10) 
+        if (inc<10)
           inc=10;
 
         while( !bulk.complete() && !bulk.error() )
         {
             bulk.tryToRead(inc);
 
-            ce = makeConnectionEvent((isAbscissa ? "X:" : "Y:"), 
+            ce = makeConnectionEvent((isAbscissa ? "X:" : "Y:"),
                                      n_point, bulk.getActualSampleCount());
             DispatchConnectionEvent(ce);
-                
-            Thread.yield () ; 
+
+            Thread.yield () ;
             // give the graphics thread a chance to update the user interface (the status bar) ...
         }
-        if (bulk.error()) 
+        if (bulk.error())
           setErrorString("Error reading Bulk Data");
 
         DispatchConnectionEvent(makeConnectionEvent(null, 0, 0));
@@ -360,7 +360,7 @@ public class TwuSingleSignal
 
     //-----------------------------------------------------------------------------
 
-    private void 
+    private void
     createScalarData()
     {
         // an extra check to see if it really is a scalar
@@ -384,8 +384,8 @@ public class TwuSingleSignal
         data = null ; // 'triggers' display of the error_string.
     }
 
-    public String 
-    ScalarToTitle(long requestedShot) 
+    public String
+    ScalarToTitle(long requestedShot)
         throws Exception
     {
         TWUProperties props = getTWUProperties(requestedShot);
@@ -435,9 +435,9 @@ public class TwuSingleSignal
     }
 
     protected static void
-    handleException (Exception e) 
+    handleException (Exception e)
     {
-        if (Waveform.is_debug) 
+        if (Waveform.is_debug)
           e.printStackTrace (System.out) ;
 
         // this method exists only to improve consistency.
@@ -507,7 +507,7 @@ public class TwuSingleSignal
 
             int newstep = (int) Math.ceil (step / ((float)maxpts)) ;
             if (newstep < 1)
-              newstep = 1 ;        
+              newstep = 1 ;
 
 
             data = null ;
@@ -530,7 +530,7 @@ public class TwuSingleSignal
     {
         if (subsetData==null)
           return 0;
-        
+
         final int len=subsetData.length;
 
         if (len<2)
@@ -555,7 +555,7 @@ public class TwuSingleSignal
 
         return ix;
     }
-    
+
     // ---------------------------------------------------------------------------------------------
 }
 

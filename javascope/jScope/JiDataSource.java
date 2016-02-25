@@ -7,7 +7,7 @@ import java.util.*;
 /**
  * Interface for reading scientific data sets
  * Looks a lot like netCDF
- */ 
+ */
 
 public interface JiDataSource {
 	/**

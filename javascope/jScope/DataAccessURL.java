@@ -4,11 +4,11 @@ package jScope;
 import java.util.Vector;
 import java.io.IOException;
 
-class DataAccessURL  
+class DataAccessURL
 {
-    
+
     static Vector<DataAccess> dataAccessVector = new Vector<DataAccess>();
-        
+
     static public void addProtocol(DataAccess dataAccess)
     {
         dataAccessVector.addElement(dataAccess);
@@ -23,11 +23,11 @@ class DataAccessURL
     {
         return getSignal(url, null, passwd);
     }
-    
+
     static public DataAccess getDataAccess(String url) throws IOException
     {
         DataAccess da = null;
-        
+
         for(int i = 0 ; i < dataAccessVector.size(); da = null, i++)
         {
             da = dataAccessVector.elementAt(i);
@@ -35,30 +35,30 @@ class DataAccessURL
                 break;
         }
         if(da == null)
-            throw(new IOException("Protocol not recognized"));       
+            throw(new IOException("Protocol not recognized"));
         return da;
     }
-    
+
     static public Signal getSignal(String url, String name, String passwd) throws IOException
     {
         DataAccess da = null;
-        
+
         if((da = getDataAccess(url)) != null)
         {
             da.setPassword(passwd);
             Signal s = da.getSignal(url);
             if(s == null && da.getError() == null)
                 throw(new IOException("Incorrect password or read signal error"));
-            
+
             if(da.getError() == null)
             {
                 if(name == null)
                     name = s.getName();
-                    
+
                 if(name == null)
                     name = da.getSignalName()+" "+da.getShot();
                 else
-                    name = name+" "+da.getShot();                
+                    name = name+" "+da.getShot();
                 s.setName(name);
                 return s;
             }
@@ -68,7 +68,7 @@ class DataAccessURL
             }
         }
         return null;
-    }    
+    }
 
     static public void getImages(String url, Frames f) throws Exception
     {
@@ -83,17 +83,17 @@ class DataAccessURL
     static public void getImages(String url, String name, String passwd, Frames f) throws Exception
     {
         DataAccess da = null;
-        
+
         if((da = getDataAccess(url)) != null || f == null)
         {
             da.setPassword(passwd);
             FrameData fd = da.getFrameData(url);
             if(fd == null && da.getError() == null)
                 throw(new IOException("Incorrect password or read images error"));
-            
+
             f.SetFrameData(fd);
             f.setName(da.getSignalName());
-            
+
             if(da.getError() != null)
             {
                 throw(new IOException(da.getError()));
@@ -102,8 +102,8 @@ class DataAccessURL
         else
             throw(new IOException("Protocol not recognized"));
     }
-    
-    
+
+
     static public void close()
     {
         DataAccess da = null;

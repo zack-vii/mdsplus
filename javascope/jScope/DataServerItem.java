@@ -21,7 +21,7 @@ public class DataServerItem
         this.name = name;
         this.argument = argument;
         this.user = user;
-        this.class_name = class_name; 
+        this.class_name = class_name;
         this.browse_class = browse_class;
         this.browse_url = browse_url;
         this.fast_network_access = fast_network_access;
@@ -32,8 +32,8 @@ public class DataServerItem
     public boolean equals(DataServerItem dsi)
     {
         try{return name.equals(dsi.name);
-                         //&& 
-                         // argument.equals(dsi.argument) && 
+                         //&&
+                         // argument.equals(dsi.argument) &&
                          // class_name.equals(dsi.class_name) &&
                          // browse_class.equals(dsi.browse_class);
         }catch (Exception exc){return false;}

@@ -37,8 +37,7 @@ public class WaveformEditor extends Waveform
 
     public void setWaveform(float[] x, float[] y, float minY, float maxY)
     {
-        Signal sig = new Signal(x, y, x.length, x[0], x[x.length - 1], minY,
-                                maxY);
+        Signal sig = new Signal(x, y, x.length, x[0], x[x.length - 1], minY, maxY);
         sig.setMarker(1);
         currentX = new float[x.length];
         currentY = new float[y.length];
@@ -82,8 +81,7 @@ public class WaveformEditor extends Waveform
                     (ke.getKeyCode() == KeyEvent.VK_V))
                 {
                     if (copyX == null)return;
-                    Signal sig = new Signal(copyX, copyY, copyX.length, copyX[0],
-                                            copyX[copyX.length - 1], minY, maxY);
+                    Signal sig = new Signal(copyX, copyY, copyX.length, copyX[0], copyX[copyX.length - 1], minY, maxY);
                     sig.setMarker(1);
                     currentX = new float[copyX.length];
                     currentY = new float[copyY.length];
@@ -196,10 +194,7 @@ public class WaveformEditor extends Waveform
                         currentY = newCurrentY;
                         newIdx = prevIdx + 1;
                     }
-                    Signal newSig = new Signal(currentX, currentY,
-                                               currentX.length, currentX[0],
-                                               currentX[currentX.length - 1],
-                                               minY, maxY);
+                    Signal newSig = new Signal(currentX, currentY, currentX.length, currentX[0], currentX[currentX.length - 1], minY, maxY);
                     newSig.setMarker(1);
                     Update(newSig);
                     notifyUpdate(currentX, currentY, newIdx);

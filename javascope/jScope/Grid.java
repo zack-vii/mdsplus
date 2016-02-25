@@ -60,44 +60,44 @@ public class Grid
         this.reversed = reversed;
     }
 
-    
+
     static public double evalStep(double min, double max, int numStep)
     {
         double step = 0;
-        
+
         double delta = Math.abs(max - min);
         int pow = (int) Math.log10(delta) - 1;
-        
+
         double k = Math.pow(10, pow);
-        
+
         int n1 = (int) ( delta / ( 2.  * k) );
         int n2 = (int) ( delta / ( 5.  * k)  );
         int n3 = (int) ( delta / ( 10. * k)  );
-        
+
         return ( 2. * k );
-        
+
     }
-    
-    private int BuildGridNew(double val[], int mode, 
+
+    private int BuildGridNew(double val[], int mode,
                           double xmax, double ymax,
-                          double xmin, double ymin, 
+                          double xmin, double ymin,
                           boolean xlog, boolean ylog)
     {
         if (ymax < ymin)
             ymax = ymin + 1E-10;
         if (xmax < xmin)
             xmax = xmin + 1E-10;
-        
+
         double step, curr, curr_max, curr_min,
                xrange = xmax - xmin,
                yrange = ymax - ymin;
-        
+
         boolean greater = false;
         boolean is_log;
         int grid_step;
         int count = 0, i, num_steps, rem_step = 1;
         Float f;
-        
+
         if (xrange <= 0)
             xrange = 1E-3;
         if (yrange <= 0)
@@ -109,9 +109,9 @@ public class Grid
             curr_max = xmax + 0.1 * xrange;
             curr_min = xmin - 0.1 * xrange;
             step = (xmax - xmin) / grid_step;
-            
+
             step = evalStep(xmin, xmax,  grid_step);
-            
+
             is_log = xlog;
         }
         else
@@ -141,7 +141,7 @@ public class Grid
                 count++;
             }
         }
-        
+
         step = (double) ( (int) step);
         num_steps = (int) step;
 
@@ -151,14 +151,14 @@ public class Grid
         else
             for (i = 0; i < count; i++)
                 step /= 10;
-        
+
         curr = (long) (curr_min / step) * step;
         if (curr > curr_min)
             curr -= (long) ( (curr - curr_min) / step) * step;
 
         while (curr >= curr_min)
             curr -= step;
-        
+
         for (i = 0; i < 50 && curr < curr_max + step; i++)
         {
             val[i] = (long) (curr / step + 0.5) * step;
@@ -182,32 +182,32 @@ public class Grid
         return i;
     }
 
-    
-    
-    
-    
-    
-    
-    private int BuildGrid(double val[], int mode, 
+
+
+
+
+
+
+    private int BuildGrid(double val[], int mode,
                           double xmax, double ymax,
-                          double xmin, double ymin, 
+                          double xmin, double ymin,
                           boolean xlog, boolean ylog)
     {
         if (ymax <= ymin)
             ymax = ymin + 1E-10;
         if (xmax <= xmin)
             xmax = xmin + 1E-10;
-        
+
         double step, curr, curr_max, curr_min,
                xrange = xmax - xmin,
                yrange = ymax - ymin;
-        
+
         boolean greater = false;
         boolean is_log;
         int grid_step;
         int count = 0, i, num_steps, rem_step = 1;
         Float f;
-        
+
         if (xrange <= 0)
             xrange = 1E-3;
         if (yrange <= 0)

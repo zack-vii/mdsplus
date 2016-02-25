@@ -18,7 +18,7 @@ public class MdsConnection
         static public String DEFAULT_USER = "JAVA_USER";
         static final  int    MAX_NUM_EVENTS = 256;
 
-                
+
         protected String provider;
         protected String user;
         protected String host;
@@ -113,7 +113,7 @@ public class MdsConnection
 	            {
          	        curr_message = new MdsMessage("", MdsConnection.this.connection_listener);
 	                curr_message.Receive(dis);
-                        
+
 	                if(curr_message.dtype == Descriptor.DTYPE_EVENT)
 	                {
                             PMET PMdsEvent = new PMET();
@@ -137,7 +137,7 @@ public class MdsConnection
 	        catch(Exception e)
 	        {
                 synchronized(this)
-                {		    
+                {		
                     killed = true;
                     notifyAll();
                 }
@@ -285,7 +285,7 @@ public class MdsConnection
                 break;
             case Descriptor.DTYPE_USHORT:
                     out.int_data = message.ToUShortArray();
-                    out.dtype = Descriptor.DTYPE_LONG;                      
+                    out.dtype = Descriptor.DTYPE_LONG;
                 break;
             case Descriptor.DTYPE_SHORT:
                    out.short_data = message.ToShortArray();
@@ -325,9 +325,9 @@ public class MdsConnection
         int n_args = args.size();
         byte idx = 0, totalarg = (byte)(n_args+1);
         Descriptor out;
-               
+
         try{
-            if(expr.indexOf("($") == -1) //If no $ args specified, build argument list 
+            if(expr.indexOf("($") == -1) //If no $ args specified, build argument list
             {
                 if(n_args > 0)
                 {
@@ -427,9 +427,9 @@ public class MdsConnection
         dis = new BufferedInputStream(sock.getInputStream());
         //dis = new DataInputStream(new BufferedInputStream(sock.getInputStream()));
         dos = new DataOutputStream(new BufferedOutputStream(sock.getOutputStream()));
-    }        
-    
-    
+    }
+
+
     public synchronized int ConnectToMds(boolean use_compression)
     {
 	    try
@@ -557,7 +557,7 @@ public class MdsConnection
 
     }
 
-    
+
     public synchronized void MdsSetEvent(UpdateEventListener l, String event)
     {
          int eventid;
@@ -571,11 +571,11 @@ public class MdsConnection
             sendArg((byte)1, Descriptor.DTYPE_CSTRING,
                          (byte)3, null, event.getBytes());
 
-            
+
             byte data[] = {(byte)(eventid)};
 
             sendArg((byte)2, Descriptor.DTYPE_UBYTE, (byte)3, null, data);
-                        
+
        } catch(IOException e) {error = new String("Could not get IO for "+provider + e);}
     }
 
@@ -623,8 +623,8 @@ public class MdsConnection
                 connection_listener.elementAt(i).processConnectionEvent(e);
             }
         }
-        
+
     }
-   
+
   }
 

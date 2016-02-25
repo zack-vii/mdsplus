@@ -5,7 +5,7 @@ package jScope;
 import java.io.*;
 import java.util.*;
 
-public interface JiVar 
+public interface JiVar
 {
 	public static final int Byte = 1;
 	public static final int Char = 2;
@@ -45,17 +45,17 @@ public interface JiVar
 	public int getType();
 	public String getTypeString();
 	public Object read(JiDim[] dim)
-	  throws IOException;  
+	  throws IOException;
 	public byte[] readByte(JiDim[] dim)
-	  throws IOException;  
+	  throws IOException;
 	public char[] readChar(JiDim[] dim)
-	  throws IOException;  
+	  throws IOException;
 	public double[] readDouble(JiDim[] dim)
-	  throws IOException;  
+	  throws IOException;
 	public float[] readFloat(JiDim[] dim)
-	  throws IOException;  
+	  throws IOException;
 	public int[] readInt(JiDim[] dim)
-	  throws IOException;  
+	  throws IOException;
 	public short[] readShort(JiDim[] dim)
-	  throws IOException;  
+	  throws IOException;
 }

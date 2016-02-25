@@ -1081,18 +1081,18 @@ Fix bug : shot expression must be always evaluated.
                     prop = pr.getProperty(prompt + ".bitShift");
                     if (prop != null)
                         colorMap.bitShift = Integer.parseInt(prop);
-                    
+
                     prop = pr.getProperty(prompt + ".bitClip");
                     if (prop != null)
                         colorMap.bitClip = new Boolean(prop).booleanValue();
                 }
                 catch(Exception exc)
                 {
-                    colorMap.bitShift = 0;    
-                    colorMap.bitClip = false;    
+                    colorMap.bitShift = 0;
+                    colorMap.bitClip = false;
                 }
             }
-            
+
             cexperiment = pr.getProperty(prompt + ".experiment");
 
             cin_shot = pr.getProperty(prompt + ".shot");
@@ -1376,7 +1376,7 @@ Fix bug : shot expression must be always evaluated.
         catch (Exception e)
         {}
     }
-    
+
     public void setExperiment(String experiment)
     {
         super.setExperiment(experiment);

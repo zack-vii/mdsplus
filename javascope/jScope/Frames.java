@@ -287,7 +287,7 @@ class Frames extends Canvas
             recentFrames.put(new Integer(idx), new FrameDescriptor(fDesc.buffer, fDesc.image, img, updateCount));
             return img;
         }
-        
+
         private void doBitShift(BufferedImage bi, FrameDescriptor fDesc) throws Exception
         {
             doBitShift(bi, fDesc.buffer);
@@ -526,7 +526,7 @@ class Frames extends Canvas
             values = cache.getValuesAt(idx);
             img = cache.getImageAt(idx);
         }catch(Exception exc){return null;}
-        
+
         if(img_w == -1 && img_h == -1)
         {
             img_width = img_w = img.getWidth(this);
@@ -538,7 +538,7 @@ class Frames extends Canvas
         for(int j = y; j < y+img_h; j++)
            for(int i = x; i < x+img_w; i++)
                values_array[k++] = values[j * img_width + i];
-        
+
         return values_array;
     }
 
@@ -575,15 +575,15 @@ class Frames extends Canvas
         Point p = new Point();
 
         p.x = x;
-        p.y = y;        
+        p.y = y;
         if(this.horizontal_flip)
-            p.y = this.img_height - y - 1; 
+            p.y = this.img_height - y - 1;
         if(this.vertical_flip)
-            p.x = this.img_width - x - 1; 
+            p.x = this.img_width - x - 1;
         return p;
     }
-    
-    
+
+
     public int getPixel(int idx, int x, int y)
     {
         if (DEBUG.ON){System.out.println("Frames.getPixel("+idx+", "+x+", "+y+")");}
@@ -592,9 +592,9 @@ class Frames extends Canvas
         //curr_grab_frame = idx;
         byte[] imgBuf = cache.getBufferAt(idx);
 
-         
+
         Point p = getImageBufferPoint(x,y);
-        
+
         if(imgBuf != null)
             return (int)imgBuf[(p.y * img_width) + p.x];
         return -1;
@@ -608,9 +608,9 @@ class Frames extends Canvas
 
         //curr_grab_frame = idx;
         values_array = cache.getValuesAt(idx);
- 
+
         Point p = getImageBufferPoint(x,y);
- 
+
         return values_array[(p.y * img_width) + p.x];
     }
 
@@ -646,10 +646,10 @@ class Frames extends Canvas
             pixels_line = new int[2];
             p = getImageBufferPoint(st_x,st_y);
             pixels_line[0] = pixels_line[1] = pixel_array[(p.y * img_width) + p.x];
-           
+
             return pixels_line;
         }
-        
+
         pixels_line = new int[n_point];
 
         for(int i = 0; i < n_point; i++)
@@ -669,8 +669,8 @@ class Frames extends Canvas
         int n_point = (int) (Math.sqrt( Math.pow((double)(st_x - end_x), 2.0) + Math.pow((double)(st_y - end_y), 2.0)) + 0.5);
         int e_x, s_x, x, y;
         //float values_line[] = {values_array[(st_y * img_width) + st_x], values_array[(st_y * img_width) + st_x]};
-        float values_line[]; 
-            
+        float values_line[];
+
         grabFrame();
         if(n_point < 2)
         {
@@ -679,7 +679,7 @@ class Frames extends Canvas
             values_line[0] = values_line[1] = values_array[(p.y * img_width) + p.x];
             return values_line;
         }
-        
+
         values_line = new float[n_point];
 
         for(int i = 0; i < n_point; i++)
@@ -775,7 +775,7 @@ class Frames extends Canvas
            pixels_y = new int[end - st];
            for(int i = st, j = 0; i < end; i++, j++)
            {
-              p = getImageBufferPoint(x,i);               
+              p = getImageBufferPoint(x,i);
               //pixels_y[j] = pixel_array[(i * img_width) + x];
               pixels_y[j] = pixel_array[(p.y * img_width) + p.x];
            }
@@ -805,7 +805,7 @@ class Frames extends Canvas
            values_y = new float[end - st];
            for(int i = st, j = 0; i < end; i++, j++)
            {
-              p = getImageBufferPoint(x,i);               
+              p = getImageBufferPoint(x,i);
               //values_y[j] = values_array[(i * img_width) + x];
               values_y[j] = values_array[(p.y * img_width) + p.x];
            }

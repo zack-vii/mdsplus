@@ -365,7 +365,7 @@ public class CompositeWaveDisplay extends JApplet implements WaveContainerListen
     }
     public static CompositeWaveDisplay createWindow(String title)
     {
-    	return createWindow(title, false);
+        return createWindow(title, false);
     }
 
     public static CompositeWaveDisplay createWindow(String title, boolean enableLiveUpdate)
@@ -394,8 +394,8 @@ public class CompositeWaveDisplay extends JApplet implements WaveContainerListen
 
         CompositeWaveDisplay cwd = new CompositeWaveDisplay(false);
         cwd.init();
-	if(enableLiveUpdate)
-	    cwd.enableLiveUpdate();
+    if(enableLiveUpdate)
+        cwd.enableLiveUpdate();
         f.getContentPane().add(cwd);
         return cwd;
     }
@@ -465,30 +465,30 @@ public class CompositeWaveDisplay extends JApplet implements WaveContainerListen
 
         JRadioButton point = new JRadioButton("Point", false);
         point.addItemListener(new ItemListener ()
-		    {
-		       public void itemStateChanged(ItemEvent e)
-		       {
-		           wave_container.SetMode(Waveform.MODE_POINT);
-		       }
-		    });
+            {
+               public void itemStateChanged(ItemEvent e)
+               {
+                   wave_container.SetMode(Waveform.MODE_POINT);
+               }
+            });
 
         JRadioButton zoom  = new JRadioButton("Zoom", true);
         zoom.addItemListener(new ItemListener ()
-		    {
-		       public void itemStateChanged(ItemEvent e)
-		       {
-		           wave_container.SetMode(Waveform.MODE_ZOOM);
-		       }
-		    });
+            {
+               public void itemStateChanged(ItemEvent e)
+               {
+                   wave_container.SetMode(Waveform.MODE_ZOOM);
+               }
+            });
 
         JRadioButton pan  = new JRadioButton("Pan", false);
         pan.addItemListener(new ItemListener ()
-		    {
-		       public void itemStateChanged(ItemEvent e)
-		       {
-		           wave_container.SetMode(Waveform.MODE_PAN);
-		       }
-		    });
+            {
+               public void itemStateChanged(ItemEvent e)
+               {
+                   wave_container.SetMode(Waveform.MODE_PAN);
+               }
+            });
 
         liveUpdate = new JCheckBox("Live Update", false);
         liveUpdate.addChangeListener(new ChangeListener ()
@@ -498,8 +498,8 @@ public class CompositeWaveDisplay extends JApplet implements WaveContainerListen
                 setLiveUpdate(liveUpdate.isSelected(), false);
             }
         });
-	//liveUpdate.setSelected(false);
-	liveUpdate.setVisible(false);
+    //liveUpdate.setSelected(false);
+    liveUpdate.setVisible(false);
 
 
         pointer_mode = new ButtonGroup();
@@ -574,7 +574,7 @@ public class CompositeWaveDisplay extends JApplet implements WaveContainerListen
 
     public void enableLiveUpdate()
     {
-     	liveUpdate.setVisible(true);
+        liveUpdate.setVisible(true);
     }
 
     private int currentMode = Waveform.MODE_ZOOM;
@@ -589,10 +589,10 @@ public class CompositeWaveDisplay extends JApplet implements WaveContainerListen
             liveUpdate.setSelected(state);
             return;
         }
-	if(wave_container.GetMode() != Waveform.MODE_WAIT)
-	{
-	    currentMode = wave_container.GetMode();
-	}
+    if(wave_container.GetMode() != Waveform.MODE_WAIT)
+    {
+        currentMode = wave_container.GetMode();
+    }
         if( state )
         {
 
@@ -721,17 +721,17 @@ public class CompositeWaveDisplay extends JApplet implements WaveContainerListen
         {
             if(e instanceof  AccessControlException)
             {
-		        JOptionPane.showMessageDialog(this,
-		                                        e.toString()+"\n url "+url +
-		                                        "\nUse policytool.exe in  JDK or JRE installation directory to add socket access permission\n",
-		                                        "alert",
-		                                        JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this,
+                                                e.toString()+"\n url "+url +
+                                                "\nUse policytool.exe in  JDK or JRE installation directory to add socket access permission\n",
+                                                "alert",
+                                                JOptionPane.ERROR_MESSAGE);
             } else {
-		        JOptionPane.showMessageDialog(this,
-		                                        e.toString()+" url "+url,
-		                                        "alert",
-		                                        JOptionPane.ERROR_MESSAGE);
-		    }
+                JOptionPane.showMessageDialog(this,
+                                                e.toString()+" url "+url,
+                                                "alert",
+                                                JOptionPane.ERROR_MESSAGE);
+            }
         }
     }
 
@@ -761,16 +761,16 @@ public class CompositeWaveDisplay extends JApplet implements WaveContainerListen
     public void processWaveContainerEvent(WaveContainerEvent e)
     {
         String s = null;
-	    int event_id = e.getID();
+        int event_id = e.getID();
 
-	    switch(event_id)
-	    {
-	        case WaveContainerEvent.WAVEFORM_EVENT:
+        switch(event_id)
+        {
+            case WaveContainerEvent.WAVEFORM_EVENT:
 
-	            WaveformEvent we = (WaveformEvent)e.we;
-	            Waveform w = (Waveform)we.getSource();
+                WaveformEvent we = (WaveformEvent)e.we;
+                Waveform w = (Waveform)we.getSource();
 
-	            s = we.toString();
+                s = we.toString();
                 if(w instanceof MultiWaveform)
                 {
                     MultiWaveform mw = (MultiWaveform)w;
@@ -782,8 +782,8 @@ public class CompositeWaveDisplay extends JApplet implements WaveContainerListen
                     showStatus(s);
                 else
                     point_pos.setText(s);
-	        break;
-	    }
+            break;
+        }
     }
 
 
@@ -802,14 +802,12 @@ public class CompositeWaveDisplay extends JApplet implements WaveContainerListen
      * @param marker Marker point
      */
 
-    public void addSignal(float [] x, float [] y,int row, int column,
-        String color, String label, boolean inter, int marker)
+    public void addSignal(float [] x, float [] y,int row, int column, String color, String label, boolean inter, int marker)
     {
         addSignal(new Signal(x, y), row, column, color, label, inter, marker);
     }
 
-    public void addSignal(double [] x, float [] y,int row, int column,
-        String color, String label, boolean inter, int marker)
+    public void addSignal(double [] x, float [] y,int row, int column, String color, String label, boolean inter, int marker)
     {
         addSignal(new Signal(x, y), row, column, color, label, inter, marker);
     }
@@ -819,17 +817,17 @@ public class CompositeWaveDisplay extends JApplet implements WaveContainerListen
     {
 
         if(color != null)
-	    {
-	        if(color.equals("Automatic"))
-	        {
-		        automatic_color = true;
-	        }
-	        else
-	        {
-		        automatic_color = false;
-		        sig.setColorIdx(Waveform.ColorNameToIndex(color));
-	        }
-	    }
+        {
+            if(color.equals("Automatic"))
+            {
+                automatic_color = true;
+            }
+            else
+            {
+                automatic_color = false;
+                sig.setColorIdx(Waveform.ColorNameToIndex(color));
+            }
+        }
         if(label != null && label.length() != 0)
             sig.setName(label);
 
@@ -865,14 +863,14 @@ public class CompositeWaveDisplay extends JApplet implements WaveContainerListen
                 wi.in_ymin = ""+ymin;
                 try
                 {
-	                wi.StartEvaluate();
-	                wi.setLimits();
+                    wi.StartEvaluate();
+                    wi.setLimits();
                 } catch(Exception e){}
             }
             w.Update();
         }
     }
-	
+    
   private String getExpression(String paramString, boolean infoFlag) throws IOException
   {
     StringTokenizer st = new StringTokenizer(paramString, "/");
@@ -978,9 +976,9 @@ public class CompositeWaveDisplay extends JApplet implements WaveContainerListen
     return str1;
   }
 
-  
-  
-  
+
+
+
     public void addFrames(String url, int row, int column)
     {
         Component c = null;
@@ -1008,13 +1006,13 @@ public class CompositeWaveDisplay extends JApplet implements WaveContainerListen
                 {
                     if( w.IsImage() || (w.GetSignals() != null && w.GetSignals().size() != 0))
                     {
-		                JOptionPane.showMessageDialog(this,
-		                                            "The selected waveform panel contains signals or frame.\n" +
-		                                            "\nDefine a new waveform panel to show frame image from "+
-		                                            da.getDataProvider().getClass().getName() +
-		                                            " data provider.",
-		                                            "alert",
-		                                            JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(this,
+                                                    "The selected waveform panel contains signals or frame.\n" +
+                                                    "\nDefine a new waveform panel to show frame image from "+
+                                                    da.getDataProvider().getClass().getName() +
+                                                    " data provider.",
+                                                    "alert",
+                                                    JOptionPane.ERROR_MESSAGE);
                         return;
                     }
 
@@ -1024,14 +1022,14 @@ public class CompositeWaveDisplay extends JApplet implements WaveContainerListen
                 {
                     if(!wi.getDataProvider().getClass().getName().equals(da.getDataProvider().getClass().getName()))
                     {
-		                JOptionPane.showMessageDialog(this,
-		                                            "The selected waveform panel is already connected to " +
-		                                            wi.getDataProvider().getClass().getName() +
-		                                            " data provider.\nDefine a new waveform panel to show frame image from "+
-		                                            da.getDataProvider().getClass().getName() +
-		                                            " data provider.",
-		                                            "alert",
-		                                            JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(this,
+                                                    "The selected waveform panel is already connected to " +
+                                                    wi.getDataProvider().getClass().getName() +
+                                                    " data provider.\nDefine a new waveform panel to show frame image from "+
+                                                    da.getDataProvider().getClass().getName() +
+                                                    " data provider.",
+                                                    "alert",
+                                                    JOptionPane.ERROR_MESSAGE);
                         return;
                     }
                 }
@@ -1050,27 +1048,27 @@ public class CompositeWaveDisplay extends JApplet implements WaveContainerListen
                 wi.AddFrames(da.getSignalName());
                 wi.setShotArray(da.getShot());
 
-	            wi.StartEvaluate();
-		        wi.EvaluateOthers();
-		        if(wi.error != null)
-		            throw(new IOException(wi.error));
-		        w.Update(wi.getFrames());
+                wi.StartEvaluate();
+                wi.EvaluateOthers();
+                if(wi.error != null)
+                    throw(new IOException(wi.error));
+                w.Update(wi.getFrames());
             }
         }
         catch(Exception e)
         {
             if(e instanceof  AccessControlException)
             {
-		        JOptionPane.showMessageDialog(this,
-		                                        e.toString()+"\n url "+url +
-		                                        "\nUse policytool.exe in  JDK or JRE installation directory to add socket access permission\n",
-		                                        "alert",
-		                                        JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this,
+                                                e.toString()+"\n url "+url +
+                                                "\nUse policytool.exe in  JDK or JRE installation directory to add socket access permission\n",
+                                                "alert",
+                                                JOptionPane.ERROR_MESSAGE);
             } else {
-		        JOptionPane.showMessageDialog(this,
-		                                        e.toString(),
-		                                        "alert",
-		                                        JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this,
+                                                e.toString(),
+                                                "alert",
+                                                JOptionPane.ERROR_MESSAGE);
             }
         }
     }
@@ -1105,13 +1103,13 @@ public class CompositeWaveDisplay extends JApplet implements WaveContainerListen
                 {
                     if( w.GetSignals() != null && w.GetSignals().size() != 0)
                     {
-		                JOptionPane.showMessageDialog(this,
-		                                            "In the selected waveform panel there are raw signals.\n" +
-		                                            "\nDefine a new waveform panel to show signals from "+
-		                                            da.getDataProvider().getClass().getName() +
-		                                            " data provider.",
-		                                            "alert",
-		                                            JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(this,
+                                                    "In the selected waveform panel there are raw signals.\n" +
+                                                    "\nDefine a new waveform panel to show signals from "+
+                                                    da.getDataProvider().getClass().getName() +
+                                                    " data provider.",
+                                                    "alert",
+                                                    JOptionPane.ERROR_MESSAGE);
                         return;
                     }
 
@@ -1122,14 +1120,14 @@ public class CompositeWaveDisplay extends JApplet implements WaveContainerListen
                 {
                     if(!wi.getDataProvider().getClass().getName().equals(da.getDataProvider().getClass().getName()))
                     {
-		                JOptionPane.showMessageDialog(this,
-		                                            "The selected waveform panel is already connected to " +
-		                                            wi.getDataProvider().getClass().getName() +
-		                                            " data provider.\nDefine a new waveform panel to show signals from "+
-		                                            da.getDataProvider().getClass().getName() +
-		                                            " data provider.",
-		                                            "alert",
-		                                            JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(this,
+                                                    "The selected waveform panel is already connected to " +
+                                                    wi.getDataProvider().getClass().getName() +
+                                                    " data provider.\nDefine a new waveform panel to show signals from "+
+                                                    da.getDataProvider().getClass().getName() +
+                                                    " data provider.",
+                                                    "alert",
+                                                    JOptionPane.ERROR_MESSAGE);
                         return;
                     }
                 }
@@ -1148,11 +1146,11 @@ public class CompositeWaveDisplay extends JApplet implements WaveContainerListen
                 wi.AddSignal(da.getSignalName());
                 wi.setShotArray(da.getShot());
 
-	            wi.StartEvaluate();
-		        wi.EvaluateOthers();
+                wi.StartEvaluate();
+                wi.EvaluateOthers();
 
-		        //If added signal has been evaluated without
-		        //error it is stored in wi.signals vector
+                //If added signal has been evaluated without
+                //error it is stored in wi.signals vector
 
                 if(wi.signals != null && (s = wi.signals[wi.signals.length-1]) != null)
                 {
@@ -1165,7 +1163,7 @@ public class CompositeWaveDisplay extends JApplet implements WaveContainerListen
                         s.setName(wi.in_y[0]);
                 }
 
-		        w.Update(wi.signals);
+                w.Update(wi.signals);
 
             }
         }
@@ -1173,55 +1171,55 @@ public class CompositeWaveDisplay extends JApplet implements WaveContainerListen
         {
             if(e instanceof  AccessControlException)
             {
-		        JOptionPane.showMessageDialog(this,
-		                                        e.toString()+"\n url "+url +
-		                                        "\nUse policytool.exe in  JDK or JRE installation directory to add socket access permission\n",
-		                                        "alert",
-		                                        JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this,
+                                                e.toString()+"\n url "+url +
+                                                "\nUse policytool.exe in  JDK or JRE installation directory to add socket access permission\n",
+                                                "alert",
+                                                JOptionPane.ERROR_MESSAGE);
             } else {
-		        JOptionPane.showMessageDialog(this,
-		                                        e.toString(),
-		                                        "alert",
-		                                        JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this,
+                                                e.toString(),
+                                                "alert",
+                                                JOptionPane.ERROR_MESSAGE);
             }
         }
     }
 
 
-	/**
-	 * Set Window dialog title.
-	 *
-	 * @param title Title string
-	 */
-	public void setTitle(String title)
-	{
-	    if(f != null)
-	        f.setTitle(title);
-	}
+    /**
+     * Set Window dialog title.
+     *
+     * @param title Title string
+     */
+    public void setTitle(String title)
+    {
+        if(f != null)
+            f.setTitle(title);
+    }
 
-	/**
-	 * Remove all signals added to the panels.
-	 */
-	public void removeAllSignals()
-	{
-	    if(wave_container != null)
-	        wave_container.RemoveAllSignals();
+    /**
+     * Remove all signals added to the panels.
+     */
+    public void removeAllSignals()
+    {
+        if(wave_container != null)
+            wave_container.RemoveAllSignals();
             if(signals1DHash.size() > 0 ) signals1DHash.clear();
             if(signals2DHash.size() > 0 ) signals2DHash.clear();
             if(signals1DVector.size() > 0 ) signals1DVector.clear();
             if(signals2DVector.size() > 0 ) signals2DVector.clear();
-	}
-	/**
-	 * Remove all signals added to the panels.
-	 */
-	public void removeAllSignals(int row, int col)
-	{
-	    if(wave_container != null)
-	    {
-	    	MultiWaveform wave = (MultiWaveform)wave_container.getGridComponent(row, col);
-	    	wave.Erase();
-	    }
- 	}
+    }
+    /**
+     * Remove all signals added to the panels.
+     */
+    public void removeAllSignals(int row, int col)
+    {
+        if(wave_container != null)
+        {
+            MultiWaveform wave = (MultiWaveform)wave_container.getGridComponent(row, col);
+            wave.Erase();
+        }
+    }
 
 
     /**
@@ -1239,13 +1237,13 @@ public class CompositeWaveDisplay extends JApplet implements WaveContainerListen
     public void addSignal(float [] x, float [] y,int row, int column,
         String color, String label)
     {
-    	addSignal(x, y, row, column, color, label, true, 0);
+        addSignal(x, y, row, column, color, label, true, 0);
     }
 
     public void addSignal(double [] x, float [] y,int row, int column,
         String color, String label)
     {
-    	addSignal(x, y, row, column, color, label, true, 0);
+        addSignal(x, y, row, column, color, label, true, 0);
     }
 
     /**
@@ -1291,12 +1289,12 @@ public class CompositeWaveDisplay extends JApplet implements WaveContainerListen
 
             if(w.getWaveInterface() != null)
             {
-		        JOptionPane.showMessageDialog(this,
-		                                    "The selected waveform panel is  connected to " +
-		                                    w.getWaveInterface().getDataProvider().getClass().getName() +
-		                                    " data provider.\nDefine a new waveform panel to show raw signals",
-		                                    "alert",
-		                                    JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this,
+                                            "The selected waveform panel is  connected to " +
+                                            w.getWaveInterface().getDataProvider().getClass().getName() +
+                                            " data provider.\nDefine a new waveform panel to show raw signals",
+                                            "alert",
+                                            JOptionPane.ERROR_MESSAGE);
                 return;
             }
 

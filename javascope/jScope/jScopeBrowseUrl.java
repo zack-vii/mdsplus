@@ -23,7 +23,6 @@ public class jScopeBrowseUrl extends JDialog
     JEditorPane html;
     URLConnection url_con;
     String mime_type;
-
     Vector<URL> url_list = new Vector<URL>();
     JButton back;
     JButton forward;
@@ -35,18 +34,13 @@ public class jScopeBrowseUrl extends JDialog
     public jScopeBrowseUrl(JFrame owner)
     {
         super(owner);
-
-
         html = new JEditorPane();
         html.setEditable(false);
         html.addHyperlinkListener(createHyperLinkListener());
-
         JScrollPane scroller = new JScrollPane();
         JViewport vp = scroller.getViewport();
         vp.add(html);
         getContentPane().add(scroller, BorderLayout.CENTER);
-
-
         p = new JPanel();
         back = new JButton("Back");
         back.setSelected(true);
@@ -68,7 +62,6 @@ public class jScopeBrowseUrl extends JDialog
                     }
                 }
             });
-
         forward = new JButton("Forward");
         back.setSelected(true);
         p.add(forward);
@@ -87,7 +80,6 @@ public class jScopeBrowseUrl extends JDialog
                     }
                 }
             });
-
         home = new JButton("Home");
         home.setSelected(true);
         p.add(home);
@@ -106,12 +98,9 @@ public class jScopeBrowseUrl extends JDialog
                     }
                 }
             });
-
-
         getContentPane().add(p, BorderLayout.NORTH);
         pack();
         setSize(680,700);
-
     }
 
 
@@ -139,12 +128,11 @@ public class jScopeBrowseUrl extends JDialog
 
     public void connectToBrowser(URL url) throws Exception
     {
+        if(DEBUG.M){System.out.println("connectToBrowser("+url+")");}
         if(url != null)
         {
             url_list.addElement(url);
-            //html.setPage(url);
             setPage(url);
-
         }
     }
 
@@ -187,7 +175,6 @@ public class jScopeBrowseUrl extends JDialog
                             try
                             {
                                 URL u = e.getURL();
-
                                 //To fix JVM 1.1 Bug
                                 if(u == null)
                                 {
@@ -208,7 +195,6 @@ public class jScopeBrowseUrl extends JDialog
                                     }
                                 }
                                 // end fix bug JVM 1.1
-
                                 //html.setPage(u);
                                 setPage(u);
 

@@ -10,7 +10,7 @@ public class DataCached implements Serializable
     String experiment;
     long    shot;
     Object data;
-    
+
     DataCached(String expression, String experiment, long shot, Object data)
     {
         this.expression = expression;
@@ -18,11 +18,11 @@ public class DataCached implements Serializable
         this.experiment = experiment;
         this.data = data;
     }
-    
+
     public boolean equals(String expression, String experiment, long shot)
     {
-        return ( this.expression.equals(expression) && 
-                    this.shot == shot && 
+        return ( this.expression.equals(expression) &&
+                    this.shot == shot &&
                     this.experiment.equals(experiment));
     }
 }

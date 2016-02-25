@@ -28,16 +28,16 @@ public interface WaveData
      * @exception java.io.IOException
      */
 
-    
+
     XYData getData(double xmin, double xmax, int numPoints) throws Exception;
     XYData getData(int numPoints) throws Exception;
- 
+
     float[] getZ();
     double[] getX2D();
     float[] getY2D();
     long[]  getX2DLong();
 
-    
+
  //   double[] getXLimits();
  //   long []getXLong();
     boolean isXLong();
@@ -71,17 +71,17 @@ public interface WaveData
      * @exception java.io.IOException
      */
     public String GetZLabel()  throws IOException;
-    
+
     /**
-     * Start data readout. Expected to return soon, being the data segment communicated later 
+     * Start data readout. Expected to return soon, being the data segment communicated later
      * @param lowerBound: Lower bound of X region of interest
      * @param upperBound: Upper bound of X region of interest
-     * @param numPoints: Estimated number of requested point 
+     * @param numPoints: Estimated number of requested point
      */
     void getDataAsync(double lowerBound, double upperBound, int numPoints);
     /**
      * Enables/Disables the option of periodic readout of new data
-     * @param continuousUpdate 
+     * @param continuousUpdate
      */
     void setContinuousUpdate(boolean continuousUpdate);
 }

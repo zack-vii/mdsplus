@@ -49,7 +49,7 @@ import javax.swing.plaf.basic.BasicArrowButton;
 import java.lang.reflect.Array;
 
 
-        
+
 public class jScopeFacade extends JFrame
     implements ActionListener, ItemListener,
     WindowListener, WaveContainerListener,
@@ -88,7 +88,7 @@ public class jScopeFacade extends JFrame
 
     private JMenuItem print_i, page_i, properties_i;
     private String propertiesFilePath = null;
- 
+
     private JPanel panel, panel1;
     private ButtonGroup pointer_mode = new ButtonGroup();
     private JRadioButton zoom, point, copy, pan;
@@ -182,7 +182,7 @@ public class jScopeFacade extends JFrame
             long currTime =  inTime/1000000L + EPICS_BASE;
             return currTime;
         }
-        else 
+        else
             return inTime;
     }
 
@@ -509,10 +509,10 @@ public class jScopeFacade extends JFrame
         {
             String prop;
             int idx = 0;
-            
+
              name_list.removeAllElements();
              expr_list.removeAllElements();
-            
+
             while ( (prop = pr.getProperty(prompt + idx)) != null && idx < MAX_VARIABLE )
             {
                 StringTokenizer st = new StringTokenizer(prop, "=");
@@ -582,9 +582,9 @@ public class jScopeFacade extends JFrame
                 }
             });
         }
-        
+
         this.setPropertiesFile(propFile);
-        
+
         jScopeCreate(spos_x, spos_y);
 
     }
@@ -675,8 +675,8 @@ public class jScopeFacade extends JFrame
         setBackground(Color.lightGray);
 
         addWindowListener(this);
-        
-        
+
+
         file_diag = new JFileChooser();
 
         file_diag.addChoosableFileFilter( new  javax.swing.filechooser.FileFilter()
@@ -684,7 +684,7 @@ public class jScopeFacade extends JFrame
             public boolean accept(File f) {
                 return f.isDirectory() || f.getName().toLowerCase().endsWith(".dat");
             }
-    
+
             public String getDescription() {
                 return ".dat files";
             }
@@ -695,14 +695,14 @@ public class jScopeFacade extends JFrame
             public boolean accept(File f) {
                 return f.isDirectory() || f.getName().toLowerCase().endsWith(".jscp");
             }
-    
+
             public String getDescription() {
                 return ".jscp files";
             }
         });
 
-        
-        
+
+
         mb = new JMenuBar();
         setJMenuBar(mb);
         edit_m = new JMenu("File");
@@ -1412,7 +1412,7 @@ public class jScopeFacade extends JFrame
             f_name = System.getProperty("user.home") + File.separator +
             "jScope" + File.separator + "jScope.properties";
         }
-        
+
         try
         {
             if (jScopeFacade.is_debug)
@@ -1483,7 +1483,7 @@ public class jScopeFacade extends JFrame
                     fos.close();
                     pis.close();
                 }
-            }             
+            }
         }
 
         catch (FileNotFoundException e)
@@ -1660,6 +1660,7 @@ public class jScopeFacade extends JFrame
 
     private void InitDataServer()
     {
+        if (DEBUG.M){System.out.println("InitDataServer()");}
         String ip_addr = null;
         String dp_class = null;
         DataServerItem srv_item = null;
@@ -1737,7 +1738,7 @@ public class jScopeFacade extends JFrame
     public boolean IsShotDefinedXX()
     {
         String s = shot_t.getText();
-        
+
         if ( s != null && s.trim().length() > 0)
             return true;
         s = def_values.shot_str;
@@ -1809,16 +1810,16 @@ public class jScopeFacade extends JFrame
 
     public void UpdateAllWaves()
     {
-        
+
         String s = shot_t.getText();
         String s1 = def_values.shot_str;
-        
-        // Set main shot text field with 
-        // global setting shot if defined.  
-        if ( ( s == null || s.trim().length() == 0 ) && 
-              ( s1 != null && s1.trim().length() !=  0 ) ) 
+
+        // Set main shot text field with
+        // global setting shot if defined.
+        if ( ( s == null || s.trim().length() == 0 ) &&
+              ( s1 != null && s1.trim().length() !=  0 ) )
             shot_t.setText(s1);
-        
+
         executing_update = true;
         apply_b.setText("Abort");
         setPublicVariables(pub_var_diag.getPublicVar());
@@ -2099,7 +2100,7 @@ public class jScopeFacade extends JFrame
         if (curr_directory != null && curr_directory.trim().length() != 0)
             file_diag.setCurrentDirectory(new File(curr_directory));
 
-  
+
         javax.swing.Timer t = new javax.swing.Timer(20, new ActionListener()
         {
             public void actionPerformed(ActionEvent ae)
@@ -2838,8 +2839,8 @@ public class jScopeFacade extends JFrame
 remove 28/06/2005
             wave_panel.SetServerItem(dsi);
 */
-            
-                
+
+
             if( ! SetDataServer(dsi) )
                 SetDataServer(new DataServerItem("Not Connected", null, null,
                                              "NotConnectedDataProvider", null, null, null, false));
@@ -2892,7 +2893,7 @@ remove 28/06/2005
     {
         String file = null;
         String propertiesFile = null;
- 
+
         Properties props = System.getProperties();
         String debug = props.getProperty("debug");
         if (debug != null && debug.equals("true"))
@@ -2910,11 +2911,11 @@ remove 28/06/2005
                     if( i+1 < args.length )
                         propertiesFile = args[i+1];
                     i++;
-                } else { 
+                } else {
                     file = new String(args[i]);
                 }
             }
-        }    
+        }
         if (IsNewJVMVersion())
             win = new jScopeFacade(100, 100, propertiesFile);
         else
@@ -2926,7 +2927,7 @@ remove 28/06/2005
 
         win.pack();
         win.setSize(750, 550);
-       
+
         jScopeFacade.num_scope++;
         win.startScope(file);
     }
@@ -3515,12 +3516,12 @@ class ServerDialog
                         if (srv != null)
                         {
                             Class cl = Class.forName("jScope."+srv);
-                            DataProvider dp = ( (DataProvider) cl.newInstance()); 
+                            DataProvider dp = ( (DataProvider) cl.newInstance());
                             boolean state = dp.SupportsTunneling();
                             tunneling.setEnabled(state);
                             tunnel_port.setEnabled(state);
                         }
-                    }                    
+                    }
                 }
                 catch (Exception exc)
                 {}

@@ -16,18 +16,18 @@ class TSDataProvider extends MdsDataProvider
     {
         super();
     }
-    
+
     public TSDataProvider(String provider) throws IOException
     {
         super(provider);
     }
-    
+
     public void SetArgument(String arg) throws IOException
     {
         mds.setProvider(arg);
         mds.setUser("mdsplus");
     }
-    
+
     public synchronized void Update(String exp, long s)
 	{
 	    error = null;
@@ -38,9 +38,9 @@ class TSDataProvider extends MdsDataProvider
 	{
 	    //if(in.startsWith("DIM_OF("))
 	    //    return in;
-	        
+	
 	    String res = MdsplusParser.parseFun(in, "GetTsBase(" + shot + ", \"", "\")");
-	        
+	
 /*	    StringTokenizer st = new StringTokenizer(in, ":");
         String res = "GetTSData(\"";
 	    try{
@@ -84,13 +84,13 @@ class TSDataProvider extends MdsDataProvider
 	    return out_array;
     }
 
-        
+
 protected String GetDefaultXLabel(String in_y)  throws IOException
 {
 	error= null;
 	return GetString("GetTSUnit(0)");
 }
-        
+
 protected String GetDefaultYLabel()  throws IOException
 {
 	error= null;
