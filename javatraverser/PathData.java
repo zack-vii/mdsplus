@@ -1,16 +1,18 @@
-//package jTraverser;
+// package jTraverser;
+public class PathData extends StringData implements NodeId{
+    private static final long serialVersionUID = -3352537836104568439L;
 
-public class PathData extends StringData implements NodeId
-{
-    public static Data getData(String datum)
-    {
-	return new PathData(datum);
+    public static Data getData(final String datum) {
+        return new PathData(datum);
     }
-    public PathData(String path)
-    {
-	datum = path;
-	dtype = DTYPE_PATH;
+
+    public PathData(final String path){
+        this.datum = path;
+        this.dtype = Data.DTYPE_PATH;
     }
-    public boolean isResolved() {return false;}
+
+    @Override
+    public boolean isResolved() {
+        return false;
+    }
 }
-    

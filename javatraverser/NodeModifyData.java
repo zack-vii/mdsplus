@@ -1,6 +1,9 @@
-//package jTraverser;
-import java.awt.*;
+// package jTraverser;
+import java.awt.Component;
 
-public class NodeModifyData extends NodeDataPropertyEditor {
-    public Component getCustomEditor(){return new ModifyData();} 
+public class NodeModifyData extends NodeDataPropertyEditor{
+    @Override
+    public Component getCustomEditor() {
+        return new ModifyData();
+    }
 }

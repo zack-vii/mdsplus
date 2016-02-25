@@ -1,14 +1,13 @@
-//package jTraverser;
+// package jTraverser;
+public class EventData extends StringData{
+    private static final long serialVersionUID = 5967241343179988753L;
 
-public class EventData extends StringData
-{
-    public static Data getData(String datum)
-    {
-	return new EventData(datum);
+    public static Data getData(final String datum) {
+        return new EventData(datum);
     }
-    public EventData(String path)
-    {
-	datum = path;
-	dtype = DTYPE_EVENT;
+
+    public EventData(final String path){
+        this.datum = path;
+        this.dtype = Data.DTYPE_EVENT;
     }
 }

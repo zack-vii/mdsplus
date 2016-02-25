@@ -1,34 +1,28 @@
-import java.beans.*;
-import javax.swing.*;
-import java.awt.*;
+import java.awt.Image;
+import java.beans.IntrospectionException;
+import java.beans.PropertyDescriptor;
+import java.beans.SimpleBeanInfo;
 
-public class DeviceParametersBeanInfo extends SimpleBeanInfo
-{
-    public PropertyDescriptor property(String name, String description)
-    throws IntrospectionException
-    {
-        PropertyDescriptor p = new PropertyDescriptor(name, DeviceParameters.class);
+public class DeviceParametersBeanInfo extends SimpleBeanInfo{
+    public static PropertyDescriptor property(final String name, final String description) throws IntrospectionException {
+        final PropertyDescriptor p = new PropertyDescriptor(name, DeviceParameters.class);
         p.setShortDescription(description);
         return p;
     }
-    public Image getIcon(int kind)
-    {
-        return loadImage("structure.gif");
+
+    @Override
+    public Image getIcon(final int kind) {
+        return this.loadImage("structure.gif");
     }
 
-    public PropertyDescriptor [] getPropertyDescriptors()
-    {
-        try {
-            PropertyDescriptor[] props = {
-               property("offsetNid", "Offset nid"),
-               property("baseName", "Base name")
-             };
+    @Override
+    public PropertyDescriptor[] getPropertyDescriptors() {
+        try{
+            final PropertyDescriptor[] props = {DeviceParametersBeanInfo.property("offsetNid", "Offset nid"), DeviceParametersBeanInfo.property("baseName", "Base name")};
             return props;
-        }catch(IntrospectionException e)
-        {
+        }catch(final IntrospectionException e){
             System.out.println("DeviceParameters: property exception " + e);
             return super.getPropertyDescriptors();
         }
     }
-
 }

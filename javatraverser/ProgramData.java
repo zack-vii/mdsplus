@@ -1,16 +1,27 @@
-//package jTraverser;
+// package jTraverser;
+public class ProgramData extends CompoundData{
+    private static final long serialVersionUID = -326661164737875457L;
 
-public class ProgramData extends CompoundData
-{
-    public static Data getData() {return new ProgramData(); }
-    public ProgramData() {dtype = DTYPE_PROGRAM; }
-    public ProgramData(Data time_out, Data program)
-    {
-	dtype = DTYPE_PROGRAM;
-	descs = new Data[2];
-	descs[0] = time_out;
-	descs[1] = program;
+    public static Data getData() {
+        return new ProgramData();
     }
-    public final Data getTimeout() {return descs[0]; }
-    public final Data getProgram() {return descs[1]; }
+
+    public ProgramData(){
+        this.dtype = Data.DTYPE_PROGRAM;
+    }
+
+    public ProgramData(final Data time_out, final Data program){
+        this.dtype = Data.DTYPE_PROGRAM;
+        this.descs = new Data[2];
+        this.descs[0] = time_out;
+        this.descs[1] = program;
+    }
+
+    public final Data getProgram() {
+        return this.descs[1];
+    }
+
+    public final Data getTimeout() {
+        return this.descs[0];
+    }
 }

@@ -1,35 +1,45 @@
-//package jTraverser;
+// package jTraverser;
+public class ProcedureData extends CompoundData{
+    private static final long serialVersionUID = 149721516346147126L;
 
-public class ProcedureData extends CompoundData
-{
-    public static Data getData() {return new ProcedureData(); }
-    public ProcedureData() {dtype = DTYPE_PROCEDURE; }
-    public ProcedureData(Data timeout, Data language, Data procedure, 
-	Data [] arguments)
-    {
-	int ndescs;
-	dtype = DTYPE_PROCEDURE;
-	if(arguments != null)
-	    ndescs = 3 + arguments.length;
-	else
-	    ndescs = 3;
-	descs = new Data[ndescs];
-	descs[0] = timeout;
-	descs[1] = language;
-	descs[2] = procedure;
-	for(int i = 3; i < ndescs; i++)
-	    descs[i] = arguments[i-3];
+    public static Data getData() {
+        return new ProcedureData();
     }
-    
-     public final Data getTimeout() {return descs[0]; }
-     public final Data getLanguage(){return descs[1]; }
-     public final Data getProcedure() {return descs[2]; }
-     public final Data[] getArguments() 
-     {
-	Data []ris = new Data[descs.length-3];
-	for(int i = 0; i < descs.length-3; i++)
-	    ris[i] = descs[3+i];
-	return ris;
-     }
+
+    public ProcedureData(){
+        this.dtype = Data.DTYPE_PROCEDURE;
     }
-	    	 
+
+    public ProcedureData(final Data timeout, final Data language, final Data procedure, final Data[] arguments){
+        int ndescs;
+        this.dtype = Data.DTYPE_PROCEDURE;
+        if(arguments != null) ndescs = 3 + arguments.length;
+        else ndescs = 3;
+        this.descs = new Data[ndescs];
+        this.descs[0] = timeout;
+        this.descs[1] = language;
+        this.descs[2] = procedure;
+        if(arguments == null) return;
+        for(int i = 3; i < ndescs; i++)
+            this.descs[i] = arguments[i - 3];
+    }
+
+    public final Data[] getArguments() {
+        final Data[] ris = new Data[this.descs.length - 3];
+        for(int i = 0; i < this.descs.length - 3; i++)
+            ris[i] = this.descs[3 + i];
+        return ris;
+    }
+
+    public final Data getLanguage() {
+        return this.descs[1];
+    }
+
+    public final Data getProcedure() {
+        return this.descs[2];
+    }
+
+    public final Data getTimeout() {
+        return this.descs[0];
+    }
+}

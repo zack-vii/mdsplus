@@ -1,70 +1,58 @@
-//Stores a file as a bonary array into a pulse file
-//Arguments:
-//1) File name
-//2) Esperiment
-//3) shot
-//4) Node name
-import java.io.*;
-public class LoadFile
-{
-    public static void main(String args[])
-    {
-        if(args.length < 3 || args.length > 5)
-        {
+// Stores a file as a bonary array into a pulse file
+// Arguments:
+// 1) File name
+// 2) Esperiment
+// 3) shot
+// 4) Node name
+import java.io.RandomAccessFile;
+
+public class LoadFile{
+    public static void main(final String args[]) {
+        if(args.length < 3 || args.length > 5){
             System.err.println("Usage: java StoreFile <filename> <nodename> <experiment> [< shot> ");
             System.exit(0);
         }
-        String fileName = args[0];
-        String nodeName = args[1];
-        String experiment = args[2];
-
+        final String fileName = args[0];
+        final String nodeName = args[1];
+        final String experiment = args[2];
         int shot = -1;
-        if(args.length == 4)
-        {
-            try
-            {
+        if(args.length == 4){
+            try{
                 shot = Integer.parseInt(args[3]);
-            }
-            catch (Exception exc)
-            {
+            }catch(final Exception exc){
                 System.err.println("Invalid shot number");
                 System.exit(0);
             }
         }
-        Database tree = new Database(experiment, shot);
-        try {
+        final Database tree = new Database(experiment, shot);
+        try{
             tree.open();
-        }catch(Exception exc)
-        {
-            System.err.println("Cannot open experiment "+ experiment + " shot " + shot + ": " + exc);
+        }catch(final Exception exc){
+            System.err.println("Cannot open experiment " + experiment + " shot " + shot + ": " + exc);
             System.exit(0);
         }
         NidData nid = null;
-        try {
+        try{
             nid = tree.resolve(new PathData(nodeName), 0);
-        }catch(Exception exc)
-        {
-            System.err.println("Cannot find node "+ nodeName);
+        }catch(final Exception exc){
+            System.err.println("Cannot find node " + nodeName);
             System.exit(0);
         }
-        byte [] serialized = null;
-        try {
-            ByteArray ba = (ByteArray)tree.getData(nid, 0);
+        byte[] serialized = null;
+        try{
+            final ByteArray ba = (ByteArray)tree.getData(nid, 0);
             serialized = ba.getByteArray();
-        }catch(Exception exc)
-        {
-            System.err.println("Error reading data in"+ nodeName + ": " + exc);
+        }catch(final Exception exc){
+            System.err.println("Error reading data in" + nodeName + ": " + exc);
             System.exit(0);
         }
-        try {
-            RandomAccessFile raf = new RandomAccessFile(fileName, "rw");
+        try{
+            final RandomAccessFile raf = new RandomAccessFile(fileName, "rw");
             raf.write(serialized);
             raf.close();
-        }catch(Exception exc)
-        {
-            System.err.println("Cannot read file "+ fileName + ": " + exc);
+        }catch(final Exception exc){
+            System.err.println("Cannot read file " + fileName + ": " + exc);
             System.exit(0);
         }
     }
 }
-

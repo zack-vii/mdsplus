@@ -1,17 +1,14 @@
-import java.beans.*;
+import java.beans.PropertyEditorSupport;
 
-public class FloatArrayEditor extends PropertyEditorSupport
-{
-    public String getJavaInitializationString()
-    {
-        float [] array = (float [])getValue();
+public class FloatArrayEditor extends PropertyEditorSupport{
+    @Override
+    public String getJavaInitializationString() {
+        final float[] array = (float[])this.getValue();
         if(array == null) return "null";
-        StringBuffer sb = new StringBuffer("new float[] {");
-        for(int i = 0; i < array.length; i++)
-        {
+        final StringBuffer sb = new StringBuffer("new float[] {");
+        for(int i = 0; i < array.length; i++){
             sb.append("(float)" + (new Float(array[i])).toString());
-            if(i < (array.length - 1))
-                sb.append(",");
+            if(i < (array.length - 1)) sb.append(",");
         }
         sb.append("}");
         return sb.toString();

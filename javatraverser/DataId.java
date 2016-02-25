@@ -1,6 +1,4 @@
-//package jTraverser;
-
-public interface DataId
-{
+// package jTraverser;
+public interface DataId{
     public boolean isResolved();
-}    
+}

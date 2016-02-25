@@ -1,200 +1,182 @@
-//package jTraverser;
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
+// package jTraverser;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 
-public class ModifyData extends NodeEditor 
-{
-    boolean is_editable;
-    ActionEditor action_edit = null;
-    DataEditor data_edit = null;
+public class ModifyData extends NodeEditor{
+    private static final long serialVersionUID = -1402049893755852077L;
+
+    private static String tagList(final String[] tags) {
+        if(tags == null || tags.length == 0) return "<no tags>";
+        final StringBuffer sb = new StringBuffer();
+        for(int i = 0; i < tags.length; i++){
+            sb.append(tags[i]);
+            if(i < tags.length - 1) sb.append(", ");
+        }
+        return new String(sb);
+    }
+    ActionEditor   action_edit   = null;
+    Editor         curr_edit;
+    DataEditor     data_edit     = null;
+    TreeDialog     dialog;
     DispatchEditor dispatch_edit = null;
-    RangeEditor range_edit = null;
-    TaskEditor task_edit = null;
-    WindowEditor window_edit = null;
-    Editor curr_edit;
-    JButton ok_b, apply_b, reset_b, cancel_b;
-    JLabel tags;
-    JLabel onoff;
-    TreeDialog dialog;
-    
-    
-    
-    public ModifyData() {this(true);}
-    public ModifyData(boolean editable)
-    {
-	    is_editable = editable;
-	    setLayout(new BorderLayout());
-	    JPanel ip = new JPanel();
-	    ip.add(onoff = new JLabel(""));
-	    ip.add(new JLabel("Tags: "));
-	    ip.add(tags = new JLabel(""));
-	    add(ip, "North");
-	    JPanel jp = new JPanel();
-	    add(jp, "South");
-	    if(is_editable)
-	    {
-	        ok_b = new JButton("Ok");
-    	    ok_b.addActionListener(new ActionListener () {
-    	        public void actionPerformed(ActionEvent e) {ok();}
-    	    });
-	        jp.add(ok_b);
-	        apply_b = new JButton("Apply");
-    	    apply_b.addActionListener(new ActionListener () {
-    	        public void actionPerformed(ActionEvent e) {apply();}
-          	});
-	        jp.add(apply_b);
-	        reset_b = new JButton("Reset");
-        	reset_b.addActionListener(new ActionListener () {
-        	    public void actionPerformed(ActionEvent e) {
-        		    reset();}
-        	});
-	        jp.add(reset_b);
-	        addKeyListener(new KeyAdapter() {
-	            public void keyTyped(KeyEvent e)
-	            {
-	                if(e.getKeyCode() == KeyEvent.VK_ENTER)
-	                    ok();
-	            }
-	        });
-	    }
-	    cancel_b = new JButton("Cancel");
-    	cancel_b.addActionListener(new ActionListener () {
-    	    public void actionPerformed(ActionEvent e) {cancel();}
-    	});
-    	cancel_b.setSelected(true);
-	    jp.add(cancel_b);
+    boolean        is_editable;
+    JButton        ok_b, apply_b, reset_b, cancel_b;
+    JLabel         onoff;
+    RangeEditor    range_edit    = null;
+    JLabel         tags;
+    TaskEditor     task_edit     = null;
+    WindowEditor   window_edit   = null;
+
+    public ModifyData(){
+        this(true);
     }
 
-    private void replace(Editor edit)
-    {
-	    if(curr_edit != null && curr_edit != edit)
-	        remove((Component)curr_edit);
-	    curr_edit = edit;
-	    add((Component)edit, "Center");
-	    //add(edit);
+    public ModifyData(final boolean editable){
+        this.is_editable = editable;
+        this.setLayout(new BorderLayout());
+        final JPanel ip = new JPanel();
+        ip.add(this.onoff = new JLabel(""));
+        ip.add(new JLabel("Tags: "));
+        ip.add(this.tags = new JLabel(""));
+        this.add(ip, "North");
+        final JPanel jp = new JPanel();
+        this.add(jp, "South");
+        if(this.is_editable){
+            this.ok_b = new JButton("Ok");
+            this.ok_b.addActionListener(new ActionListener(){
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    ModifyData.this.ok();
+                }
+            });
+            jp.add(this.ok_b);
+            this.apply_b = new JButton("Apply");
+            this.apply_b.addActionListener(new ActionListener(){
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    ModifyData.this.apply();
+                }
+            });
+            jp.add(this.apply_b);
+            this.reset_b = new JButton("Reset");
+            this.reset_b.addActionListener(new ActionListener(){
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    ModifyData.this.reset();
+                }
+            });
+            jp.add(this.reset_b);
+            this.addKeyListener(new KeyAdapter(){
+                @Override
+                public void keyTyped(final KeyEvent e) {
+                    if(e.getKeyCode() == KeyEvent.VK_ENTER) ModifyData.this.ok();
+                }
+            });
+        }
+        this.cancel_b = new JButton("Cancel");
+        this.cancel_b.addActionListener(new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ModifyData.this.cancel();
+            }
+        });
+        this.cancel_b.setSelected(true);
+        jp.add(this.cancel_b);
     }
-     
-    public void setNode(Node _node)
-    {	Data data;
-	node = _node;
-	try{
-	    data = node.getData();
 
-	}catch(Exception e){data = null;}
-	
-	switch(node.getUsage())
-	{
-	    case NodeInfo.USAGE_ACTION:
-		if(action_edit == null)
-		    action_edit = new ActionEditor(data, frame);
-		else
-		    action_edit.setData(data);
-		action_edit.setEditable(is_editable);
-		replace(action_edit);
-		break;	
-	    case NodeInfo.USAGE_DISPATCH:
-		if(dispatch_edit == null)
-		    dispatch_edit = new DispatchEditor(data, frame);
-		else
-		    dispatch_edit.setData(data);
-		replace(dispatch_edit);
-		dispatch_edit.setEditable(is_editable);
-		break;	
-	    case NodeInfo.USAGE_TASK:
-		if(task_edit == null)
-		    task_edit = new TaskEditor(data, frame);
-		else
-		    task_edit.setData(data);
-		replace(task_edit);
-		task_edit.setEditable(is_editable);
-		break;	
-	    case NodeInfo.USAGE_WINDOW:
-		if(window_edit == null)
-		    window_edit = new WindowEditor(data, frame);
-		else
-		    window_edit.setData(data);
-		replace(window_edit);
-		window_edit.setEditable(is_editable);
-		break;	
-	    case NodeInfo.USAGE_AXIS:
-	    if(data instanceof RangeData)
-	    {
-		    if(range_edit == null)
-		        range_edit = new RangeEditor((RangeData)data);
-		    else
-		        range_edit.setData(data);
-    		replace(range_edit);
-		    range_edit.setEditable(is_editable);
-		    break;
-		}
-	    default : 
-		if(data_edit == null)
-		    data_edit = new DataEditor(data, frame);
-		else
-		    data_edit.setData(data);
-		replace(data_edit);    
-		data_edit.setEditable(is_editable);
-	}
+    private boolean apply() {
+        try{
+            this.node.setData(this.curr_edit.getData());
+        }catch(final Exception e){
+            JOptionPane.showMessageDialog(this.frame, e.getMessage(), "Error writing datafile", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+        return true;
+    }
 
-	if(node.isOn())
-	    onoff.setText("Node is On   ");
-	else
-	    onoff.setText("Node is Off  ");
-	try {
-	    if(is_editable)
-	        frame.setTitle("Modify data of " + node.getInfo().getFullPath());
-	    else
-	        frame.setTitle("Display data of " + node.getInfo().getFullPath());
-	}catch(Exception exc){}
+    private void cancel() {
+        this.frame.dispose();
+    }
 
-	tags.setText(tagList(node.getTags()));
+    private void ok() {
+        if(this.apply()) this.cancel();
+    }
 
-	this.node = node;
+    private void replace(final Editor edit) {
+        if(this.curr_edit != null && this.curr_edit != edit) this.remove((Component)this.curr_edit);
+        this.curr_edit = edit;
+        this.add((Component)edit, "Center");
+        // add(edit);
     }
-    
-    private void cancel()
-    {
-	frame.dispose();
+
+    private void reset() {
+        this.curr_edit.reset();
+        this.validate();
+        this.repaint();
     }
-    
-    private boolean apply()
-    {	
-	try {
-	    node.setData(curr_edit.getData());
-	} catch(Exception e) 
-	    {
-		JOptionPane.showMessageDialog(frame, e.getMessage(), "Error writing datafile", JOptionPane.ERROR_MESSAGE);
-		return false;
-	    }
-	return true;
+
+    @Override
+    public void setNode(final Node _node) {
+        Data data;
+        this.node = _node;
+        try{
+            data = this.node.getData();
+        }catch(final Exception e){
+            data = null;
+        }
+        switch(this.node.getUsage()){
+            case NodeInfo.USAGE_ACTION:
+                if(this.action_edit == null) this.action_edit = new ActionEditor(data, this.frame);
+                else this.action_edit.setData(data);
+                this.action_edit.setEditable(this.is_editable);
+                this.replace(this.action_edit);
+                break;
+            case NodeInfo.USAGE_DISPATCH:
+                if(this.dispatch_edit == null) this.dispatch_edit = new DispatchEditor(data, this.frame);
+                else this.dispatch_edit.setData(data);
+                this.replace(this.dispatch_edit);
+                this.dispatch_edit.setEditable(this.is_editable);
+                break;
+            case NodeInfo.USAGE_TASK:
+                if(this.task_edit == null) this.task_edit = new TaskEditor(data, this.frame);
+                else this.task_edit.setData(data);
+                this.replace(this.task_edit);
+                this.task_edit.setEditable(this.is_editable);
+                break;
+            case NodeInfo.USAGE_WINDOW:
+                if(this.window_edit == null) this.window_edit = new WindowEditor(data, this.frame);
+                else this.window_edit.setData(data);
+                this.replace(this.window_edit);
+                this.window_edit.setEditable(this.is_editable);
+                break;
+            case NodeInfo.USAGE_AXIS:
+                if(data instanceof RangeData){
+                    if(this.range_edit == null) this.range_edit = new RangeEditor((RangeData)data);
+                    else this.range_edit.setData(data);
+                    this.replace(this.range_edit);
+                    this.range_edit.setEditable(this.is_editable);
+                    break;
+                }
+            default:
+                if(this.data_edit == null) this.data_edit = new DataEditor(data, this.frame);
+                else this.data_edit.setData(data);
+                this.replace(this.data_edit);
+                this.data_edit.setEditable(this.is_editable);
+        }
+        if(this.node.isOn()) this.onoff.setText("Node is On   ");
+        else this.onoff.setText("Node is Off  ");
+        try{
+            if(this.is_editable) this.frame.setTitle("Modify data of " + this.node.getInfo().getFullPath());
+            else this.frame.setTitle("Display data of " + this.node.getInfo().getFullPath());
+        }catch(final Exception exc){}
+        this.tags.setText(ModifyData.tagList(this.node.getTags()));
     }
-    
-    private void reset()
-    {
-	curr_edit.reset();
-	validate();
-	repaint();
-    }
-    
-    private void ok()
-    {
-	if(apply())
-	    cancel();
-    }
-    
-    private String tagList(String [] tags)
-    {
-	if(tags == null || tags.length == 0)
-	    return "<no tags>";
-	StringBuffer sb = new StringBuffer();
-	for(int i = 0; i < tags.length; i++)
-	{
-	    sb.append(tags[i]);
-	    if(i < tags.length - 1)
-	    sb.append(", ");
-	}
-	return new String(sb);
-    }
-    
 }

@@ -1,23 +1,21 @@
-//package jTraverser;
-import javax.swing.*;
-import java.awt.*;
+// package jTraverser;
+import javax.swing.JPanel;
 
-public class NodeEditor extends JPanel
-{
-    Node node;
-    Tree tree;
-    TreeDialog frame;
+public class NodeEditor extends JPanel{
+    private static final long serialVersionUID = -621239038738815183L;
+    TreeDialog                frame;
+    Node                      node;
+    Tree                      tree;
 
-    public void setTree(Tree tree)
-    {
-	this.tree = tree;
+    public void setFrame(final TreeDialog frame) {
+        this.frame = frame;
     }
-    public void setNode(Node node)
-    {
-	this.node = node;
+
+    public void setNode(final Node node) {
+        this.node = node;
     }
-    public void setFrame(TreeDialog frame)
-    {
-	this.frame = frame;
+
+    public void setTree(final Tree tree) {
+        this.tree = tree;
     }
 }

@@ -1,46 +1,45 @@
-//package jTraverser;
+// package jTraverser;
+public class ActionData extends CompoundData{
+    private static final long serialVersionUID = 3939211025217846692L;
 
-public class ActionData extends CompoundData
-{
-    public static Data getData()
-    {
-	return new ActionData();
+    public static Data getData() {
+        return new ActionData();
     }
-    
-    public ActionData() {dtype = DTYPE_ACTION;}
-    public ActionData(Data dispatch, Data task, Data errorlogs, 
-	Data completion_message, Data performance)
-    {
-	dtype = DTYPE_ACTION;
-	descs = new Data[5];
-	descs[0] = dispatch;
-	descs[1] = task;
-	descs[2] = errorlogs;
-	descs[3] = completion_message;
-	descs[4] = performance;
+
+    public ActionData(){
+        this.dtype = Data.DTYPE_ACTION;
     }
-    public final Data getDispatch() {return descs[0]; }
-    public final Data getTask()	    {return descs[1]; }
-    public final Data getErrorlogs() 
-    {
-	if(descs.length >= 3)
-	    return descs[2];
-	else
-	    return null;
+
+    public ActionData(final Data dispatch, final Data task, final Data errorlogs, final Data completion_message, final Data performance){
+        this.dtype = Data.DTYPE_ACTION;
+        this.descs = new Data[5];
+        this.descs[0] = dispatch;
+        this.descs[1] = task;
+        this.descs[2] = errorlogs;
+        this.descs[3] = completion_message;
+        this.descs[4] = performance;
     }
-    public final Data getCompletionMessage()
-    {
-	if(descs.length >= 4)
-	    return descs[3];
-	else
-	    return null;
+
+    public final Data getCompletionMessage() {
+        if(this.descs.length >= 4) return this.descs[3];
+        else return null;
     }
-        
-    public final Data getPerformance() 
-    {
-	if(descs.length >= 5)
-	    return descs[4];
-	else
-	    return null;
-     }
+
+    public final Data getDispatch() {
+        return this.descs[0];
+    }
+
+    public final Data getErrorlogs() {
+        if(this.descs.length >= 3) return this.descs[2];
+        else return null;
+    }
+
+    public final Data getPerformance() {
+        if(this.descs.length >= 5) return this.descs[4];
+        else return null;
+    }
+
+    public final Data getTask() {
+        return this.descs[1];
+    }
 }

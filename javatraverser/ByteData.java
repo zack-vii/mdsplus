@@ -1,21 +1,29 @@
-//package jTraverser;
+// package jTraverser;
+public class ByteData extends AtomicData{
+    private static final long serialVersionUID = 3995773544994029942L;
 
-public class ByteData extends AtomicData
-{
+    public static Data getData(final byte datum, final boolean unsigned) {
+        return new ByteData(datum, unsigned);
+    }
     byte datum;
-    public static Data getData(byte datum, boolean unsigned)
-    {
-	return new ByteData(datum, unsigned);
+
+    public ByteData(final byte datum){
+        this(datum, false);
     }
-    public ByteData(byte datum, boolean unsigned)
-    {
-	if(unsigned)
-	    dtype = DTYPE_BU;
-	else
-	    dtype = DTYPE_B;
-	this.datum = datum;
+
+    public ByteData(final byte datum, final boolean unsigned){
+        if(unsigned) this.dtype = Data.DTYPE_BU;
+        else this.dtype = Data.DTYPE_B;
+        this.datum = datum;
     }
-    public ByteData(byte datum) { this(datum, false); }
-    public int getInt() {return (int)datum; }
-    public float getFloat() {return (float) datum; }
+
+    @Override
+    public float getFloat() {
+        return this.datum;
+    }
+
+    @Override
+    public int getInt() {
+        return this.datum;
+    }
 }

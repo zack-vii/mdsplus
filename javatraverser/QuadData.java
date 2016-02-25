@@ -1,21 +1,29 @@
-//package jTraverser;
+// package jTraverser;
+public class QuadData extends AtomicData{
+    private static final long serialVersionUID = -4487902258248152062L;
 
-public class QuadData extends AtomicData
-{
+    public static Data getData(final long datum, final boolean unsigned) {
+        return new QuadData(datum, unsigned);
+    }
     long datum;
-    public static Data getData(long datum, boolean unsigned)
-    {
-	return new QuadData(datum, unsigned);
+
+    public QuadData(final long datum){
+        this(datum, false);
     }
-    public QuadData(long datum, boolean unsigned)
-    {
-	if(unsigned)
-	    dtype = DTYPE_QU;
-	else
-	    dtype = DTYPE_Q;
-	this.datum = datum;
+
+    public QuadData(final long datum, final boolean unsigned){
+        if(unsigned) this.dtype = Data.DTYPE_QU;
+        else this.dtype = Data.DTYPE_Q;
+        this.datum = datum;
     }
-    public QuadData(long datum) { this(datum, false); }
-    public int getInt() {return (int)datum; }
-    public float getFloat() {return (float) datum; }
+
+    @Override
+    public float getFloat() {
+        return this.datum;
+    }
+
+    @Override
+    public int getInt() {
+        return (int)this.datum;
+    }
 }

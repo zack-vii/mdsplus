@@ -1,36 +1,38 @@
-//package jTraverser;
+// package jTraverser;
+public class ShortArray extends ArrayData{
+    private static final long serialVersionUID = -430377525509897700L;
 
-public class ShortArray extends ArrayData
-{
+    public static Data getData(final short datum[], final boolean unsigned) {
+        return new ShortArray(datum, unsigned);
+    }
     short datum[];
-    public static Data getData(short datum[], boolean unsigned)
-    {
-	return new ShortArray(datum, unsigned);
+
+    public ShortArray(final short datum[]){
+        this(datum, false);
     }
-    public ShortArray(short datum[], boolean unsigned)
-    {
-	length = datum.length;
-	if(unsigned)
-	    dtype = DTYPE_WU;
-	else
-	    dtype = DTYPE_W;
-	this.datum = new short[datum.length];
-	for(int i = 0; i < datum.length; i++)
-	    this.datum[i] = datum[i];
+
+    public ShortArray(final short datum[], final boolean unsigned){
+        this.length = datum.length;
+        if(unsigned) this.dtype = Data.DTYPE_WU;
+        else this.dtype = Data.DTYPE_W;
+        this.datum = new short[datum.length];
+        for(int i = 0; i < datum.length; i++)
+            this.datum[i] = datum[i];
     }
-    public ShortArray(short datum[]) { this(datum, false); }
-    public int [] getIntArray() 
-    {
-	int ris [] = new int[datum.length];
-	for(int i = 0; i < datum.length; i++)
-	    ris[i] = (int)datum[i];
-	return ris;
+
+    @Override
+    public float[] getFloatArray() {
+        final float ris[] = new float[this.datum.length];
+        for(int i = 0; i < this.datum.length; i++)
+            ris[i] = this.datum[i];
+        return ris;
     }
-    public float [] getFloatArray() 
-    {
-	float ris [] = new float[datum.length];
-	for(int i = 0; i < datum.length; i++)
-	    ris[i] = (float)datum[i];
-	return ris;
+
+    @Override
+    public int[] getIntArray() {
+        final int ris[] = new int[this.datum.length];
+        for(int i = 0; i < this.datum.length; i++)
+            ris[i] = this.datum[i];
+        return ris;
     }
 }

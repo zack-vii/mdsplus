@@ -1,17 +1,27 @@
-//package jTraverser;
+// package jTraverser;
+public class WithUnitsData extends CompoundData{
+    private static final long serialVersionUID = -7312745275969299595L;
 
-public class WithUnitsData extends CompoundData
-{
-    public static Data getData() {return new WithUnitsData(); }
-    public WithUnitsData() {dtype = DTYPE_WITH_UNITS; }
-    public WithUnitsData(Data data, Data units)
-    {
-	dtype = DTYPE_WITH_UNITS;
-	descs = new Data[2];
-	descs[0] = data;
-	descs[1] = units;
+    public static Data getData() {
+        return new WithUnitsData();
     }
-    
-    public final Data getDatum() {return descs[0]; }
-    public final Data getUnits() {return descs[1]; }
+
+    public WithUnitsData(){
+        this.dtype = Data.DTYPE_WITH_UNITS;
+    }
+
+    public WithUnitsData(final Data data, final Data units){
+        this.dtype = Data.DTYPE_WITH_UNITS;
+        this.descs = new Data[2];
+        this.descs[0] = data;
+        this.descs[1] = units;
+    }
+
+    public final Data getDatum() {
+        return this.descs[0];
+    }
+
+    public final Data getUnits() {
+        return this.descs[1];
+    }
 }

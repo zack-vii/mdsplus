@@ -1,18 +1,32 @@
-//package jTraverser;
+// package jTraverser;
+public class WindowData extends CompoundData{
+    private static final long serialVersionUID = 2634389159311572431L;
 
-public class WindowData extends CompoundData
-{
-    public static Data getData() {return new WindowData(); }
-    public WindowData() {dtype = DTYPE_WINDOW; }
-    public WindowData(Data start_idx, Data end_idx, Data value_at_0)
-    {
-	dtype = DTYPE_WINDOW;
-	descs = new Data[3];
-	descs[0] = start_idx;
-	descs[1] = end_idx;
-	descs[2] = value_at_0;
+    public static Data getData() {
+        return new WindowData();
     }
-    public final Data getStartIdx()	{return descs[0]; }
-    public final Data getEndIdx()	{return descs[1]; }
-    public final Data getValueAt0()	{return descs[2]; }
+
+    public WindowData(){
+        this.dtype = Data.DTYPE_WINDOW;
+    }
+
+    public WindowData(final Data start_idx, final Data end_idx, final Data value_at_0){
+        this.dtype = Data.DTYPE_WINDOW;
+        this.descs = new Data[3];
+        this.descs[0] = start_idx;
+        this.descs[1] = end_idx;
+        this.descs[2] = value_at_0;
+    }
+
+    public final Data getEndIdx() {
+        return this.descs[1];
+    }
+
+    public final Data getStartIdx() {
+        return this.descs[0];
+    }
+
+    public final Data getValueAt0() {
+        return this.descs[2];
+    }
 }

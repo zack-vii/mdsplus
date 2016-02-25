@@ -1,17 +1,16 @@
-import java.beans.*;
-import java.awt.*;
+import java.awt.Image;
+import java.beans.PropertyDescriptor;
+import java.beans.SimpleBeanInfo;
 
-public class DeviceOkBeanInfo extends SimpleBeanInfo
-{
-    public Image getIcon(int kind)
-    {
-        return loadImage("DeviceOk.gif");
+public class DeviceOkBeanInfo extends SimpleBeanInfo{
+    @Override
+    public Image getIcon(final int kind) {
+        return this.loadImage("DeviceOk.gif");
     }
-    
-    public PropertyDescriptor [] getPropertyDescriptors()  
-    {
-        return new PropertyDescriptor[] {};
+
+    @Override
+    public PropertyDescriptor[] getPropertyDescriptors() {
+        return new PropertyDescriptor[]{};
     }
 }
-
 /* Do nothing and prevent editing by means of bean builders */

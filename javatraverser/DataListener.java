@@ -1,7 +1,7 @@
-//package jTraverser;
-/** This interface defined only method DataChanged(Data) to inform listeners dtah the value
-of the ddatum is possibly changed */
-
-interface DataListener {
+// package jTraverser;
+/**
+ * This interface defined only method DataChanged(Data) to inform listeners that the value of the date has possibly changed
+ */
+interface DataListener{
     public void DataChanged(Data data);
-    }
+}

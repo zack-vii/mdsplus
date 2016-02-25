@@ -1,44 +1,37 @@
-import java.beans.*;
-import java.awt.*;
+import java.awt.Image;
+import java.beans.BeanDescriptor;
+import java.beans.IntrospectionException;
+import java.beans.PropertyDescriptor;
+import java.beans.SimpleBeanInfo;
 
-public class DeviceLabelBeanInfo extends SimpleBeanInfo
-{
-    public PropertyDescriptor property(String name, String description)
-    throws IntrospectionException
-    {
-        PropertyDescriptor p = new PropertyDescriptor(name, DeviceLabel.class);
+public class DeviceLabelBeanInfo extends SimpleBeanInfo{
+    public static PropertyDescriptor property(final String name, final String description) throws IntrospectionException {
+        final PropertyDescriptor p = new PropertyDescriptor(name, DeviceLabel.class);
         p.setShortDescription(description);
         return p;
     }
-    public Image getIcon(int kind)
-    {
-        return loadImage("DeviceLabel.gif");
-    }
 
-    public BeanDescriptor getBeanDescriptor()
-    {
+    @Override
+    public BeanDescriptor getBeanDescriptor() {
         return new BeanDescriptor(DeviceLabel.class, DeviceLabelCustomizer.class);
     }
-    public PropertyDescriptor [] getPropertyDescriptors()
-    {
-        try {
-            PropertyDescriptor[] props = {
-               property("offsetNid", "Offset nid"),
-               property("textOnly", "Deals only with text"),
-               property("labelString", "Field label"),
-               property("numCols", "Number of columns"),
-               property("identifier", "Optional field identifier"),
-//               property("showState", "Display on/off state"),
-//               property("editable", "Text field editable"),
-               property("displayEvaluated", "Display evaluated data"),
-               property("preferredWidth", "Preferred width")
-            };
+
+    @Override
+    public Image getIcon(final int kind) {
+        return this.loadImage("DeviceLabel.gif");
+    }
+
+    @Override
+    public PropertyDescriptor[] getPropertyDescriptors() {
+        try{
+            final PropertyDescriptor[] props = {DeviceLabelBeanInfo.property("offsetNid", "Offset nid"), DeviceLabelBeanInfo.property("textOnly", "Deals only with text"), DeviceLabelBeanInfo.property("labelString", "Field label"), DeviceLabelBeanInfo.property("numCols", "Number of columns"), DeviceLabelBeanInfo.property("identifier", "Optional field identifier"),
+            // property("showState", "Display on/off state"),
+            // property("editable", "Text field editable"),
+                    DeviceLabelBeanInfo.property("displayEvaluated", "Display evaluated data"), DeviceLabelBeanInfo.property("preferredWidth", "Preferred width")};
             return props;
-        }catch(IntrospectionException e)
-        {
+        }catch(final IntrospectionException e){
             System.out.println("DeviceField: property exception " + e);
             return super.getPropertyDescriptors();
         }
     }
-
 }
