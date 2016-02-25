@@ -362,30 +362,27 @@ final public class Signal implements WaveDataListener{
     private int                            updSignalSizeInc;
     float                                  upError[];
     boolean                                upToDate           = false;
-    double                                 x[]                = null;
+    double[]                               x;
     private WaveData                       x_data;
-    double                                 x2D[];
     protected double                       x2D_max;
     protected double                       x2D_min;
     private int                            x2D_points         = 0;
-    long                                   x2DLong[];
     protected String                       xlabel;
     private boolean                        xLimitsInitialized = false;
-    long                                   xLong[]            = null;
+    long[]                                 xLong;
     private double                         xmax;
     private double                         xmin;
-    double                                 xY2D[];
-    long                                   xY2DLong[];
-    float                                  y[]                = null;
-    float                                  y2D[];
+    double[]                               xY2D;
+    long[]                                 xY2DLong;
+    float[]                                y;
     protected double                       y2D_max;
     protected double                       y2D_min;
     private int                            y2D_points         = 0;
     protected String                       ylabel;
     private double                         ymax;
     private double                         ymin;
-    float                                  yY2D[];
-    float                                  z[];
+    float[]                                yY2D;
+    float[]                                z;
     private double                         z_value            = Double.NaN;
     protected double                       z2D_max;
     protected double                       z2D_min;
@@ -398,9 +395,7 @@ final public class Signal implements WaveDataListener{
      */
     public Signal(){
         this.error = this.asym_error = false;
-        final double x[] = new double[]{0., 1.};
-        final float y[] = new float[]{0, 0};
-        this.data = new XYWaveData(x, y);
+        this.data = new XYWaveData(new double[]{0., 1.}, new float[]{0, 0});
         this.setAxis();
         this.saved_xmin = this.curr_xmin = this.xmin;
         this.saved_xmax = this.curr_xmax = this.xmax;
@@ -615,18 +610,6 @@ final public class Signal implements WaveDataListener{
             System.arraycopy(s.xLong, 0, this.xLong, 0, this.xLong.length);
         }
         this.x_data = s.x_data;
-        if(s.x2D != null){
-            this.x2D = new double[s.x2D.length];
-            System.arraycopy(s.x2D, 0, this.x2D, 0, this.x2D.length);
-        }
-        if(s.x2DLong != null){
-            this.x2DLong = new long[s.x2DLong.length];
-            System.arraycopy(s.x2DLong, 0, this.x2DLong, 0, this.x2DLong.length);
-        }
-        if(s.y2D != null){
-            this.y2D = new float[s.y2D.length];
-            System.arraycopy(s.y2D, 0, this.y2D, 0, this.y2D.length);
-        }
         if(s.z != null){
             this.z = new float[s.z.length];
             System.arraycopy(s.z, 0, this.z, 0, this.z.length);
@@ -904,7 +887,7 @@ final public class Signal implements WaveDataListener{
         final int len = (X.length < Y.length) ? X.length : Y.length;
         final boolean All = (min == Double.NEGATIVE_INFINITY && max == Double.POSITIVE_INFINITY);
         for(int i = 0; i < len; i++){
-            if(Float.isNaN(this.y[i])) continue;
+            if(Float.isNaN(Y[i])) continue;
             if(!All && X[i] < min && X[i] > max) continue;
             if(Y[i] < this.ymin) this.ymin = Y[i];
             if(Y[i] > this.ymax) this.ymax = Y[i];
@@ -953,20 +936,20 @@ final public class Signal implements WaveDataListener{
             if(this.saved_ymax == Double.POSITIVE_INFINITY) this.saved_ymax = this.ymax;
         }else if(numDimensions == 2){
             this.type = Signal.TYPE_2D;
-            this.x2D = this.data.getX2D();
-            if(this.x2D == null && this.data.isXLong()){
-                this.x2DLong = this.data.getX2DLong();
-                this.x2D = new double[this.x2DLong.length];
-                for(int i = 0; i < this.x2DLong.length; i++)
-                    this.x2D[i] = this.x2DLong[i];
+            this.x = this.data.getX2D();
+            if(this.x == null && this.data.isXLong()){
+                this.xLong = this.data.getX2DLong();
+                this.x = new double[this.xLong.length];
+                for(int i = 0; i < this.xLong.length; i++)
+                    this.x[i] = this.xLong[i];
             }
-            this.y2D = this.data.getY2D();
+            this.y = this.data.getY2D();
             this.z = this.data.getZ();
             if(this.x_data != null){
                 this.xY2D = this.x_data.getX2D();
                 this.yY2D = this.x_data.getY2D();
                 this.zY2D = this.x_data.getZ();
-                if((this.x2D != null && this.x2D.length != this.xY2D.length) || (this.x2DLong != null && this.x2DLong.length != this.xY2D.length) && this.y2D.length != this.yY2D.length && this.z.length != this.zY2D.length){
+                if((this.x != null && this.x.length != this.xY2D.length) || (this.xLong != null && this.xLong.length != this.xY2D.length) && this.y.length != this.yY2D.length && this.z.length != this.zY2D.length){
                     this.xY2D = null;
                     this.yY2D = null;
                     this.zY2D = null;
@@ -979,12 +962,12 @@ final public class Signal implements WaveDataListener{
             this.y2D_max = Double.NEGATIVE_INFINITY;
             this.z2D_min = Double.POSITIVE_INFINITY;
             this.z2D_max = Double.NEGATIVE_INFINITY;
-            for(final double element : this.x2D){
+            for(final double element : this.x){
                 if(Double.isNaN(element)) continue;
                 if(element < this.x2D_min) this.x2D_min = element;
                 if(element > this.x2D_max) this.x2D_max = element;
             }
-            for(final float element : this.y2D){
+            for(final float element : this.y){
                 if(Float.isNaN(element)) continue;
                 if(element < this.y2D_min) this.y2D_min = element;
                 if(element > this.y2D_max) this.y2D_max = element;
@@ -1005,21 +988,9 @@ final public class Signal implements WaveDataListener{
      * Check if x array coordinates are increasing.
      */
     void checkIncreasingX() {
-        if(this.type == Signal.TYPE_2D){
-            this.checkIncreasingX2D();
-            return;
-        }
         this.increasing_x = false;
         for(int i = 1; i < this.x.length; i++)
             if(this.x[i] < this.x[i - 1]) return;
-        this.increasing_x = true;
-    }
-
-    void checkIncreasingX2D() {
-        this.increasing_x = false;
-        final double x[] = this.x2D;
-        for(int i = 1; i < x.length; i++)
-            if(x[i] < x[i - 1]) return;
         this.increasing_x = true;
     }
 
@@ -1160,7 +1131,7 @@ final public class Signal implements WaveDataListener{
     public void decShowXZ() {
         if(this.type == Signal.TYPE_2D && this.mode2D == Signal.MODE_XZ){
             int idx = this.curr_y_xz_idx - 1;
-            if(idx < 0) idx = this.y2D.length - 1;
+            if(idx < 0) idx = this.y.length - 1;
             this.showXZ(idx);
         }
     }
@@ -1168,21 +1139,22 @@ final public class Signal implements WaveDataListener{
     public void decShowYZ() {
         if(this.type == Signal.TYPE_2D && this.mode2D == Signal.MODE_YZ){
             int idx = this.curr_x_yz_idx - 1;
-            if(idx < 0) idx = this.x2D.length - 1;
+            if(idx < 0) idx = this.x.length - 1;
             this.showYZ(idx);
         }
     }
 
     public int FindClosestIdx(final double curr_x, final double curr_y) {
-        if(this.x.length < 1) return -1;
+        if(DEBUG.M) System.out.println("FindClosestIdx(" + curr_x + ", " + curr_y + ")");
+        if(this.x == null || this.x.length < 1) return -1;
         try{
             double min_dist, curr_dist;
             int min_idx;
             int i = 0;
             if(this.type == Signal.TYPE_2D && (this.mode2D == Signal.MODE_IMAGE || this.mode2D == Signal.MODE_CONTOUR)){
-                this.img_xprev = Signal.FindIndex(this.x2D, curr_x, this.img_xprev);
-                this.img_yprev = Signal.FindIndex(this.y2D, curr_y, this.img_yprev);
-                if(this.img_xprev > this.y2D.length) return this.img_xprev - 6;
+                this.img_xprev = Signal.FindIndex(this.x, curr_x, this.img_xprev);
+                this.img_yprev = Signal.FindIndex(this.y, curr_y, this.img_yprev);
+                if(this.img_xprev > this.y.length) return this.img_xprev - 6;
                 return this.img_xprev;
             }
             double currX[];
@@ -1190,7 +1162,7 @@ final public class Signal implements WaveDataListener{
             else{
                 if(this.mode2D == Signal.MODE_XZ || this.mode2D == Signal.MODE_YZ) currX = this.sliceX;
                 else{
-                    final double xf[] = this.x2D;
+                    final double xf[] = this.x;
                     currX = new double[xf.length];
                     for(int idx = 0; idx < xf.length; idx++)
                         currX[idx] = xf[idx];
@@ -1272,18 +1244,18 @@ final public class Signal implements WaveDataListener{
 
     public float getClosestX(final double x) {
         if(this.type == Signal.TYPE_2D && (this.mode2D == Signal.MODE_IMAGE || this.mode2D == Signal.MODE_CONTOUR)){
-            this.img_xprev = Signal.FindIndex(this.x2D, x, this.img_xprev);
-            return (float)this.x2D[this.img_xprev];
+            this.img_xprev = Signal.FindIndex(this.x, x, this.img_xprev);
+            return (float)this.x[this.img_xprev];
         }
-        return 0;
+        return Float.NaN;
     }
 
     public float getClosestY(final double y) {
         if(this.type == Signal.TYPE_2D && (this.mode2D == Signal.MODE_IMAGE || this.mode2D == Signal.MODE_CONTOUR)){
-            this.img_yprev = Signal.FindIndex(this.y2D, y, this.img_yprev);
-            return this.y2D[this.img_yprev];
+            this.img_yprev = Signal.FindIndex(this.y, y, this.img_yprev);
+            return this.y[this.img_yprev];
         }
-        return 0;
+        return Float.NaN;
     }
 
     public Color getColor() {
@@ -1355,13 +1327,13 @@ final public class Signal implements WaveDataListener{
     }
 
     public int getNumPoints() {
-        if(this.type == Signal.TYPE_2D && (this.mode2D == Signal.MODE_YZ || this.mode2D == Signal.MODE_XZ)) return this.sliceX.length;
-        if(this.data != null){
-            try{
-                return (this.x.length < this.y.length) ? this.x.length : this.y.length;
-            }catch(final Exception exc){}
+        try{
+            if(this.type == Signal.TYPE_2D && (this.mode2D == Signal.MODE_YZ || this.mode2D == Signal.MODE_XZ)) return this.sliceX.length;
+            if(this.data != null){ return (this.x.length < this.y.length) ? this.x.length : this.y.length; }
+        }catch(final Exception e){
+            System.err.println("getNumPoints(): " + e);
         }
-        return 0;
+        return -1;
     }
 
     public float getOffset() {
@@ -1403,17 +1375,18 @@ final public class Signal implements WaveDataListener{
     }
 
     public double getX(final int idx) {
-        if(this.type == Signal.TYPE_2D && (this.mode2D == Signal.MODE_YZ || this.mode2D == Signal.MODE_XZ)) return this.sliceX[idx];
         try{
+            if(this.type == Signal.TYPE_2D && (this.mode2D == Signal.MODE_YZ || this.mode2D == Signal.MODE_XZ)) return this.sliceX[idx];
             return this.x[idx];
-        }catch(final Exception exc){
-            return 0;
+        }catch(final Exception e){
+            System.err.println("getY(" + idx + "): " + e);
+            return Double.NaN;
         }
     }
 
     public double[] getX2D() {
-        if(this.x2D == null) this.x2D = this.data.getX2D();
-        return this.x2D;
+        if(this.x == null) this.x = this.data.getX2D();
+        return this.x;
     }
 
     public double getX2Dmax() {
@@ -1446,17 +1419,18 @@ final public class Signal implements WaveDataListener{
     }
 
     public float getY(final int idx) {
-        if(this.type == Signal.TYPE_2D && (this.mode2D == Signal.MODE_YZ || this.mode2D == Signal.MODE_XZ)) return this.sliceY[idx];
         try{
+            if(this.type == Signal.TYPE_2D && (this.mode2D == Signal.MODE_YZ || this.mode2D == Signal.MODE_XZ)) return this.sliceY[idx];
             return this.y[idx];
-        }catch(final Exception exc){
-            return 0;
+        }catch(final Exception e){
+            System.err.println("getY(" + idx + "): " + e + " y.length=" + this.y.length);
+            return Float.NaN;
         }
     }
 
     public float[] getY2D() {
-        if(this.y2D == null) this.y2D = this.data.getY2D();
-        return this.y2D;
+        if(this.y == null) this.y = this.data.getY2D();
+        return this.y;
     }
 
     public double getY2Dmax() {
@@ -1494,11 +1468,11 @@ final public class Signal implements WaveDataListener{
     }
 
     public float[][] getZ2D() {
-        final float zOut[][] = new float[this.x2D.length][this.y2D.length];
+        final float zOut[][] = new float[this.x.length][this.y.length];
         int k;
-        for(int i = 0; i < this.x2D.length; i++){
-            for(int j = 0; j < this.y2D.length; j++){
-                k = j * this.x2D.length + i;
+        for(int i = 0; i < this.x.length; i++){
+            for(int j = 0; j < this.y.length; j++){
+                k = j * this.x.length + i;
                 if(k < this.z.length) zOut[i][j] = this.z[k];
             }
         }
@@ -1522,7 +1496,7 @@ final public class Signal implements WaveDataListener{
         if(this.type == Signal.TYPE_2D){
             switch(this.mode2D){
                 case Signal.MODE_IMAGE:
-                    final float y[] = this.y2D;
+                    final float y[] = this.y;
                     final int idx = this.img_xprev * y.length + this.img_yprev;
                     if(this.z != null && idx < this.z.length){ return this.z[idx]; }
                 case Signal.MODE_CONTOUR:
@@ -1564,7 +1538,7 @@ final public class Signal implements WaveDataListener{
     public void incShowXZ() {
         if(this.type == Signal.TYPE_2D && this.mode2D == Signal.MODE_XZ){
             int idx = this.curr_y_xz_idx;
-            idx = (idx + 1) % this.y2D.length;
+            idx = (idx + 1) % this.y.length;
             this.showXZ(idx);
         }
     }
@@ -1572,7 +1546,7 @@ final public class Signal implements WaveDataListener{
     public void incShowYZ() {
         if(this.type == Signal.TYPE_2D && this.mode2D == Signal.MODE_YZ){
             int idx = this.curr_x_yz_idx;
-            idx = (idx + 1) % this.x2D.length;
+            idx = (idx + 1) % this.x.length;
             this.showYZ(idx);
         }
     }
@@ -1822,10 +1796,10 @@ final public class Signal implements WaveDataListener{
                 this.setMode2D(mode, 0);
                 break;
             case MODE_XZ:
-                this.setMode2D(mode, this.y2D[0]);
+                this.setMode2D(mode, this.y[0]);
                 break;
             case MODE_YZ:
-                double v = this.x2D[0];
+                double v = this.x[0];
                 if(!Double.isNaN(this.curr_x_yz_plot)) v = this.curr_x_yz_plot;
                 this.setMode2D(mode, v);
                 break;
@@ -1973,13 +1947,13 @@ final public class Signal implements WaveDataListener{
 
     public void showXZ(final double xd) {
         if(this.curr_y_xz_plot == xd) return;
-        final int i = Signal.getArrayIndex(this.y2D, xd);
+        final int i = Signal.getArrayIndex(this.y, xd);
         this.showXZ(i);
     }
 
     public void showXZ(final int idx) {
-        final float[] y2d = this.y2D;
-        double[] x2d = this.x2D;
+        final float[] y2d = this.y;
+        double[] x2d = this.x;
         // if ( (idx >= x2d.length || idx == curr_y_xz_idx) &&
         if((idx >= y2d.length || idx == this.curr_y_xz_idx) && this.mode2D == Signal.MODE_XZ) return;
         this.prev_idx = 0;
@@ -1988,10 +1962,10 @@ final public class Signal implements WaveDataListener{
         this.curr_x_yz_plot = Float.NaN;
         this.curr_x_yz_idx = -1;
         if(this.zY2D != null){
-            x2d = new double[this.x2D.length];
-            this.curr_xmin = this.curr_xmax = this.zY2D[this.x2D.length * idx];
-            for(int j = 0; j < this.x2D.length; j++){
-                x2d[j] = this.zY2D[this.x2D.length * idx + j];
+            x2d = new double[this.x.length];
+            this.curr_xmin = this.curr_xmax = this.zY2D[this.x.length * idx];
+            for(int j = 0; j < this.x.length; j++){
+                x2d[j] = this.zY2D[this.x.length * idx + j];
                 if(x2d[j] > this.curr_xmax) this.curr_xmax = x2d[j];
                 else if(x2d[j] < this.curr_xmin) this.curr_xmin = x2d[j];
             }
@@ -2025,13 +1999,13 @@ final public class Signal implements WaveDataListener{
 
     public void showYZ(final double t) {
         if(this.curr_x_yz_plot == t && this.mode2D == Signal.MODE_YZ) return;
-        final int i = Signal.getArrayIndex(this.x2D, t);
+        final int i = Signal.getArrayIndex(this.x, t);
         this.showYZ(i);
     }
 
     public void showYZ(final int idx) {
-        final float[] y2d = this.y2D;
-        final double[] x2d = this.x2D;
+        final float[] y2d = this.y;
+        final double[] x2d = this.x;
         if((idx >= x2d.length || idx == this.curr_x_yz_idx) && this.mode2D == Signal.MODE_YZ) return;
         this.prev_idx = 0;
         this.curr_x_yz_plot = x2d[idx];
@@ -2117,70 +2091,70 @@ final public class Signal implements WaveDataListener{
         final float z2D[] = this.z;
         try{
             if(this.type == Signal.TYPE_2D && (this.mode2D == Signal.MODE_IMAGE || this.mode2D == Signal.MODE_CONTOUR)){
-                this.img_yprev = Signal.findIndex(this.y2D, y0, this.img_yprev);
-                this.img_xprev = Signal.findIndex(this.x2D, x0, this.img_xprev);
+                this.img_yprev = Signal.findIndex(this.y, y0, this.img_yprev);
+                this.img_xprev = Signal.findIndex(this.x, x0, this.img_xprev);
                 double xn, yn;
                 double x1 = 0, y1 = 0, z1 = 0;
                 double x2 = 0, y2 = 0, z2 = 0;
                 double x3 = 0, y3 = 0, z3 = 0;
                 double x4 = 0, y4 = 0, z4 = 0;
-                xn = this.x2D[this.img_xprev];
-                yn = this.y2D[this.img_yprev];
+                xn = this.x[this.img_xprev];
+                yn = this.y[this.img_yprev];
                 if(x0 > xn && y0 > yn){
                     x1 = xn;
                     y1 = yn;
-                    z1 = z2D[this.img_xprev * this.y2D.length + this.img_yprev];
-                    x2 = this.x2D[this.img_xprev + 1];
-                    y2 = this.y2D[this.img_yprev];
-                    z2 = z2D[(this.img_xprev + 1) * this.y2D.length + this.img_yprev];
-                    x3 = this.x2D[this.img_xprev];
-                    y3 = this.y2D[this.img_yprev + 1];
-                    z3 = z2D[this.img_xprev * this.y2D.length + this.img_yprev + 1];
-                    x4 = this.x2D[this.img_xprev + 1];
-                    y4 = this.y2D[this.img_yprev + 1];
-                    z4 = z2D[(this.img_xprev + 1) * this.y2D.length + this.img_yprev + 1];
+                    z1 = z2D[this.img_xprev * this.y.length + this.img_yprev];
+                    x2 = this.x[this.img_xprev + 1];
+                    y2 = this.y[this.img_yprev];
+                    z2 = z2D[(this.img_xprev + 1) * this.y.length + this.img_yprev];
+                    x3 = this.x[this.img_xprev];
+                    y3 = this.y[this.img_yprev + 1];
+                    z3 = z2D[this.img_xprev * this.y.length + this.img_yprev + 1];
+                    x4 = this.x[this.img_xprev + 1];
+                    y4 = this.y[this.img_yprev + 1];
+                    z4 = z2D[(this.img_xprev + 1) * this.y.length + this.img_yprev + 1];
                 }else{
                     if(x0 > xn && y0 < yn){
-                        x1 = this.x2D[this.img_xprev - 1];
-                        y1 = this.y2D[this.img_yprev];
-                        z1 = z2D[(this.img_xprev - 1) * this.y2D.length + this.img_yprev];
+                        x1 = this.x[this.img_xprev - 1];
+                        y1 = this.y[this.img_yprev];
+                        z1 = z2D[(this.img_xprev - 1) * this.y.length + this.img_yprev];
                         x2 = xn;
                         y2 = yn;
-                        z2 = z2D[this.img_xprev * this.y2D.length + this.img_yprev];
-                        x3 = this.x2D[this.img_xprev - 1];
-                        y3 = this.y2D[this.img_yprev + 1];
-                        z3 = z2D[(this.img_xprev - 1) * this.y2D.length + this.img_yprev + 1];
-                        x4 = this.x2D[this.img_xprev];
-                        y4 = this.y2D[this.img_yprev + 1];
-                        z4 = z2D[this.img_xprev * this.y2D.length + this.img_yprev + 1];
+                        z2 = z2D[this.img_xprev * this.y.length + this.img_yprev];
+                        x3 = this.x[this.img_xprev - 1];
+                        y3 = this.y[this.img_yprev + 1];
+                        z3 = z2D[(this.img_xprev - 1) * this.y.length + this.img_yprev + 1];
+                        x4 = this.x[this.img_xprev];
+                        y4 = this.y[this.img_yprev + 1];
+                        z4 = z2D[this.img_xprev * this.y.length + this.img_yprev + 1];
                     }else{
                         if(x0 < xn && y0 > yn){
-                            x1 = this.x2D[this.img_xprev];
-                            y1 = this.y2D[this.img_yprev - 1];
-                            z3 = z2D[this.img_xprev * this.y2D.length + this.img_yprev - 1];
-                            x2 = this.x2D[this.img_xprev - 1];
-                            y2 = this.y2D[this.img_yprev - 1];
-                            z2 = z2D[(this.img_xprev - 1) * this.y2D.length + this.img_yprev - 1];
+                            x1 = this.x[this.img_xprev];
+                            y1 = this.y[this.img_yprev - 1];
+                            z3 = z2D[this.img_xprev * this.y.length + this.img_yprev - 1];
+                            x2 = this.x[this.img_xprev - 1];
+                            y2 = this.y[this.img_yprev - 1];
+                            z2 = z2D[(this.img_xprev - 1) * this.y.length + this.img_yprev - 1];
                             x3 = xn;
                             y3 = yn;
-                            z3 = z2D[this.img_xprev * this.y2D.length + this.img_yprev];
-                            x4 = this.x2D[this.img_xprev + 1];
-                            y4 = this.y2D[this.img_yprev];
-                            z4 = z2D[(this.img_xprev + 1) * this.y2D.length + this.img_yprev];
+                            z3 = z2D[this.img_xprev * this.y.length + this.img_yprev];
+                            x4 = this.x[this.img_xprev + 1];
+                            y4 = this.y[this.img_yprev];
+                            z4 = z2D[(this.img_xprev + 1) * this.y.length + this.img_yprev];
                         }else{
                             if(x0 < xn && y0 < yn){
-                                x1 = this.x2D[this.img_xprev - 1];
-                                y1 = this.y2D[this.img_yprev - 1];
-                                z1 = z2D[(this.img_xprev - 1) * this.y2D.length + this.img_yprev - 1];
-                                x2 = this.x2D[this.img_xprev];
-                                y2 = this.y2D[this.img_yprev - 1];
-                                z2 = z2D[this.img_xprev * this.y2D.length + this.img_yprev - 1];
-                                x3 = this.x2D[this.img_xprev - 1];
-                                y3 = this.y2D[this.img_yprev];
-                                z3 = z2D[(this.img_xprev - 1) * this.y2D.length + this.img_yprev];
+                                x1 = this.x[this.img_xprev - 1];
+                                y1 = this.y[this.img_yprev - 1];
+                                z1 = z2D[(this.img_xprev - 1) * this.y.length + this.img_yprev - 1];
+                                x2 = this.x[this.img_xprev];
+                                y2 = this.y[this.img_yprev - 1];
+                                z2 = z2D[this.img_xprev * this.y.length + this.img_yprev - 1];
+                                x3 = this.x[this.img_xprev - 1];
+                                y3 = this.y[this.img_yprev];
+                                z3 = z2D[(this.img_xprev - 1) * this.y.length + this.img_yprev];
                                 x4 = xn;
                                 y4 = yn;
-                                z4 = z2D[this.img_xprev * this.y2D.length + this.img_yprev];
+                                z4 = z2D[this.img_xprev * this.y.length + this.img_yprev];
                             }
                         }
                     }
@@ -2193,7 +2167,7 @@ final public class Signal implements WaveDataListener{
                 }
             }
         }catch(final Exception exc){
-            zOut = z2D[this.img_xprev * this.x2D.length + this.img_yprev];
+            zOut = z2D[this.img_xprev * this.x.length + this.img_yprev];
         }
         this.z_value = zOut;
         return zOut;

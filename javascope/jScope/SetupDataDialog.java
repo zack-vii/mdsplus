@@ -374,8 +374,10 @@ final class SetupDataDialog extends JDialog implements ActionListener, ItemListe
 
         private String getExpressionList(final String expr) {
             String out = expr;
-            final StringTokenizer st = new StringTokenizer(expr, "\n");
-            if(st.countTokens() > 1) out = st.nextToken() + "... ";
+            try{
+                final StringTokenizer st = new StringTokenizer(expr, "\n");
+                if(st.countTokens() > 1) out = st.nextToken() + "... ";
+            }catch(final Exception e){}
             return out;
         }
 

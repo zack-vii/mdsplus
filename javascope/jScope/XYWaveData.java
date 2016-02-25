@@ -61,18 +61,12 @@ final public class XYWaveData implements WaveData{
     }
 
     XYWaveData(final double x[], final float y[], final float z[]){
+        if(z.length != x.length * y.length) System.out.println("INTERNAL ERROR: WRONG DIMENSIONS FOR 2D SIGNAL");
         this.type = Signal.TYPE_2D;
         this.xLong = null;
-        this.x = new double[x.length];
-        this.y = new float[y.length];
-        this.z = new float[z.length];
-        for(int i = 0; i < x.length; i++)
-            this.x[i] = x[i];
-        for(int i = 0; i < y.length; i++)
-            this.y[i] = y[i];
-        for(int i = 0; i < z.length; i++)
-            this.z[i] = z[i];
-        if(z.length != x.length * y.length) System.out.println("INTERNAL ERROR: WRONG DIMENSIONS FOR 2D SIGNAL");
+        this.x = x;
+        this.y = y;
+        this.z = z;
     }
 
     XYWaveData(final double x[], final float y[], final int numPoints){
@@ -84,10 +78,8 @@ final public class XYWaveData implements WaveData{
         this.x = new double[len];
         this.y = new float[len];
         this.z = null;
-        for(int i = 0; i < len; i++){
-            this.x[i] = x[i];
-            this.y[i] = y[i];
-        }
+        System.arraycopy(x, 0, this.x, 0, len);
+        System.arraycopy(y, 0, this.y, 0, len);
         this.checkIncreasingX();
     }
 
@@ -96,18 +88,14 @@ final public class XYWaveData implements WaveData{
     }
 
     XYWaveData(final float x[], final float y[], final float z[]){
+        if(z.length != x.length * y.length) System.err.println("INTERNAL ERROR: WRONG DIMENSIONS FOR 2D SIGNAL");
         this.type = Signal.TYPE_2D;
         this.xLong = null;
-        this.z = new float[z.length];
         this.x = new double[x.length];
-        this.y = new float[y.length];
-        for(int i = 0; i < x.length; i++)
+        this.y = y;
+        this.z = z;
+        for(int i = 0; i < this.x.length; i++)
             this.x[i] = x[i];
-        for(int i = 0; i < y.length; i++)
-            this.y[i] = y[i];
-        for(int i = 0; i < z.length; i++)
-            this.z[i] = z[i];
-        if(z.length != x.length * y.length) System.out.println("INTERNAL ERROR: WRONG DIMENSIONS FOR 2D SIGNAL");
     }
 
     XYWaveData(final float x[], final float y[], final int numPoints){
@@ -119,42 +107,33 @@ final public class XYWaveData implements WaveData{
         this.y = new float[len];
         this.xLong = null;
         this.z = null;
-        for(int i = 0; i < len; i++){
-            this.x[i] = x[i];
-            this.y[i] = y[i];
-        }
+        System.arraycopy(x, 0, this.x, 0, len);
+        System.arraycopy(y, 0, this.y, 0, len);
         this.checkIncreasingX();
     }
 
-    XYWaveData(final long x[], final float y[]){
+    XYWaveData(final long xLong[], final float y[]){
         this.type = Signal.TYPE_1D;
-        int len = x.length;
+        int len = xLong.length;
         if(y.length < len) len = y.length;
         this.x = new double[len];
         this.y = new float[len];
         this.z = null;
         this.xLong = new long[len];
-        for(int i = 0; i < len; i++){
-            this.x[i] = x[i];
-            this.y[i] = y[i];
-            this.xLong[i] = this.xLong[i];
-        }
+        System.arraycopy(xLong, 0, this.xLong, 0, len);
+        System.arraycopy(y, 0, this.y, 0, len);
+        for(int i = 0; i < len; i++)
+            this.x[i] = xLong[i];
         this.checkIncreasingX();
     }
 
-    XYWaveData(final long x[], final float y[], final float z[]){
+    XYWaveData(final long xLong[], final float y[], final float z[]){
+        if(z.length != xLong.length * y.length) System.err.println("INTERNAL ERROR: WRONG DIMENSIONS FOR 2D SIGNAL");
         this.x = null;
         this.type = Signal.TYPE_2D;
-        this.xLong = new long[x.length];
-        this.y = new float[y.length];
-        this.z = new float[z.length];
-        for(int i = 0; i < x.length; i++)
-            this.xLong[i] = x[i];
-        for(int i = 0; i < y.length; i++)
-            this.y[i] = y[i];
-        for(int i = 0; i < z.length; i++)
-            this.z[i] = z[i];
-        if(z.length != x.length * y.length) System.out.println("INTERNAL ERROR: WRONG DIMENSIONS FOR 2D SIGNAL");
+        this.xLong = xLong;
+        this.y = y;
+        this.z = z;
     }
 
     @Override
