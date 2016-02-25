@@ -6,6 +6,8 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Graphics;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.security.AccessControlException;
@@ -70,11 +72,26 @@ public class WaveDisplay extends JApplet implements WaveformListener{
             }
         });
         final JRadioButton point = new JRadioButton("Point", false);
-        point.addItemListener(e -> WaveDisplay.this.w.SetMode(Waveform.MODE_POINT));
+        point.addItemListener(new ItemListener(){
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                WaveDisplay.this.w.SetMode(Waveform.MODE_POINT);
+            }
+        });
         final JRadioButton zoom = new JRadioButton("Zoom", true);
-        zoom.addItemListener(e -> WaveDisplay.this.w.SetMode(Waveform.MODE_ZOOM));
+        zoom.addItemListener(new ItemListener(){
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                WaveDisplay.this.w.SetMode(Waveform.MODE_ZOOM);
+            }
+        });
         final JRadioButton pan = new JRadioButton("Pan", false);
-        pan.addItemListener(e -> WaveDisplay.this.w.SetMode(Waveform.MODE_PAN));
+        pan.addItemListener(new ItemListener(){
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                WaveDisplay.this.w.SetMode(Waveform.MODE_PAN);
+            }
+        });
         final ButtonGroup pointer_mode = new ButtonGroup();
         pointer_mode.add(point);
         pointer_mode.add(zoom);

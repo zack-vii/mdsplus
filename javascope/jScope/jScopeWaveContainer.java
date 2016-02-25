@@ -727,12 +727,15 @@ final class jScopeWaveContainer extends WaveformContainer{
     }
 
     private void RepaintAllWave() {
-        SwingUtilities.invokeLater(() -> {
-            jScopeMultiWave wx;
-            for(int i = 0, k = 0; i < 4; i++){
-                for(int j = 0; j < jScopeWaveContainer.this.rows[i]; j++, k++){
-                    wx = (jScopeMultiWave)jScopeWaveContainer.this.getGridComponent(k);
-                    if(wx.wi != null) wx.Update(wx.wi);
+        SwingUtilities.invokeLater(new Runnable(){
+            @Override
+            public void run() {
+                jScopeMultiWave wx;
+                for(int i = 0, k = 0; i < 4; i++){
+                    for(int j = 0; j < jScopeWaveContainer.this.rows[i]; j++, k++){
+                        wx = (jScopeMultiWave)jScopeWaveContainer.this.getGridComponent(k);
+                        if(wx.wi != null) wx.Update(wx.wi);
+                    }
                 }
             }
         });

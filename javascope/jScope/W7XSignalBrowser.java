@@ -6,6 +6,8 @@ import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.text.DateFormat;
@@ -27,6 +29,8 @@ import javax.swing.JTree;
 import javax.swing.SpinnerDateModel;
 import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.TreeExpansionEvent;
 import javax.swing.event.TreeWillExpandListener;
 import javax.swing.text.DateFormatter;
@@ -101,8 +105,11 @@ public final class W7XSignalBrowser extends jScopeBrowseSignals{
             this.updateTextFieldFormat();
             newPanel.add(new JLabel("Time:"));
             newPanel.add(this.timeSpinner);
-            this.timeSpinner.addChangeListener(e -> {
-                this.commitTime();
+            this.timeSpinner.addChangeListener(new ChangeListener(){
+                @Override
+                public void stateChanged(ChangeEvent e) {
+                    DateTimePicker.this.commitTime();
+                }
             });
             newPanel.setBackground(Color.WHITE);
             return newPanel;
@@ -201,12 +208,15 @@ public final class W7XSignalBrowser extends jScopeBrowseSignals{
     private static final long serialVersionUID = 77777770L;
 
     public static void main(final String[] args) {
-        EventQueue.invokeLater(() -> {
-            try{
-                final W7XSignalBrowser frame = new W7XSignalBrowser();
-                frame.setVisible(true);
-            }catch(final Exception e){
-                e.printStackTrace();
+        EventQueue.invokeLater(new Runnable(){
+            @Override
+            public void run() {
+                try{
+                    final W7XSignalBrowser frame = new W7XSignalBrowser();
+                    frame.setVisible(true);
+                }catch(final Exception e){
+                    e.printStackTrace();
+                }
             }
         });
     }
@@ -237,17 +247,26 @@ public final class W7XSignalBrowser extends jScopeBrowseSignals{
         this.contentPane.add(ejp = new JPanel(grid), BorderLayout.NORTH);
         ejp.add(jp = new JPanel());
         jp.add(but = new JButton("setTime"));
-        but.addActionListener(e -> {
-            W7XDataProvider.setTiming(W7XSignalBrowser.this.from.getDate().getTime(), W7XSignalBrowser.this.upto.getDate().getTime());
-            jScopeFacade.instance.UpdateAllWaves();
+        but.addActionListener(new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                W7XDataProvider.setTiming(W7XSignalBrowser.this.from.getDate().getTime(), W7XSignalBrowser.this.upto.getDate().getTime());
+                jScopeFacade.instance.UpdateAllWaves();
+            }
         });
         jp.add(but = new JButton("clearTime"));
-        but.addActionListener(e -> {
-            W7XDataProvider.setTiming();
+        but.addActionListener(new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                W7XDataProvider.setTiming();
+            }
         });
         jp.add(cb = new JCheckBox("asImage"));
-        cb.addActionListener(e -> {
-            this.is_image = cb.isSelected();
+        cb.addActionListener(new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                W7XSignalBrowser.this.is_image = cb.isSelected();
+            }
         });
         ejp.add(ejp = new JPanel());
         ejp.add(jp = new JPanel());

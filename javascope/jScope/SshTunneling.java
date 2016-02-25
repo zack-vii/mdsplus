@@ -4,6 +4,8 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.net.Socket;
 import javax.swing.JButton;
@@ -90,28 +92,37 @@ final public class SshTunneling extends Thread{
         p = new JPanel();
         final JButton ok_b = new JButton("Ok");
         ok_b.setDefaultCapable(true);
-        ok_b.addActionListener(e -> {
-            SshTunneling.this.username = SshTunneling.this.user_text.getText();
-            SshTunneling.this.passwd = new String(SshTunneling.this.passwd_text.getPassword());
-            if(!SshTunneling.this.CheckPasswd(SshTunneling.this.server, SshTunneling.this.username, SshTunneling.this.passwd)){
-                JOptionPane.showMessageDialog(SshTunneling.this.inquiry_dialog, "Login ERROR : " + ((SshTunneling.this.error_string != null) ? SshTunneling.this.error_string : "no further information"), "alert", JOptionPane.ERROR_MESSAGE);
-                SshTunneling.this.login_status = DataProvider.LOGIN_ERROR;
-            }else{
-                SshTunneling.this.inquiry_dialog.setVisible(false);
-                SshTunneling.this.login_status = DataProvider.LOGIN_OK;
+        ok_b.addActionListener(new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                SshTunneling.this.username = SshTunneling.this.user_text.getText();
+                SshTunneling.this.passwd = new String(SshTunneling.this.passwd_text.getPassword());
+                if(!SshTunneling.this.CheckPasswd(SshTunneling.this.server, SshTunneling.this.username, SshTunneling.this.passwd)){
+                    JOptionPane.showMessageDialog(SshTunneling.this.inquiry_dialog, "Login ERROR : " + ((SshTunneling.this.error_string != null) ? SshTunneling.this.error_string : "no further information"), "alert", JOptionPane.ERROR_MESSAGE);
+                    SshTunneling.this.login_status = DataProvider.LOGIN_ERROR;
+                }else{
+                    SshTunneling.this.inquiry_dialog.setVisible(false);
+                    SshTunneling.this.login_status = DataProvider.LOGIN_OK;
+                }
             }
         });
         p.add(ok_b);
         final JButton clear_b = new JButton("Clear");
-        clear_b.addActionListener(e -> {
-            SshTunneling.this.user_text.setText("");
-            SshTunneling.this.passwd_text.setText("");
+        clear_b.addActionListener(new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                SshTunneling.this.user_text.setText("");
+                SshTunneling.this.passwd_text.setText("");
+            }
         });
         p.add(clear_b);
         final JButton cancel_b = new JButton("Cancel");
-        cancel_b.addActionListener(e -> {
-            SshTunneling.this.login_status = DataProvider.LOGIN_CANCEL;
-            SshTunneling.this.inquiry_dialog.setVisible(false);
+        cancel_b.addActionListener(new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                SshTunneling.this.login_status = DataProvider.LOGIN_CANCEL;
+                SshTunneling.this.inquiry_dialog.setVisible(false);
+            }
         });
         p.add(cancel_b);
         this.inquiry_dialog.getContentPane().add(p, "South");

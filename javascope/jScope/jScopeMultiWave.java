@@ -126,13 +126,13 @@ final public class jScopeMultiWave extends MultiWaveform implements UpdateEventL
                         // Waveform.ConvertToString(sign.getTime(), false) +
                         " ]";
                         break;
-                        /*
-                case Signal.MODE_YX:
-                s = s + " [Y-X T = " +  sign.getStringTime() +
+                    /*
+                    case Signal.MODE_YX:
+                    s = s + " [Y-X T = " +  sign.getStringTime() +
                     //Waveform.ConvertToString(sign.getTime(), false) +
                     " ]";
-                break;
-                         */
+                    break;
+                     */
                 }
             }
         }
@@ -184,10 +184,13 @@ final public class jScopeMultiWave extends MultiWaveform implements UpdateEventL
     @Override
     public void processUpdateEvent(final UpdateEvent e) {
         this.eventName = e.name;
-        SwingUtilities.invokeLater(() -> {
-            // System.out.println("Evento su waveform "+e.name);
-            final WaveformEvent we = new WaveformEvent(jScopeMultiWave.this, WaveformEvent.EVENT_UPDATE, "Update on event " + jScopeMultiWave.this.eventName);
-            jScopeMultiWave.this.dispatchWaveformEvent(we);
+        SwingUtilities.invokeLater(new Runnable(){
+            @Override
+            public void run() {
+                // System.out.println("Evento su waveform "+e.name);
+                final WaveformEvent we = new WaveformEvent(jScopeMultiWave.this, WaveformEvent.EVENT_UPDATE, "Update on event " + jScopeMultiWave.this.eventName);
+                jScopeMultiWave.this.dispatchWaveformEvent(we);
+            }
         });
     }
 
@@ -203,7 +206,12 @@ final public class jScopeMultiWave extends MultiWaveform implements UpdateEventL
                 try{
                     mwi.refresh();
                 }catch(final Exception e){}
-                SwingUtilities.invokeLater(() -> jScopeMultiWave.this.jScopeWaveUpdate());
+                SwingUtilities.invokeLater(new Runnable(){
+                    @Override
+                    public void run() {
+                        jScopeMultiWave.this.jScopeWaveUpdate();
+                    }
+                });
             }
         };
         p.start();
@@ -234,7 +242,12 @@ final public class jScopeMultiWave extends MultiWaveform implements UpdateEventL
             System.err.println(e);
         }
         mwi.cache_enabled = cache_state;
-        SwingUtilities.invokeLater(() -> jScopeMultiWave.this.jScopeWaveUpdate());
+        SwingUtilities.invokeLater(new Runnable(){
+            @Override
+            public void run() {
+                jScopeMultiWave.this.jScopeWaveUpdate();
+            }
+        });
         /*
             }
         };

@@ -2,6 +2,8 @@ package jScope;
 
 /* $Id$ */
 import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -24,13 +26,21 @@ final class jScopeWavePopup extends MultiWavePopup{
         this.setup.setText("Setup data source...");
         this.setup_dialog = setup_dialog;
         this.selectWave = new JMenuItem("Select wave panel");
-        this.selectWave.addActionListener(e -> {
-            if(jScopeWavePopup.this.wave != ((WaveformManager)jScopeWavePopup.this.parent).GetSelected()) ((WaveformManager)jScopeWavePopup.this.parent).Select(jScopeWavePopup.this.wave);
-            else ((WaveformManager)jScopeWavePopup.this.parent).Deselect();
+        this.selectWave.addActionListener(new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(jScopeWavePopup.this.wave != ((WaveformManager)jScopeWavePopup.this.parent).GetSelected()) ((WaveformManager)jScopeWavePopup.this.parent).Select(jScopeWavePopup.this.wave);
+                else((WaveformManager)jScopeWavePopup.this.parent).Deselect();
+            }
         });
         this.sep1 = new JSeparator();
         this.refresh = new JMenuItem("Refresh");
-        this.refresh.addActionListener(e -> ((jScopeWaveContainer)jScopeWavePopup.this.parent).Refresh(((jScopeMultiWave)jScopeWavePopup.this.wave), "Refresh "));
+        this.refresh.addActionListener(new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ((jScopeWaveContainer)jScopeWavePopup.this.parent).Refresh(((jScopeMultiWave)jScopeWavePopup.this.wave), "Refresh ");
+            }
+        });
         /*
                 sep3 = new JSeparator();
                 saveAsText = new JMenuItem("Save as text ...");
@@ -193,9 +203,12 @@ final class jScopeWavePopup extends MultiWavePopup{
         {
             this.setup_dialog.selectSignal(w.GetSelectedSignal());
         }else if(w.GetShowSignalCount() > 0 || w.is_image && w.wi.num_waves != 0) this.setup_dialog.selectSignal(1);
-        final Timer t = new Timer(20, ae -> {
-            final Point p = ((WaveformManager)jScopeWavePopup.this.parent).getWavePosition(jScopeWavePopup.this.wave);
-            jScopeWavePopup.this.setup_dialog.Show(jScopeWavePopup.this.wave, p.x, p.y);
+        final Timer t = new Timer(20, new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                final Point p = ((WaveformManager)jScopeWavePopup.this.parent).getWavePosition(jScopeWavePopup.this.wave);
+                jScopeWavePopup.this.setup_dialog.Show(jScopeWavePopup.this.wave, p.x, p.y);
+            }
         });
         t.setRepeats(false);
         t.start();

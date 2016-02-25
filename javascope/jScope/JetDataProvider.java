@@ -5,6 +5,8 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -448,28 +450,37 @@ class JetDataProvider implements DataProvider{
         p = new JPanel();
         final JButton ok_b = new JButton("Ok");
         ok_b.setDefaultCapable(true);
-        ok_b.addActionListener(e -> {
-            JetDataProvider.this.username = JetDataProvider.this.user_text.getText();
-            JetDataProvider.this.passwd = new String(JetDataProvider.this.passwd_text.getPassword());
-            if(!JetDataProvider.this.CheckPasswd(JetDataProvider.this.username, JetDataProvider.this.passwd)){
-                JOptionPane.showMessageDialog(JetDataProvider.this.inquiry_dialog, "Login ERROR : " + ((JetDataProvider.this.error_string != null) ? JetDataProvider.this.error_string : "no further information"), "alert", JOptionPane.ERROR_MESSAGE);
-                JetDataProvider.this.login_status = DataProvider.LOGIN_ERROR;
-            }else{
-                JetDataProvider.this.inquiry_dialog.setVisible(false);
-                JetDataProvider.this.login_status = DataProvider.LOGIN_OK;
+        ok_b.addActionListener(new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JetDataProvider.this.username = JetDataProvider.this.user_text.getText();
+                JetDataProvider.this.passwd = new String(JetDataProvider.this.passwd_text.getPassword());
+                if(!JetDataProvider.this.CheckPasswd(JetDataProvider.this.username, JetDataProvider.this.passwd)){
+                    JOptionPane.showMessageDialog(JetDataProvider.this.inquiry_dialog, "Login ERROR : " + ((JetDataProvider.this.error_string != null) ? JetDataProvider.this.error_string : "no further information"), "alert", JOptionPane.ERROR_MESSAGE);
+                    JetDataProvider.this.login_status = DataProvider.LOGIN_ERROR;
+                }else{
+                    JetDataProvider.this.inquiry_dialog.setVisible(false);
+                    JetDataProvider.this.login_status = DataProvider.LOGIN_OK;
+                }
             }
         });
         p.add(ok_b);
         final JButton clear_b = new JButton("Clear");
-        clear_b.addActionListener(e -> {
-            JetDataProvider.this.user_text.setText("");
-            JetDataProvider.this.passwd_text.setText("");
+        clear_b.addActionListener(new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JetDataProvider.this.user_text.setText("");
+                JetDataProvider.this.passwd_text.setText("");
+            }
         });
         p.add(clear_b);
         final JButton cancel_b = new JButton("Cancel");
-        cancel_b.addActionListener(e -> {
-            JetDataProvider.this.login_status = DataProvider.LOGIN_CANCEL;
-            JetDataProvider.this.inquiry_dialog.setVisible(false);
+        cancel_b.addActionListener(new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JetDataProvider.this.login_status = DataProvider.LOGIN_CANCEL;
+                JetDataProvider.this.inquiry_dialog.setVisible(false);
+            }
         });
         p.add(cancel_b);
         this.inquiry_dialog.getContentPane().add(p, "South");

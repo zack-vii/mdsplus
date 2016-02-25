@@ -2,6 +2,8 @@ package jScope;
 
 /* $Id$ */
 import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -61,15 +63,18 @@ final public class SignalsBoxDialog extends JDialog{
         final JPanel p = new JPanel();
         p.setLayout(new FlowLayout(FlowLayout.CENTER));
         final JButton add = new JButton("Add");
-        add.addActionListener(e -> {
-            final int idx[] = SignalsBoxDialog.this.table.getSelectedRows();
-            final String x_expr[] = new String[idx.length];
-            final String y_expr[] = new String[idx.length];
-            for(int i = 0; i < idx.length; i++){
-                y_expr[i] = (String)SignalsBoxDialog.this.table.getValueAt(idx[i], 0);
-                x_expr[i] = (String)SignalsBoxDialog.this.table.getValueAt(idx[i], 1);
+        add.addActionListener(new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                final int idx[] = SignalsBoxDialog.this.table.getSelectedRows();
+                final String x_expr[] = new String[idx.length];
+                final String y_expr[] = new String[idx.length];
+                for(int i = 0; i < idx.length; i++){
+                    y_expr[i] = (String)SignalsBoxDialog.this.table.getValueAt(idx[i], 0);
+                    x_expr[i] = (String)SignalsBoxDialog.this.table.getValueAt(idx[i], 1);
+                }
+                SignalsBoxDialog.this.scope.wave_panel.AddSignals(null, null, x_expr, y_expr, true, false);
             }
-            SignalsBoxDialog.this.scope.wave_panel.AddSignals(null, null, x_expr, y_expr, true, false);
         });
         p.add(add);
         /*
@@ -77,7 +82,12 @@ final public class SignalsBoxDialog extends JDialog{
          * WaveInterface.sig_box.removeExpr(idx[i]-i); } table.updateUI(); } }); p.add(remove);
          */
         final JButton cancel = new JButton("Cancel");
-        cancel.addActionListener(e -> SignalsBoxDialog.this.dispose());
+        cancel.addActionListener(new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                SignalsBoxDialog.this.dispose();
+            }
+        });
         p.add(cancel);
         this.getContentPane().add("South", p);
         this.pack();

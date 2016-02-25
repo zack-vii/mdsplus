@@ -2,6 +2,10 @@ package jScope;
 
 /* $Id$ */
 import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -19,13 +23,21 @@ public class MultiWavePopup extends WavePopup{
     public MultiWavePopup(final SetupWaveformParams setup_params, final ProfileDialog profDialog){
         super(setup_params, profDialog);
         this.legend = new JMenuItem("Position legend");
-        this.legend.addActionListener(e -> {
-            if(!MultiWavePopup.this.wave.isFixedLegend() || !MultiWavePopup.this.wave.IsShowLegend()) MultiWavePopup.this.PositionLegend(new Point(MultiWavePopup.this.curr_x, MultiWavePopup.this.curr_y));
-            else if(MultiWavePopup.this.wave.isFixedLegend()) MultiWavePopup.this.RemoveLegend();
+        this.legend.addActionListener(new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(!MultiWavePopup.this.wave.isFixedLegend() || !MultiWavePopup.this.wave.IsShowLegend()) MultiWavePopup.this.PositionLegend(new Point(MultiWavePopup.this.curr_x, MultiWavePopup.this.curr_y));
+                else if(MultiWavePopup.this.wave.isFixedLegend()) MultiWavePopup.this.RemoveLegend();
+            }
         });
         this.legend.setEnabled(false);
         this.remove_legend = new JMenuItem("Remove legend");
-        this.remove_legend.addActionListener(e -> MultiWavePopup.this.RemoveLegend());
+        this.remove_legend.addActionListener(new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                MultiWavePopup.this.RemoveLegend();
+            }
+        });
         this.remove_legend.setEnabled(false);
         this.signalList = new JMenu("Signals");
         this.signalList.setEnabled(false);
@@ -66,10 +78,13 @@ public class MultiWavePopup extends WavePopup{
                 ob = new JCheckBoxMenuItem(s_name[i]);
                 this.signalList.add(ob);
                 ob.setState(s_state[i]);
-                ob.addItemListener(e -> {
-                    final Object target = e.getSource();
-                    MultiWavePopup.this.SetSignalState(((JCheckBoxMenuItem)target).getText(), ((JCheckBoxMenuItem)target).getState());
-                    MultiWavePopup.this.wave.Repaint(true);
+                ob.addItemListener(new ItemListener(){
+                    @Override
+                    public void itemStateChanged(ItemEvent e) {
+                        final Object target = e.getSource();
+                        MultiWavePopup.this.SetSignalState(((JCheckBoxMenuItem)target).getText(), ((JCheckBoxMenuItem)target).getState());
+                        MultiWavePopup.this.wave.Repaint(true);
+                    }
                 });
             }
         }

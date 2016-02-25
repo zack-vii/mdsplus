@@ -2,6 +2,8 @@ package jScope;
 
 /* $Id$ */
 import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.net.URL;
 import javax.swing.JButton;
@@ -18,11 +20,21 @@ public abstract class jScopeBrowseSignals extends jScopeBrowseUrl{
         this.add_sig = new JButton("Add signal");
         this.add_sig.setSelected(true);
         this.p.add(this.add_sig);
-        this.add_sig.addActionListener(e -> jScopeBrowseSignals.this.addSignal(false));
+        this.add_sig.addActionListener(new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                jScopeBrowseSignals.this.addSignal(false);
+            }
+        });
         this.add_sig_shot = new JButton("Add signal & shot");
         this.add_sig_shot.setSelected(true);
         this.p.add(this.add_sig_shot);
-        this.add_sig_shot.addActionListener(e -> jScopeBrowseSignals.this.addSignal(true));
+        this.add_sig_shot.addActionListener(new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                jScopeBrowseSignals.this.addSignal(true);
+            }
+        });
         this.pack();
         this.setSize(this.p.getPreferredSize().width + 50, Toolkit.getDefaultToolkit().getScreenSize().height - 80);
     }

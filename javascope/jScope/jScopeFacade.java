@@ -93,6 +93,8 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
 import javax.swing.plaf.FontUIResource;
@@ -495,7 +497,12 @@ final public class jScopeFacade extends JFrame implements ActionListener, ItemLi
         jScopeFacade.T_title = title;
         jScopeFacade.T_messageType = messageType;
         // do the following on the gui thread
-        SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(jScopeFacade.T_parentComponent, jScopeFacade.T_message, jScopeFacade.T_title, jScopeFacade.T_messageType));
+        SwingUtilities.invokeLater(new Runnable(){
+            @Override
+            public void run() {
+                JOptionPane.showMessageDialog(jScopeFacade.T_parentComponent, jScopeFacade.T_message, jScopeFacade.T_title, jScopeFacade.T_messageType);
+            }
+        });
     }
 
     public static void startApplication(final String args[]) {
@@ -591,7 +598,12 @@ final public class jScopeFacade extends JFrame implements ActionListener, ItemLi
         if(jScopeFacade.num_scope == 0){
             this.createAboutScreen();
             // do the following on the gui thread
-            SwingUtilities.invokeLater(() -> jScopeFacade.this.showAboutScreen());
+            SwingUtilities.invokeLater(new Runnable(){
+                @Override
+                public void run() {
+                    jScopeFacade.this.showAboutScreen();
+                }
+            });
         }
         this.setPropertiesFile(propFile);
         this.jScopeCreate(spos_x, spos_y);
@@ -636,31 +648,49 @@ final public class jScopeFacade extends JFrame implements ActionListener, ItemLi
             }
         }
         if(ob == this.color_i){
-            final javax.swing.Timer t = new javax.swing.Timer(20, ae -> jScopeFacade.this.color_dialog.ShowColorDialog(jScopeFacade.this.wave_panel));
+            final javax.swing.Timer t = new javax.swing.Timer(20, new ActionListener(){
+                @Override
+                public void actionPerformed(final ActionEvent ae) {
+                    jScopeFacade.this.color_dialog.ShowColorDialog(jScopeFacade.this.wave_panel);
+                }
+            });
             t.setRepeats(false);
             t.start();
         }
         if(ob == this.font_i){
             this.font_dialog.setLocationRelativeTo(this);
-            final javax.swing.Timer t = new javax.swing.Timer(20, ae -> jScopeFacade.this.font_dialog.setVisible(true));
+            final javax.swing.Timer t = new javax.swing.Timer(20, new ActionListener(){
+                @Override
+                public void actionPerformed(final ActionEvent ae) {
+                    jScopeFacade.this.font_dialog.setVisible(true);
+                }
+            });
             t.setRepeats(false);
             t.start();
         }
         if(ob == this.default_i){
-            final javax.swing.Timer t = new javax.swing.Timer(20, ae -> jScopeFacade.this.setup_default.Show(jScopeFacade.this, jScopeFacade.this.def_values));
+            final javax.swing.Timer t = new javax.swing.Timer(20, new ActionListener(){
+                @Override
+                public void actionPerformed(final ActionEvent ae) {
+                    jScopeFacade.this.setup_default.Show(jScopeFacade.this, jScopeFacade.this.def_values);
+                }
+            });
             t.setRepeats(false);
             t.start();
         }
         if(ob == this.win_i){
             if(this.win_diag == null) this.win_diag = new WindowDialog(this, "Window");
-            final javax.swing.Timer t = new javax.swing.Timer(20, ae -> {
-                final boolean returnFlag = jScopeFacade.this.win_diag.ShowWindowDialog();
-                if(returnFlag){
-                    jScopeFacade.this.wave_panel.ResetDrawPanel(jScopeFacade.this.win_diag.out_row);
-                    // wave_panel.update();
-                    jScopeFacade.this.UpdateColors();
-                    jScopeFacade.this.UpdateFont();
-                    jScopeFacade.this.setChange(true);
+            final javax.swing.Timer t = new javax.swing.Timer(20, new ActionListener(){
+                @Override
+                public void actionPerformed(final ActionEvent ae) {
+                    final boolean returnFlag = jScopeFacade.this.win_diag.ShowWindowDialog();
+                    if(returnFlag){
+                        jScopeFacade.this.wave_panel.ResetDrawPanel(jScopeFacade.this.win_diag.out_row);
+                        // wave_panel.update();
+                        jScopeFacade.this.UpdateColors();
+                        jScopeFacade.this.UpdateFont();
+                        jScopeFacade.this.setChange(true);
+                    }
                 }
             });
             t.setRepeats(false);
@@ -740,15 +770,23 @@ final public class jScopeFacade extends JFrame implements ActionListener, ItemLi
             this.pan.getModel().setSelected(true);
         }
         if(ob == this.server_list_i){
-            final javax.swing.Timer t = new javax.swing.Timer(20, ae -> {
-                jScopeFacade.this.server_diag.Show();
-                jScopeFacade.server_ip_list = jScopeFacade.this.server_diag.getServerIpList();
+            final javax.swing.Timer t = new javax.swing.Timer(20, new ActionListener(){
+                @Override
+                public void actionPerformed(final ActionEvent ae) {
+                    jScopeFacade.this.server_diag.Show();
+                    jScopeFacade.server_ip_list = jScopeFacade.this.server_diag.getServerIpList();
+                }
             });
             t.setRepeats(false);
             t.start();
         }
         if(ob == this.pub_variables_i){
-            final javax.swing.Timer t = new javax.swing.Timer(20, ae -> jScopeFacade.this.pub_var_diag.Show());
+            final javax.swing.Timer t = new javax.swing.Timer(20, new ActionListener(){
+                @Override
+                public void actionPerformed(final ActionEvent ae) {
+                    jScopeFacade.this.pub_var_diag.Show();
+                }
+            });
             t.setRepeats(false);
             t.start();
         }
@@ -1171,7 +1209,12 @@ final public class jScopeFacade extends JFrame implements ActionListener, ItemLi
         this.mb.add(this.edit_m);
         final JMenuItem browse_signals_i = new JMenuItem("Browse signals");
         this.edit_m.add(browse_signals_i);
-        browse_signals_i.addActionListener(e -> jScopeFacade.this.wave_panel.ShowBrowseSignals());
+        browse_signals_i.addActionListener(new ActionListener(){
+            @Override
+            public void actionPerformed(final ActionEvent e) {
+                jScopeFacade.this.wave_panel.ShowBrowseSignals();
+            }
+        });
         this.open_i = new JMenuItem("New Window");
         this.open_i.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, ActionEvent.CTRL_MASK));
         this.edit_m.add(this.open_i);
@@ -1179,9 +1222,12 @@ final public class jScopeFacade extends JFrame implements ActionListener, ItemLi
         this.look_and_feel_m = new JMenu("Look & Feel");
         this.edit_m.add(this.look_and_feel_m);
         final JMenuItem sign = new JMenuItem("History...");
-        sign.addActionListener(e -> {
-            final SignalsBoxDialog sig_box_diag = new SignalsBoxDialog(jScopeFacade.this, "Visited Signals", false);
-            sig_box_diag.setVisible(true);
+        sign.addActionListener(new ActionListener(){
+            @Override
+            public void actionPerformed(final ActionEvent e) {
+                final SignalsBoxDialog sig_box_diag = new SignalsBoxDialog(jScopeFacade.this, "Visited Signals", false);
+                sig_box_diag.setVisible(true);
+            }
         });
         this.edit_m.add(sign);
         this.edit_m.addSeparator();
@@ -1190,18 +1236,21 @@ final public class jScopeFacade extends JFrame implements ActionListener, ItemLi
         // if(AboutWindow.javaVersion.indexOf("1.4") != -1)
         {
             final JMenuItem cb_copy = new JMenuItem("Copy to Clipboard");
-            cb_copy.addActionListener(e -> {
-                final Dimension dim = jScopeFacade.this.wave_panel.getSize();
-                final BufferedImage ri = new BufferedImage(dim.width, dim.height, BufferedImage.TYPE_INT_RGB);
-                final Graphics2D g2d = (Graphics2D)ri.getGraphics();
-                g2d.setBackground(Color.white);
-                jScopeFacade.this.wave_panel.PrintAll(g2d, dim.height, dim.width);
-                try{
-                    final ImageTransferable imageTransferable = new ImageTransferable(ri);
-                    final Clipboard cli = Toolkit.getDefaultToolkit().getSystemClipboard();
-                    cli.setContents(imageTransferable, imageTransferable);
-                }catch(final Exception exc){
-                    System.out.println("Exception " + exc);
+            cb_copy.addActionListener(new ActionListener(){
+                @Override
+                public void actionPerformed(final ActionEvent e) {
+                    final Dimension dim = jScopeFacade.this.wave_panel.getSize();
+                    final BufferedImage ri = new BufferedImage(dim.width, dim.height, BufferedImage.TYPE_INT_RGB);
+                    final Graphics2D g2d = (Graphics2D)ri.getGraphics();
+                    g2d.setBackground(Color.white);
+                    jScopeFacade.this.wave_panel.PrintAll(g2d, dim.height, dim.width);
+                    try{
+                        final ImageTransferable imageTransferable = new ImageTransferable(ri);
+                        final Clipboard cli = Toolkit.getDefaultToolkit().getSystemClipboard();
+                        cli.setContents(imageTransferable, imageTransferable);
+                    }catch(final Exception exc){
+                        System.out.println("Exception " + exc);
+                    }
                 }
             });
             this.edit_m.add(cb_copy);
@@ -1209,33 +1258,36 @@ final public class jScopeFacade extends JFrame implements ActionListener, ItemLi
         }
         this.print_i = new JMenuItem("Print Setup ...");
         this.print_i.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, ActionEvent.CTRL_MASK));
-        this.print_i.addActionListener(e -> {
-            final Thread print_cnf = new Thread(){
-                @Override
-                public void run() {
-                    this.setName("Print Dialog Thread");
-                    final PrintService svc = PrintServiceLookup.lookupDefaultPrintService();
-                    jScopeFacade.this.printerSelection = ServiceUI.printDialog(null, 100, 100, jScopeFacade.this.printersServices, svc, null, jScopeFacade.this.attrs);
-                    if(jScopeFacade.this.printerSelection != null){
-                        System.out.println(jScopeFacade.this.printerSelection.getName() + " |||| " + jScopeFacade.this.printerSelection.getSupportedDocFlavors() + " |||| " + jScopeFacade.this.printerSelection.hashCode());
-                        jScopeFacade.this.prnJob = jScopeFacade.this.printerSelection.createPrintJob();
-                        jScopeFacade.this.PrintAllWaves(jScopeFacade.this.attrs);
-                        /*
-                        try
-                        {
-                            DocFlavor flavor = DocFlavor.SERVICE_FORMATTED.PRINTABLE;
-                            Doc doc = new SimpleDoc(jScope.this, flavor, null);
-                            prnJob.print(doc, attrs);
+        this.print_i.addActionListener(new ActionListener(){
+            @Override
+            public void actionPerformed(final ActionEvent e) {
+                final Thread print_cnf = new Thread(){
+                    @Override
+                    public void run() {
+                        this.setName("Print Dialog Thread");
+                        final PrintService svc = PrintServiceLookup.lookupDefaultPrintService();
+                        jScopeFacade.this.printerSelection = ServiceUI.printDialog(null, 100, 100, jScopeFacade.this.printersServices, svc, null, jScopeFacade.this.attrs);
+                        if(jScopeFacade.this.printerSelection != null){
+                            System.out.println(jScopeFacade.this.printerSelection.getName() + " |||| " + jScopeFacade.this.printerSelection.getSupportedDocFlavors() + " |||| " + jScopeFacade.this.printerSelection.hashCode());
+                            jScopeFacade.this.prnJob = jScopeFacade.this.printerSelection.createPrintJob();
+                            jScopeFacade.this.PrintAllWaves(jScopeFacade.this.attrs);
+                            /*
+                            try
+                            {
+                                DocFlavor flavor = DocFlavor.SERVICE_FORMATTED.PRINTABLE;
+                                Doc doc = new SimpleDoc(jScope.this, flavor, null);
+                                prnJob.print(doc, attrs);
+                            }
+                            catch(Exception exc)
+                            {
+                                System.out.println(exc);
+                            }
+                             */
                         }
-                        catch(Exception exc)
-                        {
-                            System.out.println(exc);
-                        }
-                         */
                     }
-                }
-            };
-            print_cnf.start();
+                };
+                print_cnf.start();
+            }
         });
         this.edit_m.add(this.print_i);
         /*****************************************************************************************
@@ -1261,22 +1313,28 @@ final public class jScopeFacade extends JFrame implements ActionListener, ItemLi
          * edit_m.add(page_i);
          *********************************************************************************************/
         this.print_all_i = new JMenuItem("Print");
-        this.print_all_i.addActionListener(e -> {
-            final Thread print_page = new Thread(){
-                @Override
-                public void run() {
-                    this.setName("Print All Thread");
-                    jScopeFacade.this.PrintAllWaves(jScopeFacade.this.attrs);
-                }
-            };
-            print_page.start();
+        this.print_all_i.addActionListener(new ActionListener(){
+            @Override
+            public void actionPerformed(final ActionEvent e) {
+                final Thread print_page = new Thread(){
+                    @Override
+                    public void run() {
+                        this.setName("Print All Thread");
+                        jScopeFacade.this.PrintAllWaves(jScopeFacade.this.attrs);
+                    }
+                };
+                print_page.start();
+            }
         });
         this.edit_m.add(this.print_all_i);
         this.edit_m.addSeparator();
         this.properties_i = new JMenuItem("Properties...");
-        this.properties_i.addActionListener(e -> {
-            final PropertiesEditor pe = new PropertiesEditor(jScopeFacade.this, jScopeFacade.this.propertiesFilePath);
-            pe.setVisible(true);
+        this.properties_i.addActionListener(new ActionListener(){
+            @Override
+            public void actionPerformed(final ActionEvent e) {
+                final PropertiesEditor pe = new PropertiesEditor(jScopeFacade.this, jScopeFacade.this.propertiesFilePath);
+                pe.setVisible(true);
+            }
         });
         this.edit_m.add(this.properties_i);
         this.edit_m.addSeparator();
@@ -1451,7 +1509,12 @@ final public class jScopeFacade extends JFrame implements ActionListener, ItemLi
         this.mb.add(this.help_m);
         final JMenuItem about_i = new JMenuItem("About jScope");
         this.help_m.add(about_i);
-        about_i.addActionListener(e -> JOptionPane.showMessageDialog(jScopeFacade.this, "The jScope tutorial is available at www.mdsplus.org in \"Documentation/The MDSplus tutorial\" section", "", JOptionPane.INFORMATION_MESSAGE));
+        about_i.addActionListener(new ActionListener(){
+            @Override
+            public void actionPerformed(final ActionEvent e) {
+                JOptionPane.showMessageDialog(jScopeFacade.this, "The jScope tutorial is available at www.mdsplus.org in \"Documentation/The MDSplus tutorial\" section", "", JOptionPane.INFORMATION_MESSAGE);
+            }
+        });
         this.setup_dialog = new SetupDataDialog(this, "Setup");
         this.wave_panel = this.buildWaveContainer();
         this.wave_panel.addWaveContainerListener(this);
@@ -1495,21 +1558,27 @@ final public class jScopeFacade extends JFrame implements ActionListener, ItemLi
         this.panel.add(this.decShot = new BasicArrowButton(SwingConstants.WEST));
         this.panel.add(this.shot_t);
         this.panel.add(this.incShot = new BasicArrowButton(SwingConstants.EAST));
-        this.decShot.addActionListener(e -> {
-            if(jScopeFacade.this.shot_t.getText() != null && jScopeFacade.this.shot_t.getText().trim().length() != 0){
-                if(!jScopeFacade.this.executing_update){
-                    jScopeFacade.this.incShotValue--;
-                    jScopeFacade.this.ArrowsIncDecShot();
-                    jScopeFacade.this.UpdateAllWaves();
+        this.decShot.addActionListener(new ActionListener(){
+            @Override
+            public void actionPerformed(final ActionEvent e) {
+                if(jScopeFacade.this.shot_t.getText() != null && jScopeFacade.this.shot_t.getText().trim().length() != 0){
+                    if(!jScopeFacade.this.executing_update){
+                        jScopeFacade.this.incShotValue--;
+                        jScopeFacade.this.ArrowsIncDecShot();
+                        jScopeFacade.this.UpdateAllWaves();
+                    }
                 }
             }
         });
-        this.incShot.addActionListener(e -> {
-            if(jScopeFacade.this.shot_t.getText() != null && jScopeFacade.this.shot_t.getText().trim().length() != 0){
-                if(!jScopeFacade.this.executing_update){
-                    jScopeFacade.this.incShotValue++;
-                    jScopeFacade.this.ArrowsIncDecShot();
-                    jScopeFacade.this.UpdateAllWaves();
+        this.incShot.addActionListener(new ActionListener(){
+            @Override
+            public void actionPerformed(final ActionEvent e) {
+                if(jScopeFacade.this.shot_t.getText() != null && jScopeFacade.this.shot_t.getText().trim().length() != 0){
+                    if(!jScopeFacade.this.executing_update){
+                        jScopeFacade.this.incShotValue++;
+                        jScopeFacade.this.ArrowsIncDecShot();
+                        jScopeFacade.this.UpdateAllWaves();
+                    }
                 }
             }
         });
@@ -1551,7 +1620,12 @@ final public class jScopeFacade extends JFrame implements ActionListener, ItemLi
             final Thread mon_mem = new MonMemory();
             mon_mem.start();
             final JButton exec_gc = new JButton("Exec gc");
-            exec_gc.addActionListener(e -> System.gc());
+            exec_gc.addActionListener(new ActionListener(){
+                @Override
+                public void actionPerformed(final ActionEvent e) {
+                    System.gc();
+                }
+            });
             this.panel1.add("West", exec_gc);
         }
         this.InitDataServer();
@@ -1631,16 +1705,19 @@ final public class jScopeFacade extends JFrame implements ActionListener, ItemLi
         }
         this.setChange(false);
         if(this.curr_directory != null && this.curr_directory.trim().length() != 0) this.file_diag.setCurrentDirectory(new File(this.curr_directory));
-        final javax.swing.Timer t = new javax.swing.Timer(20, ae -> {
-            final int returnVal = jScopeFacade.this.file_diag.showOpenDialog(jScopeFacade.this);
-            if(returnVal == JFileChooser.APPROVE_OPTION){
-                final File file = jScopeFacade.this.file_diag.getSelectedFile();
-                final String d = file.getAbsolutePath();
-                final String f = file.getName();
-                if(f != null && f.trim().length() != 0 && d != null && d.trim().length() != 0){
-                    jScopeFacade.this.curr_directory = d;
-                    jScopeFacade.this.config_file = jScopeFacade.this.curr_directory;
-                    jScopeFacade.this.LoadConfiguration();
+        final javax.swing.Timer t = new javax.swing.Timer(20, new ActionListener(){
+            @Override
+            public void actionPerformed(final ActionEvent ae) {
+                final int returnVal = jScopeFacade.this.file_diag.showOpenDialog(jScopeFacade.this);
+                if(returnVal == JFileChooser.APPROVE_OPTION){
+                    final File file = jScopeFacade.this.file_diag.getSelectedFile();
+                    final String d = file.getAbsolutePath();
+                    final String f = file.getName();
+                    if(f != null && f.trim().length() != 0 && d != null && d.trim().length() != 0){
+                        jScopeFacade.this.curr_directory = d;
+                        jScopeFacade.this.config_file = jScopeFacade.this.curr_directory;
+                        jScopeFacade.this.LoadConfiguration();
+                    }
                 }
             }
         });
@@ -1730,7 +1807,12 @@ final public class jScopeFacade extends JFrame implements ActionListener, ItemLi
             final String print_event = this.wave_panel.GetPrintEvent();
             final String event = this.wave_panel.GetEvent();
             if(e.name.equals(event)){
-                SwingUtilities.invokeLater(() -> jScopeFacade.this.UpdateAllWaves());
+                SwingUtilities.invokeLater(new Runnable(){
+                    @Override
+                    public void run() {
+                        jScopeFacade.this.UpdateAllWaves();
+                    }
+                });
             }
             // wave_panel.StartUpdate();
             if(e.name.equals(print_event)) this.wave_panel.StartPrint(this.prnJob, this.attrs);
@@ -2116,31 +2198,34 @@ class ServerDialog extends JDialog implements ActionListener{
         ServerDialog.server_list = new JList(this.list_model);
         final JScrollPane scrollServerList = new JScrollPane(ServerDialog.server_list);
         ServerDialog.server_list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        ServerDialog.server_list.addListSelectionListener(e -> {
-            final int idx = ServerDialog.server_list.getSelectedIndex();
-            if(idx != -1){
-                ServerDialog.this.remove_b.setEnabled(true);
-                ServerDialog.this.modify_b.setEnabled(true);
-                ServerDialog.this.server_l.setText(jScopeFacade.server_ip_list[idx].name);
-                ServerDialog.this.server_a.setText(jScopeFacade.server_ip_list[idx].argument);
-                ServerDialog.this.server_u.setText(jScopeFacade.server_ip_list[idx].user);
-                ServerDialog.this.data_provider_list.setSelectedItem(jScopeFacade.server_ip_list[idx].class_name);
-                if(jScopeFacade.server_ip_list[idx].tunnel_port != null){
-                    if(jScopeFacade.server_ip_list[idx].tunnel_port.trim().length() == 0) jScopeFacade.server_ip_list[idx].tunnel_port = null;
-                    else{
-                        ServerDialog.this.tunneling.setSelected(true);
-                        ServerDialog.this.tunnel_port.setText(jScopeFacade.server_ip_list[idx].tunnel_port);
-                        ServerDialog.this.tunnel_port.setEditable(true);
+        ServerDialog.server_list.addListSelectionListener(new ListSelectionListener(){
+            @Override
+            public void valueChanged(final ListSelectionEvent e) {
+                final int idx = ServerDialog.server_list.getSelectedIndex();
+                if(idx != -1){
+                    ServerDialog.this.remove_b.setEnabled(true);
+                    ServerDialog.this.modify_b.setEnabled(true);
+                    ServerDialog.this.server_l.setText(jScopeFacade.server_ip_list[idx].name);
+                    ServerDialog.this.server_a.setText(jScopeFacade.server_ip_list[idx].argument);
+                    ServerDialog.this.server_u.setText(jScopeFacade.server_ip_list[idx].user);
+                    ServerDialog.this.data_provider_list.setSelectedItem(jScopeFacade.server_ip_list[idx].class_name);
+                    if(jScopeFacade.server_ip_list[idx].tunnel_port != null){
+                        if(jScopeFacade.server_ip_list[idx].tunnel_port.trim().length() == 0) jScopeFacade.server_ip_list[idx].tunnel_port = null;
+                        else{
+                            ServerDialog.this.tunneling.setSelected(true);
+                            ServerDialog.this.tunnel_port.setText(jScopeFacade.server_ip_list[idx].tunnel_port);
+                            ServerDialog.this.tunnel_port.setEditable(true);
+                        }
                     }
+                    if(jScopeFacade.server_ip_list[idx].tunnel_port == null){
+                        ServerDialog.this.tunnel_port.setText("");
+                        ServerDialog.this.tunneling.setSelected(false);
+                        ServerDialog.this.tunnel_port.setEditable(false);
+                    }
+                }else{
+                    ServerDialog.this.remove_b.setEnabled(false);
+                    ServerDialog.this.modify_b.setEnabled(false);
                 }
-                if(jScopeFacade.server_ip_list[idx].tunnel_port == null){
-                    ServerDialog.this.tunnel_port.setText("");
-                    ServerDialog.this.tunneling.setSelected(false);
-                    ServerDialog.this.tunnel_port.setEditable(false);
-                }
-            }else{
-                ServerDialog.this.remove_b.setEnabled(false);
-                ServerDialog.this.modify_b.setEnabled(false);
             }
         });
         // server_list.addKeyListener(this);
@@ -2169,11 +2254,14 @@ class ServerDialog extends JDialog implements ActionListener{
         this.getContentPane().add(this.server_a);
         c.gridwidth = 1;
         this.tunneling = new JCheckBox("Tunneling local Port:");
-        this.tunneling.addItemListener(e -> {
-            if(ServerDialog.this.tunneling.isSelected()){
-                ServerDialog.this.tunnel_port.setEditable(true);
-            }else{
-                ServerDialog.this.tunnel_port.setEditable(false);
+        this.tunneling.addItemListener(new ItemListener(){
+            @Override
+            public void itemStateChanged(final ItemEvent e) {
+                if(ServerDialog.this.tunneling.isSelected()){
+                    ServerDialog.this.tunnel_port.setEditable(true);
+                }else{
+                    ServerDialog.this.tunnel_port.setEditable(false);
+                }
             }
         });
         gridbag.setConstraints(this.tunneling, c);
@@ -2187,13 +2275,16 @@ class ServerDialog extends JDialog implements ActionListener{
         c.gridwidth = GridBagConstraints.REMAINDER;
         c.fill = GridBagConstraints.BOTH;
         this.automatic = new JCheckBox("Get user name from host");
-        this.automatic.addItemListener(e -> {
-            if(ServerDialog.this.automatic.isSelected()){
-                ServerDialog.this.server_u.setText(System.getProperty("user.name"));
-                ServerDialog.this.server_u.setEditable(false);
-            }else{
-                ServerDialog.this.server_u.setText("");
-                ServerDialog.this.server_u.setEditable(true);
+        this.automatic.addItemListener(new ItemListener(){
+            @Override
+            public void itemStateChanged(final ItemEvent e) {
+                if(ServerDialog.this.automatic.isSelected()){
+                    ServerDialog.this.server_u.setText(System.getProperty("user.name"));
+                    ServerDialog.this.server_u.setEditable(false);
+                }else{
+                    ServerDialog.this.server_u.setText("");
+                    ServerDialog.this.server_u.setEditable(true);
+                }
             }
         });
         gridbag.setConstraints(this.automatic, c);
@@ -2217,19 +2308,22 @@ class ServerDialog extends JDialog implements ActionListener{
         this.data_provider_list = new JComboBox();
         gridbag.setConstraints(this.data_provider_list, c);
         this.getContentPane().add(this.data_provider_list);
-        this.data_provider_list.addItemListener(e -> {
-            try{
-                if(e.getStateChange() == ItemEvent.SELECTED){
-                    final String srv = (String)ServerDialog.this.data_provider_list.getSelectedItem();
-                    if(srv != null){
-                        final Class cl = Class.forName("jScope." + srv);
-                        final DataProvider dp = ((DataProvider)cl.newInstance());
-                        final boolean state = dp.SupportsTunneling();
-                        ServerDialog.this.tunneling.setEnabled(state);
-                        ServerDialog.this.tunnel_port.setEnabled(state);
+        this.data_provider_list.addItemListener(new ItemListener(){
+            @Override
+            public void itemStateChanged(final ItemEvent e) {
+                try{
+                    if(e.getStateChange() == ItemEvent.SELECTED){
+                        final String srv = (String)ServerDialog.this.data_provider_list.getSelectedItem();
+                        if(srv != null){
+                            final Class cl = Class.forName("jScope." + srv);
+                            final DataProvider dp = ((DataProvider)cl.newInstance());
+                            final boolean state = dp.SupportsTunneling();
+                            ServerDialog.this.tunneling.setEnabled(state);
+                            ServerDialog.this.tunnel_port.setEnabled(state);
+                        }
                     }
-                }
-            }catch(final Exception exc){}
+                }catch(final Exception exc){}
+            }
         });
         final JPanel p = new JPanel(new FlowLayout(FlowLayout.CENTER));
         this.add_b = new JButton("Add");

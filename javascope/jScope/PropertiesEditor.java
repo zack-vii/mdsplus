@@ -1,6 +1,8 @@
 package jScope;
 
 import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.FileWriter;
 import java.io.IOException;
 import javax.swing.JButton;
@@ -34,20 +36,26 @@ final public class PropertiesEditor extends JDialog{
         final JButton save = new JButton("Save");
         save.setSelected(true);
         p.add(save);
-        save.addActionListener(e -> {
-            try{
-                PropertiesEditor.this.text.write(new FileWriter(PropertiesEditor.this.prFile));
-                JOptionPane.showMessageDialog(PropertiesEditor.this, "The changes will take effect the next time you restart jScope.", "Info", JOptionPane.WARNING_MESSAGE);
-            }catch(final IOException exc){
-                exc.printStackTrace();
-            };
+        save.addActionListener(new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try{
+                    PropertiesEditor.this.text.write(new FileWriter(PropertiesEditor.this.prFile));
+                    JOptionPane.showMessageDialog(PropertiesEditor.this, "The changes will take effect the next time you restart jScope.", "Info", JOptionPane.WARNING_MESSAGE);
+                }catch(final IOException exc){
+                    exc.printStackTrace();
+                };
+            }
         });
         final JButton close = new JButton("Close");
         close.setSelected(true);
         p.add(close);
-        close.addActionListener(e -> {
-            PropertiesEditor.this.setVisible(false);
-            PropertiesEditor.this.dispose();
+        close.addActionListener(new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                PropertiesEditor.this.setVisible(false);
+                PropertiesEditor.this.dispose();
+            }
         });
         this.getContentPane().add(p, BorderLayout.SOUTH);
         this.pack();

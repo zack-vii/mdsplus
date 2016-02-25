@@ -14,6 +14,8 @@ import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
@@ -264,13 +266,16 @@ public class Waveform extends JComponent implements SignalListener{
         this.setName("Waveform_" + (Waveform.ixxxx++));
         this.setBorder(BorderFactory.createLoweredBevelBorder());
         this.setSelectBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.red, Color.red));
-        this.play_timer = new javax.swing.Timer(100, evt -> {
-            Waveform.this.frame = Waveform.this.frames.getNextFrameIdx();
-            if(Waveform.this.frame == Waveform.this.frames.getNumFrame() - 1) Waveform.this.frame = 0;
-            Waveform.this.repaint();
-            if(Waveform.this.mode == Waveform.MODE_POINT){
-                Waveform.this.sendUpdateEvent();
-                if(Waveform.this.send_profile) Waveform.this.sendProfileEvent();
+        this.play_timer = new javax.swing.Timer(100, new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                Waveform.this.frame = Waveform.this.frames.getNextFrameIdx();
+                if(Waveform.this.frame == Waveform.this.frames.getNumFrame() - 1) Waveform.this.frame = 0;
+                Waveform.this.repaint();
+                if(Waveform.this.mode == Waveform.MODE_POINT){
+                    Waveform.this.sendUpdateEvent();
+                    if(Waveform.this.send_profile) Waveform.this.sendProfileEvent();
+                }
             }
         });
         this.prev_point_x = this.prev_point_y = -1;

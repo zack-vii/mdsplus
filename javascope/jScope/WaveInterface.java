@@ -210,10 +210,7 @@ public class WaveInterface{
                 is_new[j] = true;
                 for(int i = 0; i < this.num_waves; i++){
                     if(y_expr[j].equals(this.in_y[i]) && (this.in_x[i] != null && x_expr[j].equals(this.in_x[i]))){
-                        /*
-                         * if(evaluated != null && evaluated[i]) return true; else return false;
-                         */
-                        is_new[j] = false;
+                        is_new[j] = this.evaluated != null && this.evaluated[i];
                         num_sig--;
                     }
                 }
@@ -232,28 +229,29 @@ public class WaveInterface{
         final boolean new_interpolates[] = new boolean[new_num_waves];
         final int new_mode2D[] = new int[new_num_waves];
         final int new_mode1D[] = new int[new_num_waves];
-        long new_shots[] = null;
-        if(this.shots != null) new_shots = new long[new_num_waves];
+        final long new_shots[];
+        if(this.shots == null) new_shots = null;
+        else new_shots = new long[new_num_waves];
         final boolean new_evaluated[] = new boolean[new_num_waves];
         final Signal new_signals[] = new Signal[new_num_waves];
         final String new_w_error[] = new String[new_num_waves];
+        System.arraycopy(this.in_label, 0, new_in_label, 0, this.num_waves);
+        System.arraycopy(this.in_x, 0, new_in_x, 0, this.num_waves);
+        System.arraycopy(this.in_y, 0, new_in_y, 0, this.num_waves);
+        System.arraycopy(this.in_up_err, 0, new_in_up_err, 0, this.num_waves);
+        System.arraycopy(this.in_low_err, 0, new_in_low_err, 0, this.num_waves);
+        System.arraycopy(this.markers, 0, new_markers, 0, this.num_waves);
+        System.arraycopy(this.markers_step, 0, new_markers_step, 0, this.num_waves);
+        System.arraycopy(this.colors_idx, 0, new_colors_idx, 0, this.num_waves);
+        System.arraycopy(this.interpolates, 0, new_interpolates, 0, this.num_waves);
+        System.arraycopy(this.mode2D, 0, new_mode2D, 0, this.num_waves);
+        System.arraycopy(this.mode1D, 0, new_mode1D, 0, this.num_waves);
+        if(new_shots != null) System.arraycopy(this.shots, 0, new_shots, 0, this.num_waves);
+        if(this.signals != null) System.arraycopy(this.signals, 0, new_signals, 0, this.num_waves);
+        if(this.w_error != null) System.arraycopy(this.w_error, 0, new_w_error, 0, this.num_waves);
         for(int i = 0; i < this.num_waves; i++){
-            new_in_label[i] = this.in_label[i];
-            new_in_x[i] = this.in_x[i];
-            new_in_y[i] = this.in_y[i];
-            new_in_up_err[i] = this.in_up_err[i];
-            new_in_low_err[i] = this.in_low_err[i];
-            new_markers[i] = this.markers[i];
-            new_markers_step[i] = this.markers_step[i];
-            new_colors_idx[i] = this.colors_idx[i];
-            new_interpolates[i] = this.interpolates[i];
-            new_mode2D[i] = this.mode2D[i];
-            new_mode1D[i] = this.mode1D[i];
-            if(this.shots != null) new_shots[i] = this.shots[i];
             if(this.evaluated != null) new_evaluated[i] = this.evaluated[i];
             else new_evaluated[i] = false;
-            if(this.signals != null) new_signals[i] = this.signals[i];
-            if(this.w_error != null) new_w_error[i] = this.w_error[i];
         }
         for(int i = 0, k = this.num_waves; i < x_expr.length; i++){
             if(is_new != null && !is_new[i]) continue;
@@ -271,7 +269,7 @@ public class WaveInterface{
                 new_evaluated[k] = false;
                 new_mode2D[k] = Signal.MODE_XZ;
                 new_mode1D[k] = Signal.MODE_LINE;
-                if(this.shots != null && this.shots.length != 0 && this.num_shot > 0) new_shots[k] = this.shots[j];
+                if(new_shots != null && this.shots.length > 0 && this.num_shot > 0) new_shots[k] = this.shots[j];
                 k++;
             }
         }
@@ -442,9 +440,7 @@ public class WaveInterface{
     }
 
     public String getErrorTitle(final boolean brief) {
-        if(DEBUG.M){
-            System.out.println("WaveInterface.getErrorTitle(" + brief + ")");
-        }
+        if(DEBUG.M) System.out.println("WaveInterface.getErrorTitle(" + brief + ")");
         int n_error = 0;
         String er = this.error;
         if(DEBUG.D) System.out.println(">> " + this.error);
@@ -943,8 +939,9 @@ public class WaveInterface{
         final boolean[] interpolates = new boolean[num_signal];
         final int[] mode2D = new int[num_signal];
         final int[] mode1D = new int[num_signal];
-        long[] shots = null;
-        if(curr_shots != null) shots = new long[num_signal];
+        final long[] shots;
+        if(curr_shots == null) shots = null;
+        else shots = new long[num_signal];
         final int sig_idx = (this.num_shot == 0) ? 1 : this.num_shot;
         for(int i = 0, k = 0; i < num_expr; i++){
             for(int j = 0; j < curr_num_shot; j++, k++){
@@ -957,7 +954,6 @@ public class WaveInterface{
                     interpolates[k] = this.interpolates[i * this.num_shot + j];
                     mode2D[k] = this.mode2D[i * this.num_shot + j];
                     mode1D[k] = this.mode1D[i * this.num_shot + j];
-                    if(curr_shots != null) shots[k] = curr_shots[j];
                     in_up_err[k] = this.in_up_err[i * this.num_shot + j];
                     in_low_err[k] = this.in_low_err[i * this.num_shot + j];
                     colors_idx[k] = this.colors_idx[i * this.num_shot + j];
@@ -971,8 +967,8 @@ public class WaveInterface{
                     in_low_err[k] = this.in_low_err[i * this.num_shot];
                     if(WaveInterface.auto_color_on_expr) colors_idx[k] = i % Waveform.colors.length; // this.colors_idx[i * this.num_shot];
                     else colors_idx[k] = j % Waveform.colors.length;
-                    if(curr_shots != null) shots[k] = curr_shots[j];
                 }
+                if(shots != null) shots[k] = curr_shots[j];
             }
         }
         this.in_label = in_label;

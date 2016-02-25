@@ -9,6 +9,10 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.awt.Window;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.print.PageFormat;
@@ -30,6 +34,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JRootPane;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 final public class CompositeWaveDisplay extends JApplet implements WaveContainerListener{
     public class AppendThread extends Thread{
@@ -47,7 +53,7 @@ final public class CompositeWaveDisplay extends JApplet implements WaveContainer
                     s.resetSignalData();
                 case (CompositeWaveDisplay.CMND_ADD):
                     s.appendValues(x, y);
-                break;
+                    break;
             }
         }
 
@@ -58,10 +64,10 @@ final public class CompositeWaveDisplay extends JApplet implements WaveContainer
                     s.resetSignalData();
                 case (CompositeWaveDisplay.CMND_ADD):
                     final double d[] = new double[x.length];
-                for(int i = 0; i < x.length; i++)
-                    d[i] = x[i];
-                s.appendValues(d, y, numPoints, time);
-                break;
+                    for(int i = 0; i < x.length; i++)
+                        d[i] = x[i];
+                    s.appendValues(d, y, numPoints, time);
+                    break;
             }
         }
 
@@ -72,7 +78,7 @@ final public class CompositeWaveDisplay extends JApplet implements WaveContainer
             for(int i = 0; i < usds.length; i++);
             return null;
         }
-
+        
         private UpdSignalData mergeMessage(UpdSignalData upd1, UpdSignalData upd2)
         {
             if(upd1.name != upd2.name || upd1.type != upd2.type) return null;
@@ -81,14 +87,14 @@ final public class CompositeWaveDisplay extends JApplet implements WaveContainer
             {
                if(upd1.operation == CompositeWaveDisplay.CMND_CLEAR) return upd1 ;
                if(upd2.operation == CompositeWaveDisplay.CMND_CLEAR) return upd2 ;
-
+        
                 int numSignal1 = upd1.x.length / upd1.numPointsPerSignal;
                 int numSignal2 = upd2.x.length / upd2.numPointsPerSignal;
-
+        
                 if(numSignal1 != numSignal2) return null;
-
+        
                 float y[] = float[upd1.length]
-
+        
             }
         }
          */
@@ -720,7 +726,7 @@ final public class CompositeWaveDisplay extends JApplet implements WaveContainer
         global_autentication = this.getParameter("AUTENTICATION");
         /*
         param = getParameter("PRINT_SCALING");
-
+        
         if(param != null){
             try{
                 print_scaling = Integer.parseInt(param);
@@ -797,13 +803,33 @@ final public class CompositeWaveDisplay extends JApplet implements WaveContainer
         this.wave_container.SetMode(Waveform.MODE_ZOOM);
         this.getContentPane().setLayout(new BorderLayout());
         final JRadioButton point = new JRadioButton("Point", false);
-        point.addItemListener(e -> CompositeWaveDisplay.this.wave_container.SetMode(Waveform.MODE_POINT));
+        point.addItemListener(new ItemListener(){
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                CompositeWaveDisplay.this.wave_container.SetMode(Waveform.MODE_POINT);
+            }
+        });
         final JRadioButton zoom = new JRadioButton("Zoom", true);
-        zoom.addItemListener(e -> CompositeWaveDisplay.this.wave_container.SetMode(Waveform.MODE_ZOOM));
+        zoom.addItemListener(new ItemListener(){
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                CompositeWaveDisplay.this.wave_container.SetMode(Waveform.MODE_ZOOM);
+            }
+        });
         final JRadioButton pan = new JRadioButton("Pan", false);
-        pan.addItemListener(e -> CompositeWaveDisplay.this.wave_container.SetMode(Waveform.MODE_PAN));
+        pan.addItemListener(new ItemListener(){
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                CompositeWaveDisplay.this.wave_container.SetMode(Waveform.MODE_PAN);
+            }
+        });
         this.liveUpdate = new JCheckBox("Live Update", false);
-        this.liveUpdate.addChangeListener(e -> CompositeWaveDisplay.this.setLiveUpdate(CompositeWaveDisplay.this.liveUpdate.isSelected(), false));
+        this.liveUpdate.addChangeListener(new ChangeListener(){
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                CompositeWaveDisplay.this.setLiveUpdate(CompositeWaveDisplay.this.liveUpdate.isSelected(), false);
+            }
+        });
         // liveUpdate.setSelected(false);
         this.liveUpdate.setVisible(false);
         this.pointer_mode = new ButtonGroup();
@@ -834,20 +860,23 @@ final public class CompositeWaveDisplay extends JApplet implements WaveContainer
             this.prnJob = PrinterJob.getPrinterJob();
             this.pf = this.prnJob.defaultPage();
             final JButton print = new JButton("Print");
-            print.addActionListener(e -> {
-                final Thread t = new Thread(){
-                    @Override
-                    public void run() {
-                        try{
-                            CompositeWaveDisplay.this.pf = CompositeWaveDisplay.this.prnJob.pageDialog(CompositeWaveDisplay.this.pf);
-                            if(CompositeWaveDisplay.this.prnJob.printDialog()){
-                                CompositeWaveDisplay.this.prnJob.setPrintable(CompositeWaveDisplay.this.wave_container, CompositeWaveDisplay.this.pf);
-                                CompositeWaveDisplay.this.prnJob.print();
-                            }
-                        }catch(final Exception ex){}
-                    }
-                };
-                t.start();
+            print.addActionListener(new ActionListener(){
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    final Thread t = new Thread(){
+                        @Override
+                        public void run() {
+                            try{
+                                CompositeWaveDisplay.this.pf = CompositeWaveDisplay.this.prnJob.pageDialog(CompositeWaveDisplay.this.pf);
+                                if(CompositeWaveDisplay.this.prnJob.printDialog()){
+                                    CompositeWaveDisplay.this.prnJob.setPrintable(CompositeWaveDisplay.this.wave_container, CompositeWaveDisplay.this.pf);
+                                    CompositeWaveDisplay.this.prnJob.print();
+                                }
+                            }catch(final Exception ex){}
+                        }
+                    };
+                    t.start();
+                }
             });
             panel.add("East", print);
         }

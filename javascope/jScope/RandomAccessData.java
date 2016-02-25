@@ -3,22 +3,13 @@ package jScope;
 /* $Id$ */
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.util.Vector;
 
 /**
  * Insert the type's description here.
  * Creation date: (12/10/99 18:49:35)
  */
-public class RandomAccessData{
-    /**
-     * Insert the method's description here.
-     * Creation date: (15/10/99 17:17:05)
-     *
-     * @return java.lang.String
-     */
-    public static String readString() {
-        System.out.println("readString not supported");
-        return null;
-    }
+public final class RandomAccessData{
     byte buffer[];
     int  position = 0;
 
@@ -47,8 +38,12 @@ public class RandomAccessData{
      *
      * @return long
      */
-    public long getFilePointer() {
+    public final long getFilePointer() {
         return this.position;
+    }
+
+    public final byte readByte() throws java.io.IOException {
+        return this.buffer[this.position++];
     }
 
     /**
@@ -58,7 +53,7 @@ public class RandomAccessData{
      * @param size
      *            int
      */
-    public void readFully(final byte data[]) {
+    public final void readFully(final byte data[]) {
         for(int i = 0; i < data.length; i++)
             data[i] = this.buffer[this.position + i];
         this.position += data.length;
@@ -68,17 +63,11 @@ public class RandomAccessData{
      * Insert the method's description here.
      * Creation date: (12/10/99 19:05:42)
      */
-    int readInt() throws java.io.IOException {
-        int x;
-        final int pos = this.position;
-        x = (short)(this.buffer[pos] & 0xFF);
-        x <<= 8;
-        x |= (short)(this.buffer[pos + 1] & 0xFF);
-        x <<= 8;
-        x |= (short)(this.buffer[pos + 2] & 0xFF);
-        x <<= 8;
-        x |= (short)(this.buffer[pos + 3] & 0xFF);
-        this.position += 4;
+    public final int readInt() throws java.io.IOException {
+        int x = (this.buffer[this.position++] & 0xFF) << 24;
+        x |= (this.buffer[this.position++] & 0xFF) << 16;
+        x |= (this.buffer[this.position++] & 0xFF) << 8;
+        x |= (this.buffer[this.position++] & 0xFF);
         return x;
     }
 
@@ -89,14 +78,28 @@ public class RandomAccessData{
      * @exception java.io.IOException
      *                The exception description.
      */
-    short readShort() throws java.io.IOException {
-        short x;
-        final int pos = this.position;
-        x = (short)(this.buffer[pos] & 0xFF);
-        x <<= 8;
-        x |= (short)(this.buffer[pos + 1] & 0xFF);
-        this.position += 2;
+    public final short readShort() throws java.io.IOException {
+        short x = (short)((this.buffer[this.position++] & 0xFF) << 8);
+        x |= (this.buffer[this.position++] & 0xFF);
         return x;
+    }
+    // public final String readString() throws IOException {}
+
+    // public final String readString(final int length) throws IOException {}
+    /**
+     * Insert the method's description here.
+     * Creation date: (15/10/99 17:17:05)
+     *
+     * @return java.lang.String
+     */
+    public final String readString0() throws IOException {
+        final Vector<Byte> data = new Vector<Byte>();
+        while(true){
+            final byte b = this.readByte();
+            if(b == 0) break;
+            data.add(b);
+        }
+        return data.toArray().toString();
     }
 
     /**
@@ -106,7 +109,7 @@ public class RandomAccessData{
      * @exception java.io.IOException
      *                The exception description.
      */
-    public void seek(final long pos) throws java.io.IOException {
+    public final void seek(final long pos) throws IOException {
         this.position = (int)pos;
     }
 
@@ -117,7 +120,7 @@ public class RandomAccessData{
      * @param amount
      *            int
      */
-    public void skipBytes(final int amount) {
+    public final void skipBytes(final int amount) {
         this.position += amount;
     }
 }

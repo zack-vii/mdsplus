@@ -8,6 +8,7 @@ import java.awt.Graphics2D;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
@@ -35,12 +36,12 @@ public class WavePopup extends JPopupMenu implements ItemListener{
             b = (JRadioButtonMenuItem)e.nextElement();
         if(b != null) bg.setSelected(b.getModel(), true);
     }
-    ColorMapDialog colorMapDialog = null;
-    protected int  curr_x, curr_y;
-    protected JMenu markerList, colorList, markerStep, mode_2d, mode_1d;
-    protected ButtonGroup markerList_bg, colorList_bg, markerStep_bg, mode_2d_bg, mode_1d_bg;
-    protected Container   parent;
-    protected JMenuItem   playFrame, remove_panel, set_point, undo_zoom, maximize, cb_copy, profile_dialog, colorMap, saveAsText;
+    ColorMapDialog                 colorMapDialog = null;
+    protected int                  curr_x, curr_y;
+    protected JMenu                markerList, colorList, markerStep, mode_2d, mode_1d;
+    protected ButtonGroup          markerList_bg, colorList_bg, markerStep_bg, mode_2d_bg, mode_1d_bg;
+    protected Container            parent;
+    protected JMenuItem            playFrame, remove_panel, set_point, undo_zoom, maximize, cb_copy, profile_dialog, colorMap, saveAsText;
     protected JRadioButtonMenuItem plot_line, plot_no_line, plot_step;
     protected JRadioButtonMenuItem plot_y_time, plot_x_y, plot_contour, plot_image;
     ProfileDialog                  profDialog;
@@ -56,24 +57,40 @@ public class WavePopup extends JPopupMenu implements ItemListener{
 
     public WavePopup(final SetupWaveformParams setup_params, final ProfileDialog profDialog){
         this.setup = new JMenuItem("Set Limits...");
-        this.setup.addActionListener(e -> WavePopup.this.ShowDialog());
+        this.setup.addActionListener(new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                WavePopup.this.ShowDialog();
+            }
+        });
         this.setup_params = setup_params;
         this.profDialog = profDialog;
         this.remove_panel = new JMenuItem("Remove panel");
         this.remove_panel.setEnabled(false);
-        this.remove_panel.addActionListener(e -> {
-            final Object[] options = {"Yes", "No"};
-            final int opt = JOptionPane.showOptionDialog(null, "Are you sure you want to remove this wave panel?", "Warning", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[1]);
-            if(opt == JOptionPane.YES_OPTION) ((WaveformManager)WavePopup.this.parent).removePanel(WavePopup.this.wave);
+        this.remove_panel.addActionListener(new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                final Object[] options = {"Yes", "No"};
+                final int opt = JOptionPane.showOptionDialog(null, "Are you sure you want to remove this wave panel?", "Warning", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[1]);
+                if(opt == JOptionPane.YES_OPTION) ((WaveformManager)WavePopup.this.parent).removePanel(WavePopup.this.wave);
+            }
         });
         this.maximize = new JMenuItem("Maximize Panel");
         this.maximize.setEnabled(false);
-        this.maximize.addActionListener(e -> {
-            if(((WaveformManager)WavePopup.this.parent).isMaximize()) ((WaveformManager)WavePopup.this.parent).maximizeComponent(null);
-            else ((WaveformManager)WavePopup.this.parent).maximizeComponent(WavePopup.this.wave);
+        this.maximize.addActionListener(new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(((WaveformManager)WavePopup.this.parent).isMaximize()) ((WaveformManager)WavePopup.this.parent).maximizeComponent(null);
+                else((WaveformManager)WavePopup.this.parent).maximizeComponent(WavePopup.this.wave);
+            }
         });
         this.set_point = new JMenuItem("Set Point");
-        this.set_point.addActionListener(e -> WavePopup.this.SetDeselectPoint(WavePopup.this.wave));
+        this.set_point.addActionListener(new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                WavePopup.this.SetDeselectPoint(WavePopup.this.wave);
+            }
+        });
         this.markerList = new JMenu("Markers");
         JRadioButtonMenuItem ob;
         this.markerList_bg = new ButtonGroup();
@@ -99,104 +116,199 @@ public class WavePopup extends JPopupMenu implements ItemListener{
         this.mode_1d = new JMenu("Mode Plot 1D");
         this.mode_1d.add(this.plot_line = new JRadioButtonMenuItem("Line"));
         this.mode_1d_bg.add(this.plot_line);
-        this.plot_line.addItemListener(e -> {
-            if(e.getStateChange() == ItemEvent.SELECTED) WavePopup.this.SetMode1D(Signal.MODE_LINE);
+        this.plot_line.addItemListener(new ItemListener(){
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                if(e.getStateChange() == ItemEvent.SELECTED) WavePopup.this.SetMode1D(Signal.MODE_LINE);
+            }
         });
         this.mode_1d.add(this.plot_no_line = new JRadioButtonMenuItem("No Line"));
         this.mode_1d_bg.add(this.plot_no_line);
-        this.plot_no_line.addItemListener(e -> {
-            if(e.getStateChange() == ItemEvent.SELECTED) WavePopup.this.SetMode1D(Signal.MODE_NOLINE);
+        this.plot_no_line.addItemListener(new ItemListener(){
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                if(e.getStateChange() == ItemEvent.SELECTED) WavePopup.this.SetMode1D(Signal.MODE_NOLINE);
+            }
         });
         this.mode_1d.add(this.plot_step = new JRadioButtonMenuItem("Step Plot"));
         this.mode_1d_bg.add(this.plot_step);
-        this.plot_step.addItemListener(e -> {
-            if(e.getStateChange() == ItemEvent.SELECTED) WavePopup.this.SetMode1D(Signal.MODE_STEP);
-            // wave.Update();
+        this.plot_step.addItemListener(new ItemListener(){
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                if(e.getStateChange() == ItemEvent.SELECTED) WavePopup.this.SetMode1D(Signal.MODE_STEP);
+                // wave.Update();
+            }
         });
         this.mode_2d_bg = new ButtonGroup();
         this.mode_2d = new JMenu("signal 2D");
         this.mode_2d.add(this.plot_y_time = new JRadioButtonMenuItem("Plot xz(y)"));
         this.mode_2d_bg.add(this.plot_y_time);
-        this.plot_y_time.addItemListener(e -> {
-            if(e.getStateChange() == ItemEvent.SELECTED) WavePopup.this.SetMode2D(Signal.MODE_XZ);
+        this.plot_y_time.addItemListener(new ItemListener(){
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                if(e.getStateChange() == ItemEvent.SELECTED) WavePopup.this.SetMode2D(Signal.MODE_XZ);
+            }
         });
         this.mode_2d.add(this.plot_x_y = new JRadioButtonMenuItem("Plot yz(x)"));
         this.mode_2d_bg.add(this.plot_x_y);
-        this.plot_x_y.addItemListener(e -> {
-            if(e.getStateChange() == ItemEvent.SELECTED) WavePopup.this.SetMode2D(Signal.MODE_YZ);
+        this.plot_x_y.addItemListener(new ItemListener(){
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                if(e.getStateChange() == ItemEvent.SELECTED) WavePopup.this.SetMode2D(Signal.MODE_YZ);
+            }
         });
         this.mode_2d.add(this.plot_contour = new JRadioButtonMenuItem("Plot Contour"));
         this.mode_2d_bg.add(this.plot_contour);
-        this.plot_contour.addItemListener(e -> {
-            if(e.getStateChange() == ItemEvent.SELECTED){
-                WavePopup.this.SetMode2D(Signal.MODE_CONTOUR);
+        this.plot_contour.addItemListener(new ItemListener(){
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                if(e.getStateChange() == ItemEvent.SELECTED){
+                    WavePopup.this.SetMode2D(Signal.MODE_CONTOUR);
+                }
             }
         });
         this.mode_2d.add(this.plot_image = new JRadioButtonMenuItem("Plot Image"));
         this.mode_2d_bg.add(this.plot_image);
-        this.plot_image.addItemListener(e -> {
-            if(e.getStateChange() == ItemEvent.SELECTED){
-                WavePopup.this.wave.setShowSigImage(true);
-                WavePopup.this.SetMode2D(Signal.MODE_IMAGE);
-            }else WavePopup.this.wave.setShowSigImage(false);
+        this.plot_image.addItemListener(new ItemListener(){
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                if(e.getStateChange() == ItemEvent.SELECTED){
+                    WavePopup.this.wave.setShowSigImage(true);
+                    WavePopup.this.SetMode2D(Signal.MODE_IMAGE);
+                }else WavePopup.this.wave.setShowSigImage(false);
+            }
         });
         this.sep1 = new JSeparator();
         this.sep2 = new JSeparator();
         this.autoscale = new JMenuItem("Autoscale");
-        this.autoscale.addActionListener(e -> WavePopup.this.wave.Autoscale());
+        this.autoscale.addActionListener(new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                WavePopup.this.wave.Autoscale();
+            }
+        });
         this.autoscaleY = new JMenuItem("Autoscale Y");
-        this.autoscaleY.addActionListener(e -> WavePopup.this.wave.AutoscaleY());
+        this.autoscaleY.addActionListener(new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                WavePopup.this.wave.AutoscaleY();
+            }
+        });
         this.autoscaleAll = new JMenuItem("Autoscale all");
         this.autoscaleAll.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_B, ActionEvent.CTRL_MASK));
-        this.autoscaleAll.addActionListener(e -> {
-            if(WavePopup.this.wave.IsImage()) ((WaveformManager)WavePopup.this.parent).AutoscaleAllImages();
-            else ((WaveformManager)WavePopup.this.parent).AutoscaleAll();
+        this.autoscaleAll.addActionListener(new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(WavePopup.this.wave.IsImage()) ((WaveformManager)WavePopup.this.parent).AutoscaleAllImages();
+                else((WaveformManager)WavePopup.this.parent).AutoscaleAll();
+            }
         });
         this.autoscaleAllY = new JMenuItem("Autoscale all Y");
         this.autoscaleAllY.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y, ActionEvent.CTRL_MASK));
-        this.autoscaleAllY.addActionListener(e -> ((WaveformManager)WavePopup.this.parent).AutoscaleAllY());
+        this.autoscaleAllY.addActionListener(new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ((WaveformManager)WavePopup.this.parent).AutoscaleAllY();
+            }
+        });
         this.allSameScale = new JMenuItem("All same scale");
-        this.allSameScale.addActionListener(e -> ((WaveformManager)WavePopup.this.parent).AllSameScale(WavePopup.this.wave));
+        this.allSameScale.addActionListener(new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ((WaveformManager)WavePopup.this.parent).AllSameScale(WavePopup.this.wave);
+            }
+        });
         this.allSameXScale = new JMenuItem("All same X scale");
-        this.allSameXScale.addActionListener(e -> ((WaveformManager)WavePopup.this.parent).AllSameXScale(WavePopup.this.wave));
+        this.allSameXScale.addActionListener(new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ((WaveformManager)WavePopup.this.parent).AllSameXScale(WavePopup.this.wave);
+            }
+        });
         this.allSameXScaleAutoY = new JMenuItem("All same X scale (auto Y)");
-        this.allSameXScaleAutoY.addActionListener(e -> ((WaveformManager)WavePopup.this.parent).AllSameXScaleAutoY(WavePopup.this.wave));
+        this.allSameXScaleAutoY.addActionListener(new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ((WaveformManager)WavePopup.this.parent).AllSameXScaleAutoY(WavePopup.this.wave);
+            }
+        });
         this.allSameYScale = new JMenuItem("All same Y scale");
-        this.allSameYScale.addActionListener(e -> ((WaveformManager)WavePopup.this.parent).AllSameYScale(WavePopup.this.wave));
+        this.allSameYScale.addActionListener(new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ((WaveformManager)WavePopup.this.parent).AllSameYScale(WavePopup.this.wave);
+            }
+        });
         this.resetScales = new JMenuItem("Reset scales");
-        this.resetScales.addActionListener(e -> WavePopup.this.wave.ResetScales());
+        this.resetScales.addActionListener(new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                WavePopup.this.wave.ResetScales();
+            }
+        });
         this.resetAllScales = new JMenuItem("Reset all scales");
-        this.resetAllScales.addActionListener(e -> ((WaveformManager)WavePopup.this.parent).ResetAllScales());
+        this.resetAllScales.addActionListener(new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ((WaveformManager)WavePopup.this.parent).ResetAllScales();
+            }
+        });
         this.undo_zoom = new JMenuItem("Undo Zoom");
-        this.undo_zoom.addActionListener(e -> WavePopup.this.wave.undoZoom());
+        this.undo_zoom.addActionListener(new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                WavePopup.this.wave.undoZoom();
+            }
+        });
         this.cb_copy = new JMenuItem("Copy to Clipboard");
-        this.cb_copy.addActionListener(e -> {
-            if(DEBUG.D) System.out.println("actionPerformed" + e);
-            final Dimension dim = WavePopup.this.wave.getSize();
-            final BufferedImage ri = new BufferedImage(dim.width, dim.height, BufferedImage.TYPE_INT_RGB);
-            final Graphics2D g2d = (Graphics2D)ri.getGraphics();
-            g2d.setBackground(Color.white);
-            WavePopup.this.wave.paint(g2d, dim, Waveform.PRINT);
-            try{
-                final ImageTransferable imageTransferable = new ImageTransferable(ri);
-                final Clipboard cli = Toolkit.getDefaultToolkit().getSystemClipboard();
-                cli.setContents(imageTransferable, imageTransferable);
-            }catch(final Exception exc){
-                System.err.println("Exception " + exc);
+        this.cb_copy.addActionListener(new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(DEBUG.D) System.out.println("actionPerformed" + e);
+                final Dimension dim = WavePopup.this.wave.getSize();
+                final BufferedImage ri = new BufferedImage(dim.width, dim.height, BufferedImage.TYPE_INT_RGB);
+                final Graphics2D g2d = (Graphics2D)ri.getGraphics();
+                g2d.setBackground(Color.white);
+                WavePopup.this.wave.paint(g2d, dim, Waveform.PRINT);
+                try{
+                    final ImageTransferable imageTransferable = new ImageTransferable(ri);
+                    final Clipboard cli = Toolkit.getDefaultToolkit().getSystemClipboard();
+                    cli.setContents(imageTransferable, imageTransferable);
+                }catch(final Exception exc){
+                    System.err.println("Exception " + exc);
+                }
             }
         });
         this.playFrame = new JMenuItem();
-        this.playFrame.addActionListener(e -> {
-            if(WavePopup.this.wave.Playing()) WavePopup.this.wave.StopFrame();
-            else WavePopup.this.wave.PlayFrame();
+        this.playFrame.addActionListener(new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(WavePopup.this.wave.Playing()) WavePopup.this.wave.StopFrame();
+                else WavePopup.this.wave.PlayFrame();
+            }
         });
         this.profile_dialog = new JMenuItem("Show profile dialog");
-        this.profile_dialog.addActionListener(e -> WavePopup.this.ShowProfileDialog(WavePopup.this.wave));
+        this.profile_dialog.addActionListener(new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                WavePopup.this.ShowProfileDialog(WavePopup.this.wave);
+            }
+        });
         this.colorMap = new JMenuItem("Color Palette");
-        this.colorMap.addActionListener(e -> WavePopup.this.ShowColorMapDialog(WavePopup.this.wave));
+        this.colorMap.addActionListener(new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                WavePopup.this.ShowColorMapDialog(WavePopup.this.wave);
+            }
+        });
         this.sep3 = new JSeparator();
         this.saveAsText = new JMenuItem("Save as text ...");
-        this.saveAsText.addActionListener(e -> ((WaveformContainer)WavePopup.this.parent).SaveAsText(WavePopup.this.wave, false));
+        this.saveAsText.addActionListener(new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ((WaveformContainer)WavePopup.this.parent).SaveAsText(WavePopup.this.wave, false);
+            }
+        });
     }
 
     protected void InitColorMenu() {
@@ -420,7 +532,7 @@ public class WavePopup extends JPopupMenu implements ItemListener{
             }else this.set_point.setText("Set Point");
         }else{
             if(this.wave.ShowMeasure()) // && wave.sendProfile())
-                this.set_point.setText("Deselect Point");
+            this.set_point.setText("Deselect Point");
             else this.set_point.setText("Set Point");
             if(this.wave.is_playing) this.playFrame.setText("Stop play");
             else this.playFrame.setText("Start play");

@@ -41,6 +41,8 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.border.BevelBorder;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 final class SetupDataDialog extends JDialog implements ActionListener, ItemListener, KeyListener, WaveformListener{
     class Data{
@@ -237,9 +239,12 @@ final class SetupDataDialog extends JDialog implements ActionListener, ItemListe
             this.sig_list = new JList(this.list_model);
             final JScrollPane scroll_sig_list = new JScrollPane(this.sig_list);
             this.sig_list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-            this.sig_list.addListSelectionListener(e -> {
-                if(e.getValueIsAdjusting()) return;
-                SList.this.signalSelect(((JList)e.getSource()).getSelectedIndex() - 1);
+            this.sig_list.addListSelectionListener(new ListSelectionListener(){
+                @Override
+                public void valueChanged(ListSelectionEvent e) {
+                    if(e.getValueIsAdjusting()) return;
+                    SList.this.signalSelect(((JList)e.getSource()).getSelectedIndex() - 1);
+                }
             });
             this.sig_list.addKeyListener(new KeyAdapter(){
                 @Override

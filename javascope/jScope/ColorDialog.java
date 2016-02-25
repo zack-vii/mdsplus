@@ -35,6 +35,9 @@ import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 final class ColorDialog extends JDialog implements ActionListener, ItemListener{
     final static class Item{
@@ -133,12 +136,15 @@ final class ColorDialog extends JDialog implements ActionListener, ItemListener{
         this.colorList = new JList(this.listModel);
         final JScrollPane scrollColorList = new JScrollPane(this.colorList);
         this.colorList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        this.colorList.addListSelectionListener(e -> {
-            final int color_idx = ((JList)e.getSource()).getSelectedIndex();
-            if(color_idx >= 0 && color_idx < ColorDialog.this.color_set.size()){
-                final Item c_item = ColorDialog.this.color_set.elementAt(color_idx);
-                ColorDialog.this.SetSliderToColor(c_item.color);
-                ColorDialog.this.colorName.setText(c_item.name);
+        this.colorList.addListSelectionListener(new ListSelectionListener(){
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                final int color_idx = ((JList)e.getSource()).getSelectedIndex();
+                if(color_idx >= 0 && color_idx < ColorDialog.this.color_set.size()){
+                    final Item c_item = ColorDialog.this.color_set.elementAt(color_idx);
+                    ColorDialog.this.SetSliderToColor(c_item.color);
+                    ColorDialog.this.colorName.setText(c_item.name);
+                }
             }
         });
         this.colorList.addKeyListener(new KeyAdapter(){
@@ -168,7 +174,12 @@ final class ColorDialog extends JDialog implements ActionListener, ItemListener{
         this.red.setPaintLabels(true);
         this.red.setLabelTable(labelTable);
         this.red.setBorder(BorderFactory.createEmptyBorder(0, 0, 20, 0));
-        this.red.addChangeListener(e -> ColorDialog.this.colorValueChanged(e));
+        this.red.addChangeListener(new ChangeListener(){
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                ColorDialog.this.colorValueChanged(e);
+            }
+        });
         gridbag.setConstraints(this.red, c);
         this.getContentPane().add(this.red);
         c.gridwidth = GridBagConstraints.BOTH;
@@ -184,7 +195,12 @@ final class ColorDialog extends JDialog implements ActionListener, ItemListener{
         this.green.setPaintLabels(true);
         this.green.setLabelTable(labelTable);
         this.green.setBorder(BorderFactory.createEmptyBorder(0, 0, 20, 0));
-        this.green.addChangeListener(e -> ColorDialog.this.colorValueChanged(e));
+        this.green.addChangeListener(new ChangeListener(){
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                ColorDialog.this.colorValueChanged(e);
+            }
+        });
         gridbag.setConstraints(this.green, c);
         this.getContentPane().add(this.green);
         c.gridwidth = GridBagConstraints.BOTH;
@@ -200,7 +216,12 @@ final class ColorDialog extends JDialog implements ActionListener, ItemListener{
         this.blue.setPaintLabels(true);
         this.blue.setLabelTable(labelTable);
         this.blue.setBorder(BorderFactory.createEmptyBorder(0, 0, 20, 0));
-        this.blue.addChangeListener(e -> ColorDialog.this.colorValueChanged(e));
+        this.blue.addChangeListener(new ChangeListener(){
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                ColorDialog.this.colorValueChanged(e);
+            }
+        });
         gridbag.setConstraints(this.blue, c);
         this.getContentPane().add(this.blue);
         final JPanel p1 = new JPanel();
