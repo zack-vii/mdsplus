@@ -17,7 +17,7 @@ import java.util.SimpleTimeZone;
 import java.util.TimeZone;
 
 public class Grid implements Serializable{
-    static final long             dayMilliSeconds  = 86400000;                  // 24 * 60 * 60 * 1000;
+    public static final long      dayMilliSeconds  = 86400000;                                  // 24 * 60 * 60 * 1000;
     final static String           GRID_MODE[]      = {"Dotted", "Gray", "None"};
     final static int              IS_DOTTED        = 0, IS_GRAY = 1, IS_NONE = 2, MAX_GRID = 10;
     final static int              IS_X             = 0, IS_Y = 1;
@@ -38,14 +38,14 @@ public class Grid implements Serializable{
         return 1 + diffMillis / Grid.dayMilliSeconds;
     }
 
-    static public double evalStep(final double min, final double max, final int numStep) {
+    public static final double evalStep(final double min, final double max, final int numStep) {
         final double delta = Math.abs(max - min);
         final int pow = (int)Math.log10(delta) - 1;
         final double k = Math.pow(10, pow);
         return(2. * k);
     }
 
-    private static long toMillis(double xin)
+    public static final long toMillis(double xin)
     /*converts ns into ms if necessary*/
     {
         if(xin > 2E13) xin = xin / 1E6;

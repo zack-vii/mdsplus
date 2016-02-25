@@ -5,33 +5,32 @@ import java.awt.AWTEvent;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.SimpleTimeZone;
+import java.util.TimeZone;
 
 final public class WaveformEvent extends AWTEvent{
-    static final int  BROADCAST_SCALE    = AWTEvent.RESERVED_ID_MAX + 4;
-    static final int  CACHE_DATA         = AWTEvent.RESERVED_ID_MAX + 12;
-    static final int  COPY_CUT           = AWTEvent.RESERVED_ID_MAX + 6;
-    static final int  COPY_PASTE         = AWTEvent.RESERVED_ID_MAX + 5;
-    static final int  END_UPDATE         = AWTEvent.RESERVED_ID_MAX + 11;
-    static final int  EVENT_UPDATE       = AWTEvent.RESERVED_ID_MAX + 7;
-    static final int  MEASURE_UPDATE     = AWTEvent.RESERVED_ID_MAX + 2;
-    static final int  POINT_IMAGE_UPDATE = AWTEvent.RESERVED_ID_MAX + 9;
-    static final int  POINT_UPDATE       = AWTEvent.RESERVED_ID_MAX + 1;
-    static final int  PROFILE_UPDATE     = AWTEvent.RESERVED_ID_MAX + 8;
-    static final long serialVersionUID   = 325464327645634L;
-    static final int  START_UPDATE       = AWTEvent.RESERVED_ID_MAX + 10;
-    static final int  STATUS_INFO        = AWTEvent.RESERVED_ID_MAX + 3;
+    static final int            BROADCAST_SCALE    = AWTEvent.RESERVED_ID_MAX + 4;
+    static final int            CACHE_DATA         = AWTEvent.RESERVED_ID_MAX + 12;
+    static final int            COPY_CUT           = AWTEvent.RESERVED_ID_MAX + 6;
+    static final int            COPY_PASTE         = AWTEvent.RESERVED_ID_MAX + 5;
+    private static final String datetime           = "yyyy-MM-dd HH:mm:ss.SSS";
+    static final int            END_UPDATE         = AWTEvent.RESERVED_ID_MAX + 11;
+    static final int            EVENT_UPDATE       = AWTEvent.RESERVED_ID_MAX + 7;
+    static final int            MEASURE_UPDATE     = AWTEvent.RESERVED_ID_MAX + 2;
+    static final int            POINT_IMAGE_UPDATE = AWTEvent.RESERVED_ID_MAX + 9;
+    static final int            POINT_UPDATE       = AWTEvent.RESERVED_ID_MAX + 1;
+    static final int            PROFILE_UPDATE     = AWTEvent.RESERVED_ID_MAX + 8;
+    static final long           serialVersionUID   = 325464327645634L;
+    static final int            START_UPDATE       = AWTEvent.RESERVED_ID_MAX + 10;
+    static final int            STATUS_INFO        = AWTEvent.RESERVED_ID_MAX + 3;
+    private static final String time               = "HH:mm:ss.SSS";
 
     private static String getFormattedDate(final long d, final String format) {
         DateFormat dateFormat = new SimpleDateFormat(format);
         final Date date = new Date();
         date.setTime(Math.abs(d));
-        if(d <= 86400000){
-            // if the date to convert is in the date 1 Jan 1970
-            // is whown only the huor and the time xone must be set
-            // to GTM to avoid to add the hours of the time zone
+        if(d <= Grid.dayMilliSeconds){
             dateFormat = new SimpleDateFormat("H:mm:ss.SSS");
-            dateFormat.setTimeZone(new SimpleTimeZone(0, "GMT"));
+            dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
             return dateFormat.format(date).toString();
         }
         return dateFormat.format(date).toString();
@@ -40,10 +39,8 @@ final public class WaveformEvent extends AWTEvent{
     private static String SetStrSize(final String s, final int size) {
         final StringBuffer sb = new StringBuffer(size);
         sb.append(s.substring(0, ((s.length() < size) ? s.length() : size)));
-        if(sb.length() < size){
-            for(int i = sb.length(); i < size; i++)
-                sb.append(" ");
-        }
+        if(sb.length() < size) for(int i = sb.length(); i < size; i++)
+            sb.append(" ");
         return(new String(sb));
     }
     double       data_value    = Float.NaN;
@@ -90,9 +87,7 @@ final public class WaveformEvent extends AWTEvent{
         this.pixel_value = pixel_value;
     }
 
-    public WaveformEvent(final Object source, final int x_pixel, final int y_pixel, final float frame_time, final String name, final float values_x[], final int start_pixel_x, final float values_y[], final int start_pixel_y)
-    // float values_signal[], float frames_time[])
-    {
+    public WaveformEvent(final Object source, final int x_pixel, final int y_pixel, final float frame_time, final String name, final float values_x[], final int start_pixel_x, final float values_y[], final int start_pixel_y){
         super(source, WaveformEvent.PROFILE_UPDATE);
         this.x_pixel = x_pixel;
         this.y_pixel = y_pixel;
@@ -100,15 +95,11 @@ final public class WaveformEvent extends AWTEvent{
         this.name = name;
         this.values_x = values_x;
         this.values_y = values_y;
-        // this.values_signal = values_signal;
-        // this.frames_time = frames_time;
         this.start_pixel_x = start_pixel_x;
         this.start_pixel_y = start_pixel_y;
     }
 
-    public WaveformEvent(final Object source, final int x_pixel, final int y_pixel, final float frame_time, final String name, final int pixels_x[], final int start_pixel_x, final int pixels_y[], final int start_pixel_y)
-    // int pixels_signal[], float frames_time[])
-    {
+    public WaveformEvent(final Object source, final int x_pixel, final int y_pixel, final float frame_time, final String name, final int pixels_x[], final int start_pixel_x, final int pixels_y[], final int start_pixel_y){
         super(source, WaveformEvent.PROFILE_UPDATE);
         this.x_pixel = x_pixel;
         this.y_pixel = y_pixel;
@@ -116,8 +107,6 @@ final public class WaveformEvent extends AWTEvent{
         this.name = name;
         this.pixels_x = pixels_x;
         this.pixels_y = pixels_y;
-        // this.pixels_signal = pixels_signal;
-        // this.frames_time = frames_time;
         this.start_pixel_x = start_pixel_x;
         this.start_pixel_y = start_pixel_y;
     }
@@ -186,15 +175,16 @@ final public class WaveformEvent extends AWTEvent{
                 if(Math.abs(this.delta_x) < 1.e-20) dx_f = 1.e-20;
                 else dx_f = Math.abs(this.delta_x);
                 if(this.showXasDate){
-                    /*
-                     * DateFormat format = new SimpleDateFormat("d-MMM-yyyy HH:mm:ss"); DateFormat format1 = new SimpleDateFormat("HHH:mm:ss"); //format.setTimeZone(new SimpleTimeZone(0, "GMT") ); //format1.setTimeZone(new SimpleTimeZone(0, "GMT")); Date
-                     * date = new Date(); date.setTime(dateValue + (long)point_x); Date date1 = new Date(); date1.setTime((long)delta_x);
-                     */
-                    s = WaveformEvent.SetStrSize("[" + WaveformEvent.getFormattedDate(this.dateValue + (long)this.point_x, "d-MMM-yyyy HH:mm:ss.SSS") + // format.format(date).toString() +
-                    ", " + Waveform.ConvertToString(this.point_y, false) + "; dx " + WaveformEvent.getFormattedDate((long)this.delta_x, "HHH:mm:ss.SSS") + // format1.format(date1).toString() +
+                    s = WaveformEvent.SetStrSize("[" + WaveformEvent.getFormattedDate(Grid.toMillis(this.dateValue + this.point_x), WaveformEvent.datetime) + //
+                    ", " + Waveform.ConvertToString(this.point_y, false) + //
+                    "; dx " + WaveformEvent.getFormattedDate((long)this.delta_x, WaveformEvent.time) + //
                     "; dy " + Waveform.ConvertToString(this.delta_y, false) + "]", 90);
                 }else{
-                    s = WaveformEvent.SetStrSize("[" + Waveform.ConvertToString(this.point_x, false) + ", " + Waveform.ConvertToString(this.point_y, false) + "; dx " + Waveform.ConvertToString(this.delta_x, false) + "; dy " + Waveform.ConvertToString(this.delta_y, false) + "; 1/dx " + Waveform.ConvertToString(1. / dx_f, false) + "]", 90);
+                    s = WaveformEvent.SetStrSize("[" + Waveform.ConvertToString(this.point_x, false) + //
+                    ", " + Waveform.ConvertToString(this.point_y, false) + //
+                    "; dx " + Waveform.ConvertToString(this.delta_x, false) + //
+                    "; dy " + Waveform.ConvertToString(this.delta_y, false) + //
+                    "; 1/dx " + Waveform.ConvertToString(1. / dx_f, false) + "]", 90);
                 }
             case WaveformEvent.POINT_UPDATE:
             case WaveformEvent.POINT_IMAGE_UPDATE:
@@ -207,21 +197,14 @@ final public class WaveformEvent extends AWTEvent{
                         String xt_string = null;
                         if(!xf.equals(nan_f)) xt_string = ", Y = " + Waveform.ConvertToString(this.x_value, false);
                         else if(!tf.equals(nan_f)) if(this.showXasDate){
-                            /*
-                             * DateFormat format = new SimpleDateFormat("d-MMM-yyyy HH:mm:ss"); //format.setTimeZone(new SimpleTimeZone(0, "GMT")); Date date = new Date(); date.setTime(dateValue + (long)time_value);
-                             */
-                            xt_string = ", T = " + WaveformEvent.getFormattedDate( /* dateValue */+(long)this.time_value, "d-MMM-yyyy HH:mm:ss.SSS");// format.format(date).toString();
+                            xt_string = ", T = " + WaveformEvent.getFormattedDate(Grid.toMillis(this.time_value), WaveformEvent.datetime);
                             this.showXasDate = false;
                         }else xt_string = ", X = " + Waveform.ConvertToString(this.time_value, false);
                         else if(!df.equals(nan_f)) xt_string = ", Z = " + Waveform.ConvertToString(this.data_value, false);
                         String x_string = null;
                         int string_size = 40;
                         if(this.showXasDate){
-                            /*
-                             * DateFormat format = new SimpleDateFormat("d-MMM-yyyy HH:mm:ss"); //format.setTimeZone(new SimpleTimeZone(0, "GMT")); Date date = new Date(); date.setTime(dateValue + (long)point_x); //x_string =
-                             * format.format(date).toString();
-                             */
-                            x_string = WaveformEvent.getFormattedDate( /* dateValue */+(long)this.point_x, "d-MMM-yyyy HH:mm:ss.SSS");
+                            x_string = WaveformEvent.getFormattedDate(Grid.toMillis(this.point_x), WaveformEvent.datetime);
                             string_size = 45;
                         }else x_string = "" + new Float(this.point_x);
                         if(xt_string == null) s = WaveformEvent.SetStrSize("[" + x_string + ", " + new Float(this.point_y) + "]", string_size);

@@ -1,6 +1,5 @@
 package jScope;
 
-import jScope.W7XDataProvider.signalaccess;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -40,11 +39,14 @@ import org.jdesktop.swingx.JXDatePicker;
 import org.jdesktop.swingx.calendar.SingleDaySelectionModel;
 import de.mpg.ipp.codac.signalaccess.SignalAddress;
 import de.mpg.ipp.codac.w7xtime.TimeInterval;
+import jScope.W7XDataProvider.signalaccess;
 
 public final class W7XSignalBrowser extends jScopeBrowseSignals{
     static final class DateTimePicker extends JXDatePicker{
-        public static final DateFormat  format           = new SimpleDateFormat("yyyy-MM-dd\'T\'HH:mm:ss.SSS");
+        // private static final int[] date = new int[]{Calendar.YEAR, Calendar.MONTH, Calendar.DAY_OF_MONTH};
+        public static final DateFormat  format           = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
         private static final long       serialVersionUID = 77777773L;
+        private static final int[]      time             = new int[]{Calendar.HOUR_OF_DAY, Calendar.MINUTE, Calendar.SECOND, Calendar.MILLISECOND};
         private static final DateFormat timeFormat       = new SimpleDateFormat("HH:mm:ss.SSS");
         public static final TimeZone    UTC              = TimeZone.getTimeZone("UTC");
         private JPanel                  timePanel;
@@ -52,9 +54,10 @@ public final class W7XSignalBrowser extends jScopeBrowseSignals{
 
         public DateTimePicker(final Date date, final int mm, final int ss, final int SSS){
             super();
+            DateTimePicker.timeFormat.setTimeZone(DateTimePicker.UTC);
+            DateTimePicker.format.setTimeZone(DateTimePicker.UTC);
             this.getMonthView().setSelectionModel(new SingleDaySelectionModel());
             this.setTimeZone(DateTimePicker.UTC);
-            DateTimePicker.format.setTimeZone(DateTimePicker.UTC);
             this.setFormats(DateTimePicker.format);
             this.updateTextFieldFormat();
             final GregorianCalendar calendar = new GregorianCalendar();
@@ -81,16 +84,12 @@ public final class W7XSignalBrowser extends jScopeBrowseSignals{
         private void commitTime() {
             final Date date = this.getDate();
             if(date == null) return;
-            final GregorianCalendar timeCalendar = new GregorianCalendar();
-            DateTimePicker.format.setTimeZone(DateTimePicker.UTC);
-            timeCalendar.setTime((Date)this.timeSpinner.getValue());
-            final GregorianCalendar calendar = new GregorianCalendar();
-            DateTimePicker.format.setTimeZone(DateTimePicker.UTC);
+            final Calendar timeCalendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+            timeCalendar.setTimeInMillis(((Date)this.timeSpinner.getValue()).getTime() % Grid.dayMilliSeconds);
+            final Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
             calendar.setTime(date);
-            calendar.set(Calendar.HOUR_OF_DAY, timeCalendar.get(Calendar.HOUR_OF_DAY));
-            calendar.set(Calendar.MINUTE, timeCalendar.get(Calendar.MINUTE));
-            calendar.set(Calendar.SECOND, timeCalendar.get(Calendar.SECOND));
-            calendar.set(Calendar.MILLISECOND, timeCalendar.get(Calendar.MILLISECOND));
+            for(final int entry : DateTimePicker.time)
+                calendar.set(entry, timeCalendar.get(entry));
             this.setDate(calendar.getTime());
         }
 
@@ -99,11 +98,12 @@ public final class W7XSignalBrowser extends jScopeBrowseSignals{
             newPanel.setLayout(new FlowLayout());
             final SpinnerDateModel dateModel = new SpinnerDateModel();
             this.timeSpinner = new JSpinner(dateModel);
-            DateTimePicker.timeFormat.setTimeZone(DateTimePicker.UTC);
             this.updateTextFieldFormat();
             newPanel.add(new JLabel("Time:"));
             newPanel.add(this.timeSpinner);
-            this.timeSpinner.addChangeListener(e -> {this.commitTime();});
+            this.timeSpinner.addChangeListener(e -> {
+                this.commitTime();
+            });
             newPanel.setBackground(Color.WHITE);
             return newPanel;
         }
@@ -118,7 +118,8 @@ public final class W7XSignalBrowser extends jScopeBrowseSignals{
 
         private void setTimeSpinners() {
             final Date date = this.getDate();
-            if(date != null) this.timeSpinner.setValue(date);
+            if(date == null) return;
+            this.timeSpinner.setValue(date);
         }
 
         private void updateTextFieldFormat() {
