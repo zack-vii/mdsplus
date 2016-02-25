@@ -196,9 +196,9 @@ final public class SetupWaveformParams extends JDialog implements ActionListener
             int val = 0;
             if(js_prop == null) return;
             prop = (String)js_prop.getProperty("jScope.reversed");
-            if(prop != null && (prop.equals("true") || prop.equals("false"))){
+            if(prop != null && (prop.equals("true") || prop.equals("false")))
                 reversed = new Boolean(prop).booleanValue();
-            }
+            else   reversed = false;
             prop = (String)js_prop.getProperty("jScope.grid_mode");
             if(prop != null && (val = IsGridMode(prop)) > 0) curr_grid_mode = val;
             prop = (String)js_prop.getProperty("jScope.x_grid");
