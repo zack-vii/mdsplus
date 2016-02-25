@@ -1,19 +1,21 @@
-//package jTraverser;
+// package jTraverser;
+public class ComplexData extends AtomicData{
+    private static final long serialVersionUID = 7209564558300569651L;
 
-public class ComplexData extends AtomicData
-{
-    double re, im;
-    int flags = DTYPE_FTC;
-    public static Data getData(double re, double im, int flags)
-    {
-	    return new ComplexData(re, im, flags);
+    public static Data getData(final double re, final double im, final int flags) {
+        return new ComplexData(re, im, flags);
     }
-    public ComplexData(double re, double im) {this(re, im, DTYPE_FTC);}
-    public ComplexData(double re, double im, int flags)
-    {
-	    dtype = DTYPE_FTC;
-	    this.re = re;
-            this.im = im;
-	    this.flags = flags;
+    int    flags = Data.DTYPE_FTC;
+    double re, im;
+
+    public ComplexData(final double re, final double im){
+        this(re, im, Data.DTYPE_FTC);
+    }
+
+    public ComplexData(final double re, final double im, final int flags){
+        this.dtype = Data.DTYPE_FTC;
+        this.re = re;
+        this.im = im;
+        this.flags = flags;
     }
 }

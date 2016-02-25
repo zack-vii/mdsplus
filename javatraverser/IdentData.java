@@ -1,16 +1,20 @@
-//package jTraverser;
+// package jTraverser;
+public class IdentData extends StringData{
+    private static final long serialVersionUID = 2603439338345489646L;
 
-public class IdentData extends StringData
-{
-    public static Data getData(String datum)
-    {
-	    return new IdentData(datum);
+    public static Data getData(final String datum) {
+        return new IdentData(datum);
     }
-    public IdentData() {}
-    public IdentData(String datum)
-    {
+
+    public IdentData(){}
+
+    public IdentData(final String datum){
         super(datum);
-	    dtype = DTYPE_IDENT;
+        this.dtype = Data.DTYPE_IDENT;
     }
-    public String getString() {return datum; }
+
+    @Override
+    public String getString() {
+        return this.datum;
+    }
 }

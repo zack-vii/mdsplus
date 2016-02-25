@@ -1,22 +1,31 @@
-//package jTraverser;
+// package jTraverser;
+public class DependencyData extends CompoundData{
+    public static final int   DEPENDENCY_AND   = 10;
+    public static final int   DEPENDENCY_OR    = 11;
+    private static final long serialVersionUID = -1926888273446979979L;
 
-public class DependencyData extends CompoundData
-{
-    int opcode;
-    public static Data getData() {return new DependencyData(); }
-    public DependencyData() {dtype = DTYPE_DEPENDENCY; }
-    public DependencyData(int opcode, Data arg1, Data arg2)
-    {
-	dtype = DTYPE_DEPENDENCY;
-	this.opcode = opcode;
-	descs = new Data[2];
-	descs[0] = arg1;
-	descs[1] = arg2;
+    public static Data getData() {
+        return new DependencyData();
     }
-    
-    public final int getOpcode() {return opcode; }
-    public final Data[] getArguments() {return descs; }
-    
-    public static final int DEPENDENCY_AND = 10;
-    public static final int DEPENDENCY_OR = 11;
+    int opcode;
+
+    public DependencyData(){
+        this.dtype = Data.DTYPE_DEPENDENCY;
+    }
+
+    public DependencyData(final int opcode, final Data arg1, final Data arg2){
+        this.dtype = Data.DTYPE_DEPENDENCY;
+        this.opcode = opcode;
+        this.descs = new Data[2];
+        this.descs[0] = arg1;
+        this.descs[1] = arg2;
+    }
+
+    public final Data[] getArguments() {
+        return this.descs;
+    }
+
+    public final int getOpcode() {
+        return this.opcode;
+    }
 }

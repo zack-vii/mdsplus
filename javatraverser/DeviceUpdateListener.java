@@ -1,4 +1,3 @@
-interface DeviceUpdateListener
-{
+interface DeviceUpdateListener{
     public void deviceUpdated();
 }

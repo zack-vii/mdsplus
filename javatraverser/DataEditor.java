@@ -1,244 +1,183 @@
-//package jTraverser;
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
+// package jTraverser;
+import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import javax.swing.JComboBox;
+import javax.swing.JPanel;
 
-public class DataEditor
-    extends JPanel
-    implements ActionListener, Editor
-{
-  LabeledExprEditor expr_edit, units_edit;
-  ParameterEditor param_edit;
-  PythonEditor python_edit;
-  JPanel panel;
-  JComboBox combo;
-  int mode_idx, curr_mode_idx;
-  Data data;
-  Data units;
-  boolean editable = true;
-  TreeDialog dialog;
+public class DataEditor extends JPanel implements ActionListener, Editor{
+    private static final long serialVersionUID = -7570715708392389979L;
+    JComboBox                 combo;
+    Data                      data;
+    TreeDialog                dialog;
+    boolean                   editable         = true;
+    LabeledExprEditor         expr_edit, units_edit;
+    int                       mode_idx, curr_mode_idx;
+    JPanel                    panel;
+    ParameterEditor           param_edit;
+    PythonEditor              python_edit;
+    Data                      units;
 
-  public DataEditor(Data data, TreeDialog dialog)
-  {
-    this.dialog = dialog;
-    this.data = data;
-    if (data == null)
-    {
-      mode_idx = 0;
-      this.data = null;
-      units = null;
-    }
-    else
-    {
-      if (data instanceof ParameterData)
-          mode_idx = 2;
-      else if(data instanceof FunctionData && ((FunctionData)data).opcode == PythonEditor.OPC_FUN)
-      {
-          Data[] args = ((FunctionData)data).getArgs();
-          try {
-          if(args != null && args.length > 2 && args[1] != null && (args[1] instanceof StringData) &&
-            args[1].getString()!= null && args[1].getString().toUpperCase().equals("PY"))
-                mode_idx = 3;
-            else
-                mode_idx = 1;
-          }catch(Exception exc){mode_idx = 1;}
-      } 
-      else
-          mode_idx = 1;
-      if (data.dtype == Data.DTYPE_WITH_UNITS)
-      {
-        this.data = ( (WithUnitsData) data).getDatum();
-        units = ( (WithUnitsData) data).getUnits();
-      }
-      else
-      {
+    @SuppressWarnings("unchecked")
+    public DataEditor(final Data data, final TreeDialog dialog){
+        this.dialog = dialog;
         this.data = data;
-        units = null;
-      }
+        if(data == null){
+            this.mode_idx = 0;
+            this.data = null;
+            this.units = null;
+        }else{
+            if(data instanceof ParameterData) this.mode_idx = 2;
+            else if(data instanceof FunctionData && ((FunctionData)data).opcode == PythonEditor.OPC_FUN){
+                final Data[] args = ((FunctionData)data).getArgs();
+                try{
+                    if(args != null && args.length > 2 && args[1] != null && (args[1] instanceof StringData) && args[1].getString() != null && args[1].getString().toUpperCase().equals("PY")) this.mode_idx = 3;
+                    else this.mode_idx = 1;
+                }catch(final Exception exc){
+                    this.mode_idx = 1;
+                }
+            }else this.mode_idx = 1;
+            if(data.dtype == Data.DTYPE_WITH_UNITS){
+                this.data = ((WithUnitsData)data).getDatum();
+                this.units = ((WithUnitsData)data).getUnits();
+            }else{
+                this.data = data;
+                this.units = null;
+            }
+        }
+        this.curr_mode_idx = this.mode_idx;
+        final String names[] = {"Undefined", "Expression", "Parameter", "Python Expression"};
+        this.combo = new JComboBox(names);
+        this.combo.setEditable(false);
+        this.combo.setSelectedIndex(this.mode_idx);
+        this.combo.addActionListener(this);
+        this.setLayout(new BorderLayout());
+        final JPanel jp = new JPanel();
+        jp.add(this.combo);
+        this.add(jp, BorderLayout.NORTH);
+        this.addEditor();
     }
 
-    curr_mode_idx = mode_idx;
-    String names[] = {"Undefined", "Expression", "Parameter", "Python Expression"};
-    combo = new JComboBox(names);
-    combo.setEditable(false);
-    combo.setSelectedIndex(mode_idx);
-    combo.addActionListener(this);
-    setLayout(new BorderLayout());
-	JPanel jp = new JPanel();
-	jp.add(combo);
-    add(jp, BorderLayout.NORTH);
-    addEditor();
-  }
-
-  private void addEditor()
-  {
-    panel = new JPanel();
-    panel.setLayout(new BorderLayout());
-    switch (curr_mode_idx)
-    {
-      case 0:
-        return;
-      case 1:
-        boolean default_to_string = (data != null && data.dtype == Data.DTYPE_T);
-        panel.add(expr_edit = new LabeledExprEditor(data));
-        break;
-      case 2:
-        Data _data, _help = null, _validation = null;
-        if (data != null && data instanceof ParameterData)
-        {
-            _data = ( (ParameterData)data).getDatum();
-            _help = ( (ParameterData)data).getHelp();
-            _validation = ( (ParameterData)data).getValidation();
+    @Override
+    public void actionPerformed(final ActionEvent e) {
+        if(!this.editable){
+            this.combo.setSelectedIndex(this.curr_mode_idx);
+            return;
         }
-        else
-            _data = data;
-        param_edit = new ParameterEditor(new ExprEditor( _data, false, 3, 20),
-                                         new ExprEditor( _help, true, 4, 20),
-                                         new ExprEditor( _validation, false, 1, 20));
-        panel.add(param_edit);
-        break;
-      case 3: 
-        if (data != null && data instanceof FunctionData)
-        {
-          python_edit = new PythonEditor(((FunctionData)data).getArgs());
-        }
-        else
-        {
-          python_edit = new PythonEditor(null);
-        }
-        panel.add(python_edit);
-        break;
+        final int idx = this.combo.getSelectedIndex();
+        if(idx == this.curr_mode_idx) return;
+        this.remove(this.panel);
+        this.curr_mode_idx = idx;
+        this.addEditor();
+        this.validate();
+        this.dialog.repack();
     }
-    units_edit = new LabeledExprEditor("Units", new ExprEditor(units, true));
-    panel.add(units_edit, BorderLayout.NORTH);
-    add(panel, BorderLayout.CENTER);
-  }
 
-  public void actionPerformed(ActionEvent e)
-  {
-    if (!editable)
-    {
-      combo.setSelectedIndex(curr_mode_idx);
-      return;
+    private void addEditor() {
+        this.panel = new JPanel();
+        this.panel.setLayout(new BorderLayout());
+        switch(this.curr_mode_idx){
+            case 0:
+                return;
+            case 1:
+                // final boolean default_to_string = (this.data != null && this.data.dtype == Data.DTYPE_T);
+                this.panel.add(this.expr_edit = new LabeledExprEditor(this.data));
+                break;
+            case 2:
+                Data _data, _help = null, _validation = null;
+                if(this.data != null && this.data instanceof ParameterData){
+                    _data = ((ParameterData)this.data).getDatum();
+                    _help = ((ParameterData)this.data).getHelp();
+                    _validation = ((ParameterData)this.data).getValidation();
+                }else _data = this.data;
+                this.param_edit = new ParameterEditor(new ExprEditor(_data, false, 3, 20), new ExprEditor(_help, true, 4, 20), new ExprEditor(_validation, false, 1, 20));
+                this.panel.add(this.param_edit);
+                break;
+            case 3:
+                if(this.data != null && this.data instanceof FunctionData){
+                    this.python_edit = new PythonEditor(((FunctionData)this.data).getArgs());
+                }else{
+                    this.python_edit = new PythonEditor(null);
+                }
+                this.panel.add(this.python_edit);
+                break;
+        }
+        this.units_edit = new LabeledExprEditor("Units", new ExprEditor(this.units, true));
+        this.panel.add(this.units_edit, BorderLayout.NORTH);
+        this.add(this.panel, BorderLayout.CENTER);
     }
-    int idx = combo.getSelectedIndex();
-    if (idx == curr_mode_idx)
-      return;
-    remove(panel);
-    curr_mode_idx = idx;
-    addEditor();
-    validate();
-    dialog.repack();
-  }
 
-  public void reset()
-  {
-    if (curr_mode_idx>0)
-        remove(panel);
-    curr_mode_idx = mode_idx;
-    combo.setSelectedIndex(mode_idx);
-    addEditor();
-    validate();
-    dialog.repack();
-  }
-
-  public Data getData()
-  {
-    Data units;
-    switch (curr_mode_idx)
-    {
-      case 0:
+    @Override
+    public Data getData() {
+        Data units;
+        switch(this.curr_mode_idx){
+            case 0:
+                return null;
+            case 1:
+                units = this.units_edit.getData();
+                if(units != null){
+                    if(units instanceof StringData && ((StringData)units).datum.equals("")) return this.expr_edit.getData();
+                    else return new WithUnitsData(this.expr_edit.getData(), units);
+                }else return this.expr_edit.getData();
+            case 2:
+                units = this.units_edit.getData();
+                if(units != null){
+                    if(units instanceof StringData && ((StringData)units).datum.equals("")) return this.param_edit.getData();
+                    else return new WithUnitsData(this.param_edit.getData(), units);
+                }else return this.param_edit.getData();
+            case 3:
+                units = this.units_edit.getData();
+                if(units != null){
+                    if(units instanceof StringData && ((StringData)units).datum.equals("")) return this.python_edit.getData();
+                    else return new WithUnitsData(this.python_edit.getData(), units);
+                }else return this.python_edit.getData();
+        }
         return null;
-      case 1:
-        units = units_edit.getData();
-        if (units != null)
-        {
-          if (units instanceof StringData &&
-              ( (StringData) units).datum.equals(""))
-            return expr_edit.getData();
-          else
-            return new WithUnitsData(expr_edit.getData(), units);
-        }
-        else
-          return expr_edit.getData();
-        case 2:
-          units = units_edit.getData();
-          if (units != null)
-          {
-            if (units instanceof StringData &&
-                ( (StringData) units).datum.equals(""))
-              return param_edit.getData();
-            else
-              return new WithUnitsData(param_edit.getData(), units);
-          }
-          else
-            return param_edit.getData();
-
-        case 3:
-          units = units_edit.getData();
-          if (units != null)
-          {
-            if (units instanceof StringData &&
-                ( (StringData) units).datum.equals(""))
-              return python_edit.getData();
-            else
-              return new WithUnitsData(python_edit.getData(), units);
-          }
-          else
-            return python_edit.getData();
     }
-    return null;
-  }
 
-  public void setData(Data data)
-  {
-    this.data = data;
-    if (data == null)
-    {
-      mode_idx = 0;
-      this.data = null;
-      units = null;
+    @Override
+    public void reset() {
+        if(this.curr_mode_idx > 0) this.remove(this.panel);
+        this.curr_mode_idx = this.mode_idx;
+        this.combo.setSelectedIndex(this.mode_idx);
+        this.addEditor();
+        this.validate();
+        this.dialog.repack();
     }
-    else
-    {
-      if(data instanceof ParameterData)
-        mode_idx = 2;
-      else if(data instanceof FunctionData && ((FunctionData)data).opcode == PythonEditor.OPC_FUN)
-      {
-          Data[] args = ((FunctionData)data).getArgs();
-          try {
-          if(args != null && args.length > 2 && args[1] != null && (args[1] instanceof StringData) &&
-            args[1].getString()!= null && args[1].getString().toUpperCase().equals("PY"))
-                mode_idx = 3;
-            else
-                mode_idx = 1;
-          }catch(Exception exc){mode_idx = 1;}
-      } 
-      else
-        mode_idx = 1;
-      if (data.dtype == Data.DTYPE_WITH_UNITS)
-      {
-        this.data = ( (WithUnitsData) data).getDatum();
-        units = ( (WithUnitsData) data).getUnits();
-      }
-      else
-      {
+
+    public void setData(final Data data) {
         this.data = data;
-        units = null;
-      }
+        if(data == null){
+            this.mode_idx = 0;
+            this.data = null;
+            this.units = null;
+        }else{
+            if(data instanceof ParameterData) this.mode_idx = 2;
+            else if(data instanceof FunctionData && ((FunctionData)data).opcode == PythonEditor.OPC_FUN){
+                final Data[] args = ((FunctionData)data).getArgs();
+                try{
+                    if(args != null && args.length > 2 && args[1] != null && (args[1] instanceof StringData) && args[1].getString() != null && args[1].getString().toUpperCase().equals("PY")) this.mode_idx = 3;
+                    else this.mode_idx = 1;
+                }catch(final Exception exc){
+                    this.mode_idx = 1;
+                }
+            }else this.mode_idx = 1;
+            if(data.dtype == Data.DTYPE_WITH_UNITS){
+                this.data = ((WithUnitsData)data).getDatum();
+                this.units = ((WithUnitsData)data).getUnits();
+            }else{
+                this.data = data;
+                this.units = null;
+            }
+        }
+        this.reset();
     }
-    reset();
-  }
 
-  public void setEditable(boolean editable)
-  {
-    this.editable = editable;
-    if (expr_edit != null)
-      expr_edit.setEditable(editable);
-    if (python_edit != null)
-      python_edit.setEditable(editable);
-    if (units_edit != null)
-      units_edit.setEditable(editable);
-  }
-
+    @Override
+    public void setEditable(final boolean editable) {
+        this.editable = editable;
+        if(this.expr_edit != null) this.expr_edit.setEditable(editable);
+        if(this.python_edit != null) this.python_edit.setEditable(editable);
+        if(this.units_edit != null) this.units_edit.setEditable(editable);
+    }
 }

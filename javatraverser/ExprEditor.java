@@ -1,167 +1,138 @@
-//package jTraverser;
-import javax.swing.*; 
-
-import java.awt.*;
-
-import java.awt.event.*;
+// package jTraverser;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import javax.swing.JButton;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
 
 public class ExprEditor extends JPanel implements ActionListener, Editor{
-    String expr;
-    Data data;
-    int rows, columns;
-    JButton left = null, right = null;
-    JTextArea text_area;
-    JTextField text_field;
-    JPanel pl, pr;
-    boolean default_scroll;
-    boolean default_to_string;
-    boolean quotes_added;
-    boolean editable = true;
+    private static final long serialVersionUID = -5215643316421671225L;
+    Data                      data;
+    boolean                   default_scroll;
+    boolean                   default_to_string;
+    boolean                   editable         = true;
+    String                    expr;
+    JButton                   left             = null, right = null;
+    JPanel                    pl, pr;
+    boolean                   quotes_added;
+    int                       rows, columns;
+    JTextArea                 text_area;
+    JTextField                text_field;
 
-    public ExprEditor(Data data, boolean default_to_string)
-    {
-	this(data, default_to_string, 1, 20);
+    public ExprEditor(final boolean default_to_string){
+        this(null, default_to_string, 1, 20);
     }
-    public ExprEditor(boolean default_to_string)
-    {
-	this(null, default_to_string, 1, 20);
-    }
-    public ExprEditor(Data data, boolean default_to_string, 
-	int rows, int columns)
-    {
-    boolean quotes_needed;
-	JScrollPane scroll_pane;
-    this.rows = rows;
-	this.columns = columns;
-	this.default_to_string = default_to_string;
-    if(rows > 1)
-	    default_scroll = true;
-	if(data != null)
-	    expr = Tree.dataToString(data);
-	else
-	    expr = null;
-	quotes_needed = (default_to_string && (expr == null || expr.charAt(0) == '\"'));
-	if(quotes_needed)
-	{
-	    quotes_added = true;
-	    left = new JButton("\"");
-	    right = new JButton("\"");
-	    left.setMargin(new Insets(0,0,0,0));
-	    right.setMargin(new Insets(0,0,0,0));
-	    left.addActionListener(this);
-	    right.addActionListener(this);
-	    if(expr != null)
-		expr = expr.substring(1, expr.length() -1);
-	}  
-	else
-	    quotes_added = false;
-    setLayout(new BorderLayout());
-	if(default_scroll) 
-	{  
-	    text_area = new JTextArea(rows,columns);
-	    Dimension d = text_area.getPreferredSize();
-	    text_area.setText(expr);
-	    d.height += 20;
-	    d.width += 20;
-	    scroll_pane = new JScrollPane(text_area); 
-	    scroll_pane.setPreferredSize(d);
-	    if(quotes_needed)
-	    {
-		pl = new JPanel();
-		pl.setLayout(new BorderLayout());
-		pl.add(left, "North");
-		add(pl, "East");
-	    }
-	    add(scroll_pane, "Center");
-	    if(quotes_needed)
-	    {
-		pr = new JPanel();
-		pr.setLayout(new BorderLayout());
-		pr.add(right, "North");
-		add(pr, "West");
-	    }
-	}
-	else
-	{
-	    if(quotes_needed) add(left, BorderLayout.LINE_START);
-	    text_field = new JTextField(columns);
-	    text_field.setText(expr);
-        add(text_field);
-	    if(quotes_needed) add(right, BorderLayout.LINE_END );
-	}
-    }
-    public void actionPerformed(ActionEvent e)
-    {
-	if(!editable) return;
-	quotes_added = false;
-	if(default_scroll)
-	{
-	    remove(pl);
-	    remove(pr);
-	}
-	else
-	{
-	    remove(left);
-	    remove(right);
-	}
-	left = right = null;
-	if(default_scroll)
-	    expr = text_area.getText();
-	else
-	    expr = text_field.getText();
-	expr = "\""+expr+"\"";
-	if(default_scroll)
-	    text_area.setText(expr);
-	else
-	    text_field.setText(expr);
-	validate();
-	repaint();
-    }
-    public void reset()
-    {
-	if(data == null)
-	    expr = "";
-	else
-	    expr = Tree.dataToString(data);
-	if(default_to_string)
-	{
-	    int len = expr.length();
-	    if(len >= 2)
-	        expr = expr.substring(1, len - 1);
-	}
-	if(default_scroll)
-	    text_area.setText(expr);
-	else
-	    text_field.setText(expr);
-    }
-    public Data getData()
-    {
-	if(default_scroll)
-	    expr = text_area.getText();
-	else
-	    expr = text_field.getText();
-	    
-	if(quotes_added)
-	    return Tree.dataFromExpr("\"" + expr + "\"");
-	else
-	    return Tree.dataFromExpr(expr);
-    }
-    
-    public void setData(Data data)
-    {
-	this.data = data;
-	reset();
-    }
-    
-    public void setEditable(boolean editable)
-    {
-	this.editable = editable;
-	if(text_area != null) text_area.setEditable(editable);
-	if(text_field != null) text_field.setEditable(editable);
-    }	
-    
 
+    public ExprEditor(final Data data, final boolean default_to_string){
+        this(data, default_to_string, 1, 20);
+    }
+
+    public ExprEditor(final Data data, final boolean default_to_string, final int rows, final int columns){
+        boolean quotes_needed;
+        JScrollPane scroll_pane;
+        this.rows = rows;
+        this.columns = columns;
+        this.default_to_string = default_to_string;
+        if(rows > 1) this.default_scroll = true;
+        if(data != null) this.expr = Tree.dataToString(data);
+        else this.expr = null;
+        quotes_needed = (default_to_string && (this.expr == null || this.expr.charAt(0) == '\"'));
+        if(quotes_needed){
+            this.quotes_added = true;
+            this.left = new JButton("\"");
+            this.right = new JButton("\"");
+            this.left.setMargin(new Insets(0, 0, 0, 0));
+            this.right.setMargin(new Insets(0, 0, 0, 0));
+            this.left.addActionListener(this);
+            this.right.addActionListener(this);
+            if(this.expr != null) this.expr = this.expr.substring(1, this.expr.length() - 1);
+        }else this.quotes_added = false;
+        this.setLayout(new BorderLayout());
+        if(this.default_scroll){
+            this.text_area = new JTextArea(rows, columns);
+            final Dimension d = this.text_area.getPreferredSize();
+            this.text_area.setText(this.expr);
+            d.height += 20;
+            d.width += 20;
+            scroll_pane = new JScrollPane(this.text_area);
+            scroll_pane.setPreferredSize(d);
+            if(quotes_needed){
+                this.pl = new JPanel();
+                this.pl.setLayout(new BorderLayout());
+                this.pl.add(this.left, "North");
+                this.add(this.pl, "East");
+            }
+            this.add(scroll_pane, "Center");
+            if(quotes_needed){
+                this.pr = new JPanel();
+                this.pr.setLayout(new BorderLayout());
+                this.pr.add(this.right, "North");
+                this.add(this.pr, "West");
+            }
+        }else{
+            if(quotes_needed) this.add(this.left, BorderLayout.LINE_START);
+            this.text_field = new JTextField(columns);
+            this.text_field.setText(this.expr);
+            this.add(this.text_field);
+            if(quotes_needed) this.add(this.right, BorderLayout.LINE_END);
+        }
+    }
+
+    @Override
+    public void actionPerformed(final ActionEvent e) {
+        if(!this.editable) return;
+        this.quotes_added = false;
+        if(this.default_scroll){
+            this.remove(this.pl);
+            this.remove(this.pr);
+        }else{
+            this.remove(this.left);
+            this.remove(this.right);
+        }
+        this.left = this.right = null;
+        if(this.default_scroll) this.expr = this.text_area.getText();
+        else this.expr = this.text_field.getText();
+        this.expr = "\"" + this.expr + "\"";
+        if(this.default_scroll) this.text_area.setText(this.expr);
+        else this.text_field.setText(this.expr);
+        this.validate();
+        this.repaint();
+    }
+
+    @Override
+    public Data getData() {
+        if(this.default_scroll) this.expr = this.text_area.getText();
+        else this.expr = this.text_field.getText();
+        if(this.quotes_added) return Tree.dataFromExpr("\"" + this.expr + "\"");
+        else return Tree.dataFromExpr(this.expr);
+    }
+
+    @Override
+    public void reset() {
+        if(this.data == null) this.expr = "";
+        else this.expr = Tree.dataToString(this.data);
+        if(this.default_to_string){
+            final int len = this.expr.length();
+            if(len >= 2) this.expr = this.expr.substring(1, len - 1);
+        }
+        if(this.default_scroll) this.text_area.setText(this.expr);
+        else this.text_field.setText(this.expr);
+    }
+
+    public void setData(final Data data) {
+        this.data = data;
+        this.reset();
+    }
+
+    @Override
+    public void setEditable(final boolean editable) {
+        this.editable = editable;
+        if(this.text_area != null) this.text_area.setEditable(editable);
+        if(this.text_field != null) this.text_field.setEditable(editable);
+    }
 }
-
-
-

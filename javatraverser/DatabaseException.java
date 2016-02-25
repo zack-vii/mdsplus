@@ -1,31 +1,32 @@
-//package jTraverser;
-import java.util.*;
-class DatabaseException
-    extends Exception
-{
-    int status = 0;
-    static String getMsg(String message)
-    {
-        StringTokenizer st = new StringTokenizer(message, ":");
+// package jTraverser;
+import java.util.StringTokenizer;
+
+class DatabaseException extends Exception{
+    private static final long serialVersionUID = -1977560342812497985L;
+
+    static String getMsg(final String message) {
+        final StringTokenizer st = new StringTokenizer(message, ":");
         String statusStr = "";
-        if(st.countTokens() > 0)
-            statusStr = st.nextToken();
+        if(st.countTokens() > 0) statusStr = st.nextToken();
         return message.substring(statusStr.length() + 1);
-
     }
-    private void setStatus(String message)
-    {
-        try {
-            StringTokenizer st = new StringTokenizer(message, ":");
-            status = Integer.parseInt(st.nextToken());
-        }catch(Exception exc){status = 0;}
+    int status = 0;
+
+    public DatabaseException(final String message){
+        super(DatabaseException.getMsg(message));
+        this.setStatus(message);
     }
 
-    public DatabaseException(String message)
-    {
-        super(getMsg(message));
-        setStatus(message);
+    public int getStatus() {
+        return this.status;
     }
 
-    public int getStatus(){return status;}
+    private void setStatus(final String message) {
+        try{
+            final StringTokenizer st = new StringTokenizer(message, ":");
+            this.status = Integer.parseInt(st.nextToken());
+        }catch(final Exception exc){
+            this.status = 0;
+        }
+    }
 }

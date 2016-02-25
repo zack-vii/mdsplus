@@ -1,62 +1,60 @@
-import javax.swing.*;
-import java.beans.*;
-import java.awt.*;
-import java.lang.reflect.*;
-import java.awt.event.*;
+import java.awt.BorderLayout;
+import java.awt.Button;
+import java.awt.Choice;
+import java.awt.Label;
+import java.awt.Panel;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.beans.Customizer;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 
-public class DeviceWaveDisplayCustomizer extends DeviceCustomizer implements Customizer
-{
-    DeviceWaveDisplay bean = null;
-    Object obj;
-    PropertyChangeSupport listeners = new PropertyChangeSupport(this);
-    Choice nids;
-    Button doneButton;
+public class DeviceWaveDisplayCustomizer extends DeviceCustomizer implements Customizer{
+    private static final long serialVersionUID = 6299782864592765238L;
+    DeviceWaveDisplay         bean             = null;
+    Button                    doneButton;
+    PropertyChangeSupport     listeners        = new PropertyChangeSupport(this);
+    Choice                    nids;
+    Object                    obj;
 
-    public DeviceWaveDisplayCustomizer()
-    {
+    public DeviceWaveDisplayCustomizer(){}
+
+    @Override
+    public void addPropertyChangeListener(final PropertyChangeListener l) {
+        this.listeners.addPropertyChangeListener(l);
     }
-    public void setObject(Object o)
-    {
 
-        bean = (DeviceWaveDisplay)o;
+    @Override
+    public void removePropertyChangeListener(final PropertyChangeListener l) {
+        this.listeners.removePropertyChangeListener(l);
+    }
 
-        setLayout(new BorderLayout());
+    @Override
+    public void setObject(final Object o) {
+        this.bean = (DeviceWaveDisplay)o;
+        this.setLayout(new BorderLayout());
         Panel jp = new Panel();
         jp.add(new Label("Offset nid: "));
-        jp.add(nids = new Choice());
-
-        String names[] = getDeviceFields();
-
-        if(names != null)
-        for(int i = 0; i < names.length; i++)
-            nids.addItem(names[i]);
-        int offsetNid = bean.getOffsetNid();
+        jp.add(this.nids = new Choice());
+        final String names[] = DeviceCustomizer.getDeviceFields();
+        if(names != null) for(final String name2 : names)
+            this.nids.addItem(name2);
+        int offsetNid = this.bean.getOffsetNid();
         if(offsetNid > 0) offsetNid--;
-        nids.select(offsetNid);
-        add(jp, "Center");
+        this.nids.select(offsetNid);
+        this.add(jp, "Center");
         jp = new Panel();
-        jp.add(doneButton = new Button("Apply"));
-        doneButton.addActionListener(new ActionListener() {
-        public void actionPerformed(ActionEvent e)
-        {
-            if(bean == null) return;
-            int oldOffsetNid = bean.getOffsetNid();
-            bean.setOffsetNid(nids.getSelectedIndex() + 1);
-            listeners.firePropertyChange("offsetNid", oldOffsetNid, bean.getOffsetNid());
-            DeviceWaveDisplayCustomizer.this.repaint();
-         }
-      });
-      add(jp,"South");
+        jp.add(this.doneButton = new Button("Apply"));
+        this.doneButton.addActionListener(new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(DeviceWaveDisplayCustomizer.this.bean == null) return;
+                final int oldOffsetNid = DeviceWaveDisplayCustomizer.this.bean.getOffsetNid();
+                DeviceWaveDisplayCustomizer.this.bean.setOffsetNid(DeviceWaveDisplayCustomizer.this.nids.getSelectedIndex() + 1);
+                DeviceWaveDisplayCustomizer.this.listeners.firePropertyChange("offsetNid", oldOffsetNid, DeviceWaveDisplayCustomizer.this.bean.getOffsetNid());
+                DeviceWaveDisplayCustomizer.this.repaint();
+            }
+        });
+        this.add(jp, "South");
     }
-
-    public void addPropertyChangeListener(PropertyChangeListener l)
-    {
-        listeners.addPropertyChangeListener(l);
-    }
-
-    public void removePropertyChangeListener(PropertyChangeListener l)
-    {
-        listeners.removePropertyChangeListener(l);
-    }
-  }
-
+}

@@ -1,12 +1,13 @@
-//package jTraverser;
+// package jTraverser;
+public class AtomicData extends Data{
+    private static final long serialVersionUID = 94372955317250190L;
 
-public class AtomicData extends Data
-{
-    public AtomicData()
-    {
-	dclass = CLASS_S; 
+    public AtomicData(){
+        this.dclass = Data.CLASS_S;
     }
-    public boolean isAtomic() {return true; }
-}
 
-        
+    @Override
+    public boolean isAtomic() {
+        return true;
+    }
+}

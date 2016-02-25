@@ -1,19 +1,32 @@
-//package jTraverser;
+// package jTraverser;
+public class SlopeData extends CompoundData{
+    private static final long serialVersionUID = 6953847514236487561L;
 
-public class SlopeData extends CompoundData
-{
-    public static Data getData() {return new SlopeData(); }
-    public SlopeData() {dtype = DTYPE_SLOPE; }
-    public SlopeData(Data slope, Data begin, Data end)
-    {
-	dtype = DTYPE_SLOPE;
-	descs = new Data[3];
-	descs[0] = slope;
-	descs[1] = begin;
-	descs[2] = end;
+    public static Data getData() {
+        return new SlopeData();
     }
-    
-    public Data getSlope()  {return descs[0]; }
-    public Data getBegin()  {return descs[1]; }
-    public Data getEnd()    {return descs[2]; }
+
+    public SlopeData(){
+        this.dtype = Data.DTYPE_SLOPE;
+    }
+
+    public SlopeData(final Data slope, final Data begin, final Data end){
+        this.dtype = Data.DTYPE_SLOPE;
+        this.descs = new Data[3];
+        this.descs[0] = slope;
+        this.descs[1] = begin;
+        this.descs[2] = end;
+    }
+
+    public Data getBegin() {
+        return this.descs[1];
+    }
+
+    public Data getEnd() {
+        return this.descs[2];
+    }
+
+    public Data getSlope() {
+        return this.descs[0];
+    }
 }

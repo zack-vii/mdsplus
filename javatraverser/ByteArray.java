@@ -1,37 +1,42 @@
-//package jTraverser;
+// package jTraverser;
+public class ByteArray extends ArrayData{
+    private static final long serialVersionUID = -3367858364462011080L;
 
-public class ByteArray extends ArrayData
-{
+    public static Data getData(final byte datum[], final boolean unsigned) {
+        return new ByteArray(datum, unsigned);
+    }
     byte datum[];
-    public static Data getData(byte datum[], boolean unsigned)
-    {
-	return new ByteArray(datum, unsigned);
+
+    public ByteArray(final byte datum[]){
+        this(datum, false);
     }
-    public ByteArray(byte datum[], boolean unsigned)
-    {
-	length = datum.length;
-	if(unsigned)
-	    dtype = DTYPE_BU;
-	else
-	    dtype = DTYPE_B;
-	this.datum = new byte[datum.length];
-	for(int i = 0; i < datum.length; i++)
-	    this.datum[i] = datum[i];
+
+    public ByteArray(final byte datum[], final boolean unsigned){
+        this.length = datum.length;
+        if(unsigned) this.dtype = Data.DTYPE_BU;
+        else this.dtype = Data.DTYPE_B;
+        this.datum = new byte[datum.length];
+        for(int i = 0; i < datum.length; i++)
+            this.datum[i] = datum[i];
     }
-    public ByteArray(byte datum[]) { this(datum, false); }
-    public int [] getIntArray()
-    {
-	int ris [] = new int[datum.length];
-	for(int i = 0; i < datum.length; i++)
-	    ris[i] = (int)datum[i];
-	return ris;
+
+    public byte[] getByteArray() {
+        return this.datum;
     }
-    public float [] getFloatArray()
-    {
-	float ris [] = new float[datum.length];
-	for(int i = 0; i < datum.length; i++)
-	    ris[i] = (float)datum[i];
-	return ris;
+
+    @Override
+    public float[] getFloatArray() {
+        final float ris[] = new float[this.datum.length];
+        for(int i = 0; i < this.datum.length; i++)
+            ris[i] = this.datum[i];
+        return ris;
     }
-    public byte[] getByteArray(){return datum;}
+
+    @Override
+    public int[] getIntArray() {
+        final int ris[] = new int[this.datum.length];
+        for(int i = 0; i < this.datum.length; i++)
+            ris[i] = this.datum[i];
+        return ris;
+    }
 }

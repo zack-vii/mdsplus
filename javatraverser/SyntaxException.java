@@ -1,8 +1,8 @@
-//package jTraverser;
+// package jTraverser;
+public class SyntaxException extends Exception{
+    private static final long serialVersionUID = -1812533093666009581L;
 
-public class SyntaxException extends Exception {
-    public SyntaxException(String message)
-    {
-	super(message);
+    public SyntaxException(final String message){
+        super(message);
     }
 }

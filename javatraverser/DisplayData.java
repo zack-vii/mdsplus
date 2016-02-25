@@ -1,6 +1,8 @@
-//package jTraverser;
+// package jTraverser;
+public class DisplayData extends ModifyData{
+    private static final long serialVersionUID = 4987632132088086613L;
 
-public class DisplayData extends ModifyData
-{
-    public DisplayData() {super(false);}
+    public DisplayData(){
+        super(false);
+    }
 }

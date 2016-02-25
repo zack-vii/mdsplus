@@ -1,455 +1,366 @@
-import javax.swing.*;
-import javax.swing.event.*;
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import javax.swing.JCheckBox;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
-public class DeviceField
-    extends DeviceComponent
-{
-  Data data;
-  public boolean textOnly = false;
-  public boolean showState = false;
-  public boolean displayEvaluated = false;
-  public String labelString = "";
-  public int numCols = 10;
-  private boolean initial_state;
-  protected boolean initializing = false;
-  GridBagLayout gridbag;
-  protected int preferredWidth = -1;
-  JPanel jp;
-  protected boolean isGridBag = false;
+public class DeviceField extends DeviceComponent{
+    private static final long serialVersionUID = -4876951476949506659L;
+    protected JCheckBox       checkB;
+    Data                      data;
+    public boolean            displayEvaluated = false;
+    GridBagLayout             gridbag;
+    private boolean           initial_state;
+    protected String          initialField;
+    protected boolean         initializing     = false;
+    protected boolean         isGridBag        = false;
+    JPanel                    jp;
+    protected JLabel          label;
+    public String             labelString      = "";
+    public int                numCols          = 10;
+    protected int             preferredWidth   = -1;
+    private boolean           reportingChange  = false;
+    public boolean            showState        = false;
+    protected JTextField      textF;
+    public boolean            textOnly         = false;
 
-  protected String initialField;
-
-  private boolean reportingChange = false;
-
-  public void setNumCols(int numCols)
-  {
-    this.numCols = numCols;
-    textF.setColumns(numCols);
-    //redisplay();
-  }
-
-  public int getNumCols()
-  {
-    return numCols;
-  }
-
-  public void setEditable(boolean editable)
-  {
-    this.editable = editable;
-  }
-
-  public boolean getEditable()
-  {
-    return editable;
-  }
-
-  public boolean getDisplayEvaluated()
-  {
-    return displayEvaluated;
-  }
-
-  public void setDisplayEvaluated(boolean displayEvaluated)
-  {
-    this.displayEvaluated = displayEvaluated;
-  }
-
-  public void setPreferredWidth(int preferredWidth)
-  {
-    this.preferredWidth = preferredWidth;
-  }
-
-  public int getPreferredWidth()
-  {
-    return preferredWidth;
-  }
-
-  public void setLabelString(String labelString)
-  {
-    this.labelString = labelString;
-    label.setText(labelString);
-    //redisplay();
-  }
-
-  public String getLabelString()
-  {
-    return labelString;
-  }
-
-  public void setShowState(boolean showState)
-  {
-    this.showState = showState;
-    if (showState)
-      checkB.setVisible(true);
-    else
-      checkB.setVisible(false);
-      //redisplay();
-  }
-
-  public boolean getShowState()
-  {
-    return showState;
-  }
-
-  public void setTextOnly(boolean textOnly)
-  {
-    this.textOnly = textOnly;
-  }
-
-  public boolean getTextOnly()
-  {
-    return textOnly;
-  }
-
-  protected JCheckBox checkB;
-  protected JLabel label;
-  protected JTextField textF;
-
-  public DeviceField()
-  {
-    initializing = true;
-    jp = new JPanel();
-    jp.add(checkB = new JCheckBox());
-    checkB.setVisible(false);
-    jp.add(label = new JLabel());
-    add(jp);
-    add(textF = new JTextField(10));
-    textF.setEnabled(editable);
-    textF.setEditable(editable);
-    //setLayout(gridbag = new GridBagLayout());
-    initializing = false;
-  }
-
-
-
-
-  protected void initializeData(Data data, boolean is_on)
-  {
-    initializing = true;
-    initial_state = is_on;
-
-    //initialField =  Tree.dataToString(data);
-
-    Container parent = getParent();
-    if (parent.getLayout() == null)
-    {
-      isGridBag = false;
+    public DeviceField(){
+        this.initializing = true;
+        this.jp = new JPanel();
+        this.jp.add(this.checkB = new JCheckBox());
+        this.checkB.setVisible(false);
+        this.jp.add(this.label = new JLabel());
+        this.add(this.jp);
+        this.add(this.textF = new JTextField(10));
+        this.textF.setEnabled(this.editable);
+        this.textF.setEditable(this.editable);
+        // setLayout(gridbag = new GridBagLayout());
+        this.initializing = false;
     }
-    else
-      isGridBag = true;
 
-    GridBagConstraints gc = null;
-    if (isGridBag)
-    {
-      setLayout(gridbag = new GridBagLayout());
-      gc = new GridBagConstraints();
-      gc.anchor = GridBagConstraints.WEST;
-      gc.gridx = gc.gridy = 0;
-     // gc.gridwidth = gc.gridheight = 1;
-      gc.gridwidth = 1;
-      gc.gridheight = 1;
-      gc.weightx = gc.weighty = 1.;
-      gc.fill = GridBagConstraints.NONE;
-      gridbag.setConstraints(jp, gc);
-    }
-    if (showState)
-    {
-      //add(checkB = new JCheckBox());
-      checkB.setVisible(true);
-      checkB.setSelected(is_on);
-      checkB.addChangeListener(new ChangeListener()
-      {
-        public void stateChanged(ChangeEvent e)
-        {
-          boolean state = checkB.isSelected();
-          if (label != null)
-            label.setEnabled(state);
-          if (textF != null && editable)
-          {
-            textF.setEnabled(state);
-            textF.setEditable(state);
-          }
+    @Override
+    public Component add(final Component c) {
+        if(!this.initializing){
+            JOptionPane.showMessageDialog(null, "You cannot add a component to a Device Field. Please remove the component.", "Error adding Device field", JOptionPane.WARNING_MESSAGE);
+            return null;
         }
-      });
-    }
-    if (textF != null && isGridBag)
-    {
-      gc.gridx++;
-      gc.anchor = GridBagConstraints.EAST;
-      gc.gridwidth = 1;
-      gridbag.setConstraints(textF, gc);
+        return super.add(c);
     }
 
-    displayData(data, is_on);
-    setEnabled(is_on);
-
-/*    textF.addKeyListener(new KeyAdapter()
-    {
-      public void keyTyped(KeyEvent e)
-      {
-        reportingChange = true;
-        reportDataChanged(textF.getText());
-        reportingChange = false;
-      }
-    });
-*/    textF.getDocument().addDocumentListener(new DocumentListener()
-    {
-      public void changedUpdate(DocumentEvent e)
-      {
-        reportingChange = true;
-        reportDataChanged(textF.getText());
-        reportingChange = false;
-      }
-
-      public void insertUpdate(DocumentEvent e)
-      {
-          reportingChange = true;
-          reportDataChanged(textF.getText());
-          reportingChange = false;
-      }
-
-      public void removeUpdate(DocumentEvent e)
-      {
-          reportingChange = true;
-          reportDataChanged(textF.getText());
-          reportingChange = false;
-      }
-  });
-
-    textF.setEnabled(editable);
-    textF.setEditable(editable);
-    if (preferredWidth > 0)
-    {
-      setPreferredSize(new Dimension(preferredWidth, getPreferredSize().height));
-      setSize(new Dimension(preferredWidth, getPreferredSize().height));
-    }
-    redisplay();
-    initializing = false;
-  }
-
-  protected void dataChanged(int offsetNid, Object data)
-  {
-    if (reportingChange || this.offsetNid != offsetNid)
-      return;
-    try
-    {
-        String textData;
-       if(data instanceof Data)
-          textData = Tree.dataToString((Data)data);
-        else
-          textData = (String)data;
-        textF.setText(textData);
-    }
-    catch (Exception exc)
-    {}
-  }
-
-  void postApply()
-  {
-    if (editable || !displayEvaluated || data == null)
-      return;
-    //Nothing to do if the field is not editable and displays evaulated data
-    String textString;
-    try
-    {
-      textString = Tree.dataToString(subtree.evaluateData(data, 0));
-    }
-    catch (Exception exc)
-    {
-      textString = Tree.dataToString(data);
-    }
-    if (textString != null)
-    {
-      if (textOnly && textString.charAt(0) == '"')
-        textF.setText(textString.substring(1, textString.length() - 1));
-      else
-        textF.setText(textString);
-    }
-  }
-
-  protected void displayData(Data data, boolean is_on)
-  {
-    this.data = data;
-    initial_state = is_on;
-    if (showState)
-      checkB.setSelected(is_on);
-    if (data != null)
-    {
-      String textString;
-      if (displayEvaluated)
-      {
-        try
-        {
-          initialField = textString = Tree.dataToString(subtree.evaluateData(
-              data, 0));
+    @Override
+    public Component add(final Component c, final int intex) {
+        if(!this.initializing){
+            JOptionPane.showMessageDialog(null, "You cannot add a component to a Device Field. Please remove the component.", "Error adding Device field", JOptionPane.WARNING_MESSAGE);
+            return null;
         }
-        catch (Exception exc)
-        {
-          textString = Tree.dataToString(data);
-        }
-      }
-      else
-        textString = Tree.dataToString(data);
-      if (textString != null)
-      {
-        if (textOnly && textString.charAt(0) == '"')
-          textF.setText(textString.substring(1, textString.length() - 1));
-        else
-          textF.setText(textString);
-      }
+        return super.add(c);
     }
-    else
-      textF.setText("");
-    label.setEnabled(is_on);
-    textF.setEnabled(is_on & editable);
-    textF.setEditable(is_on & editable);
-  }
 
-  protected Data getData()
-  {
-    String dataString = textF.getText();
-    if (dataString == null)
-      return null;
-    if (textOnly)
-    {
-        if(dataString.trim().startsWith("[")) //If it begins with a [ it is assumed to be an array of strings
+    @Override
+    public Component add(final String name, final Component c) {
+        if(!this.initializing){
+            JOptionPane.showMessageDialog(null, "You cannot add a component to a Device Field. Please remove the component.", "Error adding Device field", JOptionPane.WARNING_MESSAGE);
+            return null;
+        }
+        return super.add(c);
+    }
+
+    @Override
+    protected void dataChanged(final int offsetNid, final Object data) {
+        if(this.reportingChange || this.offsetNid != offsetNid) return;
+        try{
+            String textData;
+            if(data instanceof Data) textData = Tree.dataToString((Data)data);
+            else textData = (String)data;
+            this.textF.setText(textData);
+        }catch(final Exception exc){}
+    }
+
+    @Override
+    protected void displayData(final Data data, final boolean is_on) {
+        this.data = data;
+        this.initial_state = is_on;
+        if(this.showState) this.checkB.setSelected(is_on);
+        if(data != null){
+            String textString;
+            if(this.displayEvaluated){
+                try{
+                    this.initialField = textString = Tree.dataToString(this.subtree.evaluateData(data, 0));
+                }catch(final Exception exc){
+                    textString = Tree.dataToString(data);
+                }
+            }else textString = Tree.dataToString(data);
+            if(textString != null){
+                if(this.textOnly && textString.charAt(0) == '"') this.textF.setText(textString.substring(1, textString.length() - 1));
+                else this.textF.setText(textString);
+            }
+        }else this.textF.setText("");
+        this.label.setEnabled(is_on);
+        this.textF.setEnabled(is_on & this.editable);
+        this.textF.setEditable(is_on & this.editable);
+    }
+
+    @Override
+    protected Data getData() {
+        final String dataString = this.textF.getText();
+        if(dataString == null) return null;
+        if(this.textOnly){
+            if(dataString.trim().startsWith("[")) // If it begins with a [ it is assumed to be an array of strings
             return Tree.dataFromExpr(dataString);
-        else
-            return Tree.dataFromExpr("\"" + dataString + "\"");
+            else return Tree.dataFromExpr("\"" + dataString + "\"");
+        }else return Tree.dataFromExpr(dataString);
     }
-    else
-      return Tree.dataFromExpr(dataString);
-  }
 
-  protected boolean getState()
-  {
-    if (!showState)
-      return initial_state;
-    else
-      return checkB.isSelected();
-  }
-
-  public void setEnabled(boolean state)
-  {
-    if (!editable && state)
-      return; //Do not set enabled if not editable
-    //if(checkB != null) checkB.setEnabled(state);
-    if (textF != null)
-    {
-      textF.setEnabled(state);
-      textF.setEditable(state);
+    public boolean getDisplayEvaluated() {
+        return this.displayEvaluated;
     }
-    if (label != null)
-      label.setEnabled(state);
-      //if(checkB != null) checkB.setSelected(state);
-      //initial_state = state;
-  }
 
-  public Component add(Component c)
-  {
-    if (!initializing)
-    {
-      JOptionPane.showMessageDialog(null,
-          "You cannot add a component to a Device Field. Please remove the component.",
-                                    "Error adding Device field",
-                                    JOptionPane.WARNING_MESSAGE);
-      return null;
+    public boolean getEditable() {
+        return this.editable;
     }
-    return super.add(c);
-  }
 
-  public Component add(String name, Component c)
-  {
-    if (!initializing)
-    {
-      JOptionPane.showMessageDialog(null,
-          "You cannot add a component to a Device Field. Please remove the component.",
-                                    "Error adding Device field",
-                                    JOptionPane.WARNING_MESSAGE);
-      return null;
+    public String getLabelString() {
+        return this.labelString;
     }
-    return super.add(c);
-  }
 
-  public Component add(Component c, int intex)
-  {
-    if (!initializing)
-    {
-      JOptionPane.showMessageDialog(null,
-          "You cannot add a component to a Device Field. Please remove the component.",
-                                    "Error adding Device field",
-                                    JOptionPane.WARNING_MESSAGE);
-      return null;
+    public int getNumCols() {
+        return this.numCols;
     }
-    return super.add(c);
-  }
 
-  public boolean supportsState()
-  {
-    return showState;
-  }
+    public int getPreferredWidth() {
+        return this.preferredWidth;
+    }
 
-  public void setBounds(int x, int y, int width, int height)
-  {
-    super.setBounds(x, y, width, height);
-    setPreferredSize(new Dimension(width, height));
-  }
+    public boolean getShowState() {
+        return this.showState;
+    }
 
-  protected boolean isDataChanged()
-  {
-    if (displayEvaluated && initialField != null)
-      return! (textF.getText().equals(initialField));
-    else
-      return true;
-  }
-  protected boolean isChanged()
-  {
-      if (displayEvaluated)
-          return false;
-      return super.isChanged();
-  }
+    @Override
+    protected boolean getState() {
+        if(!this.showState) return this.initial_state;
+        else return this.checkB.isSelected();
+    }
 
-  public void print(Graphics g)
-  {
-      Font prevLabelFont = null;
-      Font prevTextFont = null;
-      if(label != null)
-      {
-          prevLabelFont = label.getFont();
-          label.setFont(new Font("Serif", Font.BOLD, 10));
-      }
-      if(textF != null)
-      {
-          prevTextFont = textF.getFont();
-          textF.setFont(new Font("Serif", Font.BOLD, 10));
-      }
-      super.print(g);
-      if(label != null)
-          label.setFont(prevLabelFont);
-      if(textF != null)
-          textF.setFont(prevTextFont);
-  }
+    public boolean getTextOnly() {
+        return this.textOnly;
+    }
 
-  public void setHighlight(boolean highlighted)
-  {
-      if(highlighted)
-      {
-          if (label != null)
-          {
-              label.setEnabled(true);
-              label.setForeground(Color.red);
-          }
-      }
-      else
-      {
-         if (label != null)
-        {
-            label.setForeground(Color.black);
-            label.setEnabled(getState());
+    @Override
+    protected void initializeData(final Data data, final boolean is_on) {
+        this.initializing = true;
+        this.initial_state = is_on;
+        // initialField = Tree.dataToString(data);
+        final Container parent = this.getParent();
+        if(parent.getLayout() == null){
+            this.isGridBag = false;
+        }else this.isGridBag = true;
+        final GridBagConstraints gc;
+        if(this.isGridBag){
+            this.setLayout(this.gridbag = new GridBagLayout());
+            gc = new GridBagConstraints();
+            gc.anchor = GridBagConstraints.WEST;
+            gc.gridx = gc.gridy = 0;
+            // gc.gridwidth = gc.gridheight = 1;
+            gc.gridwidth = 1;
+            gc.gridheight = 1;
+            gc.weightx = gc.weighty = 1.;
+            gc.fill = GridBagConstraints.NONE;
+            this.gridbag.setConstraints(this.jp, gc);
+        }else gc = null;
+        if(this.showState){
+            // add(checkB = new JCheckBox());
+            this.checkB.setVisible(true);
+            this.checkB.setSelected(is_on);
+            this.checkB.addChangeListener(new ChangeListener(){
+                @Override
+                public void stateChanged(ChangeEvent e) {
+                    final boolean state = DeviceField.this.checkB.isSelected();
+                    if(DeviceField.this.label != null) DeviceField.this.label.setEnabled(state);
+                    if(DeviceField.this.textF != null && DeviceField.this.editable){
+                        DeviceField.this.textF.setEnabled(state);
+                        DeviceField.this.textF.setEditable(state);
+                    }
+                }
+            });
         }
-     }
-     super.setHighlight(highlighted);
-  }
+        if(this.textF != null && gc != null){
+            gc.gridx++;
+            gc.anchor = GridBagConstraints.EAST;
+            gc.gridwidth = 1;
+            this.gridbag.setConstraints(this.textF, gc);
+        }
+        this.displayData(data, is_on);
+        this.setEnabled(is_on);
+        /*    textF.addKeyListener(new KeyAdapter()
+            {
+              public void keyTyped(KeyEvent e)
+              {
+        reportingChange = true;
+        reportDataChanged(textF.getText());
+        reportingChange = false;
+              }
+            });
+        */ this.textF.getDocument().addDocumentListener(new DocumentListener(){
+            @Override
+            public void changedUpdate(final DocumentEvent e) {
+                DeviceField.this.reportingChange = true;
+                DeviceField.this.reportDataChanged(DeviceField.this.textF.getText());
+                DeviceField.this.reportingChange = false;
+            }
 
+            @Override
+            public void insertUpdate(final DocumentEvent e) {
+                DeviceField.this.reportingChange = true;
+                DeviceField.this.reportDataChanged(DeviceField.this.textF.getText());
+                DeviceField.this.reportingChange = false;
+            }
+
+            @Override
+            public void removeUpdate(final DocumentEvent e) {
+                DeviceField.this.reportingChange = true;
+                DeviceField.this.reportDataChanged(DeviceField.this.textF.getText());
+                DeviceField.this.reportingChange = false;
+            }
+        });
+        this.textF.setEnabled(this.editable);
+        this.textF.setEditable(this.editable);
+        if(this.preferredWidth > 0){
+            this.setPreferredSize(new Dimension(this.preferredWidth, this.getPreferredSize().height));
+            this.setSize(new Dimension(this.preferredWidth, this.getPreferredSize().height));
+        }
+        this.redisplay();
+        this.initializing = false;
+    }
+
+    @Override
+    protected boolean isChanged() {
+        if(this.displayEvaluated) return false;
+        return super.isChanged();
+    }
+
+    @Override
+    protected boolean isDataChanged() {
+        if(this.displayEvaluated && this.initialField != null) return !(this.textF.getText().equals(this.initialField));
+        else return true;
+    }
+
+    @Override
+    void postApply() {
+        if(this.editable || !this.displayEvaluated || this.data == null) return;
+        // Nothing to do if the field is not editable and displays evaulated data
+        String textString;
+        try{
+            textString = Tree.dataToString(this.subtree.evaluateData(this.data, 0));
+        }catch(final Exception exc){
+            textString = Tree.dataToString(this.data);
+        }
+        if(textString != null){
+            if(this.textOnly && textString.charAt(0) == '"') this.textF.setText(textString.substring(1, textString.length() - 1));
+            else this.textF.setText(textString);
+        }
+    }
+
+    @Override
+    public void print(final Graphics g) {
+        Font prevLabelFont = null;
+        Font prevTextFont = null;
+        if(this.label != null){
+            prevLabelFont = this.label.getFont();
+            this.label.setFont(new Font("Serif", Font.BOLD, 10));
+        }
+        if(this.textF != null){
+            prevTextFont = this.textF.getFont();
+            this.textF.setFont(new Font("Serif", Font.BOLD, 10));
+        }
+        super.print(g);
+        if(this.label != null) this.label.setFont(prevLabelFont);
+        if(this.textF != null) this.textF.setFont(prevTextFont);
+    }
+
+    @Override
+    public void setBounds(final int x, final int y, final int width, final int height) {
+        super.setBounds(x, y, width, height);
+        this.setPreferredSize(new Dimension(width, height));
+    }
+
+    public void setDisplayEvaluated(final boolean displayEvaluated) {
+        this.displayEvaluated = displayEvaluated;
+    }
+
+    public void setEditable(final boolean editable) {
+        this.editable = editable;
+    }
+
+    @Override
+    public void setEnabled(final boolean state) {
+        if(!this.editable && state) return; // Do not set enabled if not editable
+        // if(checkB != null) checkB.setEnabled(state);
+        if(this.textF != null){
+            this.textF.setEnabled(state);
+            this.textF.setEditable(state);
+        }
+        if(this.label != null) this.label.setEnabled(state);
+        // if(checkB != null) checkB.setSelected(state);
+        // initial_state = state;
+    }
+
+    @Override
+    public void setHighlight(final boolean highlighted) {
+        if(highlighted){
+            if(this.label != null){
+                this.label.setEnabled(true);
+                this.label.setForeground(Color.red);
+            }
+        }else{
+            if(this.label != null){
+                this.label.setForeground(Color.black);
+                this.label.setEnabled(this.getState());
+            }
+        }
+        super.setHighlight(highlighted);
+    }
+
+    public void setLabelString(final String labelString) {
+        this.labelString = labelString;
+        this.label.setText(labelString);
+        // redisplay();
+    }
+
+    public void setNumCols(final int numCols) {
+        this.numCols = numCols;
+        this.textF.setColumns(numCols);
+        // redisplay();
+    }
+
+    public void setPreferredWidth(final int preferredWidth) {
+        this.preferredWidth = preferredWidth;
+    }
+
+    public void setShowState(final boolean showState) {
+        this.showState = showState;
+        if(showState) this.checkB.setVisible(true);
+        else this.checkB.setVisible(false);
+        // redisplay();
+    }
+
+    public void setTextOnly(final boolean textOnly) {
+        this.textOnly = textOnly;
+    }
+
+    @Override
+    public boolean supportsState() {
+        return this.showState;
+    }
 }

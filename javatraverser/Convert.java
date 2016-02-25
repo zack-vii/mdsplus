@@ -1,117 +1,103 @@
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.util.StringTokenizer;
 
-class Convert
-{
-    String path, fileName;
-    int shotNum = -1;
-    float data[];
-    public Convert(String path, String fileName)
-    {
-        this.path = path;
-        this.fileName = fileName;
-        loadData();
-    }
-
-    public Convert(String path, String fileName, int shotNum)
-    {
-        this.path = path;
-        this.fileName = fileName;
-        this.shotNum = shotNum;
-        loadData();
-    }
-
-
-    public static void main(String args[])
-    {
-        if(args.length == 2)
-        {
-            Convert conv = new Convert(args[0], args[1]);
-            conv.convertMatrix();
-        }
-        else if(args.length == 1)
-        {
-           Convert conv = new Convert("", args[0] + ".dat");
-           int key = conv.getKey();
-           try {
-               BufferedWriter bw = new BufferedWriter(new FileWriter(args[0] +
-                       ".key"));
-               bw.write(""+key);
-               bw.close();
-           }catch(Exception exc)
-           {
-               System.err.println(exc);
-           }
-        }
-    }
-
-    void loadData()
-    {
-        data = new float[192*192];
-        if(fileName.equalsIgnoreCase("diagonal"))
-        {
-            for(int i = 0; i < 192; i++)
-            {
-                for(int j = 0; j < 192; j++)
-                {
-                    if(i == j)
-                        data[192*i+j] = 1;
-                    else
-                        data[192*i+j] = 0;
-                }
-            }
-        }
-        else
-        {
-            try {
-                BufferedReader br = new BufferedReader(new FileReader(fileName));
-                for(int i = 0; i < 192; i++)
-                {
-                    System.out.println(i);
-                    String line = br.readLine();
-                    StringTokenizer st = new StringTokenizer(line, "[], ");
-                    for(int j = 0; j < 192; j++)
-                        data[192*i+j] = Float.parseFloat(st.nextToken());
-                }
-            }catch(Exception exc){System.err.println(exc);}
-         }
-    }
-
-    static int getKey(float data[])
-    {
+class Convert{
+    static int getKey(final float data[]) {
         int outHash = 0;
-        for(int i = 0; i < 192 * 192; i++)
-        {
-            int intVal = Float.floatToIntBits(data[i]);
+        for(int i = 0; i < 192 * 192; i++){
+            final int intVal = Float.floatToIntBits(data[i]);
             outHash = 37 * outHash + intVal;
         }
         return outHash;
     }
 
-    int getKey() {return getKey(data);}
-    public void convertMatrix()
-    {
-	System.out.println(path);
-    	Database rfx = new Database("rfx", shotNum);
-	 try {
-	    rfx.open();
-	    NidData nid = rfx.resolve(new PathData(path), 0);
-	    FloatArray array = new FloatArray(data);
-	    rfx.putData(nid, array, 0);
-	    rfx.close(0);
-	 }catch(Exception exc){System.err.println(exc);}
+    public static void main(final String args[]) {
+        if(args.length == 2){
+            final Convert conv = new Convert(args[0], args[1]);
+            conv.convertMatrix();
+        }else if(args.length == 1){
+            final Convert conv = new Convert("", args[0] + ".dat");
+            final int key = conv.getKey();
+            try{
+                final BufferedWriter bw = new BufferedWriter(new FileWriter(args[0] + ".key"));
+                bw.write("" + key);
+                bw.close();
+            }catch(final Exception exc){
+                System.err.println(exc);
+            }
+        }
+    }
+    float  data[];
+    String path, fileName;
+    int    shotNum = -1;
+
+    public Convert(final String path, final String fileName){
+        this.path = path;
+        this.fileName = fileName;
+        this.loadData();
     }
 
-    public void convertMatrix(Database db)
-    {
-        System.out.println(path);
-         try {
-            NidData nid = db.resolve(new PathData(path), 0);
-            FloatArray array = new FloatArray(data);
+    public Convert(final String path, final String fileName, final int shotNum){
+        this.path = path;
+        this.fileName = fileName;
+        this.shotNum = shotNum;
+        this.loadData();
+    }
+
+    public void convertMatrix() {
+        System.out.println(this.path);
+        final Database rfx = new Database("rfx", this.shotNum);
+        try{
+            rfx.open();
+            final NidData nid = rfx.resolve(new PathData(this.path), 0);
+            final FloatArray array = new FloatArray(this.data);
+            rfx.putData(nid, array, 0);
+            rfx.close(0);
+        }catch(final Exception exc){
+            System.err.println(exc);
+        }
+    }
+
+    public void convertMatrix(final Database db) {
+        System.out.println(this.path);
+        try{
+            final NidData nid = db.resolve(new PathData(this.path), 0);
+            final FloatArray array = new FloatArray(this.data);
             db.putData(nid, array, 0);
-         }catch(Exception exc){System.err.println(exc);}
+        }catch(final Exception exc){
+            System.err.println(exc);
+        }
     }
 
+    int getKey() {
+        return Convert.getKey(this.data);
+    }
 
- }
-
+    void loadData() {
+        this.data = new float[192 * 192];
+        if(this.fileName.equalsIgnoreCase("diagonal")){
+            for(int i = 0; i < 192; i++){
+                for(int j = 0; j < 192; j++){
+                    if(i == j) this.data[192 * i + j] = 1;
+                    else this.data[192 * i + j] = 0;
+                }
+            }
+        }else{
+            try{
+                final BufferedReader br = new BufferedReader(new FileReader(this.fileName));
+                for(int i = 0; i < 192; i++){
+                    final String line = br.readLine();
+                    final StringTokenizer st = new StringTokenizer(line, "[], ");
+                    for(int j = 0; j < 192; j++)
+                        this.data[192 * i + j] = Float.parseFloat(st.nextToken());
+                }
+                br.close();
+            }catch(final Exception exc){
+                System.err.println(exc);
+            }
+        }
+    }
+}

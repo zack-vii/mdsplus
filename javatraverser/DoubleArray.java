@@ -1,36 +1,43 @@
-//package jTraverser;
+// package jTraverser;
+public class DoubleArray extends ArrayData{
+    private static final long serialVersionUID = -7094278403689619008L;
 
-public class DoubleArray extends ArrayData
-{
+    public static Data getData(final double datum[], final int flags) {
+        return new DoubleArray(datum, flags);
+    }
     double datum[];
-    int flags = DTYPE_DOUBLE;
-    public static Data getData(double datum[], int flags)
-    {
-	    return new DoubleArray(datum, flags);
+    int    flags = Data.DTYPE_DOUBLE;
+
+    public DoubleArray(final double datum[]){
+        this(datum, Data.DTYPE_DOUBLE);
     }
-    public DoubleArray(double datum[]){this(datum, DTYPE_DOUBLE);}
-    public DoubleArray(double datum[], int flags)
-    {
-	    length = datum.length;
-	    dtype = DTYPE_DOUBLE;
-	    this.datum = new double[datum.length];
-	    for(int i = 0; i < datum.length; i++)
-	        this.datum[i] = datum[i];
-	    this.flags = flags;
+
+    public DoubleArray(final double datum[], final int flags){
+        this.length = datum.length;
+        this.dtype = Data.DTYPE_DOUBLE;
+        this.datum = new double[datum.length];
+        for(int i = 0; i < datum.length; i++)
+            this.datum[i] = datum[i];
+        this.flags = flags;
     }
-    public int [] getIntArray() 
-    {
-	    int ris [] = new int[datum.length];
-	    for(int i = 0; i < datum.length; i++)
-	        ris[i] = (int)datum[i];
-	    return ris;
+
+    public int getFlags() {
+        return this.flags;
     }
-    public float [] getFloatArray()
-    {
-	    float ris [] = new float[datum.length];
-	    for(int i = 0; i < datum.length; i++)
-	        ris[i] = (float)datum[i];
-	    return ris;
+
+    @Override
+    public float[] getFloatArray() {
+        final float ris[] = new float[this.datum.length];
+        for(int i = 0; i < this.datum.length; i++)
+            ris[i] = (float)this.datum[i];
+        return ris;
     }
-    public int getFlags(){return flags;}
+
+    @Override
+    public int[] getIntArray() {
+        final int ris[] = new int[this.datum.length];
+        for(int i = 0; i < this.datum.length; i++)
+            ris[i] = (int)this.datum[i];
+        return ris;
+    }
 }

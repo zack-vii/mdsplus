@@ -1,167 +1,150 @@
-//package jTraverser;
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
+// package jTraverser;
+import java.awt.BorderLayout;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import javax.swing.JComboBox;
+import javax.swing.JPanel;
 
-public class ActionEditor extends JPanel implements ActionListener, Editor
-{
-    TaskEditor task_edit;
-    DispatchEditor dispatch_edit;
-    LabeledExprEditor notify_edit, expr_edit;
-    JComboBox combo;
-    int mode_idx, curr_mode_idx;
-    Data data;
-    JPanel action_panel;
-    boolean editable;
-    TreeDialog dialog;
-    
-    public ActionEditor(Data data, TreeDialog dialog)
-    {
-	this.dialog = dialog;
-	this.data = data;
-	if(data == null)
-	    mode_idx = 0;
-	    
-	else
-	{
-	    if(data.dtype == Data.DTYPE_ACTION)
-		mode_idx = 1;
-	    else
-		mode_idx = 2;
-	}
-	if(data == null)
-	    this.data = new ActionData(null, null, null, null, null);
-	    
-	curr_mode_idx = mode_idx;
-	String names[] = {"Undefined", "Action", "Expression"};
-	combo = new JComboBox(names);
-	combo.setEditable(false);
-	combo.setSelectedIndex(mode_idx);
-	combo.addActionListener(this);
-	setLayout(new BorderLayout());
-	JPanel jp = new JPanel();
-	jp.add(combo);
-    add(jp, BorderLayout.NORTH);
-	addEditor();
-    }
-    private void addEditor()
-    {
-	switch(curr_mode_idx) {
-	    case 0: return;
-	    case 1: 
-		if(curr_mode_idx == mode_idx)
-		{
-		    dispatch_edit = new DispatchEditor(((ActionData)data).getDispatch(),dialog);
-		    task_edit = new TaskEditor(((ActionData)data).getTask(),dialog);
-		    notify_edit = new LabeledExprEditor("Notify", new ExprEditor(((ActionData)data).getErrorlogs(), true));
+public class ActionEditor extends JPanel implements ActionListener, Editor{
+    private static final long serialVersionUID = 5505321760234697543L;
+    JPanel                    action_panel;
+    JComboBox                 combo;
+    Data                      data;
+    TreeDialog                dialog;
+    DispatchEditor            dispatch_edit;
+    boolean                   editable;
+    int                       mode_idx, curr_mode_idx;
+    LabeledExprEditor         notify_edit, expr_edit;
+    TaskEditor                task_edit;
 
-		}
-		else
-		{
-		    dispatch_edit = new DispatchEditor(null, dialog);
-		    task_edit = new TaskEditor(null, dialog);
-		    notify_edit = new LabeledExprEditor("Notify", new ExprEditor(null, true));
-		}
-        action_panel = new JPanel();
-        action_panel.setLayout(new GridLayout(1,2));
-		action_panel.add(dispatch_edit);
-		action_panel.add(task_edit);
-		add(action_panel, BorderLayout.CENTER);
-		add(notify_edit, BorderLayout.SOUTH);
-		break;
-	    case 2: 
-		expr_edit = new LabeledExprEditor(data);
-		add(expr_edit, "Center");
-		break;
-	}
-    }
-    
-		    
-    public void actionPerformed(ActionEvent e)
-    {
-	if(!editable)
-	{
-	    combo.setSelectedIndex(curr_mode_idx);
-	    return;
-	}
-	int idx = combo.getSelectedIndex();
-	if(idx == curr_mode_idx) return;
-	switch(curr_mode_idx)  {
-	    case 1: 
-		remove(action_panel);
-        action_panel = null;
-		task_edit = null;
-		dispatch_edit = null; 
-		remove(notify_edit);
-		notify_edit = null;
-		break;
-	    case 2: 
-		remove(expr_edit); 
-		expr_edit = null;
-		break;
-	}
-	curr_mode_idx = idx;
-	addEditor();
-	validate();
-	dialog.repack();
+    @SuppressWarnings("unchecked")
+    public ActionEditor(final Data data, final TreeDialog dialog){
+        this.dialog = dialog;
+        this.data = data;
+        if(data == null) this.mode_idx = 0;
+        else{
+            if(data.dtype == Data.DTYPE_ACTION) this.mode_idx = 1;
+            else this.mode_idx = 2;
+        }
+        if(data == null) this.data = new ActionData(null, null, null, null, null);
+        this.curr_mode_idx = this.mode_idx;
+        final String names[] = {"Undefined", "Action", "Expression"};
+        this.combo = new JComboBox(names);
+        this.combo.setEditable(false);
+        this.combo.setSelectedIndex(this.mode_idx);
+        this.combo.addActionListener(this);
+        this.setLayout(new BorderLayout());
+        final JPanel jp = new JPanel();
+        jp.add(this.combo);
+        this.add(jp, BorderLayout.NORTH);
+        this.addEditor();
     }
 
-		
-   public void reset()
-    {
-    	combo.setSelectedIndex(mode_idx);
-	switch(curr_mode_idx)  {
-		case 1:  
-		    remove(action_panel);
-		    remove(notify_edit);
-		    break;
-		case 2: remove(expr_edit); break;
-	}
-	curr_mode_idx = mode_idx;
-	addEditor();
-	validate();
-	repaint();
+    @Override
+    public void actionPerformed(final ActionEvent e) {
+        if(!this.editable){
+            this.combo.setSelectedIndex(this.curr_mode_idx);
+            return;
+        }
+        final int idx = this.combo.getSelectedIndex();
+        if(idx == this.curr_mode_idx) return;
+        switch(this.curr_mode_idx){
+            case 1:
+                this.remove(this.action_panel);
+                this.action_panel = null;
+                this.task_edit = null;
+                this.dispatch_edit = null;
+                this.remove(this.notify_edit);
+                this.notify_edit = null;
+                break;
+            case 2:
+                this.remove(this.expr_edit);
+                this.expr_edit = null;
+                break;
+        }
+        this.curr_mode_idx = idx;
+        this.addEditor();
+        this.validate();
+        this.dialog.repack();
     }
-    
-    public Data getData()
-    {
-	switch(curr_mode_idx)  {
-	    case 0: return null;
-	    case 1: 
-		Data data1 = dispatch_edit.getData();
-		Data data2 = task_edit.getData();
-		return new ActionData(dispatch_edit.getData(), task_edit.getData(),
-		null, null, null); 
-	    case 2: return expr_edit.getData(); 
-	}
-	return null;
+
+    private void addEditor() {
+        switch(this.curr_mode_idx){
+            case 0:
+                return;
+            case 1:
+                if(this.curr_mode_idx == this.mode_idx){
+                    this.dispatch_edit = new DispatchEditor(((ActionData)this.data).getDispatch(), this.dialog);
+                    this.task_edit = new TaskEditor(((ActionData)this.data).getTask(), this.dialog);
+                    this.notify_edit = new LabeledExprEditor("Notify", new ExprEditor(((ActionData)this.data).getErrorlogs(), true));
+                }else{
+                    this.dispatch_edit = new DispatchEditor(null, this.dialog);
+                    this.task_edit = new TaskEditor(null, this.dialog);
+                    this.notify_edit = new LabeledExprEditor("Notify", new ExprEditor(null, true));
+                }
+                this.action_panel = new JPanel();
+                this.action_panel.setLayout(new GridLayout(1, 2));
+                this.action_panel.add(this.dispatch_edit);
+                this.action_panel.add(this.task_edit);
+                this.add(this.action_panel, BorderLayout.CENTER);
+                this.add(this.notify_edit, BorderLayout.SOUTH);
+                break;
+            case 2:
+                this.expr_edit = new LabeledExprEditor(this.data);
+                this.add(this.expr_edit, "Center");
+                break;
+        }
     }
-    
-    public void setData(Data data)
-    {
-	this.data = data;
-	if(data == null)
-	    mode_idx = 0;
-	else
-	{
-	    if(data.dtype == Data.DTYPE_ACTION)
-		mode_idx = 1;
-	    else
-		mode_idx = 2;
-	}
-	if(data == null)
-	    this.data = new ActionData(null, null, null, null, null);
-	reset();
+
+    @Override
+    public Data getData() {
+        switch(this.curr_mode_idx){
+            case 0:
+                return null;
+            case 1:
+                return new ActionData(this.dispatch_edit.getData(), this.task_edit.getData(), null, null, null);
+            case 2:
+                return this.expr_edit.getData();
+        }
+        return null;
     }
-    
-    public void setEditable(boolean editable)
-    {
-	    this.editable = editable;
-	    if(task_edit != null) task_edit.setEditable(editable);
-	    if(dispatch_edit != null) dispatch_edit.setEditable(editable);
-	    if(expr_edit != null) expr_edit.setEditable(editable);
-	    if(notify_edit != null) notify_edit.setEditable(editable);
+
+    @Override
+    public void reset() {
+        this.combo.setSelectedIndex(this.mode_idx);
+        switch(this.curr_mode_idx){
+            case 1:
+                this.remove(this.action_panel);
+                this.remove(this.notify_edit);
+                break;
+            case 2:
+                this.remove(this.expr_edit);
+                break;
+        }
+        this.curr_mode_idx = this.mode_idx;
+        this.addEditor();
+        this.validate();
+        this.repaint();
     }
-	
-}	
-	
+
+    public void setData(final Data data) {
+        this.data = data;
+        if(data == null) this.mode_idx = 0;
+        else{
+            if(data.dtype == Data.DTYPE_ACTION) this.mode_idx = 1;
+            else this.mode_idx = 2;
+        }
+        if(data == null) this.data = new ActionData(null, null, null, null, null);
+        this.reset();
+    }
+
+    @Override
+    public void setEditable(final boolean editable) {
+        this.editable = editable;
+        if(this.task_edit != null) this.task_edit.setEditable(editable);
+        if(this.dispatch_edit != null) this.dispatch_edit.setEditable(editable);
+        if(this.expr_edit != null) this.expr_edit.setEditable(editable);
+        if(this.notify_edit != null) this.notify_edit.setEditable(editable);
+    }
+}

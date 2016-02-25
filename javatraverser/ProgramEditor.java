@@ -1,57 +1,54 @@
-//package jTraverser;
-import javax.swing.*;
-import java.awt.*;
+// package jTraverser;
+import java.awt.BorderLayout;
+import java.awt.GridLayout;
+import javax.swing.JPanel;
 
-public class ProgramEditor extends JPanel implements Editor
-{
-    ProgramData program;
-    LabeledExprEditor program_edit, timeout_edit;
-    
-    public ProgramEditor() {this(null);}
-    public ProgramEditor(ProgramData program)
-    {
-	this.program = program;
-	if(this.program == null)
-	{
-	    this.program = new ProgramData(null, null);
-	}
-	program_edit = new LabeledExprEditor("Program", new ExprEditor(
-	    this.program.getProgram(), true));
-	timeout_edit = new LabeledExprEditor("Timeout", new ExprEditor( 
-	    this.program.getTimeout(), false));
-    JPanel jp =new JPanel();
-	jp.setLayout(new GridLayout(2,1));
-	jp.add(program_edit);
-	jp.add(timeout_edit);
-	setLayout(new BorderLayout());
-    add(jp, BorderLayout.NORTH);
+public class ProgramEditor extends JPanel implements Editor{
+    private static final long serialVersionUID = -7840137374103863094L;
+    ProgramData               program;
+    LabeledExprEditor         program_edit, timeout_edit;
+
+    public ProgramEditor(){
+        this(null);
     }
-    
-    public void reset()
-    {
-	program_edit.reset();
-	timeout_edit.reset();
+
+    public ProgramEditor(final ProgramData program){
+        this.program = program;
+        if(this.program == null){
+            this.program = new ProgramData(null, null);
+        }
+        this.program_edit = new LabeledExprEditor("Program", new ExprEditor(this.program.getProgram(), true));
+        this.timeout_edit = new LabeledExprEditor("Timeout", new ExprEditor(this.program.getTimeout(), false));
+        final JPanel jp = new JPanel();
+        jp.setLayout(new GridLayout(2, 1));
+        jp.add(this.program_edit);
+        jp.add(this.timeout_edit);
+        this.setLayout(new BorderLayout());
+        this.add(jp, BorderLayout.NORTH);
     }
-    
-    public Data getData()
-    {
-	return new ProgramData(timeout_edit.getData(), program_edit.getData());
+
+    @Override
+    public Data getData() {
+        return new ProgramData(this.timeout_edit.getData(), this.program_edit.getData());
     }
-    
-    public void setData(Data data)
-    {
-	this.program = (ProgramData)data;
-	if(this.program == null)
-	{
-	    this.program = new ProgramData(null, null);
-	}
-	reset();
+
+    @Override
+    public void reset() {
+        this.program_edit.reset();
+        this.timeout_edit.reset();
     }
-	
-    public void setEditable(boolean editable)
-    {
-	if(program_edit != null) program_edit.setEditable(editable);
-	if(timeout_edit != null) timeout_edit.setEditable(editable);
+
+    public void setData(final Data data) {
+        this.program = (ProgramData)data;
+        if(this.program == null){
+            this.program = new ProgramData(null, null);
+        }
+        this.reset();
     }
-	
+
+    @Override
+    public void setEditable(final boolean editable) {
+        if(this.program_edit != null) this.program_edit.setEditable(editable);
+        if(this.timeout_edit != null) this.timeout_edit.setEditable(editable);
+    }
 }

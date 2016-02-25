@@ -1,45 +1,49 @@
-//package jTraverser;
-import javax.swing.*;
-import java.awt.*;
+// package jTraverser;
+import java.awt.BorderLayout;
+import javax.swing.JPanel;
 
-public class ParameterEditor extends JPanel implements Editor
-{
-    ExprEditor expr, help, validity;
-    public ParameterEditor()
-    {
+public class ParameterEditor extends JPanel implements Editor{
+    private static final long serialVersionUID = -3338106916551980199L;
+    ExprEditor                expr, help, validity;
+
+    public ParameterEditor(){
         this(new ExprEditor(null, false), new ExprEditor(null, true), new ExprEditor(null, false));
     }
-    public ParameterEditor(ExprEditor expr, ExprEditor help, ExprEditor validity)
-    {
+
+    public ParameterEditor(final ExprEditor expr, final ExprEditor help, final ExprEditor validity){
         this.expr = expr;
         this.help = help;
         this.validity = validity;
-        setLayout(new BorderLayout());
-        add(new LabeledExprEditor("Data", expr), "North");
-        add(new LabeledExprEditor("Help", help), "Center");
-        add(new LabeledExprEditor("Validity", validity), "South");
+        this.setLayout(new BorderLayout());
+        this.add(new LabeledExprEditor("Data", expr), "North");
+        this.add(new LabeledExprEditor("Help", help), "Center");
+        this.add(new LabeledExprEditor("Validity", validity), "South");
     }
 
-    public void reset()
-    {
-      expr.reset();
-      help.reset();
-      validity.reset();
-    }
-    public void setEditable(boolean editable)
-    {
-      expr.setEditable(editable);
-      help.setEditable(editable);
-      validity.setEditable(editable);
+    @Override
+    public Data getData() {
+        return new ParameterData(this.expr.getData(), this.help.getData(), this.validity.getData());
     }
 
-    public Data getData() {return new ParameterData(expr.getData(), help.getData(), validity.getData());}
-    public void setData(Data data)
-    {
-      if (data instanceof ParameterData) {
-        expr.setData( ( (ParameterData) data).getDatum());
-        help.setData( ( (ParameterData) data).getHelp());
-        validity.setData( ( (ParameterData) data).getValidation());
-      }
+    @Override
+    public void reset() {
+        this.expr.reset();
+        this.help.reset();
+        this.validity.reset();
+    }
+
+    public void setData(final Data data) {
+        if(data instanceof ParameterData){
+            this.expr.setData(((ParameterData)data).getDatum());
+            this.help.setData(((ParameterData)data).getHelp());
+            this.validity.setData(((ParameterData)data).getValidation());
+        }
+    }
+
+    @Override
+    public void setEditable(final boolean editable) {
+        this.expr.setEditable(editable);
+        this.help.setEditable(editable);
+        this.validity.setEditable(editable);
     }
 }

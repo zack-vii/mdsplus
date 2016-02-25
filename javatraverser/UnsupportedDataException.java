@@ -1,8 +1,8 @@
-//package jTraverser;
+// package jTraverser;
+public class UnsupportedDataException extends Exception{
+    private static final long serialVersionUID = -2605838683808726715L;
 
-public class UnsupportedDataException extends Exception {
-    public UnsupportedDataException(String message)
-    {
-	super(message);
+    public UnsupportedDataException(final String message){
+        super(message);
     }
 }

@@ -1,18 +1,23 @@
-//package jTraverser;
+// package jTraverser;
+public class CompoundData extends Data{
+    private static final long serialVersionUID = 4683222067694494115L;
+    Data[]                    descs;
+    int                       opcode           = 0;
 
-public class CompoundData extends Data
-{
-    Data[] descs;
-    int opcode = 0;
-	
-    public boolean isAtomic() {return false; }
-    public CompoundData()
-    {
-	dclass = CLASS_R;
+    public CompoundData(){
+        this.dclass = Data.CLASS_R;
     }
-    public CompoundData(Data descs[])
-    {
-	this.descs = descs;
+
+    public CompoundData(final Data descs[]){
+        this.descs = descs;
     }
-    public Data [] getDescs() {return descs; }
+
+    public Data[] getDescs() {
+        return this.descs;
+    }
+
+    @Override
+    public boolean isAtomic() {
+        return false;
+    }
 }
