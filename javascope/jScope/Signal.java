@@ -1380,7 +1380,7 @@ final public class Signal implements WaveDataListener{
             if(this.type == Signal.TYPE_2D && (this.mode2D == Signal.MODE_YZ || this.mode2D == Signal.MODE_XZ)) return this.sliceX[idx];
             return this.x[idx];
         }catch(final Exception e){
-            System.err.println("getY(" + idx + "): " + e);
+            if(DEBUG.D) System.err.println("getX(" + idx + "): " + e);
             return Double.NaN;
         }
     }
