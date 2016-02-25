@@ -29,7 +29,7 @@ $(JARDIR)\jScope.jar: class.stamp
 	- del/q/f/s docs
 	- mkdir docs
 	for %I in ($(DOCS)) do copy %I docs
-	$(JAR) -cf $@ $(CLASSES) docs
+	$(JAR) -cmf jScopeManifest.mf $@ $(CLASSES) docs
 	- del/q/f/s docs
 	- rmdir docs
 
