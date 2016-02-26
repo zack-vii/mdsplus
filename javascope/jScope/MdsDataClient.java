@@ -17,7 +17,7 @@ final public class MdsDataClient extends MdsConnection{
             // double data_y[] = mdc.getDoubleArray(".ONED:WTOT");
             // float data_x[] = mdc.getFloatArray("DIM_OF(\\PR98_TFTR::TOP.ONED:WTOT)");
             // for(int i = 0; i < data_x.length; i++)
-            // System.out.println("  "+data_x[i]+"  "+data_y[i]);
+            // System.out.println(" "+data_x[i]+" "+data_y[i]);
             // String s = mdc.getString("\\PR98_TFTR::TOP.COMMENTS:INSTITUTION");
             // System.out.println(s);
             mdc.close();
@@ -42,7 +42,7 @@ final public class MdsDataClient extends MdsConnection{
      */
     public MdsDataClient(final String provider) throws MdsIOException{
         super(provider);
-        if(this.ConnectToMds(false) == 0) throw new MdsIOException(this.error);
+        if(!this.ConnectToMds(false)) throw new MdsIOException(this.error);
     }
 
     /**
@@ -58,7 +58,7 @@ final public class MdsDataClient extends MdsConnection{
     public MdsDataClient(final String provider, final String user) throws MdsIOException{
         super(provider);
         this.setUser(user);
-        if(this.ConnectToMds(false) == 0) throw new MdsIOException(this.error);
+        if(!this.ConnectToMds(false)) throw new MdsIOException(this.error);
     }
 
     /**

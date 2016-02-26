@@ -22,6 +22,22 @@ final class MdsWaveInterface extends WaveInterface{
         return out;
     }
 
+    private static final boolean getBoolean(final String prop, final boolean def) {
+        try{
+            return (prop == null) ? def : Boolean.parseBoolean(prop);
+        }catch(final Exception e){
+            return def;
+        }
+    }
+
+    private static final int getInteger(final String prop, final int def) {
+        try{
+            return (prop == null) ? def : Integer.parseInt(prop);
+        }catch(final Exception e){
+            return def;
+        }
+    }
+
     public static String mode1DCodeToString(final int code) {
         if(DEBUG.M) System.out.println("MdsWaveInterface.mode1DCodeToString(" + code + ")");
         switch(code){
@@ -50,6 +66,8 @@ final class MdsWaveInterface extends WaveInterface{
                 return "xz(y)";
             case Signal.MODE_YZ:
                 return "yz(x)";
+            case Signal.MODE_CONTOUR:
+                return "Contour";
             case Signal.MODE_IMAGE:
                 return "Image";
         }
@@ -60,6 +78,7 @@ final class MdsWaveInterface extends WaveInterface{
         if(DEBUG.M) System.out.println("MdsWaveInterface.mode2DStringToCode(\"" + mode + "\")");
         if(mode.equals("xz(y)")) return Signal.MODE_XZ;
         if(mode.equals("yz(x)")) return Signal.MODE_YZ;
+        if(mode.equals("Contour")) return Signal.MODE_CONTOUR;
         if(mode.equals("Image")) return Signal.MODE_IMAGE;
         return 0;
     }
@@ -163,12 +182,6 @@ final class MdsWaveInterface extends WaveInterface{
         else this.in_xlabel = null;
         if(wi.in_ylabel != null) this.in_ylabel = new String(wi.in_ylabel);
         else this.in_ylabel = null;
-        /*
-         if(wi.in_upd_event != null)
-             in_upd_event = new String(wi.in_upd_event);
-         else
-             in_upd_event = null;
-         */
         if(wi.in_def_node != null) this.in_def_node = new String(wi.in_def_node);
         else this.in_def_node = null;
         this.cin_upd_limits = wi.cin_upd_limits;
@@ -201,10 +214,7 @@ final class MdsWaveInterface extends WaveInterface{
         if(wi.cin_def_node != null) this.cin_def_node = new String(wi.cin_def_node);
         else this.cin_def_node = null;
         this.def_vals = wi.def_vals;
-        // error = null;
         this.SetDataProvider(wi.dp);
-        // super.SetDataProvider(wi.dp);
-        // dp = wi.dp;
     }
 
     public MdsWaveInterface(final Waveform wave, final DataProvider dp, final jScopeDefaultValues def_vals, final boolean enable_cache){
@@ -312,9 +322,9 @@ final class MdsWaveInterface extends WaveInterface{
         this.Erase();
         try{
             prop = pr.getProperty(prompt + ".height");
-            if(prop != null) this.height = new Integer(prop).intValue();
+            if(prop != null) this.height = Integer.parseInt(prop);
             prop = pr.getProperty(prompt + ".grid_mode");
-            if(prop != null) this.in_grid_mode = new Integer(prop).intValue();
+            this.in_grid_mode = MdsWaveInterface.getInteger(prop, 0);
             this.cin_xlabel = pr.getProperty(prompt + ".x_label");
             this.cin_ylabel = pr.getProperty(prompt + ".y_label");
             this.cin_title = pr.getProperty(prompt + ".title");
@@ -330,11 +340,11 @@ final class MdsWaveInterface extends WaveInterface{
             if(continuousUpdateStr != null && continuousUpdateStr.trim().equals("1")) this.isContinuousUpdate = true;
             else this.isContinuousUpdate = false;
             prop = pr.getProperty(prompt + ".x_log");
-            if(prop != null) this.x_log = new Boolean(prop).booleanValue();;
+            this.x_log = MdsWaveInterface.getBoolean(prop, false);
             prop = pr.getProperty(prompt + ".y_log");
-            if(prop != null) this.y_log = new Boolean(prop).booleanValue();;
+            this.y_log = MdsWaveInterface.getBoolean(prop, false);
             prop = pr.getProperty(prompt + ".update_limits");
-            if(prop != null) this.cin_upd_limits = new Boolean(prop).booleanValue();
+            this.cin_upd_limits = MdsWaveInterface.getBoolean(prop, false);
             prop = pr.getProperty(prompt + ".legend");
             if(prop != null){
                 this.show_legend = true;
@@ -342,26 +352,19 @@ final class MdsWaveInterface extends WaveInterface{
                 this.legend_y = Double.valueOf(prop.substring(prop.indexOf(",") + 1, prop.indexOf(")"))).doubleValue();
             }
             prop = pr.getProperty(prompt + ".is_image");
-            if(prop != null) this.is_image = new Boolean(prop).booleanValue();
+            this.is_image = MdsWaveInterface.getBoolean(prop, false);
             prop = pr.getProperty(prompt + ".keep_ratio");
-            if(prop != null) this.keep_ratio = new Boolean(prop).booleanValue();
+            this.keep_ratio = MdsWaveInterface.getBoolean(prop, false);
             prop = pr.getProperty(prompt + ".horizontal_flip");
-            if(prop != null) this.horizontal_flip = new Boolean(prop).booleanValue();
+            this.horizontal_flip = MdsWaveInterface.getBoolean(prop, false);
             prop = pr.getProperty(prompt + ".vertical_flip");
-            if(prop != null) this.vertical_flip = new Boolean(prop).booleanValue();
+            this.vertical_flip = MdsWaveInterface.getBoolean(prop, false);
             prop = pr.getProperty(prompt + ".palette");
-            if(prop != null){
-                this.colorMap = cmd.getColorMap(prop);
-                try{
-                    prop = pr.getProperty(prompt + ".bitShift");
-                    if(prop != null) this.colorMap.bitShift = Integer.parseInt(prop);
-                    prop = pr.getProperty(prompt + ".bitClip");
-                    if(prop != null) this.colorMap.bitClip = new Boolean(prop).booleanValue();
-                }catch(final Exception exc){
-                    this.colorMap.bitShift = 0;
-                    this.colorMap.bitClip = false;
-                }
-            }
+            this.colorMap = (prop == null) ? new ColorMap() : cmd.getColorMap(prop);
+            prop = pr.getProperty(prompt + ".bitShift");
+            this.colorMap.bitShift = MdsWaveInterface.getInteger(prop, 0);
+            prop = pr.getProperty(prompt + ".bitClip");
+            this.colorMap.bitClip = MdsWaveInterface.getBoolean(prop, false);
             this.cexperiment = pr.getProperty(prompt + ".experiment");
             this.cin_shot = pr.getProperty(prompt + ".shot");
             prop = pr.getProperty(prompt + ".x");
@@ -437,10 +440,7 @@ final class MdsWaveInterface extends WaveInterface{
                 }
             }
             prop = pr.getProperty(prompt + ".num_expr");
-            if(prop != null){
-                num_expr = new Integer(prop).intValue();
-                // num_expr = (num_expr > 0) ? num_expr : 1;
-            }
+            num_expr = MdsWaveInterface.getInteger(prop, 0);
             prop = pr.getProperty(prompt + ".num_shot");
             if(prop != null){
                 this.num_shot = new Integer(prop).intValue();
@@ -451,9 +451,7 @@ final class MdsWaveInterface extends WaveInterface{
                 }
             }
             prop = pr.getProperty(prompt + ".global_defaults");
-            if(prop != null){
-                this.defaults = new Integer(prop).intValue();
-            }
+            this.defaults = MdsWaveInterface.getInteger(prop, 0);
             int expr_idx;
             for(int idx = 1; idx <= num_expr; idx++){
                 prop = pr.getProperty(prompt + ".label_" + idx);
@@ -493,45 +491,16 @@ final class MdsWaveInterface extends WaveInterface{
                 }
                 for(int s = 1; s <= this.num_shot; s++){
                     expr_idx = (idx - 1) * this.num_shot - 1;
-                    /*
-                         prop = pr.getProperty(prompt+".interpolate_"+idx+"_"+s);
-                                        if(prop != null)
-                                        {
-                         interpolates[expr_idx + s] = new Boolean(prop).booleanValue();
-                                        }
-                     */
                     prop = pr.getProperty(prompt + ".mode_1D_" + idx + "_" + s);
-                    if(prop != null){
-                        this.mode1D[expr_idx + s] = MdsWaveInterface.mode1DStringToCode(prop);
-                    }
+                    this.mode1D[expr_idx + s] = (prop == null) ? 0 : MdsWaveInterface.mode1DStringToCode(prop);
                     prop = pr.getProperty(prompt + ".mode_2D_" + idx + "_" + s);
-                    if(prop != null){
-                        this.mode2D[expr_idx + s] = MdsWaveInterface.mode2DStringToCode(prop);
-                    }
+                    this.mode2D[expr_idx + s] = (prop == null) ? 0 : MdsWaveInterface.mode2DStringToCode(prop);
                     prop = pr.getProperty(prompt + ".color_" + idx + "_" + s);
-                    if(prop != null){
-                        try{
-                            this.colors_idx[expr_idx + s] = new Integer(prop).intValue();
-                        }catch(final Exception e){
-                            this.colors_idx[expr_idx + s] = 0;
-                        }
-                    }
+                    this.colors_idx[expr_idx + s] = MdsWaveInterface.getInteger(prop, 0);
                     prop = pr.getProperty(prompt + ".marker_" + idx + "_" + s);
-                    if(prop != null){
-                        try{
-                            this.markers[expr_idx + s] = new Integer(prop).intValue();
-                        }catch(final Exception e){
-                            this.markers[expr_idx + s] = 0;
-                        }
-                    }
+                    this.markers[expr_idx + s] = MdsWaveInterface.getInteger(prop, 0);
                     prop = pr.getProperty(prompt + ".step_marker_" + idx + "_" + s);
-                    if(prop != null){
-                        try{
-                            this.markers_step[expr_idx + s] = new Integer(prop).intValue();
-                        }catch(final Exception e){
-                            this.markers_step[expr_idx + s] = 0;
-                        }
-                    }
+                    this.markers_step[expr_idx + s] = MdsWaveInterface.getInteger(prop, 0);
                 }
             }
         }catch(final Exception e){
@@ -819,7 +788,6 @@ final class MdsWaveInterface extends WaveInterface{
                 WaveInterface.WriteLine(out, prompt + "up_error" + "_" + exp_n + ": ", this.in_up_err[exp]);
                 WaveInterface.WriteLine(out, prompt + "low_error" + "_" + exp_n + ": ", this.in_low_err[exp]);
                 for(sht = 0, sht_n = 1; sht < cnum_shot; sht++, sht_n++){
-                    // WaveInterface.WriteLine(out,prompt + "interpolate"+"_"+exp_n+"_"+sht_n+": ",""+interpolates[exp + sht]);
                     WaveInterface.WriteLine(out, prompt + "mode_1D" + "_" + exp_n + "_" + sht_n + ": ", "" + MdsWaveInterface.mode1DCodeToString(this.mode1D[exp + sht]));
                     WaveInterface.WriteLine(out, prompt + "mode_2D" + "_" + exp_n + "_" + sht_n + ": ", "" + MdsWaveInterface.mode2DCodeToString(this.mode2D[exp + sht]));
                     WaveInterface.WriteLine(out, prompt + "color" + "_" + exp_n + "_" + sht_n + ": ", "" + this.colors_idx[exp + sht]);
@@ -846,7 +814,7 @@ final class MdsWaveInterface extends WaveInterface{
                     String def = in_def_node;
                     if (in_def_node.indexOf("\\") == 0)
                         def = "\\\\\\" + in_def_node;
-                
+
                     dp.SetEnvironment("__default_node = " + def);
                 }
                  */
@@ -927,9 +895,9 @@ final class MdsWaveInterface extends WaveInterface{
         /* 12-2-2009
                 if( !getModified() && in_shot != null && c_shot_str != null)
                 {
-        
+
                     setModified( !in_shot.equals( c_shot_str ) );
-        
+
                     if(! getModified() )
                         return;
                 }

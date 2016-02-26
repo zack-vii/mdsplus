@@ -12,14 +12,14 @@ import java.awt.image.IndexColorModel;
 import java.io.Serializable;
 import java.util.Vector;
 
-final public class WaveformMetrics implements Serializable{
-    static int          INT_MAX_VALUE    = (int)WaveformMetrics.MAX_VALUE;
-    static int          INT_MIN_VALUE    = (int)WaveformMetrics.MIN_VALUE;
+public final class WaveformMetrics implements Serializable{
+    private static final int    INT_MAX_VALUE    = (int)WaveformMetrics.MAX_VALUE;
+    private static final int    INT_MIN_VALUE    = (int)WaveformMetrics.MIN_VALUE;
     // static IndexColorModel cm = null;
-    static final double LOG10            = 2.302585092994, MIN_LOG = 10E-100;
-    static double       MAX_VALUE        = 10000.;                           // (double)Integer.MAX_VALUE;
-    static double       MIN_VALUE        = -10000.;                          // (double)Integer.MIN_VALUE;
-    static final long   serialVersionUID = 247232536324574434L;
+    private static final double LOG10            = 2.302585092994, MIN_LOG = 10E-100;
+    private static final double MAX_VALUE        = 10000.;
+    private static final double MIN_VALUE        = -10000.;
+    private static final long   serialVersionUID = 247232536324574434L;
 
     /*
         private IndexColorModel getColorModel() {
@@ -29,19 +29,19 @@ final public class WaveformMetrics implements Serializable{
             return new IndexColorModel(8, 256, rgb, rgb, rgb);
         }
      */
-    private static void drawRectagle(final Graphics g, final IndexColorModel cm, final int x, final int y, final int w, final int h, final int cIdx) {
+    private static final void drawRectagle(final Graphics g, final IndexColorModel cm, final int x, final int y, final int w, final int h, final int cIdx) {
         g.setColor(new Color(cm.getRed(cIdx), cm.getGreen(cIdx), cm.getBlue(cIdx), cm.getAlpha(cIdx)));
         g.fillRect(x, y, w, h);
     }
-    double FACT_X, FACT_Y, OFS_X, OFS_Y;
-    int    horizontal_offset, vertical_offset;
-    int    start_x;
-    boolean x_log, y_log;
-    double  x_offset;
-    double  x_range;
-    double  xmax, xmin, ymax, ymin;
-    double  xrange, yrange;        // xmax - xmin , ymax - ymin
-    double  y_range;
+    private double        FACT_X, FACT_Y, OFS_X, OFS_Y;
+    private final int     horizontal_offset, vertical_offset;
+    private final int     start_x;
+    private final boolean x_log, y_log;
+    private double        x_offset;
+    private final double  x_range;
+    private double        xmax, xmin, ymax, ymin;
+    private double        xrange, yrange;                    // xmax - xmin , ymax - ymin
+    private final double  y_range;
 
     public WaveformMetrics(double _xmax, double _xmin, double _ymax, double _ymin, final Rectangle limits, final Dimension d, final boolean _x_log, final boolean _y_log, final int horizontal_offset, final int vertical_offset){
         final int ylabel_width = limits.width, xlabel_height = limits.height;
@@ -95,7 +95,7 @@ final public class WaveformMetrics implements Serializable{
         }
     }
 
-    final public void ComputeFactors(final Dimension d) {
+    public final void ComputeFactors(final Dimension d) {
         // OFS_X = x_offset * d.width - xmin*x_range*d.width/xrange + 0.5;
         this.OFS_X = this.x_offset * d.width - this.xmin * this.x_range * d.width / this.xrange + this.horizontal_offset + 0.5;
         this.FACT_X = this.x_range * d.width / this.xrange;
@@ -104,7 +104,7 @@ final public class WaveformMetrics implements Serializable{
         this.FACT_Y = -this.y_range * d.height / this.yrange;
     }
 
-    public void ToImage(final Signal s, final Image img, final Dimension d, final ColorMap colorMap) {
+    public final void ToImage(final Signal s, final Image img, final Dimension d, final ColorMap colorMap) {
         int xSt, xEt, ySt, yEt;
         final Graphics2D g2 = (Graphics2D)img.getGraphics();
         final IndexColorModel cm = colorMap.getIndexColorModel(8);
@@ -177,11 +177,11 @@ final public class WaveformMetrics implements Serializable{
         }catch(final Exception exc){};
     }
 
-    public Vector<Polygon> ToPolygons(final Signal sig, final Dimension d) {
+    public final Vector<Polygon> ToPolygons(final Signal sig, final Dimension d) {
         return this.ToPolygons(sig, d, false);
     }
 
-    public Vector<Polygon> ToPolygons(final Signal sig, final Dimension d, final boolean appendMode) {
+    public final Vector<Polygon> ToPolygons(final Signal sig, final Dimension d, final boolean appendMode) {
         try{
             // System.out.println("ToPolygons "+sig.name+" "+appendMode);
             return this.ToPolygonsDoubleX(sig, d);
@@ -191,7 +191,7 @@ final public class WaveformMetrics implements Serializable{
         return null;
     }
 
-    public Vector<Polygon> ToPolygonsDoubleX(final Signal sig, final Dimension d) {
+    public final Vector<Polygon> ToPolygonsDoubleX(final Signal sig, final Dimension d) {
         int i, j, curr_num_points, start_x;
         double max_y, min_y, curr_y;
         Vector<Polygon> curr_vect = new Vector<Polygon>(5);
@@ -279,7 +279,7 @@ final public class WaveformMetrics implements Serializable{
                 {
                     first_y = last_y = y[i];
                     for(j = i + 1; j < x.length && // !Float.isNaN(sig.y[j]) &&
-                            (pol_idx >= sig.getNumNaNs() || j != sig.getNaNs()[pol_idx]) && (this.XPixel(x[j])) == start_x; j++){
+                    (pol_idx >= sig.getNumNaNs() || j != sig.getNaNs()[pol_idx]) && (this.XPixel(x[j])) == start_x; j++){
                         last_y = curr_y = y[j];
                         if(curr_y < min_y) min_y = curr_y;
                         if(curr_y > max_y) max_y = curr_y;
@@ -403,26 +403,26 @@ final public class WaveformMetrics implements Serializable{
         return curr_vect;
     }
 
-    final public boolean XLog() {
+    public final boolean XLog() {
         return this.x_log;
     }
 
-    final public double XMax() {
+    public final double XMax() {
         return this.xmax;
     }
 
-    final public double XMin() {
+    public final double XMin() {
         return this.xmin;
     }
 
-    final public int XPixel(final double x) {
+    public final int XPixel(final double x) {
         final double xpix = x * this.FACT_X + this.OFS_X;
         if(xpix >= WaveformMetrics.MAX_VALUE) return WaveformMetrics.INT_MAX_VALUE;
         if(xpix <= WaveformMetrics.MIN_VALUE) return WaveformMetrics.INT_MIN_VALUE;
         return (int)xpix;
     }
 
-    final public int XPixel(double x, final Dimension d) {
+    public final int XPixel(double x, final Dimension d) {
         double ris;
         if(this.x_log){
             if(x < WaveformMetrics.MIN_LOG) x = WaveformMetrics.MIN_LOG;
@@ -434,36 +434,36 @@ final public class WaveformMetrics implements Serializable{
         return (int)ris;
     }
 
-    final public double XRange() {
+    public final double XRange() {
         return this.xmax - this.xmin;
     }
 
-    final public double XValue(final int x, final Dimension d) {
+    public final double XValue(final int x, final Dimension d) {
         final double ris = (((x - 0.5) / d.width - this.x_offset) * this.xrange / this.x_range + this.xmin);
         if(this.x_log) return Math.exp(WaveformMetrics.LOG10 * ris);
         return ris;
     }
 
-    final public boolean YLog() {
+    public final boolean YLog() {
         return this.y_log;
     }
 
-    final public double YMax() {
+    public final double YMax() {
         return this.ymax;
     }
 
-    final public double YMin() {
+    public final double YMin() {
         return this.ymin;
     }
 
-    final public int YPixel(final double y) {
+    public final int YPixel(final double y) {
         final double ypix = y * this.FACT_Y + this.OFS_Y;
         if(ypix >= WaveformMetrics.MAX_VALUE) return WaveformMetrics.INT_MAX_VALUE;
         if(ypix <= WaveformMetrics.MIN_VALUE) return WaveformMetrics.INT_MIN_VALUE;
         return (int)ypix;
     }
 
-    final public int YPixel(double y, final Dimension d) {
+    public final int YPixel(double y, final Dimension d) {
         if(this.y_log){
             if(y < WaveformMetrics.MIN_LOG) y = WaveformMetrics.MIN_LOG;
             y = Math.log(y) / WaveformMetrics.LOG10;
@@ -474,11 +474,11 @@ final public class WaveformMetrics implements Serializable{
         return (int)ris;
     }
 
-    final public double YRange() {
+    public final double YRange() {
         return this.ymax - this.ymin;
     }
 
-    final public double YValue(final int y, final Dimension d) {
+    public final double YValue(final int y, final Dimension d) {
         final double ris = (this.ymax - ((y - 0.5) / d.height) * this.yrange / this.y_range);
         if(this.y_log) return Math.exp(WaveformMetrics.LOG10 * ris);
         return ris;

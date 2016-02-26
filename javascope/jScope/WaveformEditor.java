@@ -87,7 +87,7 @@ final public class WaveformEditor extends Waveform{
     protected void setMouse() {
         this.addMouseListener(new MouseAdapter(){
             @Override
-            public void mousePressed(final MouseEvent e) {
+            public final void mousePressed(final MouseEvent e) {
                 int newIdx = -1;
                 final int currX = e.getX();
                 final int currY = e.getY();
@@ -153,13 +153,13 @@ final public class WaveformEditor extends Waveform{
             }
 
             @Override
-            public void mouseReleased(final MouseEvent e) {
+            public final void mouseReleased(final MouseEvent e) {
                 WaveformEditor.this.closestIdx = -1;
             }
         });
         this.addMouseMotionListener(new MouseMotionAdapter(){
             @Override
-            public void mouseDragged(final MouseEvent e) {
+            public final void mouseDragged(final MouseEvent e) {
                 if(!WaveformEditor.this.editable) return;
                 synchronized(WaveformEditor.this){
                     if(WaveformEditor.this.closestIdx == -1) return;
