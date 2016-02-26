@@ -19,7 +19,7 @@ public class DecompileTree{
 
     public static void main(final String args[]) {
         if(args.length < 1){
-            System.err.println("Usage: java DecompileTree <treeName> [<shot>]");
+            System.out.println("Usage: java DecompileTree <treeName> [<shot>]");
             System.exit(0);
         }
         final String treeName = args[0];
@@ -34,16 +34,16 @@ public class DecompileTree{
         }
         final Properties properties = System.getProperties();
         final String full = properties.getProperty("full");
-        boolean isFull = false;
-        if(full != null && full.equals("yes")) isFull = true;
+        boolean isFull = true;
+        if(full != null && full.equals("no")) isFull = false;
         String outName = properties.getProperty("out");
         if(outName == null) outName = args[0] + ".xml";
         final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         try{
             final DocumentBuilder builder = factory.newDocumentBuilder();
             DecompileTree.document = builder.newDocument(); // Create from whole cloth
-        }catch(final Exception exc){
-            System.err.println("Cannot instantiate a new Document: " + exc);
+        }catch(final Exception e){
+            System.err.println("Cannot instantiate a new Document: " + e);
             DecompileTree.document = null;
             System.exit(0);
         }
@@ -51,15 +51,16 @@ public class DecompileTree{
         DecompileTree.mdsTree = new Database(treeName, shot);
         try{
             DecompileTree.mdsTree.open();
-        }catch(final Exception exc){
-            System.err.println("Cannot open tree: " + exc);
+        }catch(final Exception e){
+            System.err.println("Cannot open tree: " + e);
             System.exit(0);
         }
         final NidData topNid = new NidData(0);
         NidData[] sons;
         try{
             sons = DecompileTree.mdsTree.getSons(topNid, 0);
-        }catch(final Exception exc){
+        }catch(final Exception e){
+            System.err.println("Error setting sons: " + e);
             sons = new NidData[0];
         }
         for(final NidData son : sons){
@@ -70,7 +71,8 @@ public class DecompileTree{
         NidData[] members;
         try{
             members = DecompileTree.mdsTree.getMembers(topNid, 0);
-        }catch(final Exception exc){
+        }catch(final Exception e){
+            System.err.println("Error setting members: " + e);
             members = new NidData[0];
         }
         for(final NidData member : members){
@@ -80,8 +82,8 @@ public class DecompileTree{
                 if(info.getUsage() == NodeInfo.USAGE_DEVICE) docMember = DecompileTree.document.createElement("device");
                 if(info.getUsage() == NodeInfo.USAGE_COMPOUND_DATA) docMember = DecompileTree.document.createElement("compound_data");
                 else docMember = DecompileTree.document.createElement("member");
-            }catch(final Exception exc){
-                System.err.println(exc);
+            }catch(final Exception e){
+                System.err.println(e);
             }
             tree.appendChild(docMember);
             DecompileTree.recDecompile(member, docMember, false, isFull);
@@ -95,8 +97,8 @@ public class DecompileTree{
             final StreamResult result = new StreamResult(os);
             transformer.setOutputProperty(OutputKeys.INDENT, "yes");
             transformer.transform(source, result);
-        }catch(final Exception exc){
-            System.err.println(exc);
+        }catch(final Exception e){
+            System.err.println(e);
         }
     }
 

@@ -45,6 +45,7 @@ public class DisplayNci extends NodeEditor implements ActionListener{
         }
         final StringBuffer sb = new StringBuffer("<html><table width=\"320\"> <tr><td width=\"60\" align=\"left\"/><nobr>full path:</nobr></td><td align=\"left\">");
         sb.append(node.getFullPath());
+        sb.append(" (" + node.nid.getInt() + ")");
         sb.append("</td></tr><tr><td align=\"left\" valign=\"top\">Status:</td><td align=\"left\"><nobr>");
         final String sep = "</nobr>, <nobr>";
         if(node.isOn()) sb.append("on");

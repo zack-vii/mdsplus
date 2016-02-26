@@ -16,7 +16,7 @@ public class CompileTree extends Thread{
         String experiment;
         int shot = -1;
         if(args.length < 1){
-            System.out.println("Usage: java CompileTree <experiment> [<shot>]");
+            System.err.println("Usage: java CompileTree <experiment> [<shot>]");
             System.exit(0);
         }
         experiment = args[0];
@@ -24,7 +24,7 @@ public class CompileTree extends Thread{
             try{
                 shot = Integer.parseInt(args[1]);
             }catch(final Exception exc){
-                System.out.println("Error Parsing shot number");
+                System.err.println("Error Parsing shot number");
                 System.exit(0);
             }
         }
@@ -79,7 +79,7 @@ public class CompileTree extends Thread{
                             if(oldData == null || !dataStr.equals(oldData.toString())) this.tree.putData(nid, data, 0);
                         }else this.tree.putData(nid, data, 0);
                     }catch(final Exception exc){
-                        System.out.println("Error writing data: " + exc);
+                        System.err.println("Error writing data to nid " + nid + ": " + exc);
                     }
                 }
                 return;
@@ -200,7 +200,7 @@ public class CompileTree extends Thread{
                 final NodeList nodes = node.getChildNodes();
                 for(int i = 0; i < nodes.getLength(); i++){
                     final Node currNode = nodes.item(i);
-                    if(currNode.getNodeType() == org.w3c.dom.Node.ELEMENT_NODE) // Only element nodes at this
+                    if(currNode.getNodeType() == Node.ELEMENT_NODE) // Only element nodes at this
                     this.recCompile((Element)currNode);
                 }
             }
@@ -213,6 +213,14 @@ public class CompileTree extends Thread{
 
     @Override
     public void run() {
+        this.tree = new Database(this.experiment, this.shot);
+        this.tree.setEditable(true);
+        try{
+            this.tree.openNew();
+        }catch(final Exception e){
+            System.err.println("Error opening tree " + this.experiment + " : " + e);
+            System.exit(0);
+        }
         final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         try{
             final DocumentBuilder builder = factory.newDocumentBuilder();
@@ -239,14 +247,6 @@ public class CompileTree extends Thread{
         }catch(final Exception e){ // I/O error
             e.printStackTrace();
         }
-        this.tree = new Database(this.experiment, this.shot);
-        this.tree.setEditable(true);
-        try{
-            this.tree.openNew();
-        }catch(final Exception e){
-            System.err.println("Error opening tree " + this.experiment + " : " + e);
-            System.exit(0);
-        }
         // handle renamed nodes
         for(int i = 0; i < this.newNames.size(); i++){
             final String newName = this.newNames.elementAt(i);
@@ -272,7 +272,7 @@ public class CompileTree extends Thread{
             try{
                 this.tree.putData(this.unresolvedNidV.elementAt(i), data, 0);
             }catch(final Exception e){
-                System.err.println("Error writing data: " + e);
+                System.err.println("Error writing data to nid " + this.unresolvedNidV.elementAt(i) + ": " + e);
             }
         }
         // Set subtrees (apparently this must be done at the end....
