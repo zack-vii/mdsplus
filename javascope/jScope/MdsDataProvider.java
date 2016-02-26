@@ -12,6 +12,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Properties;
 import java.util.StringTokenizer;
+import java.util.TimeZone;
 import java.util.TimerTask;
 import java.util.Vector;
 import javax.swing.JFrame;
@@ -348,25 +349,26 @@ public class MdsDataProvider implements DataProvider{
         }
     } // END Inner Class SimpleFrameData
     class SimpleWaveData implements WaveData{
-        static final int         SEGMENTED_YES      = 1, SEGMENTED_NO = 2, SEGMENTED_UNKNOWN = 3;
-        static final int         UNKNOWN            = -1;
-        AsynchDataSource         asynchSource       = null;
-        tdicache                 c;
-        boolean                  continuousUpdate   = false;
-        boolean                  isXLong            = false;
-        int                      numDimensions      = SimpleWaveData.UNKNOWN;
-        int                      segmentMode        = SimpleWaveData.SEGMENTED_UNKNOWN;
-        String                   title              = null;
-        boolean                  titleEvaluated     = false;
-        // Async update management
-        Vector<WaveDataListener> waveDataListenersV = new Vector<WaveDataListener>();
-        String                   wd_experiment;
-        long                     wd_shot;
-        private long             x2DLong[];
-        String                   xLabel             = null;
-        boolean                  xLabelEvaluated    = false;
-        String                   yLabel             = null;
-        boolean                  yLabelEvaluated    = false;
+        public static final int                SEGMENTED_NO       = 2;
+        public static final int                SEGMENTED_UNKNOWN  = 3;
+        public static final int                SEGMENTED_YES      = 1;
+        public static final int                UNKNOWN            = -1;
+        private AsynchDataSource               asynchSource       = null;
+        private final tdicache                 c;
+        private boolean                        continuousUpdate   = false;
+        private boolean                        isXLong            = false;
+        private int                            numDimensions      = SimpleWaveData.UNKNOWN;
+        private int                            segmentMode        = SimpleWaveData.SEGMENTED_UNKNOWN;
+        private String                         title              = null;
+        private boolean                        titleEvaluated     = false;
+        private final Vector<WaveDataListener> waveDataListenersV = new Vector<WaveDataListener>();
+        private final String                   wd_experiment;
+        private final long                     wd_shot;
+        private long                           x2DLong[];
+        private String                         xLabel             = null;
+        private boolean                        xLabelEvaluated    = false;
+        private String                         yLabel             = null;
+        private boolean                        yLabelEvaluated    = false;
 
         public SimpleWaveData(final String _in_y, final String experiment, final long shot){
             this(_in_y, null, experiment, shot);
@@ -388,8 +390,8 @@ public class MdsDataProvider implements DataProvider{
             if(this.asynchSource != null) this.asynchSource.addDataListener(listener);
         }
 
-        // Check if the passed Y expression specifies also an asynchronous part (separated by the patern &&&)
-        // in case get an implemenation of AsynchDataSource
+        // Check if the passed Y expression specifies also an asynchronous part (separated by the pattern &&&)
+        // in case get an implementation of AsynchDataSource
         boolean checkForAsynchRequest(final String expression) {
             if(DEBUG.M) System.out.println("MdsDataProvider.SimpleWaveData.checkForAsynchRequest(\"" + expression + "\")");
             if(expression.startsWith("ASYNCH::")){
@@ -404,11 +406,11 @@ public class MdsDataProvider implements DataProvider{
 
         // GAB JULY 2014 NEW WAVEDATA INTERFACE RAFFAZZONATA
         @Override
-        public XYData getData(final double xmin, final double xmax, final int numPoints) throws Exception {
+        public final XYData getData(final double xmin, final double xmax, final int numPoints) throws Exception {
             return this.getData(xmin, xmax, numPoints, false);
         }
 
-        public XYData getData(final double xmin, final double xmax, final int numPoints, final boolean isLong) throws Exception {
+        public final XYData getData(final double xmin, final double xmax, final int numPoints, final boolean isLong) throws Exception {
             if(DEBUG.M) System.out.println("MdsDataProvider.SimpleWaveData.XYData(" + xmin + ", " + xmax + ", " + numPoints + ", " + isLong + ")");
             if(!MdsDataProvider.this.CheckOpen(this.wd_experiment, this.wd_shot)) return null;
             if(this.segmentMode == SimpleWaveData.SEGMENTED_UNKNOWN){
@@ -446,19 +448,19 @@ public class MdsDataProvider implements DataProvider{
         }
 
         @Override
-        public XYData getData(final int numPoints) throws Exception {
+        public final XYData getData(final int numPoints) throws Exception {
             if(DEBUG.M) System.out.println("MdsDataProvider.SimpleWaveData.getData(" + numPoints + ")");
             return this.getData(Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, numPoints);
         }
 
         @Override
-        public void getDataAsync(final double lowerBound, final double upperBound, final int numPoints) {
+        public final void getDataAsync(final double lowerBound, final double upperBound, final int numPoints) {
             if(DEBUG.M) System.out.println("MdsDataProvider.SimpleWaveData.getDataAsync(" + lowerBound + ", " + upperBound + ", " + numPoints + ")");
             MdsDataProvider.this.updateWorker.updateInfo(lowerBound, upperBound, numPoints, this.waveDataListenersV, this, this.isXLong);
         }
 
         @Override
-        public int getNumDimension() throws IOException {
+        public final int getNumDimension() throws IOException {
             if(DEBUG.M) System.out.println("MdsDataProvider.SimpleWaveData.getNumDimension()");
             if(this.numDimensions != SimpleWaveData.UNKNOWN) return this.numDimensions;
             String expr;
@@ -481,7 +483,7 @@ public class MdsDataProvider implements DataProvider{
         }
 
         @Override
-        public String GetTitle() throws IOException {
+        public final String GetTitle() throws IOException {
             if(DEBUG.M) System.out.println("MdsDataProvider.SimpleWaveData.GetTitle()");
             if(!this.titleEvaluated){
                 this.titleEvaluated = true;
@@ -490,7 +492,7 @@ public class MdsDataProvider implements DataProvider{
             return this.title;
         }
 
-        public float[] getX_X2D() {
+        public final float[] getX_X2D() {
             if(DEBUG.M) System.out.println("MdsDataProvider.SimpleWaveData.getX_X2D()");
             try{
                 return MdsDataProvider.this.GetFloatArray("DIM_OF(" + this.c.x() + ", 0)");
@@ -499,7 +501,7 @@ public class MdsDataProvider implements DataProvider{
             }
         }
 
-        public float[] getX_Y2D() {
+        public final float[] getX_Y2D() {
             if(DEBUG.M) System.out.println("MdsDataProvider.SimpleWaveData.getX_Y2D()");
             try{
                 return MdsDataProvider.this.GetFloatArray("DIM_OF(" + this.c.x() + ", 1)");
@@ -508,8 +510,7 @@ public class MdsDataProvider implements DataProvider{
             }
         }
 
-        // Cesare Mar 2015
-        public float[] getX_Z() {
+        public final float[] getX_Z() {
             if(DEBUG.M) System.out.println("MdsDataProvider.SimpleWaveData.getX_Z()");
             try{
                 return MdsDataProvider.this.GetFloatArray("(" + this.c.x() + ")");
@@ -519,7 +520,7 @@ public class MdsDataProvider implements DataProvider{
         }
 
         @Override
-        public double[] getX2D() {
+        public final double[] getX2D() {
             if(DEBUG.M) System.out.println("MdsDataProvider.SimpleWaveData.getX2D()");
             try{
                 final RealArray realArray = MdsDataProvider.this.GetRealArray("DIM_OF(" + this.c.y() + ", 0)");
@@ -537,13 +538,13 @@ public class MdsDataProvider implements DataProvider{
         }
 
         @Override
-        public long[] getX2DLong() {
+        public final long[] getX2DLong() {
             if(DEBUG.M) System.out.println("MdsDataProvider.SimpleWaveData.getX2DLong()");
             return this.x2DLong;
         }
 
         @Override
-        public String GetXLabel() throws IOException {
+        public final String GetXLabel() throws IOException {
             if(DEBUG.M){
                 System.out.println("MdsDataProvider.SimpleWaveData.GetXLabel()");
             }
@@ -581,7 +582,7 @@ public class MdsDataProvider implements DataProvider{
             return res;
         }
          */
-        private XYData getXYSignal(final double xmin, final double xmax, final int numPoints, boolean isLong, final String setTimeContext) throws Exception {
+        private final XYData getXYSignal(final double xmin, final double xmax, final int numPoints, boolean isLong, final String setTimeContext) throws Exception {
             if(DEBUG.M) System.out.println("MdsDataProvider.SimpleWaveData.getXYSignal(" + xmin + ", " + xmax + ", " + numPoints + ", " + isLong + ", \"" + setTimeContext + "\")");
             // If the requeated number of mounts is Integer.MAX_VALUE, force the old way of getting data
             if(numPoints == Integer.MAX_VALUE) throw new Exception("Use Old Method for getting data");
@@ -690,7 +691,7 @@ public class MdsDataProvider implements DataProvider{
         }
 
         @Override
-        public float[] getY2D() {
+        public final float[] getY2D() {
             if(DEBUG.M) System.out.println("MdsDataProvider.SimpleWaveData.getY2D()");
             try{
                 return MdsDataProvider.this.GetFloatArray("DIM_OF(" + this.c.y() + ", 1)");
@@ -700,7 +701,7 @@ public class MdsDataProvider implements DataProvider{
         }
 
         @Override
-        public String GetYLabel() throws IOException {
+        public final String GetYLabel() throws IOException {
             if(DEBUG.M) System.out.println("MdsDataProvider.SimpleWaveData.GetYLabel()");
             if(!this.yLabelEvaluated){
                 this.yLabelEvaluated = true;
@@ -737,20 +738,21 @@ public class MdsDataProvider implements DataProvider{
         // public double[] getXLimits(){System.out.println("BADABUM!!"); return null;}
         // public long []getXLong(){System.out.println("BADABUM!!"); return null;}
         @Override
-        public boolean isXLong() {
+        public final boolean isXLong() {
             return this.isXLong;
         }
 
-        private void SegmentMode() {
+        private final void SegmentMode() {
             if(DEBUG.M) System.out.println("MdsDataProvider.SimpleWaveData.SegmentMode()");
             if(this.segmentMode == SimpleWaveData.SEGMENTED_UNKNOWN){
+                final String expr = "[GetNumSegments(" + this.c.yo() + ")]";
                 try{// fast using in_y as NumSegments is a node property
-                    final int[] numSegments = MdsDataProvider.this.GetIntArray("GetNumSegments(" + this.c.yo() + ")");
+                    final int[] numSegments = MdsDataProvider.this.GetIntArray(expr);
                     if(numSegments == null) this.segmentMode = SimpleWaveData.SEGMENTED_UNKNOWN;
                     else if(numSegments[0] > 0) this.segmentMode = SimpleWaveData.SEGMENTED_YES;
                     else this.segmentMode = SimpleWaveData.SEGMENTED_NO;
                 }catch(final Exception exc){// happens if expression is not a plain node path
-                    if(DEBUG.M) System.err.println("# MdsDataProvider.SimpleWaveData.SegmentMode, GetNumSegments(" + this.c.yo() + "): " + exc);
+                    if(DEBUG.M) System.err.println("# MdsDataProvider.SimpleWaveData.SegmentMode, \"" + expr + "\": " + exc);
                     MdsDataProvider.this.error = null;
                     this.segmentMode = SimpleWaveData.SEGMENTED_UNKNOWN;
                 }
@@ -758,63 +760,58 @@ public class MdsDataProvider implements DataProvider{
         }
 
         @Override
-        public void setContinuousUpdate(final boolean continuousUpdate) {
+        public final void setContinuousUpdate(final boolean continuousUpdate) {
             if(DEBUG.M) System.out.println("MdsDataProvider.SimpleWaveData.setContinuousUpdate(" + continuousUpdate + ")");
             this.continuousUpdate = continuousUpdate;
         }
     } // END Inner Class SimpleWaveData
       // //////////////////////////////////////GAB JULY 2014
-    class tdicache{
-        String         in_x;
-        String         in_y;
-        public boolean useCache = false;
-        String         var;
-        String         xc;
-        boolean        xdim;
-        byte           xkind    = 0;
-        String         yc;
-        byte           ykind    = 0;
+    private final class tdicache{
+        private final String  in_x;
+        private final String  in_y;
+        private boolean       useCache = true;
+        private final String  var;
+        private String        xc;
+        private final boolean xdim;
+        private String        yc;
+        private byte          ykind;
 
         public tdicache(final String _in_y, final String _in_x, final int _var){
-            this.prep(_in_y, _in_x, Integer.toString(_var));
+            this(_in_y, _in_x, Integer.toString(_var));
         }
 
         public tdicache(final String _in_y, final String _in_x, final String _var){
-            this.prep(_in_y, _in_x, _var);
-        }
-
-        void cache() {
-            this.y();
-            this.useCache = this.ykind == -62; // -61 = Sig, -62 parm -> python script
-            if(!this.useCache){
-                this.yc = this.in_y;
-                this.xc = this.in_x;
-            }
-            if(DEBUG.D) System.out.println(">> tdicache yclass  = " + this.ykind);
-        }
-
-        @Override
-        protected void finalize() {
-            MdsDataProvider.this.mds.MdsValue("DEALLOCATE(['" + this.xc + "','" + this.yc + "'])");
-        }
-
-        void prep(final String _in_y, final String _in_x, final String _var) {
             this.in_y = _in_y;
             this.var = "_jscope_" + _var;
             this.xdim = _in_x == null;
             if(this.xdim) this.in_x = "DIM_OF(" + this.in_y + ")";
             else this.in_x = _in_x;
-            if(this.in_y != "[]") this.cache();
+            if(this.in_y != "[]"){
+                this.y();
+                this.useCache = this.useCache & (this.ykind == -62); // only use on "EXT_FUNCTIONS" such as the archive interface
+                if(!this.useCache){
+                    this.yc = this.in_y;
+                    this.xc = this.in_x;
+                }else System.out.println("Caching " + _in_y);
+                return;
+            }
+            this.ykind = -1;
+            this.useCache = false;
         }
 
-        public String x() {
+        @Override
+        protected final void finalize() {
+            MdsDataProvider.this.mds.MdsValue("DEALLOCATE(['" + this.xc + "','" + this.yc + "'])");
+        }
+
+        public final String x() {
             if(this.xc == null){
                 if(this.xdim) this.y();
                 else{
                     this.xc = this.var + "x";
                     final String expr = this.xc + " = (" + this.in_x + "); KIND( " + this.xc + " )";
                     try{
-                        this.xkind = MdsDataProvider.this.GetByteArray(expr)[0];
+                        MdsDataProvider.this.mds.MdsValue(expr);
                         if(DEBUG.D) System.out.println(">> tdicache x (" + expr + ")");
                     }catch(final Exception exc){
                         System.err.println("# tdicache error: could not cache x (" + expr + ")");
@@ -825,11 +822,12 @@ public class MdsDataProvider implements DataProvider{
             return this.xc;
         }
 
-        public String xo() {
+        public final String xo() {
             return this.in_x;
         }
 
-        public String y() {
+        public final String y() {
+            if(!this.useCache) return this.in_y;
             if(this.yc == null){
                 this.yc = this.var + "y";
                 final String expr = this.yc + " = EVALUATE(" + this.in_y + "); KIND( " + this.yc + " )";
@@ -845,13 +843,13 @@ public class MdsDataProvider implements DataProvider{
             return this.yc;
         }
 
-        public String yo() {
+        public final String yo() {
             return this.in_y;
         }
     }
     // Inner class UpdateWorker handler asynchronous requests for getting (portions of) data
-    class UpdateWorker extends Thread{
-        class UpdateDescriptor{
+    private final class UpdateWorker extends Thread{
+        private final class UpdateDescriptor{
             boolean                  isXLong;
             SimpleWaveData           simpleWaveData;
             double                   updateLowerBound;
@@ -874,12 +872,12 @@ public class MdsDataProvider implements DataProvider{
         Vector<UpdateDescriptor> requestsV  = new Vector<UpdateDescriptor>();
         boolean                  stopWorker = false;
 
-        synchronized void enableAsyncUpdate(final boolean enabled) {
+        private final synchronized void enableAsyncUpdate(final boolean enabled) {
             this.enabled = enabled;
             if(enabled) this.notify();
         }
 
-        synchronized void intUpdateInfo(final double updateLowerBound, final double updateUpperBound, final int updatePoints, final Vector<WaveDataListener> waveDataListenersV, final SimpleWaveData simpleWaveData, final boolean isXLong, final long updateTime) {
+        private final synchronized void intUpdateInfo(final double updateLowerBound, final double updateUpperBound, final int updatePoints, final Vector<WaveDataListener> waveDataListenersV, final SimpleWaveData simpleWaveData, final boolean isXLong, final long updateTime) {
             if(updateTime > 0) // If a delayed request for update
             {
                 for(int i = 0; i < this.requestsV.size(); i++){
@@ -892,7 +890,7 @@ public class MdsDataProvider implements DataProvider{
         }
 
         @Override
-        public void run() {
+        public final void run() {
             if(DEBUG.M){
                 System.out.println("run()");
             }
@@ -948,39 +946,36 @@ public class MdsDataProvider implements DataProvider{
             }
         }
 
-        synchronized void stopUpdateWorker() {
+        private final synchronized void stopUpdateWorker() {
             this.stopWorker = true;
             this.notify();
         }
 
-        void updateInfo(final double updateLowerBound, final double updateUpperBound, final int updatePoints, final Vector<WaveDataListener> waveDataListenersV, final SimpleWaveData simpleWaveData, final boolean isXLong) {
+        private final void updateInfo(final double updateLowerBound, final double updateUpperBound, final int updatePoints, final Vector<WaveDataListener> waveDataListenersV, final SimpleWaveData simpleWaveData, final boolean isXLong) {
             // intUpdateInfo(updateLowerBound, updateUpperBound, updatePoints, waveDataListenersV, simpleWaveData, isXLong,
             // Calendar.getInstance().getTimeInMillis());
             this.intUpdateInfo(updateLowerBound, updateUpperBound, updatePoints, waveDataListenersV, simpleWaveData, isXLong, -1);
         }
 
-        void updateInfo(final double updateLowerBound, final double updateUpperBound, final int updatePoints, final Vector<WaveDataListener> waveDataListenersV, final SimpleWaveData simpleWaveData, final boolean isXLong, final long delay) {
+        private final void updateInfo(final double updateLowerBound, final double updateUpperBound, final int updatePoints, final Vector<WaveDataListener> waveDataListenersV, final SimpleWaveData simpleWaveData, final boolean isXLong, final long delay) {
             this.intUpdateInfo(updateLowerBound, updateUpperBound, updatePoints, waveDataListenersV, simpleWaveData, isXLong, Calendar.getInstance().getTimeInMillis() + delay);
         }
     } // End Inner class UpdateWorker
-    static final int  MAX_PIXELS        = 20000;
-    static final long RESAMPLE_TRESHOLD = 1000000000;
-    static int        var_idx           = 0;
+    protected static final int  MAX_PIXELS        = 20000;
+    protected static final long RESAMPLE_TRESHOLD = 1000000;
+    protected static int        var_idx           = 0;
 
-    private static double GetDate(final String in) throws Exception {
+    private static final double GetDate(final String in) throws Exception {
         if(DEBUG.M) System.out.println("MdsDataProvider.GetDate(\"" + in + "\")");
-        final Calendar cal = Calendar.getInstance();
-        // cal.setTimeZone(TimeZone.getTimeZone("GMT+00"));
-        final DateFormat df = new SimpleDateFormat("d-MMM-yyyy HH:mm Z");
-        // DateFormat df = new SimpleDateFormat("d-MMM-yyyy HH:mm");-
-        final Date date = df.parse(in + " GMT");
-        // Date date = df.parse(in);
+        final Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        final DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS Z");
+        final Date date = df.parse(in + " UTC");
         cal.setTime(date);
         final long javaTime = cal.getTime().getTime();
         return javaTime;
     }
 
-    private static double GetNow(final String in) throws Exception {
+    private static final double GetNow(final String in) throws Exception {
         if(DEBUG.M) System.out.println("MdsDataProvider.GetNow(\"" + in + "\")");
         boolean isPlus = true;
         int hours = 0, minutes = 0, seconds = 0;
@@ -1027,7 +1022,18 @@ public class MdsDataProvider implements DataProvider{
         return javaTime;
     }
 
-    protected static boolean NotYetNumber(final String in) {
+    public static final void main(final String[] args) {
+        final MdsDataProvider mds = new MdsDataProvider(args[0]);
+        try{
+            mds.CheckOpen(args[1], Integer.parseInt(args[2]));
+            /* user code */
+            System.out.println(mds.mds.MdsValue("TCL('DIR',_out);_out").strdata);
+        }catch(final Exception e){
+            System.err.println(e);
+        }
+    }
+
+    protected static final boolean NotYetNumber(final String in) {
         if(DEBUG.M) System.out.println("MdsDataProvider.NotYetNumber(\"" + in + "\")");
         try{
             new Float(in);
@@ -1037,7 +1043,7 @@ public class MdsDataProvider implements DataProvider{
         return true;
     }
 
-    protected static boolean NotYetString(final String in) {
+    protected static final boolean NotYetString(final String in) {
         if(DEBUG.M) System.out.println("MdsDataProvider.NotYetString(\"" + in + "\")");
         int i;
         if(in.charAt(0) == '\"'){
@@ -1054,20 +1060,20 @@ public class MdsDataProvider implements DataProvider{
     public static boolean SupportsFastNetwork() {
         return true;
     }
-    private boolean  def_node_changed = false;
-    String           default_node;
-    String           environment_vars;
-    String           error;
-    protected String experiment;
-    boolean          is_tunneling     = false;
-    MdsConnection    mds;
-    boolean          open, connected;
-    protected String provider;
-    protected long   shot;
-    SshTunneling     ssh_tunneling;
-    String           tunnel_provider  = "127.0.0.1:8000";
-    UpdateWorker     updateWorker;
-    private boolean  use_compression  = false;
+    private boolean         def_node_changed = false;
+    protected String        default_node;
+    protected String        environment_vars;
+    protected String        error;
+    protected String        experiment;
+    protected boolean       is_tunneling     = false;
+    protected MdsConnection mds;
+    protected boolean       open, connected;
+    protected String        provider;
+    protected long          shot;
+    protected SshTunneling  ssh_tunneling;
+    protected String        tunnel_provider  = "127.0.0.1:8000";
+    protected UpdateWorker  updateWorker;
+    private boolean         use_compression  = false;
 
     public MdsDataProvider(){
         if(DEBUG.M) System.out.println("MdsDataProvider()");
@@ -1121,7 +1127,7 @@ public class MdsDataProvider implements DataProvider{
     protected synchronized void CheckConnection() throws IOException {
         if(DEBUG.M) System.out.println("MdsDataProvider.CheckConnection()");
         if(!this.connected){
-            if(this.mds.ConnectToMds(this.use_compression) == 0){
+            if(!this.mds.ConnectToMds(this.use_compression)){
                 if(this.mds.error != null) throw new IOException(this.mds.error);
                 throw new IOException("Could not get IO for " + this.provider);
             }
@@ -1138,10 +1144,8 @@ public class MdsDataProvider implements DataProvider{
 
     protected synchronized boolean CheckOpen(final String experiment, final long shot) throws IOException {
         if(DEBUG.M) System.out.println("MdsDataProvider.CheckOpen(\"" + experiment + "\", " + shot + ")");
-        int status;
         if(!this.connected){
-            status = this.mds.ConnectToMds(this.use_compression);
-            if(status == 0){
+            if(!this.mds.ConnectToMds(this.use_compression)){
                 if(this.mds.error != null) throw new IOException("Cannot connect to data server : " + this.mds.error);
                 this.error = "Cannot connect to data server";
                 return false;
@@ -1386,7 +1390,7 @@ public class MdsDataProvider implements DataProvider{
         if(DEBUG.M) System.out.println("MdsDataProvider.GetFrameData(\"" + in_y + "\", \"" + in_x + "\", " + time_min + ", " + time_max + ")");
         int[] numSegments = null;
         try{
-            numSegments = this.GetIntArray("GetNumSegments(" + in_y + ")");
+            numSegments = this.GetIntArray("[GetNumSegments(" + in_y + ")]");
         }catch(final Exception exc){
             this.error = null;
         }

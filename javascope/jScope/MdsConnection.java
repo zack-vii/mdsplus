@@ -28,21 +28,26 @@ public class MdsConnection{
             return new String("Event name = " + this.name + " Event id = " + this.eventid);
         }
     }
-    class MRT extends Thread // Mds Receive Thread
+    private final class MRT extends Thread // Mds Receive Thread
     {
-        boolean    killed  = false;
+        boolean    killed = false;
         MdsMessage message;
-        boolean    pending = false;
 
         public synchronized MdsMessage GetMessage() {
             // System.out.println("Get Message");
+            long time;
+            if(DEBUG.D) time = System.nanoTime();
             while(!this.killed && this.message == null)
                 try{
                     this.wait();
-                }catch(final InterruptedException exc){}
+                }catch(final InterruptedException e){
+                    System.err.println("MdsConnection.MRT.MdsMessage wait(): " + e);
+                }
             if(this.killed) return null;
+            if(DEBUG.D) time = System.nanoTime() - time;
             final MdsMessage msg = this.message;
             this.message = null;
+            if(DEBUG.D) System.out.println(msg.msglen + "B in " + time / 1e9 + "sec (" + msg.asString().substring(0, (msg.length < 64) ? msg.length : 64) + ")");
             return msg;
         }
 
@@ -65,13 +70,9 @@ public class MdsConnection{
                             if(MdsConnection.this.pending_count == 0) this.notify();
                         }
                         curr_message = null;
-                        // if(pending_count == 0)
-                        // MdsConnection.this.NotifyMessage();
                     }
                 }
-            }
-            // catch(IOException e) CESARE 14/9/2015
-            catch(final Exception e){
+            }catch(final Exception e){
                 synchronized(this){
                     this.killed = true;
                     this.notifyAll();
@@ -79,7 +80,6 @@ public class MdsConnection{
                 if(MdsConnection.this.connected){
                     this.message = null;
                     MdsConnection.this.connected = false;
-                    // ConnectionEvent ce = new ConnectionEvent(MdsConnection.this, ConnectionEvent.LOST_CONNECTION, "Lost connection from : "+provider);
                     (new Thread(){
                         @Override
                         public void run() {
@@ -87,7 +87,6 @@ public class MdsConnection{
                             MdsConnection.this.dispatchConnectionEvent(ce);
                         }
                     }).start();
-                    // MdsConnection.this.dispatchConnectionEvent(ce);
                     // MdsConnection.this.NotifyMessage();
                 }
             }
@@ -157,15 +156,7 @@ public class MdsConnection{
     }
      */
     public MdsConnection(){
-        this.connected = false;
-        this.sock = null;
-        this.dis = null;
-        this.dos = null;
-        this.provider = null;
-        this.port = MdsConnection.DEFAULT_PORT;
-        this.host = null;
-        // processUdpEvent = new ProcessUdpEvent();
-        // processUdpEvent.start();
+        this(null);
     }
 
     public MdsConnection(final String provider){
@@ -176,16 +167,14 @@ public class MdsConnection{
         this.provider = provider;
         this.port = MdsConnection.DEFAULT_PORT;
         this.host = null;
-        // processUdpEvent = new ProcessUdpEvent();
-        // processUdpEvent.start();
     }
 
-    public synchronized void addConnectionListener(final ConnectionListener l) {
+    public final synchronized void addConnectionListener(final ConnectionListener l) {
         if(l == null) return;
         this.connection_listener.addElement(l);
     }
 
-    public synchronized int AddEvent(final UpdateEventListener l, final String eventName) {
+    public final synchronized int AddEvent(final UpdateEventListener l, final String eventName) {
         int eventid = -1;
         EventItem eventItem;
         if(this.hashEventName.containsKey(eventName)){
@@ -200,7 +189,7 @@ public class MdsConnection{
         return eventid;
     }
 
-    public synchronized int ConnectToMds(final boolean use_compression) {
+    public final synchronized boolean ConnectToMds(final boolean use_compression) {
         try{
             if(this.provider != null){
                 this.connectToServer();
@@ -214,7 +203,7 @@ public class MdsConnection{
                 this.receiveThread = new MRT();
                 this.receiveThread.start();
                 this.connected = true;
-                return 1;
+                return true;
             }
             // error = "Could not get IO for : Host " + host +" Port "+ port + " User " + user;
             this.error = "Data provider host:port is <null>";
@@ -225,7 +214,7 @@ public class MdsConnection{
         }catch(final IOException e){
             this.error = "Could not get IO for " + this.provider + " " + e;
         }
-        return 0;
+        return false;
     }
 
     public void connectToServer() throws IOException {
@@ -238,7 +227,7 @@ public class MdsConnection{
         this.dos = new DataOutputStream(new BufferedOutputStream(this.sock.getOutputStream()));
     }
 
-    public int DisconnectFromMds() {
+    public final int DisconnectFromMds() {
         try{
             if(this.connection_listener.size() > 0) this.connection_listener.removeAllElements();
             this.dos.close();
@@ -252,27 +241,27 @@ public class MdsConnection{
         return 1;
     }
 
-    protected void dispatchConnectionEvent(final ConnectionEvent e) {
+    protected final void dispatchConnectionEvent(final ConnectionEvent e) {
         if(this.connection_listener != null) for(int i = 0; i < this.connection_listener.size(); i++)
             this.connection_listener.elementAt(i).processConnectionEvent(e);
     }
 
-    private void dispatchUpdateEvent(final EventItem eventItem) {
+    private final void dispatchUpdateEvent(final EventItem eventItem) {
         final Vector<UpdateEventListener> eventListener = eventItem.listener;
         final UpdateEvent e = new UpdateEvent(this, eventItem.name);
         for(int i = 0; i < eventListener.size(); i++)
             eventListener.elementAt(i).processUpdateEvent(e);
     }
 
-    public synchronized void dispatchUpdateEvent(final int eventid) {
+    public final synchronized void dispatchUpdateEvent(final int eventid) {
         if(this.hashEventId.containsKey(eventid)) this.dispatchUpdateEvent(this.hashEventId.get(eventid));
     }
 
-    public synchronized void dispatchUpdateEvent(final String eventName) {
+    public final synchronized void dispatchUpdateEvent(final String eventName) {
         if(this.hashEventName.containsKey(eventName)) this.dispatchUpdateEvent(this.hashEventName.get(eventName));
     }
 
-    public synchronized Descriptor getAnswer() throws IOException {
+    public final synchronized Descriptor getAnswer() throws IOException {
         final Descriptor out = new Descriptor();
         // wait();//!!!!!!!!!!
         final MdsMessage message = this.receiveThread.GetMessage();
@@ -287,35 +276,35 @@ public class MdsConnection{
                 out.byte_data = message.body;
                 break;
             case Descriptor.DTYPE_USHORT:
-                out.int_data = message.ToUShortArray();
+                out.int_data = message.asUShortArray();
                 out.dtype = Descriptor.DTYPE_LONG;
                 break;
             case Descriptor.DTYPE_SHORT:
-                out.short_data = message.ToShortArray();
+                out.short_data = message.asShortArray();
                 break;
             case Descriptor.DTYPE_LONG:
             case Descriptor.DTYPE_ULONG:
-                out.int_data = message.ToIntArray();
+                out.int_data = message.asIntArray();
                 break;
             case Descriptor.DTYPE_ULONGLONG:
             case Descriptor.DTYPE_LONGLONG:
-                out.long_data = message.ToLongArray();
+                out.long_data = message.asLongArray();
                 break;
             case Descriptor.DTYPE_CSTRING:
                 if((message.status & 1) == 1) out.strdata = new String(message.body);
                 else out.error = new String(message.body);
                 break;
             case Descriptor.DTYPE_FLOAT:
-                out.float_data = message.ToFloatArray();
+                out.float_data = message.asFloatArray();
                 break;
             case Descriptor.DTYPE_DOUBLE:
-                out.double_data = message.ToDoubleArray();
+                out.double_data = message.asDoubleArray();
                 break;
         }
         return out;
     }
 
-    private int getEventId() {
+    private final int getEventId() {
         int i;
         for(i = 0; i < MdsConnection.MAX_NUM_EVENTS && this.event_flags[i]; i++);
         if(i == MdsConnection.MAX_NUM_EVENTS) return -1;
@@ -323,12 +312,11 @@ public class MdsConnection{
         return i;
     }
 
-    // ProcessUdpEvent processUdpEvent = null;
-    public String getProvider() {
+    public final String getProvider() {
         return this.provider;
     }
 
-    public synchronized String getProviderHost() {
+    public final synchronized String getProviderHost() {
         if(this.provider == null) return null;
         String address = this.provider;
         final int idx = this.provider.indexOf("|");
@@ -339,7 +327,7 @@ public class MdsConnection{
         return address;
     }
 
-    public synchronized int getProviderPort() throws NumberFormatException {
+    public final synchronized int getProviderPort() throws NumberFormatException {
         if(this.provider == null) return MdsConnection.DEFAULT_PORT;
         int port = MdsConnection.DEFAULT_PORT;
         final int idx = this.provider.indexOf(":");
@@ -347,11 +335,11 @@ public class MdsConnection{
         return port;
     }
 
-    public String getProviderUser() {
+    public final String getProviderUser() {
         return(this.user != null ? this.user : MdsConnection.DEFAULT_USER);
     }
 
-    public synchronized void MdsRemoveEvent(final UpdateEventListener l, final String event) {
+    public final synchronized void MdsRemoveEvent(final UpdateEventListener l, final String event) {
         int eventid;
         if((eventid = this.RemoveEvent(l, event)) == -1) return;
         try{
@@ -362,7 +350,7 @@ public class MdsConnection{
         }
     }
 
-    public synchronized void MdsSetEvent(final UpdateEventListener l, final String event) {
+    public final synchronized void MdsSetEvent(final UpdateEventListener l, final String event) {
         int eventid;
         if((eventid = this.AddEvent(l, event)) == -1) return;
         try{
@@ -375,7 +363,7 @@ public class MdsConnection{
     }
 
     // Read either a string or a float array
-    public synchronized Descriptor MdsValue(final String expr) {
+    public final synchronized Descriptor MdsValue(final String expr) {
         if(DEBUG.M){
             System.out.println("MdsConnection.MdsValue(\"" + expr + "\")");
         }
@@ -389,11 +377,11 @@ public class MdsConnection{
         }
     }
 
-    public Descriptor MdsValue(final String expr, final Vector<Descriptor> args) {
+    public final Descriptor MdsValue(final String expr, final Vector<Descriptor> args) {
         return this.MdsValue(expr, args, true);
     }
 
-    public synchronized Descriptor MdsValue(final String expr, Vector<Descriptor> args, final boolean wait) {
+    public final synchronized Descriptor MdsValue(final String expr, Vector<Descriptor> args, final boolean wait) {
         if(DEBUG.M){
             System.out.println("MdsConnection.MdsValue(\"" + expr + "\", " + args + ", " + wait + ")");
         }
@@ -430,11 +418,11 @@ public class MdsConnection{
         return out;
     }
 
-    public Descriptor MdsValueStraight(final String expr, final Vector<Descriptor> args) {
+    public final Descriptor MdsValueStraight(final String expr, final Vector<Descriptor> args) {
         return this.MdsValue(expr, args, false);
     }
 
-    public void QuitFromMds() {
+    public final void QuitFromMds() {
         try{
             if(this.connection_listener.size() > 0) this.connection_listener.removeAllElements();
             this.dos.close();
@@ -445,12 +433,12 @@ public class MdsConnection{
         }
     }
 
-    public synchronized void removeConnectionListener(final ConnectionListener l) {
+    public final synchronized void removeConnectionListener(final ConnectionListener l) {
         if(l == null) return;
         this.connection_listener.removeElement(l);
     }
 
-    public synchronized int RemoveEvent(final UpdateEventListener l, final String eventName) {
+    public final synchronized int RemoveEvent(final UpdateEventListener l, final String eventName) {
         int eventid = -1;
         if(this.hashEventName.containsKey(eventName)){
             final EventItem eventItem = this.hashEventName.get(eventName);
@@ -465,19 +453,19 @@ public class MdsConnection{
         return eventid;
     }
 
-    public void sendArg(final byte descr_idx, final byte dtype, final byte nargs, final int dims[], final byte body[]) throws IOException {
+    public final void sendArg(final byte descr_idx, final byte dtype, final byte nargs, final int dims[], final byte body[]) throws IOException {
         final MdsMessage msg = new MdsMessage(descr_idx, dtype, nargs, dims, body);
         msg.Send(this.dos);
     }
 
-    public void setProvider(final String provider) {
+    public final void setProvider(final String provider) {
         if(this.connected) this.DisconnectFromMds();
         this.provider = provider;
         this.port = MdsConnection.DEFAULT_PORT;
         this.host = null;
     }
 
-    public void setUser(final String user) {
+    public final void setUser(final String user) {
         if(user == null || user.length() == 0) this.user = MdsConnection.DEFAULT_USER;
         else this.user = user;
     }
