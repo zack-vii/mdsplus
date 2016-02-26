@@ -508,12 +508,6 @@ final public class jScopeFacade extends JFrame implements ActionListener, ItemLi
     public static void startApplication(final String args[]) {
         String file = null;
         String propertiesFile = null;
-        final Properties props = System.getProperties();
-        final String debug = props.getProperty("debug");
-        if(debug != null && debug.equals("true")){
-            jScopeFacade.is_debug = true;
-            Waveform.is_debug = true;
-        }
         if(args.length != 0){
             for(int i = 0; i < args.length; i++){
                 if(args[i].equals("-fp")){
@@ -2442,10 +2436,10 @@ class ServerDialog extends JDialog implements ActionListener{
         23-05-2005
         Ovverride configuration file server definitions
         with property server definition with the same name
-
+        
         else
         {
-
+        
             if (found_dsi != null)
             {
                 dsi.user = found_dsi.user;

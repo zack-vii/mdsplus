@@ -16,18 +16,18 @@ import java.util.Vector;
  * waveforms.
  */
 public class MultiWaveform extends Waveform{
-    static final int         HORIZONTAL         = 0;
-    static final int         LEGEND_BOTTOM      = 1;
-    static final int         LEGEND_IN_GRAPHICS = 0;
-    static final int         LEGEND_RIGHT       = 2;
-    static final int         MAX_DRAG_POINT     = 200;
-    static final int         PRINT_BW           = 8;
-    static final int         PRINT_LEGEND       = 4;
-    static final long        serialVersionUID   = 2342326324434L;
-    static final int         VERTICAL           = 1;
+    public static final int  HORIZONTAL         = 0;
+    public static final int  LEGEND_BOTTOM      = 1;
+    public static final int  LEGEND_IN_GRAPHICS = 0;
+    public static final int  LEGEND_RIGHT       = 2;
+    public static final int  MAX_DRAG_POINT     = 200;
+    public static final int  PRINT_BW           = 8;
+    public static final int  PRINT_LEGEND       = 4;
+    public static final long serialVersionUID   = 2342326324434L;
+    public static final int  VERTICAL           = 1;
     private boolean          asinchAutoscale    = false;
     private int              bottom_size        = 0;
-    boolean                  continuosAutoscale = false;
+    private boolean          continuosAutoscale = false;
     protected int            curr_point_sig_idx = -1;
     protected boolean        fixed_legend       = false;
     private int              legend_mode        = 0;
@@ -35,8 +35,9 @@ public class MultiWaveform extends Waveform{
     protected double         legend_x;
     protected double         legend_y;
     protected Vector<Signal> orig_signals       = null;
-    protected double         orig_xmin, orig_xmax;
-    private int              right_size         = 0;
+    protected double         orig_xmax          = Double.NEGATIVE_INFINITY;
+    protected double         orig_xmin          = Double.POSITIVE_INFINITY;
+    protected int            right_size         = 0;
     protected boolean        show_legend        = false;
     protected Vector<Signal> signals            = new Vector<Signal>();
     protected WaveInterface  wi;
@@ -614,11 +615,11 @@ public class MultiWaveform extends Waveform{
                 else
                 if (s.getType() == Signal.TYPE_2D)
                     mode = ( (Signal) signals.elementAt(idx)).getMode2D();
-
+    
             }
             return mode;
         }
-
+    
         public int getSignalMode()
         {
             return getSignalMode(curr_point_sig_idx);
@@ -939,7 +940,7 @@ public class MultiWaveform extends Waveform{
     @Override
     public void SetXScaleAutoY(final Waveform w) {
         if(this.waveform_signal == null || this.signals == null) return;
-        if(w != this && this.orig_signals != null) // Previous zoom for differentr windows
+        if(w != this && this.orig_signals != null) // Previous zoom for different windows
         {
             this.signals = this.orig_signals;
             // operation on signals must not affect original signals
@@ -1034,6 +1035,7 @@ public class MultiWaveform extends Waveform{
     }
 
     void UpdateLimits() {
+        if(DEBUG.D) System.out.println("MultiWaveform.UpdateLimits()");
         if(this.signals == null || this.signals.size() == 0) return;
         int i;
         this.waveform_signal = null;
@@ -1043,9 +1045,6 @@ public class MultiWaveform extends Waveform{
             if(i == this.signals.size()) return;
         }else i = this.curr_point_sig_idx;
         this.waveform_signal = new Signal(this.signals.elementAt(i));
-        if(DEBUG.D){
-            System.out.println("UpdateLimits: " + this.waveform_signal);
-        }
         // Check if any of the elements of signals vector refers to absolute time.
         // In this case set minimum and maximum X value of reference waveform_signal to its limits
         boolean anyLongX = false;

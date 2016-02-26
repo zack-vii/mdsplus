@@ -757,7 +757,7 @@ public class WaveInterface{
     }
 
     public void setLimits(final Signal s) throws Exception {
-        if(DEBUG.M) System.out.println("WaveInterface.setLimits(s)");
+        if(DEBUG.M) System.out.println("WaveInterface.setLimits(" + s + ")");
         s.setXLimits(this.xmin, this.xmax, Signal.AT_CREATION);
         s.setYmin(this.ymin, Signal.AT_CREATION);
         s.setYmax(this.ymax, Signal.AT_CREATION);

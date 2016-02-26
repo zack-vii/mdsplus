@@ -78,7 +78,7 @@ final public class CompositeWaveDisplay extends JApplet implements WaveContainer
             for(int i = 0; i < usds.length; i++);
             return null;
         }
-        
+
         private UpdSignalData mergeMessage(UpdSignalData upd1, UpdSignalData upd2)
         {
             if(upd1.name != upd2.name || upd1.type != upd2.type) return null;
@@ -87,14 +87,14 @@ final public class CompositeWaveDisplay extends JApplet implements WaveContainer
             {
                if(upd1.operation == CompositeWaveDisplay.CMND_CLEAR) return upd1 ;
                if(upd2.operation == CompositeWaveDisplay.CMND_CLEAR) return upd2 ;
-        
+
                 int numSignal1 = upd1.x.length / upd1.numPointsPerSignal;
                 int numSignal2 = upd2.x.length / upd2.numPointsPerSignal;
-        
+
                 if(numSignal1 != numSignal2) return null;
-        
+
                 float y[] = float[upd1.length]
-        
+
             }
         }
          */
@@ -555,11 +555,11 @@ final public class CompositeWaveDisplay extends JApplet implements WaveContainer
         if(this.isApplet) this.showStatus("Add " + s.getName() + " col " + col + " row " + row);
         switch(s.getType()){
             case Signal.TYPE_1D:
-                this.signals1DHash.put(s.name, s);
+                this.signals1DHash.put(s.getName(), s);
                 this.signals1DVector.addElement(s);
                 break;
             case Signal.TYPE_2D:
-                this.signals2DHash.put(s.name, s);
+                this.signals2DHash.put(s.getName(), s);
                 this.signals2DVector.addElement(s);
                 break;
         }
@@ -726,7 +726,7 @@ final public class CompositeWaveDisplay extends JApplet implements WaveContainer
         global_autentication = this.getParameter("AUTENTICATION");
         /*
         param = getParameter("PRINT_SCALING");
-        
+
         if(param != null){
             try{
                 print_scaling = Integer.parseInt(param);
@@ -805,28 +805,28 @@ final public class CompositeWaveDisplay extends JApplet implements WaveContainer
         final JRadioButton point = new JRadioButton("Point", false);
         point.addItemListener(new ItemListener(){
             @Override
-            public void itemStateChanged(ItemEvent e) {
+            public void itemStateChanged(final ItemEvent e) {
                 CompositeWaveDisplay.this.wave_container.SetMode(Waveform.MODE_POINT);
             }
         });
         final JRadioButton zoom = new JRadioButton("Zoom", true);
         zoom.addItemListener(new ItemListener(){
             @Override
-            public void itemStateChanged(ItemEvent e) {
+            public void itemStateChanged(final ItemEvent e) {
                 CompositeWaveDisplay.this.wave_container.SetMode(Waveform.MODE_ZOOM);
             }
         });
         final JRadioButton pan = new JRadioButton("Pan", false);
         pan.addItemListener(new ItemListener(){
             @Override
-            public void itemStateChanged(ItemEvent e) {
+            public void itemStateChanged(final ItemEvent e) {
                 CompositeWaveDisplay.this.wave_container.SetMode(Waveform.MODE_PAN);
             }
         });
         this.liveUpdate = new JCheckBox("Live Update", false);
         this.liveUpdate.addChangeListener(new ChangeListener(){
             @Override
-            public void stateChanged(ChangeEvent e) {
+            public void stateChanged(final ChangeEvent e) {
                 CompositeWaveDisplay.this.setLiveUpdate(CompositeWaveDisplay.this.liveUpdate.isSelected(), false);
             }
         });
@@ -862,7 +862,7 @@ final public class CompositeWaveDisplay extends JApplet implements WaveContainer
             final JButton print = new JButton("Print");
             print.addActionListener(new ActionListener(){
                 @Override
-                public void actionPerformed(ActionEvent e) {
+                public void actionPerformed(final ActionEvent e) {
                     final Thread t = new Thread(){
                         @Override
                         public void run() {

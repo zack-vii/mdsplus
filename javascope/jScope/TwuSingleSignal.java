@@ -58,10 +58,7 @@ final public class TwuSingleSignal{
 
     // ---------------------------------------------------------------------------------------------
     protected static void handleException(final Exception e) {
-        if(Waveform.is_debug) e.printStackTrace(System.out);
-        // this method exists only to improve consistency.
-        // alternatively : e.printStackTrace() (prints to stderr),
-        // or if (debug) e.printStackTrace (System.out) ....
+        e.printStackTrace(System.err);
     }
     private float[]         data                = null;
     private Exception       errorSource         = null;
@@ -317,7 +314,7 @@ final public class TwuSingleSignal{
         ConnectionEvent ce;
         ce = this.makeConnectionEvent((this.isAbscissa ? "Load X" : "Load Y"), 0, 0);
         this.DispatchConnectionEvent(ce);
-        int inc = Waveform.MAX_POINTS != 0 ? n_point / Waveform.MAX_POINTS : 0;
+        int inc = n_point / Waveform.MAX_POINTS;
         if(inc < 10) inc = 10;
         while(!bulk.complete() && !bulk.error()){
             bulk.tryToRead(inc);
