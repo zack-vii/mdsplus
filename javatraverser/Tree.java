@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridLayout;
+import java.awt.Point;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
@@ -51,7 +52,245 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
-public class Tree extends JScrollPane implements TreeSelectionListener, MouseListener, ActionListener, KeyListener, DataChangeListener{
+public class Tree extends JScrollPane implements TreeSelectionListener, DataChangeListener{
+    public static final class alAddAction implements ActionListener{
+        @Override
+        public void actionPerformed(final ActionEvent e) {
+            jTraverser.tree.addNode(NodeInfo.USAGE_ACTION);
+        }
+    }
+    public static final class alAddAxis implements ActionListener{
+        @Override
+        public void actionPerformed(final ActionEvent e) {
+            jTraverser.tree.addNode(NodeInfo.USAGE_AXIS);
+        }
+    }
+    public static final class alAddChild implements ActionListener{
+        @Override
+        public void actionPerformed(final ActionEvent e) {
+            jTraverser.tree.addNode(NodeInfo.USAGE_STRUCTURE);
+        }
+    }
+    public static final class alAddDevice implements ActionListener{
+        @Override
+        public void actionPerformed(final ActionEvent e) {
+            jTraverser.tree.addDevice();
+        }
+    }
+    public static final class alAddDispatch implements ActionListener{
+        @Override
+        public void actionPerformed(final ActionEvent e) {
+            jTraverser.tree.addNode(NodeInfo.USAGE_DISPATCH);
+        }
+    }
+    public static final class alAddNumeric implements ActionListener{
+        @Override
+        public void actionPerformed(final ActionEvent e) {
+            jTraverser.tree.addNode(NodeInfo.USAGE_NUMERIC);
+        }
+    }
+    public static final class alAddSignal implements ActionListener{
+        @Override
+        public void actionPerformed(final ActionEvent e) {
+            jTraverser.tree.addNode(NodeInfo.USAGE_SIGNAL);
+        }
+    }
+    public static final class alAddSubtree implements ActionListener{
+        @Override
+        public void actionPerformed(final ActionEvent e) {
+            jTraverser.tree.addSubtree();
+        }
+    }
+    public static final class alAddTask implements ActionListener{
+        @Override
+        public void actionPerformed(final ActionEvent e) {
+            jTraverser.tree.addNode(NodeInfo.USAGE_TASK);
+        }
+    }
+    public static final class alAddText implements ActionListener{
+        @Override
+        public void actionPerformed(final ActionEvent e) {
+            jTraverser.tree.addNode(NodeInfo.USAGE_TEXT);
+        }
+    };
+    public static final class alAddWindow implements ActionListener{
+        @Override
+        public void actionPerformed(final ActionEvent e) {
+            jTraverser.tree.addNode(NodeInfo.USAGE_WINDOW);
+        }
+    };
+    public static final class alClose implements ActionListener{
+        @Override
+        public void actionPerformed(final ActionEvent e) {
+            jTraverser.tree.close();
+        }
+    };
+    public static final class alCompile implements ActionListener{
+        @Override
+        public void actionPerformed(final ActionEvent e) {
+            jTraverser.tree.compile();
+        }
+    }
+    public static final class alCopyNode implements ActionListener{
+        @Override
+        public void actionPerformed(final ActionEvent e) {
+            TreeNode.copy();
+        }
+    };
+    public static final class alDecompile implements ActionListener{
+        @Override
+        public void actionPerformed(final ActionEvent e) {
+            jTraverser.tree.decompile();
+        }
+    };
+    public static final class alDeleteNode implements ActionListener{
+        @Override
+        public void actionPerformed(final ActionEvent e) {
+            Tree.deleteNode();
+        }
+    };
+    public static final class alDisplayData implements ActionListener{
+        @Override
+        public void actionPerformed(final ActionEvent e) {
+            final Node currnode = Tree.getCurrentNode();
+            if(currnode == null) return;
+            if(Tree.display_data_d == null){
+                Tree.display_data_d = new TreeDialog(Tree.display_data = new DisplayData());
+                Tree.display_data.setFrame(Tree.display_data_d);
+            }
+            Tree.display_data.setNode(currnode);
+            Tree.display_data_d.pack();
+            Tree.display_data_d.setLocation(Tree.dialogLocation());
+            Tree.display_data_d.setVisible(true);
+        }
+    };
+    public static final class alDisplayNci implements ActionListener{
+        @Override
+        public void actionPerformed(final ActionEvent e) {
+            final Node currnode = Tree.getCurrentNode();
+            if(currnode == null) return;
+            if(Tree.display_nci_d == null){
+                Tree.display_nci_d = new TreeDialog(Tree.display_nci = new DisplayNci());
+                Tree.display_nci.setFrame(Tree.display_nci_d);
+            }
+            Tree.display_nci.setNode(currnode);
+            Tree.display_nci_d.pack();
+            Tree.display_nci_d.setLocation(Tree.dialogLocation());
+            Tree.display_nci_d.setVisible(true);
+        }
+    };
+    public static final class alDisplayTags implements ActionListener{
+        @Override
+        public void actionPerformed(final ActionEvent e) {
+            final Node currnode = Tree.getCurrentNode();
+            if(currnode == null) return;
+            if(Tree.display_tags_d == null){
+                Tree.display_tags_d = new TreeDialog(Tree.display_tags = new DisplayTags());
+                Tree.display_tags.setFrame(Tree.display_tags_d);
+            }
+            Tree.display_tags.setNode(currnode);
+            Tree.display_tags_d.pack();
+            Tree.display_tags_d.setLocation(Tree.dialogLocation());
+            Tree.display_tags_d.setVisible(true);
+        }
+    };
+    public static final class alDoAction implements ActionListener{
+        @Override
+        public void actionPerformed(final ActionEvent e) {
+            /* TODO: implement*/
+            jTraverser.stdout("doAction not yet implemented.");
+        }
+    };
+    public static final class alEditData implements ActionListener{
+        @Override
+        public void actionPerformed(final ActionEvent e) {
+            final Node currnode = Tree.getCurrentNode();
+            if(currnode == null) return;
+            if(Tree.modify_data_d == null){
+                Tree.modify_data_d = new TreeDialog(Tree.modify_data = new ModifyData());
+                Tree.modify_data.setFrame(Tree.modify_data_d);
+            }
+            Tree.modify_data.setNode(currnode);
+            Tree.modify_data_d.pack();
+            Tree.modify_data_d.setLocation(Tree.dialogLocation());
+            Tree.modify_data_d.setVisible(true);
+        }
+    };
+    public static final class alEditFlags implements ActionListener{
+        @Override
+        public void actionPerformed(final ActionEvent e1) {
+            dialogs.flags.show();
+        }
+    };
+    public static final class alEditTags implements ActionListener{
+        @Override
+        public void actionPerformed(final ActionEvent e) {
+            jTraverser.tree.modifyTags();
+        }
+    };
+    public static final class alOpen implements ActionListener{
+        @Override
+        public void actionPerformed(final ActionEvent e) {
+            jTraverser.tree.open();
+        }
+    };
+    public static final class alPasteNode implements ActionListener{
+        @Override
+        public void actionPerformed(final ActionEvent e) {
+            TreeNode.paste();
+        }
+    };
+    public static final class alQuit implements ActionListener{
+        @Override
+        public void actionPerformed(final ActionEvent e) {
+            jTraverser.tree.quit();
+        }
+    };
+    public static final class alRenameNode implements ActionListener{
+        @Override
+        public void actionPerformed(final ActionEvent e) {
+            Tree.dialogs.rename.show();
+        }
+    };
+    public static final class alSetDefault implements ActionListener{
+        @Override
+        public void actionPerformed(final ActionEvent e) {
+            final Node currnode = Tree.getCurrentNode();
+            if(currnode == null) return;
+            try{
+                currnode.setDefault();
+            }catch(final Exception exc){
+                jTraverser.stderr("Error setting default", exc);
+            }
+            Tree.reportChange();
+        }
+    };
+    public static final class alSetupDevice implements ActionListener{
+        @Override
+        public void actionPerformed(final ActionEvent e) {
+            final Node currnode = Tree.getCurrentNode();
+            if(currnode == null) return;
+            currnode.setupDevice();
+        }
+    };
+    public static final class alTurnOff implements ActionListener{
+        @Override
+        public void actionPerformed(final ActionEvent e) {
+            final Node currnode = Tree.getCurrentNode();
+            if(currnode == null) return;
+            currnode.turnOff();
+            Tree.reportChange();
+        }
+    };
+    public static final class alTurnOn implements ActionListener{
+        @Override
+        public void actionPerformed(final ActionEvent e) {
+            final Node currnode = Tree.getCurrentNode();
+            if(currnode == null) return;
+            currnode.turnOn();
+            Tree.reportChange();
+        }
+    };
     static class dialogs{
         static class flags{
             private static JButton     close_b;
@@ -193,7 +432,7 @@ public class Tree extends JScrollPane implements TreeSelectionListener, MouseLis
                 if(currnode == null) flags.dialog.setTitle("Flags of <none selected>");
                 else flags.dialog.setTitle("Flags of " + currnode.getFullPath());
                 if(!flags.dialog.isVisible()){
-                    flags.dialog.setLocation(Tree.frame.dialogLocation());
+                    flags.dialog.setLocation(Tree.dialogLocation());
                     flags.dialog.setVisible(true);
                 }
             }
@@ -269,7 +508,7 @@ public class Tree extends JScrollPane implements TreeSelectionListener, MouseLis
                 if(currnode == null) return;
                 if(rename.dialog == null) rename.construct();
                 rename.dialog.setTitle("Rename node " + currnode.getFullPath());
-                rename.dialog.setLocation(Tree.frame.dialogLocation());
+                rename.dialog.setLocation(Tree.dialogLocation());
                 rename.new_name.setText("");
                 rename.dialog.setVisible(true);
             }
@@ -283,8 +522,8 @@ public class Tree extends JScrollPane implements TreeSelectionListener, MouseLis
             flags.update();
             rename.update();
         }
-    }
-    class DialogSet{
+    };
+    private static final class DialogSet{
         Vector<TreeDialog> dialogs = new Vector<TreeDialog>();
 
         TreeDialog getDialog(final Class ed_class, final Node node) {
@@ -310,7 +549,7 @@ public class Tree extends JScrollPane implements TreeSelectionListener, MouseLis
             curr_dialog.getEditor().setNode(node);
             return curr_dialog;
         }
-    }
+    };
     // Inner class FromTranferHandler managed drag operation
     class FromTransferHandler extends TransferHandler{
         private static final long serialVersionUID = -8913781547508869425L;
@@ -329,7 +568,7 @@ public class Tree extends JScrollPane implements TreeSelectionListener, MouseLis
         public int getSourceActions(final JComponent comp) {
             return TransferHandler.COPY_OR_MOVE;
         }
-    }
+    };
     class MDSCellRenderer extends DefaultTreeCellRenderer{
         private static final long serialVersionUID = -6705089616475773220L;
 
@@ -351,15 +590,135 @@ public class Tree extends JScrollPane implements TreeSelectionListener, MouseLis
             if(isSelected) Tree.dialogs.update();
             return node.getIcon(isSelected);
         }
-    }
+    };
+    public static final class mlContextMenu implements MouseListener{
+        private JMenuItem  menu_items[];
+        private JPopupMenu pop;
+
+        @Override
+        public void mouseClicked(final MouseEvent e) {}
+
+        @Override
+        public void mouseEntered(final MouseEvent e) {}
+
+        @Override
+        public void mouseExited(final MouseEvent e) {}
+
+        @Override
+        public void mousePressed(final MouseEvent e) {
+            if(Tree.curr_tree == null) return;
+            int item_idx;
+            final DefaultMutableTreeNode curr_tree_node = (DefaultMutableTreeNode)Tree.curr_tree.getClosestPathForLocation(e.getX(), e.getY()).getLastPathComponent();
+            final Node currnode = Tree.curr_node = Tree.getNode(curr_tree_node);
+            if((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0){
+                if(this.pop == null){
+                    final NodeBeanInfo nbi = currnode.getBeanInfo();
+                    final PropertyDescriptor[] node_properties = nbi.getPropertyDescriptors();
+                    final MethodDescriptor[] node_methods = nbi.getMethodDescriptors();
+                    this.menu_items = new JMenuItem[node_properties.length + node_methods.length];
+                    Tree.dialog_sets = new DialogSet[node_properties.length];
+                    for(int i = 0; i < node_properties.length; i++)
+                        Tree.dialog_sets[i] = new DialogSet();
+                    this.pop = new JPopupMenu();
+                    Tree.addEditMenu(this.pop);
+                    this.pop.addSeparator();
+                    item_idx = 0;
+                    for(int i = 0; i < node_properties.length; i++){
+                        this.pop.add(this.menu_items[item_idx] = new JMenuItem(node_properties[i].getShortDescription()));
+                        this.menu_items[item_idx].addActionListener(new ActionListener(){
+                            @Override
+                            public void actionPerformed(final ActionEvent e1) {
+                                int idx;
+                                for(idx = 0; idx < node_properties.length && !e1.getActionCommand().equals(node_properties[idx].getShortDescription()); idx++);
+                                if(idx < node_properties.length){
+                                    Tree.curr_dialog_idx = idx;
+                                    final TreeDialog curr_dialog = Tree.dialog_sets[idx].getDialog(node_properties[idx].getPropertyEditorClass(), Tree.getCurrentNode());
+                                    if(curr_dialog == null) return;
+                                    curr_dialog.pack();
+                                    curr_dialog.setLocation(Tree.dialogLocation());
+                                    curr_dialog.setVisible(true);
+                                }
+                            }
+                        });
+                        item_idx++;
+                    }
+                    for(int i = 0; i < node_methods.length; i++){
+                        this.pop.add(this.menu_items[item_idx] = new JMenuItem(node_methods[i].getShortDescription()));
+                        this.menu_items[item_idx].addActionListener(new ActionListener(){
+                            @Override
+                            public void actionPerformed(final ActionEvent e1) {
+                                int idx;
+                                for(idx = 0; idx < node_methods.length && !e1.getActionCommand().equals(node_methods[idx].getShortDescription()); idx++);
+                                if(idx < node_methods.length){
+                                    try{
+                                        node_methods[idx].getMethod().invoke(Tree.getCurrentNode());
+                                    }catch(final Exception exc){
+                                        System.out.println("Error executing " + exc);
+                                    }
+                                    Tree.curr_tree.expandPath(new TreePath(curr_tree_node.getPath()));
+                                    Tree.curr_tree.treeDidChange();
+                                }
+                            }
+                        });
+                        item_idx++;
+                    }
+                    item_idx = 0;
+                    for(int i = 0; i < node_properties.length; i++){
+                        if(!nbi.isSupported(node_properties[i].getShortDescription())) this.menu_items[item_idx].setEnabled(false);
+                        else this.menu_items[item_idx].setEnabled(true);
+                        item_idx++;
+                    }
+                    for(int i = 0; i < node_methods.length; i++){
+                        if(!nbi.isSupported(node_methods[i].getShortDescription())) this.menu_items[item_idx].setEnabled(false);
+                        else this.menu_items[item_idx].setEnabled(true);
+                        item_idx++;
+                    }
+                }
+                this.pop.show(Tree.curr_tree, e.getX(), e.getY());
+            }
+            Tree.curr_tree.treeDidChange();
+            dialogs.update();
+        }
+
+        @Override
+        public void mouseReleased(final MouseEvent e) {}
+    };
     static int                context;
-    static int                curr_dialog_idx;
+    static int                curr_dialog_idx;;
     static RemoteTree         curr_experiment;
     static Node               curr_node;
     static JTree              curr_tree;
+    private static DialogSet  dialog_sets[];
+    static DisplayData        display_data;
+    static TreeDialog         display_data_d, modify_data_d, display_nci_d, display_tags_d;
+    static DisplayNci         display_nci;
+    static DisplayTags        display_tags;
     static jTraverser         frame;
     static boolean            is_remote;
+    static ModifyData         modify_data;
     private static final long serialVersionUID = 8170809028459276731L;
+
+    public static final void addDataMenu(final JComponent menu) {
+        JMenuItem item;
+        menu.add(item = new JMenuItem("Turn On"));
+        item.addActionListener(new Tree.alTurnOn());
+        menu.add(item = new JMenuItem("Turn Off"));
+        item.addActionListener(new Tree.alTurnOff());
+        menu.add(item = new JMenuItem("Display Data"));
+        item.addActionListener(new Tree.alDisplayData());
+        menu.add(item = new JMenuItem("Display Nci"));
+        item.addActionListener(new Tree.alDisplayNci());
+        menu.add(item = new JMenuItem("Display Tags"));
+        item.addActionListener(new Tree.alDisplayTags());
+        menu.add(item = new JMenuItem("Modify Data"));
+        item.addActionListener(new Tree.alEditData());
+        menu.add(item = new JMenuItem("Set Default"));
+        item.addActionListener(new Tree.alSetDefault());
+        menu.add(item = new JMenuItem("Setup Device"));
+        item.addActionListener(new Tree.alSetupDevice());
+        menu.add(item = new JMenuItem("Do Action"));
+        item.addActionListener(new Tree.alDoAction());
+    }
 
     public static Node addDevice(final String name, final String type) {
         return Tree.addDevice(name, type, Tree.getCurrentNode());
@@ -399,6 +758,46 @@ public class Tree extends JScrollPane implements TreeSelectionListener, MouseLis
         return new_node;
     }
 
+    public static final void addEditMenu(final JComponent menu) {
+        JMenuItem item;
+        menu.add(item = new JMenuItem("Copy"));
+        item.addActionListener(new Tree.alCopyNode());
+        menu.add(item = new JMenuItem("Paste"));
+        item.addActionListener(new Tree.alPasteNode());
+        if(jTraverser.editable){
+            if(menu instanceof JPopupMenu) ((JPopupMenu)menu).addSeparator();
+            menu.add(Tree.addNodeMenu());
+            menu.add(item = new JMenuItem("Add Device"));
+            item.addActionListener(new Tree.alAddDevice());
+            menu.add(item = new JMenuItem("Add Child"));
+            item.addActionListener(new Tree.alAddChild());
+            menu.add(item = new JMenuItem("Add Subtree"));
+            item.addActionListener(new Tree.alAddSubtree());
+            menu.add(item = new JMenuItem("Delete Node"));
+            item.addActionListener(new Tree.alDeleteNode());
+            menu.add(item = new JMenuItem("Rename node"));
+            item.addActionListener(new Tree.alRenameNode());
+            menu.add(item = new JMenuItem("Edit Tags"));
+            item.addActionListener(new Tree.alEditTags());
+        }
+        menu.add(item = new JMenuItem("Edit Flags"));
+        item.addActionListener(new Tree.alEditFlags());
+    }
+
+    public static final void addFileMenu(final JComponent menu) {
+        JMenuItem item;
+        menu.add(item = new JMenuItem("Open"));
+        item.addActionListener(new Tree.alOpen());
+        menu.add(item = new JMenuItem("Close"));
+        item.addActionListener(new Tree.alClose());
+        menu.add(item = new JMenuItem("Export"));
+        item.addActionListener(new Tree.alDecompile());
+        menu.add(item = new JMenuItem("Import"));
+        item.addActionListener(new Tree.alCompile());
+        menu.add(item = new JMenuItem("Quit"));
+        item.addActionListener(new Tree.alQuit());
+    }
+
     public static Node addNode(final int usage, final String name) {
         return Tree.addNode(usage, name, Tree.getCurrentNode());
     }
@@ -421,6 +820,28 @@ public class Tree extends JScrollPane implements TreeSelectionListener, MouseLis
             return null;
         }
         return new_node;
+    }
+
+    public static final JMenuItem addNodeMenu() {
+        final JMenuItem menu = new JMenu("Add Node");
+        JMenuItem item;
+        menu.add(item = new JMenuItem("Action"));
+        item.addActionListener(new Tree.alAddAction());
+        menu.add(item = new JMenuItem("Dispatch"));
+        item.addActionListener(new Tree.alAddDispatch());
+        menu.add(item = new JMenuItem("Numeric"));
+        item.addActionListener(new Tree.alAddNumeric());
+        menu.add(item = new JMenuItem("Signal"));
+        item.addActionListener(new Tree.alAddSignal());
+        menu.add(item = new JMenuItem("Task"));
+        item.addActionListener(new Tree.alAddTask());
+        menu.add(item = new JMenuItem("Text"));
+        item.addActionListener(new Tree.alAddText());
+        menu.add(item = new JMenuItem("Window"));
+        item.addActionListener(new Tree.alAddWindow());
+        menu.add(item = new JMenuItem("Axis"));
+        item.addActionListener(new Tree.alAddAxis());
+        return menu;
     }
 
     static void addNodeToParent(final DefaultMutableTreeNode TreeNode, final DefaultMutableTreeNode toTreeNode) {
@@ -478,6 +899,10 @@ public class Tree extends JScrollPane implements TreeSelectionListener, MouseLis
         }
     }
 
+    public static final Point dialogLocation() {
+        return new Point(Tree.frame.getLocation().x + 32, Tree.frame.getLocation().y + 32);
+    }
+
     public static Node getCurrentNode() {
         if(Tree.curr_tree == null) return null;
         final Object usrObj = ((DefaultMutableTreeNode)Tree.curr_tree.getLastSelectedPathComponent()).getUserObject();
@@ -511,25 +936,21 @@ public class Tree extends JScrollPane implements TreeSelectionListener, MouseLis
         Tree.curr_node = Tree.getNode(treenode);
     }
     // Temporary, to overcome Java's bugs on inner classes
-    JMenuItem                        add_action_b, add_dispatch_b, add_numeric_b, add_signal_b, add_task_b, add_text_b, add_window_b, add_axis_b, add_device_b, add_child_b, add_subtree_b, delete_node_b, modify_tags_b;
     private JDialog                  add_device_dialog;
     private JTextField               add_device_type, add_device_name;
     private JTextField               add_node_name, add_node_tag, add_subtree_name;
     private int                      add_node_usage;
     private JTextField               curr_tag_selection;
     private DefaultListModel<String> curr_taglist_model;
-    private DialogSet                dialog_sets[];
     private final Stack<RemoteTree>  experiments;
     boolean                          is_angled_style;
     private String                   lastName;
-    private JMenuItem                menu_items[];
     private JDialog                  modify_tags_dialog;
     private JList<String>            modify_tags_list;
     JButton                          ok_cb, add_node_ok;
     private JDialog                  open_dialog, add_node_dialog, add_subtree_dialog;
     private JTextField               open_exp, open_shot;
     private JRadioButton             open_readonly, open_edit, open_normal;
-    private JPopupMenu               pop;
     private String[]                 tags;
     private DefaultMutableTreeNode   top;
     private String                   topExperiment;
@@ -555,27 +976,6 @@ public class Tree extends JScrollPane implements TreeSelectionListener, MouseLis
             else shot = -1;
             this.open(def_tree, shot, false, false, false);
         }
-    }
-
-    // temporary: to overcome java's bugs for inner classes
-    @Override
-    public void actionPerformed(final ActionEvent e) {
-        final Object jb = e.getSource();
-        if(jb == this.ok_cb) this.open_ok();
-        if(jb == this.add_action_b) this.addNode(NodeInfo.USAGE_ACTION);
-        if(jb == this.add_dispatch_b) this.addNode(NodeInfo.USAGE_DISPATCH);
-        if(jb == this.add_numeric_b) this.addNode(NodeInfo.USAGE_NUMERIC);
-        if(jb == this.add_signal_b) this.addNode(NodeInfo.USAGE_SIGNAL);
-        if(jb == this.add_task_b) this.addNode(NodeInfo.USAGE_TASK);
-        if(jb == this.add_text_b) this.addNode(NodeInfo.USAGE_TEXT);
-        if(jb == this.add_window_b) this.addNode(NodeInfo.USAGE_WINDOW);
-        if(jb == this.add_axis_b) this.addNode(NodeInfo.USAGE_AXIS);
-        if(jb == this.add_node_ok) this.addNode();
-        if(jb == this.add_child_b) this.addNode(NodeInfo.USAGE_STRUCTURE);
-        if(jb == this.add_subtree_b) this.addSubtree();
-        if(jb == this.add_device_b) this.addDevice();
-        if(jb == this.delete_node_b) Tree.deleteNode();
-        if(jb == this.modify_tags_b) this.modifyTags();
     }
 
     public void addDevice() {
@@ -629,7 +1029,7 @@ public class Tree extends JScrollPane implements TreeSelectionListener, MouseLis
         this.add_device_name.setText("");
         this.add_device_type.setText("");
         this.add_device_dialog.setTitle("Add device to: " + currnode.getFullPath());
-        this.add_device_dialog.setLocation(Tree.frame.dialogLocation());
+        this.add_device_dialog.setLocation(Tree.dialogLocation());
         this.add_device_dialog.setVisible(true);
     }
 
@@ -663,7 +1063,12 @@ public class Tree extends JScrollPane implements TreeSelectionListener, MouseLis
             jp.add(jp1, "Center");
             jp1 = new JPanel();
             jp1.add(this.add_node_ok = new JButton("Ok"));
-            this.add_node_ok.addActionListener(this);
+            this.add_node_ok.addActionListener(new ActionListener(){
+                @Override
+                public void actionPerformed(final ActionEvent e) {
+                    Tree.this.addNode();
+                }
+            });
             final JButton cancel_b = new JButton("Cancel");
             cancel_b.addActionListener(new ActionListener(){
                 @Override
@@ -686,7 +1091,7 @@ public class Tree extends JScrollPane implements TreeSelectionListener, MouseLis
         this.add_node_name.setText("");
         this.add_node_tag.setText("");
         this.add_node_dialog.setTitle("Add to: " + currnode.getFullPath());
-        this.add_node_dialog.setLocation(Tree.frame.dialogLocation());
+        this.add_node_dialog.setLocation(Tree.dialogLocation());
         this.add_node_dialog.setVisible(true);
     }
 
@@ -730,7 +1135,7 @@ public class Tree extends JScrollPane implements TreeSelectionListener, MouseLis
             this.add_subtree_dialog.setVisible(true);
         }
         this.add_subtree_dialog.setTitle("Add Subtree to: " + currnode.getFullPath());
-        this.add_subtree_dialog.setLocation(Tree.frame.dialogLocation());
+        this.add_subtree_dialog.setLocation(Tree.dialogLocation());
         this.add_subtree_dialog.setVisible(true);
     }
 
@@ -788,7 +1193,6 @@ public class Tree extends JScrollPane implements TreeSelectionListener, MouseLis
             this.setViewportView(Tree.curr_tree);
             try{
                 Tree.frame.reportChange(Tree.curr_experiment.getName(), Tree.curr_experiment.getShot(), Tree.curr_experiment.isEditable(), Tree.curr_experiment.isReadonly());
-                if(jTraverser.editable != Tree.curr_experiment.isEditable()) this.pop = null;
                 jTraverser.editable = Tree.curr_experiment.isEditable();
             }catch(final Exception exc){
                 jTraverser.stderr("Error in RMI communication", exc);
@@ -806,19 +1210,20 @@ public class Tree extends JScrollPane implements TreeSelectionListener, MouseLis
         this.repaint();
     }
 
+    @SuppressWarnings("static-method")
+    public final void compile() {
+        return;
+    }
+
     @Override
     public void dataChanged(final DataChangeEvent e) {
         Tree.reportChange();
     }
 
-    @Override
-    public void keyPressed(final KeyEvent e) {}
-
-    @Override
-    public void keyReleased(final KeyEvent e) {}
-
-    @Override
-    public void keyTyped(final KeyEvent e) {}
+    @SuppressWarnings("static-method")
+    public final void decompile() {
+        return;
+    }
 
     public void modifyTags() {
         final Node currnode = Tree.getCurrentNode();
@@ -926,163 +1331,9 @@ public class Tree extends JScrollPane implements TreeSelectionListener, MouseLis
         this.modify_tags_dialog.setTitle("Modify tags of " + currnode.getFullPath());
         this.modify_tags_list.setModel(this.curr_taglist_model);
         this.curr_tag_selection.setText("");
-        this.modify_tags_dialog.setLocation(Tree.frame.dialogLocation());
+        this.modify_tags_dialog.setLocation(Tree.dialogLocation());
         this.modify_tags_dialog.setVisible(true);
     }
-
-    @Override
-    public void mouseClicked(final MouseEvent e) {}
-
-    @Override
-    public void mouseEntered(final MouseEvent e) {}
-
-    @Override
-    public void mouseExited(final MouseEvent e) {}
-
-    @Override
-    public void mousePressed(final MouseEvent e) {
-        if(Tree.curr_tree == null) return;
-        int item_idx;
-        final DefaultMutableTreeNode curr_tree_node = (DefaultMutableTreeNode)Tree.curr_tree.getClosestPathForLocation(e.getX(), e.getY()).getLastPathComponent();
-        final Node currnode = Tree.curr_node = Tree.getNode(curr_tree_node);
-        if((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0){
-            final NodeBeanInfo nbi = currnode.getBeanInfo();
-            final PropertyDescriptor[] node_properties = nbi.getPropertyDescriptors();
-            final MethodDescriptor[] node_methods = nbi.getMethodDescriptors();
-            if(this.pop == null){
-                JMenuItem mitem;
-                this.dialog_sets = new DialogSet[node_properties.length];
-                for(int i = 0; i < node_properties.length; i++)
-                    this.dialog_sets[i] = new DialogSet();
-                this.pop = new JPopupMenu();
-                this.menu_items = new JMenuItem[node_properties.length + node_methods.length];
-                if(jTraverser.editable){
-                    final JMenuItem jm = new JMenu("Add Node");
-                    jm.add(this.add_action_b = new JMenuItem("Action"));
-                    this.add_action_b.addActionListener(this);
-                    jm.add(this.add_dispatch_b = new JMenuItem("Dispatch"));
-                    this.add_dispatch_b.addActionListener(this);
-                    jm.add(this.add_numeric_b = new JMenuItem("Numeric"));
-                    this.add_numeric_b.addActionListener(this);
-                    jm.add(this.add_signal_b = new JMenuItem("Signal"));
-                    this.add_signal_b.addActionListener(this);
-                    jm.add(this.add_task_b = new JMenuItem("Task"));
-                    this.add_task_b.addActionListener(this);
-                    jm.add(this.add_text_b = new JMenuItem("Text"));
-                    this.add_text_b.addActionListener(this);
-                    jm.add(this.add_window_b = new JMenuItem("Window"));
-                    this.add_window_b.addActionListener(this);
-                    jm.add(this.add_axis_b = new JMenuItem("Axis"));
-                    this.add_axis_b.addActionListener(this);
-                    this.pop.add(jm);
-                    this.pop.add(this.add_device_b = new JMenuItem("Add Device"));
-                    this.add_device_b.addActionListener(this);
-                    this.pop.add(this.add_child_b = new JMenuItem("Add Child"));
-                    this.add_child_b.addActionListener(this);
-                    this.pop.add(this.add_subtree_b = new JMenuItem("Add Subtree"));
-                    this.add_subtree_b.addActionListener(this);
-                    this.pop.add(this.delete_node_b = new JMenuItem("Delete Node"));
-                    this.delete_node_b.addActionListener(this);
-                    this.pop.add(this.modify_tags_b = new JMenuItem("Modify tags"));
-                    this.modify_tags_b.addActionListener(this);
-                    this.pop.add(mitem = new JMenuItem("Rename node"));
-                    mitem.addActionListener(new ActionListener(){
-                        @Override
-                        public void actionPerformed(final ActionEvent e1) {
-                            dialogs.rename.show();
-                        }
-                    });
-                    this.pop.addSeparator();
-                }
-                item_idx = 0;
-                for(int i = 0; i < node_properties.length; i++){
-                    this.pop.add(this.menu_items[item_idx] = new JMenuItem(node_properties[i].getShortDescription()));
-                    this.menu_items[item_idx].addActionListener(new ActionListener(){
-                        @Override
-                        public void actionPerformed(final ActionEvent e1) {
-                            int idx;
-                            for(idx = 0; idx < node_properties.length && !e1.getActionCommand().equals(node_properties[idx].getShortDescription()); idx++);
-                            if(idx < node_properties.length){
-                                Tree.curr_dialog_idx = idx;
-                                final TreeDialog curr_dialog = Tree.this.dialog_sets[idx].getDialog(node_properties[idx].getPropertyEditorClass(), Tree.getCurrentNode());
-                                if(curr_dialog == null) return;
-                                curr_dialog.pack();
-                                curr_dialog.setLocation(Tree.frame.dialogLocation());
-                                curr_dialog.setVisible(true);
-                            }
-                        }
-                    });
-                    item_idx++;
-                }
-                for(int i = 0; i < node_methods.length; i++){
-                    this.pop.add(this.menu_items[item_idx] = new JMenuItem(node_methods[i].getShortDescription()));
-                    this.menu_items[item_idx].addActionListener(new ActionListener(){
-                        @Override
-                        public void actionPerformed(final ActionEvent e1) {
-                            int idx;
-                            for(idx = 0; idx < node_methods.length && !e1.getActionCommand().equals(node_methods[idx].getShortDescription()); idx++);
-                            if(idx < node_methods.length){
-                                try{
-                                    node_methods[idx].getMethod().invoke(Tree.getCurrentNode());
-                                }catch(final Exception exc){
-                                    System.out.println("Error executing " + exc);
-                                }
-                                Tree.curr_tree.expandPath(new TreePath(curr_tree_node.getPath()));
-                                Tree.curr_tree.treeDidChange();
-                            }
-                        }
-                    });
-                    item_idx++;
-                }
-                this.pop.add(mitem = new JMenuItem("Flags"));
-                mitem.addActionListener(new ActionListener(){
-                    @Override
-                    public void actionPerformed(final ActionEvent e1) {
-                        dialogs.flags.show();
-                    }
-                });
-                this.pop.addSeparator();
-                this.pop.add(mitem = new JMenuItem("Open"));
-                mitem.addActionListener(new ActionListener(){
-                    @Override
-                    public void actionPerformed(final ActionEvent e1) {
-                        Tree.this.open();
-                    }
-                });
-                this.pop.add(mitem = new JMenuItem("Close"));
-                mitem.addActionListener(new ActionListener(){
-                    @Override
-                    public void actionPerformed(final ActionEvent e1) {
-                        Tree.this.close();
-                    }
-                });
-                this.pop.add(mitem = new JMenuItem("Quit"));
-                mitem.addActionListener(new ActionListener(){
-                    @Override
-                    public void actionPerformed(final ActionEvent e1) {
-                        Tree.this.quit();
-                    }
-                });
-            }
-            item_idx = 0;
-            for(int i = 0; i < node_properties.length; i++){
-                if(!nbi.isSupported(node_properties[i].getShortDescription())) this.menu_items[item_idx].setEnabled(false);
-                else this.menu_items[item_idx].setEnabled(true);
-                item_idx++;
-            }
-            for(int i = 0; i < node_methods.length; i++){
-                if(!nbi.isSupported(node_methods[i].getShortDescription())) this.menu_items[item_idx].setEnabled(false);
-                else this.menu_items[item_idx].setEnabled(true);
-                item_idx++;
-            }
-            this.pop.show(Tree.curr_tree, e.getX(), e.getY());
-        }
-        Tree.curr_tree.treeDidChange();
-        dialogs.update();
-    }
-
-    @Override
-    public void mouseReleased(final MouseEvent e) {}
 
     void open() {
         if(this.open_dialog == null){
@@ -1112,12 +1363,17 @@ public class Tree extends JScrollPane implements TreeSelectionListener, MouseLis
             bgMode.add(this.open_edit);
             mjp.add(jp, "Center");
             jp = new JPanel();
-            jp.add(this.ok_cb = new JButton("Ok"));
-            this.ok_cb.addActionListener(this);
-            this.ok_cb.setSelected(true);
-            final JButton cancel = new JButton("Cancel");
-            jp.add(cancel);
-            cancel.addActionListener(new ActionListener(){
+            JButton but;
+            jp.add(but = new JButton("Ok"));
+            but.setSelected(true);
+            but.addActionListener(new ActionListener(){
+                @Override
+                public void actionPerformed(final ActionEvent e) {
+                    Tree.this.open_ok();
+                }
+            });
+            jp.add(but = new JButton("Cancel"));
+            but.addActionListener(new ActionListener(){
                 @Override
                 public void actionPerformed(final ActionEvent e) {
                     Tree.this.open_dialog.setVisible(false);
@@ -1156,7 +1412,7 @@ public class Tree extends JScrollPane implements TreeSelectionListener, MouseLis
                 this.open_shot.setText(new Integer(Tree.curr_experiment.getShot()).toString());
             }catch(final Exception exc){}
         }
-        this.open_dialog.setLocation(Tree.frame.dialogLocation());
+        this.open_dialog.setLocation(Tree.dialogLocation());
         this.open_normal.setSelected(true);
         this.open_dialog.setVisible(true);
     }
@@ -1280,7 +1536,7 @@ public class Tree extends JScrollPane implements TreeSelectionListener, MouseLis
         }
         Tree.curr_tree.setCellRenderer(new MDSCellRenderer());
         Tree.curr_tree.addTreeSelectionListener(this);
-        Tree.curr_tree.addMouseListener(this);
+        Tree.curr_tree.addMouseListener(new Tree.mlContextMenu());
         Tree.curr_tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
         this.setViewportView(Tree.curr_tree);
         this.trees.push(Tree.curr_tree);
@@ -1316,7 +1572,6 @@ public class Tree extends JScrollPane implements TreeSelectionListener, MouseLis
             JOptionPane.showMessageDialog(Tree.curr_tree, "Tree cannot be open in both edit and readonly mode", "Error opening tree", JOptionPane.WARNING_MESSAGE);
             return;
         }
-        if(jTraverser.editable != this.open_edit.isSelected()) this.pop = null;
         this.open(exp.toUpperCase(), shot, this.open_edit.isSelected(), this.open_readonly.isSelected(), false);
         this.open_dialog.setVisible(false);
         dialogs.update();
@@ -1324,7 +1579,7 @@ public class Tree extends JScrollPane implements TreeSelectionListener, MouseLis
         this.repaint();
     }
 
-    void quit() {
+    public final void quit() {
         while(!this.experiments.empty()){
             Tree.curr_experiment = this.experiments.pop();
             try{
