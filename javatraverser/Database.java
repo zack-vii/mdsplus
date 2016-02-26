@@ -1,5 +1,5 @@
 // package jTraverser;
-public class Database implements RemoteTree{
+public final class Database implements RemoteTree{
     static{
         try{
             // System.loadLibrary("MdsShr");

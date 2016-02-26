@@ -66,11 +66,6 @@ public abstract class Data implements Serializable{
 
     native static public Data fromExpr(String text_descr);
     Vector<DataListener> data_listeners = new Vector<DataListener>();
-    /*    static {
-        try {
-    	    System.loadLibrary("JavaMds");
-    	    }catch(Exception e) {System.out.println("Cannot load library " + e); }
-    }*/
     byte                 dclass, dtype;
 
     public Data(){
