@@ -1,16 +1,16 @@
 @ECHO OFF
 ECHO preparing
-if defined JDK_DIR GOTO:start
+if defined JDK_HOME GOTO:start
 rem This script located the current version of
 rem "Java Development Kit" and sets the
 rem %JDK_PATH% environment variable
 setlocal ENABLEEXTENSIONS
 set KEY=HKEY_LOCAL_MACHINE\SOFTWARE\JavaSoft\Java Development Kit
 FOR /F "usebackq tokens=2,* skip=2" %%L IN (`reg query "%KEY%" /v CurrentVersion`) DO SET JDKVER=%%M
-FOR /F "usebackq tokens=2,* skip=2" %%L IN (`reg query "%KEY% ^%JDKVER%" /v JavaHome`) DO SET JDK_DIR="%%M"
-SET JDK_DIR=%JDK_DIR:"=%
-IF EXIST "%JDK_DIR%" GOTO:start
-ECHO JDK not found. Please set %%JDK_DIR%% to the root path of your jdk.
+FOR /F "usebackq tokens=2,* skip=2" %%L IN (`reg query "%KEY% ^%JDKVER%" /v JavaHome`) DO SET JDK_HOME="%%M"
+SET JDK_DIR=%JDK_HOME:"=%
+IF EXIST "%JDK_HOME%" GOTO:start
+ECHO JDK not found. Please set %%JDK_HOME%% to the root path of your jdk.
 SET /A ERROR=1
 GOTO:end
 
@@ -123,9 +123,9 @@ ZELOS2150GVSetup.java ^
 NI6259AISetup.java
 
 SET CLASSPATH=-classpath ".;%MDSPLUS_DIR%\java\classes\jScope.jar;%MDSPLUS_DIR%\java\classes\jTraverser.jar"
-SET JAVAC="%JDK_DIR%\bin\javac.exe"
+SET JAVAC="%JDK_HOME%\bin\javac.exe"
 SET JCFLAGS=
-SET JAR="%JDK_DIR%\bin\jar.exe"
+SET JAR="%JDK_HOME%\bin\jar.exe"
 SET JARDIR=..\java\classes
 MKDIR %JARDIR% 2>NUL
 
