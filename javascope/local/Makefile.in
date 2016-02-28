@@ -1,0 +1,28 @@
+include @top_builddir@/Makefile.inc
+
+srcdir=@srcdir@
+builddir=@builddir@
+VPATH = @srcdir@
+@MINGW_TRUE@ DEF=${srcdir}/javamds.def ${srcdir}/localDataProvider.def
+
+CFLAGS += -I /media/sf_FedoraShared/include/ -I /media/sf_FedoraShared/include/win32 $(THREAD) @JDK_CFLAGS@
+
+SOURCES = javamds.c ServerSupport.c JavaData.c JavaTrav.c mdsobjects.c localDataProvider.c
+OBJECTS = $(SOURCES:.c=.o)
+EXPORTS = javamds.export
+
+all: 	@MAKELIBDIR@ @MAKELIBDIR@@LIBPRE@JavaMds@SHARETYPEJNI@
+
+depend:
+	@makedepend -- $(CFLAGS) -- $(SOURCES)
+
+clean:
+	@ $(RM) $(OBJECTS)
+	@ $(RM) @MAKELIBDIR@@LIBPRE@JavaMds@SHARETYPEJNI@
+
+install: $(libdir)
+	$(INSTALL) -m 755  @MAKELIBDIR@@LIBPRE@JavaMds@SHARETYPEJNI@ @libdir@
+
+@MAKELIBDIR@@LIBPRE@JavaMds@SHARETYPEJNI@ : $(OBJECTS) $(DEF)
+	$(LINK.c) $(OUTPUT_OPTION) @LINKJNI@ $(THREAD) $^ -L@MAKELIBDIR@ -lMdsShr -lMdsIpShr -lTreeShr -lTdiShr $(LIBS)
+

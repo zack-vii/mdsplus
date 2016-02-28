@@ -36,6 +36,7 @@ import javax.swing.JRadioButton;
 import javax.swing.JRootPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import mds.mdsAccess;
 
 final public class CompositeWaveDisplay extends JApplet implements WaveContainerListener{
     public class AppendThread extends Thread{
@@ -344,7 +345,7 @@ final public class CompositeWaveDisplay extends JApplet implements WaveContainer
         }
         if(infoFlag){ return str9; }
         final Object localObject = DataAccessURL.getDataAccess(str8);
-        return str9 + "\n Value : " + ((MdsAccess)localObject).getExpression(str8);
+        return str9 + "\n Value : " + ((mdsAccess)localObject).getExpression(str8);
     }
 
     private static String getParameterValue(final String context, final String param) {
@@ -365,8 +366,7 @@ final public class CompositeWaveDisplay extends JApplet implements WaveContainer
     }
 
     private static void setDataAccess() {
-        DataAccessURL.addProtocol(new MdsAccess());
-        DataAccessURL.addProtocol(new TwuAccess());
+        DataAccessURL.addAccess();
     }
 
     /**

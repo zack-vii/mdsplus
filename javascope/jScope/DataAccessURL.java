@@ -3,9 +3,16 @@ package jScope;
 /* $Id$ */
 import java.io.IOException;
 import java.util.Vector;
+import mds.mdsAccess;
+import twu.twuAccess;
 
-class DataAccessURL{
+final class DataAccessURL{
     static Vector<DataAccess> dataAccessVector = new Vector<DataAccess>();
+
+    public static final void addAccess() {
+        DataAccessURL.addProtocol(new mdsAccess());
+        DataAccessURL.addProtocol(new twuAccess());
+    }
 
     static public void addProtocol(final DataAccess dataAccess) {
         DataAccessURL.dataAccessVector.addElement(dataAccess);

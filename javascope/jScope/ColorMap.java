@@ -29,14 +29,14 @@ final public class ColorMap{
         return out;
     }
     byte            b[]             = new byte[256];
-    boolean         bitClip         = false;
-    int             bitShift        = 0;
+    public boolean  bitClip         = false;
+    public int      bitShift        = 0;
     Color           colors[];
     byte            g[]             = new byte[256];
     IndexColorModel indexColorModel = null;
     float           max;
     float           min;
-    String          name            = "unnamed";
+    public String   name            = "unnamed";
     int             numColors       = 0;
     float           pB[];
     float           pG[];
@@ -46,7 +46,7 @@ final public class ColorMap{
     float           vG[];
     float           vR[];
 
-    ColorMap(){
+    public ColorMap(){
         this.name = "gray";
         this.numColors = 256;
         this.colors = new Color[256];

@@ -25,7 +25,7 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
-final class Frames extends Canvas{
+public final class Frames extends Canvas{
     class FrameCache{
         static final int                    MAX_CACHE_MEM = 8000000;
         boolean                             bitClip       = false;
@@ -328,8 +328,8 @@ final class Frames extends Canvas{
             }
         }
     } // End class FrameCache
-      // protected int[] frame_type;
-      // Frame data cache management class
+    // protected int[] frame_type;
+    // Frame data cache management class
     static class FrameDescriptor{
         byte[] buffer;
         Image  image;
@@ -343,10 +343,10 @@ final class Frames extends Canvas{
             this.updateCount = updateCount;
         }
     }
-    static final int  ROI              = 20;
-    static final long serialVersionUID = 345323264578461L;
+    private static final int  ROI              = 20;
+    private static final long serialVersionUID = 345323264578461L;
 
-    static int DecodeImageType(final byte buf[]) {
+    public static final int DecodeImageType(final byte buf[]) {
         if(DEBUG.M) System.out.println("Frames.DecodeImageType(" + buf + ")");
         final String s = new String(buf, 0, 20);
         if(s.indexOf("GIF") == 0) return FrameData.AWT_IMAGE;

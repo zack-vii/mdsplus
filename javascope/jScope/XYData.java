@@ -7,16 +7,17 @@ package jScope;
  * @author manduchi
  */
 final public class XYData{
-    boolean  increasingX = false;
-    int      nSamples    = 0;
-    double   resolution;         // Number of points/interval
-    double[] x;
-    long[]   xLong;
-    double   xMin, xMax;
-    float[]  y;
+    public final boolean   increasingX;
+    private final int      nSamples;
+    public final double    resolution; // Number of points/interval
+    private final double[] x;
+    private final long[]   xLong;
+    private final double   xMin, xMax;
+    private final float[]  y;
 
-    XYData(final double x[], final float y[], final double resolution, final boolean increasingX, final double xMin, final double xMax){
+    public XYData(final double x[], final float y[], final double resolution, final boolean increasingX, final double xMin, final double xMax){
         this.x = x;
+        this.xLong = null;
         this.y = y;
         this.resolution = resolution;
         this.nSamples = (x.length < y.length) ? x.length : y.length;
@@ -25,50 +26,79 @@ final public class XYData{
         this.xMax = xMax;
     }
 
-    XYData(final double[] x, final float[] y, final double resolution){
-        this(x, y, resolution, false);
+    public XYData(final double[] x, final float[] y, final double resolution){
+        this(x, null, y, resolution, false);
     }
 
     XYData(final double[] x, final float[] y, final double resolution, final boolean increasingX){
-        this.x = x;
+        this(x, null, y, resolution, increasingX);
+    }
+
+    private XYData(final double[] x, final long[] xLong, final float[] y, final double resolution, boolean increasingX){
+        if(xLong == null) this.x = x;
+        else{
+            this.x = new double[xLong.length];
+            for(int i = 0; i < xLong.length; i++)
+                x[i] = xLong[i];
+        }
+        this.xLong = xLong;
         this.y = y;
         this.resolution = resolution;
         this.nSamples = (x.length < y.length) ? x.length : y.length;
-        this.MinMax(increasingX);
-    }
-
-    XYData(final long[] x, final float[] y, final double resolution){
-        this(x, y, resolution, false);
-    }
-
-    XYData(final long[] x, final float[] y, final double resolution, final boolean increasingX){
-        this.xLong = x;
-        this.y = y;
-        this.resolution = resolution;
-        this.x = new double[x.length];
-        for(int i = 0; i < x.length; i++)
-            this.x[i] = x[i];
-        this.nSamples = (x.length < y.length) ? x.length : y.length;
-        this.MinMax(increasingX);
-    }
-
-    private void MinMax(final boolean incrX) {
-        this.increasingX = true;
-        if(this.nSamples == 0) return;
-        this.xMax = Double.NEGATIVE_INFINITY;
-        this.xMin = Double.POSITIVE_INFINITY;
-        if(incrX){
-            for(int i = 0; !Double.isFinite(this.xMin); i++)
-                this.xMin = this.x[i];
-            for(int i = this.nSamples - 1; !Double.isFinite(this.xMax); i--)
-                this.xMax = this.x[i];
-            return;
+        if(this.isEmpty()){
+            this.xMax = Double.NEGATIVE_INFINITY;
+            this.xMin = Double.POSITIVE_INFINITY;
+        }else if(increasingX){
+            int i;
+            for(i = 0; !Double.isFinite(this.x[i]); i++);
+            this.xMin = this.x[i];
+            for(i = this.nSamples - 1; !Double.isFinite(this.x[i]); i--);
+            this.xMax = this.x[i];
+        }else{
+            double xmax = Double.NEGATIVE_INFINITY;
+            double xmin = Double.POSITIVE_INFINITY;
+            increasingX = false;
+            for(final double element : this.x){
+                if(Double.isNaN(element)) continue;
+                increasingX &= (xmax <= element);
+                if(element < xmin) xmin = element;
+                if(element > xmax) xmax = element;
+            }
+            this.xMin = xmin;
+            this.xMax = xmax;
         }
-        for(final double element : this.x){
-            if(Double.isNaN(element)) continue;
-            if(this.xMax > element) this.increasingX = false;
-            if(element > this.xMax) this.xMax = element;
-            if(element < this.xMin) this.xMin = element;
-        }
+        this.increasingX = increasingX;
+    }
+
+    public XYData(final long[] xLong, final float[] y, final double resolution){
+        this(null, xLong, y, resolution, false);
+    }
+
+    public XYData(final long[] xLong, final float[] y, final double resolution, final boolean increasingX){
+        this(null, xLong, y, resolution, increasingX);
+    }
+
+    public final double[] getX() {
+        return this.x;
+    }
+
+    public final long[] getXLong() {
+        return this.xLong;
+    }
+
+    public final double getXMax() {
+        return this.xMax;
+    }
+
+    public final double getXMin() {
+        return this.xMin;
+    }
+
+    public final float[] getY() {
+        return this.y;
+    }
+
+    public final boolean isEmpty() {
+        return this.nSamples == 0;
     }
 }

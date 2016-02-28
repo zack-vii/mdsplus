@@ -831,7 +831,7 @@ public class MultiWaveform extends Waveform{
     }
 
     @Override
-    protected void SetMode(final int mod) {
+    public void SetMode(final int mod) {
         super.SetMode(mod);
     }
 

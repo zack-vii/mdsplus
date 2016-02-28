@@ -43,6 +43,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.border.BevelBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import mds.mdsWaveInterface;
 
 final class SetupDataDialog extends JDialog implements ActionListener, ItemListener, KeyListener, WaveformListener{
     class Data{
@@ -241,7 +242,7 @@ final class SetupDataDialog extends JDialog implements ActionListener, ItemListe
             this.sig_list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
             this.sig_list.addListSelectionListener(new ListSelectionListener(){
                 @Override
-                public void valueChanged(ListSelectionEvent e) {
+                public void valueChanged(final ListSelectionEvent e) {
                     if(e.getValueIsAdjusting()) return;
                     SList.this.signalSelect(((JList)e.getSource()).getSelectedIndex() - 1);
                 }
@@ -348,7 +349,7 @@ final class SetupDataDialog extends JDialog implements ActionListener, ItemListe
             if(this.shots != null && this.shots.length != 0) this.list_num_shot = this.shots.length;
             else this.list_num_shot = 1;
             SetupDataDialog.this.main_scope.SetMainShot();
-            in_shot = MdsWaveInterface.containMainShot(in_shot, SetupDataDialog.this.main_scope.wave_panel.getMainShotStr());
+            in_shot = mdsWaveInterface.containMainShot(in_shot, SetupDataDialog.this.main_scope.wave_panel.getMainShotStr());
             final long new_shots[] = SetupDataDialog.this.wi.GetShotArray(in_shot);
             if(new_shots == null){
                 if(this.shots == null) return false;
@@ -783,7 +784,7 @@ final class SetupDataDialog extends JDialog implements ActionListener, ItemListe
     JCheckBox                  upd_limits_b        = new JCheckBox("");
     JCheckBox                  vertical_flip_b     = new JCheckBox("Vertical Flip");
     private jScopeMultiWave    wave;
-    public MdsWaveInterface    wi;
+    public mdsWaveInterface    wi;
     JTextArea                  x_expr              = new JTextArea(1, 58);
     JLabel                     x_lab               = new JLabel();
     JTextField                 x_label             = new JTextField(20);
@@ -967,7 +968,7 @@ final class SetupDataDialog extends JDialog implements ActionListener, ItemListe
         if(this.getCursor().getType() == Cursor.WAIT_CURSOR) return;
         if(ob == this.erase){
             this.eraseForm();
-            // wave.wi = new MdsWaveInterface(main_scope.db, main_scope.def_values);
+            // wave.wi = new mdsWaveInterface(main_scope.db, main_scope.def_values);
             // wave.wi.is_image = image_b.isSelected();
             // wave.jScopeErase();
         }
@@ -983,7 +984,7 @@ final class SetupDataDialog extends JDialog implements ActionListener, ItemListe
         }
         if(ob == this.reset){
             this.signalList.reset();
-            this.putWindowSetup((MdsWaveInterface)this.wave.wi);
+            this.putWindowSetup((mdsWaveInterface)this.wave.wi);
         }
         if(ob == this.error && this.y_expr.getText().trim().length() != 0){
             if(this.signalList.getSignalSelect() == -1)
@@ -1051,20 +1052,20 @@ final class SetupDataDialog extends JDialog implements ActionListener, ItemListe
 
     private void DefaultButtonChange(final Object ob) {
         boolean def_flag;
-        if(ob == this.title_b) SetupDataDialog.defaultButtonOperation(this.title, def_flag = this.title_b.isSelected(), this.wi.GetDefaultValue(MdsWaveInterface.B_title, def_flag));
+        if(ob == this.title_b) SetupDataDialog.defaultButtonOperation(this.title, def_flag = this.title_b.isSelected(), this.wi.GetDefaultValue(mdsWaveInterface.B_title, def_flag));
         if(ob == this.shot_b) this.putShotValue(this.shot_b.isSelected());
-        if(ob == this.experiment_b) SetupDataDialog.defaultButtonOperation(this.experiment, def_flag = this.experiment_b.isSelected(), this.wi.GetDefaultValue(MdsWaveInterface.B_exp, def_flag));
-        if(ob == this.upd_event_b) SetupDataDialog.defaultButtonOperation(this.upd_event, def_flag = this.upd_event_b.isSelected(), this.wi.GetDefaultValue(MdsWaveInterface.B_event, def_flag));
-        if(ob == this.def_node_b) SetupDataDialog.defaultButtonOperation(this.def_node, def_flag = this.def_node_b.isSelected(), this.wi.GetDefaultValue(MdsWaveInterface.B_default_node, def_flag));
-        if(ob == this.x_max_b) SetupDataDialog.defaultButtonOperation(this.x_max, def_flag = this.x_max_b.isSelected(), this.wi.GetDefaultValue(MdsWaveInterface.B_x_max, def_flag));
-        if(ob == this.x_min_b) SetupDataDialog.defaultButtonOperation(this.x_min, def_flag = this.x_min_b.isSelected(), this.wi.GetDefaultValue(MdsWaveInterface.B_x_min, def_flag));
-        if(ob == this.time_max_b) SetupDataDialog.defaultButtonOperation(this.time_max, def_flag = this.time_max_b.isSelected(), this.wi.GetDefaultValue(MdsWaveInterface.B_x_max, def_flag));
-        if(ob == this.time_min_b) SetupDataDialog.defaultButtonOperation(this.time_min, def_flag = this.time_min_b.isSelected(), this.wi.GetDefaultValue(MdsWaveInterface.B_x_min, def_flag));
-        if(ob == this.x_label_b) SetupDataDialog.defaultButtonOperation(this.x_label, def_flag = this.x_label_b.isSelected(), this.wi.GetDefaultValue(MdsWaveInterface.B_x_label, def_flag));
-        if(ob == this.y_max_b) SetupDataDialog.defaultButtonOperation(this.y_max, def_flag = this.y_max_b.isSelected(), this.wi.GetDefaultValue(MdsWaveInterface.B_y_max, def_flag));
-        if(ob == this.y_min_b) SetupDataDialog.defaultButtonOperation(this.y_min, def_flag = this.y_min_b.isSelected(), this.wi.GetDefaultValue(MdsWaveInterface.B_y_min, def_flag));
-        if(ob == this.y_label_b) SetupDataDialog.defaultButtonOperation(this.y_label, def_flag = this.y_label_b.isSelected(), this.wi.GetDefaultValue(MdsWaveInterface.B_y_label, def_flag));
-        if(ob == this.upd_limits_b) SetupDataDialog.defaultButtonOperation(this.upd_limits, def_flag = this.upd_limits_b.isSelected(), this.wi.GetDefaultValue(MdsWaveInterface.B_update, def_flag));
+        if(ob == this.experiment_b) SetupDataDialog.defaultButtonOperation(this.experiment, def_flag = this.experiment_b.isSelected(), this.wi.GetDefaultValue(mdsWaveInterface.B_exp, def_flag));
+        if(ob == this.upd_event_b) SetupDataDialog.defaultButtonOperation(this.upd_event, def_flag = this.upd_event_b.isSelected(), this.wi.GetDefaultValue(mdsWaveInterface.B_event, def_flag));
+        if(ob == this.def_node_b) SetupDataDialog.defaultButtonOperation(this.def_node, def_flag = this.def_node_b.isSelected(), this.wi.GetDefaultValue(mdsWaveInterface.B_default_node, def_flag));
+        if(ob == this.x_max_b) SetupDataDialog.defaultButtonOperation(this.x_max, def_flag = this.x_max_b.isSelected(), this.wi.GetDefaultValue(mdsWaveInterface.B_x_max, def_flag));
+        if(ob == this.x_min_b) SetupDataDialog.defaultButtonOperation(this.x_min, def_flag = this.x_min_b.isSelected(), this.wi.GetDefaultValue(mdsWaveInterface.B_x_min, def_flag));
+        if(ob == this.time_max_b) SetupDataDialog.defaultButtonOperation(this.time_max, def_flag = this.time_max_b.isSelected(), this.wi.GetDefaultValue(mdsWaveInterface.B_x_max, def_flag));
+        if(ob == this.time_min_b) SetupDataDialog.defaultButtonOperation(this.time_min, def_flag = this.time_min_b.isSelected(), this.wi.GetDefaultValue(mdsWaveInterface.B_x_min, def_flag));
+        if(ob == this.x_label_b) SetupDataDialog.defaultButtonOperation(this.x_label, def_flag = this.x_label_b.isSelected(), this.wi.GetDefaultValue(mdsWaveInterface.B_x_label, def_flag));
+        if(ob == this.y_max_b) SetupDataDialog.defaultButtonOperation(this.y_max, def_flag = this.y_max_b.isSelected(), this.wi.GetDefaultValue(mdsWaveInterface.B_y_max, def_flag));
+        if(ob == this.y_min_b) SetupDataDialog.defaultButtonOperation(this.y_min, def_flag = this.y_min_b.isSelected(), this.wi.GetDefaultValue(mdsWaveInterface.B_y_min, def_flag));
+        if(ob == this.y_label_b) SetupDataDialog.defaultButtonOperation(this.y_label, def_flag = this.y_label_b.isSelected(), this.wi.GetDefaultValue(mdsWaveInterface.B_y_label, def_flag));
+        if(ob == this.upd_limits_b) SetupDataDialog.defaultButtonOperation(this.upd_limits, def_flag = this.upd_limits_b.isSelected(), this.wi.GetDefaultValue(mdsWaveInterface.B_update, def_flag));
     }
 
     public void eraseForm() {
@@ -1103,42 +1104,42 @@ final class SetupDataDialog extends JDialog implements ActionListener, ItemListe
 
     private int getDefaultFlags() {
         int value = 0;
-        if(this.title_b.isSelected()) value |= 1 << MdsWaveInterface.B_title;
-        else value &= ~(1 << MdsWaveInterface.B_title);
-        if(this.shot_b.isSelected()) value |= 1 << MdsWaveInterface.B_shot;
-        else value &= ~(1 << MdsWaveInterface.B_shot);
-        if(this.experiment_b.isSelected()) value |= 1 << MdsWaveInterface.B_exp;
-        else value &= ~(1 << MdsWaveInterface.B_exp);
+        if(this.title_b.isSelected()) value |= 1 << mdsWaveInterface.B_title;
+        else value &= ~(1 << mdsWaveInterface.B_title);
+        if(this.shot_b.isSelected()) value |= 1 << mdsWaveInterface.B_shot;
+        else value &= ~(1 << mdsWaveInterface.B_shot);
+        if(this.experiment_b.isSelected()) value |= 1 << mdsWaveInterface.B_exp;
+        else value &= ~(1 << mdsWaveInterface.B_exp);
         if(this.image_b.isSelected()){
-            if(this.time_max_b.isSelected()) value |= 1 << MdsWaveInterface.B_x_max;
-            else value &= ~(1 << MdsWaveInterface.B_x_max);
-            if(this.time_min_b.isSelected()) value |= 1 << MdsWaveInterface.B_x_min;
-            else value &= ~(1 << MdsWaveInterface.B_x_min);
+            if(this.time_max_b.isSelected()) value |= 1 << mdsWaveInterface.B_x_max;
+            else value &= ~(1 << mdsWaveInterface.B_x_max);
+            if(this.time_min_b.isSelected()) value |= 1 << mdsWaveInterface.B_x_min;
+            else value &= ~(1 << mdsWaveInterface.B_x_min);
         }else{
-            if(this.x_max_b.isSelected()) value |= 1 << MdsWaveInterface.B_x_max;
-            else value &= ~(1 << MdsWaveInterface.B_x_max);
-            if(this.x_min_b.isSelected()) value |= 1 << MdsWaveInterface.B_x_min;
-            else value &= ~(1 << MdsWaveInterface.B_x_min);
+            if(this.x_max_b.isSelected()) value |= 1 << mdsWaveInterface.B_x_max;
+            else value &= ~(1 << mdsWaveInterface.B_x_max);
+            if(this.x_min_b.isSelected()) value |= 1 << mdsWaveInterface.B_x_min;
+            else value &= ~(1 << mdsWaveInterface.B_x_min);
         }
-        if(this.x_label_b.isSelected()) value |= 1 << MdsWaveInterface.B_x_label;
-        else value &= ~(1 << MdsWaveInterface.B_x_label);
-        if(this.y_max_b.isSelected()) value |= 1 << MdsWaveInterface.B_y_max;
-        else value &= ~(1 << MdsWaveInterface.B_y_max);
-        if(this.y_min_b.isSelected()) value |= 1 << MdsWaveInterface.B_y_min;
-        else value &= ~(1 << MdsWaveInterface.B_y_min);
-        if(this.y_label_b.isSelected()) value |= 1 << MdsWaveInterface.B_y_label;
-        else value &= ~(1 << MdsWaveInterface.B_y_label);
-        if(this.upd_event_b.isSelected()) value |= 1 << MdsWaveInterface.B_event;
-        else value &= ~(1 << MdsWaveInterface.B_event);
-        if(this.def_node_b.isSelected()) value |= 1 << MdsWaveInterface.B_default_node;
-        else value &= ~(1 << MdsWaveInterface.B_default_node);
-        if(this.upd_limits_b.isSelected()) value |= 1 << MdsWaveInterface.B_update;
-        else value &= ~(1 << MdsWaveInterface.B_update);
+        if(this.x_label_b.isSelected()) value |= 1 << mdsWaveInterface.B_x_label;
+        else value &= ~(1 << mdsWaveInterface.B_x_label);
+        if(this.y_max_b.isSelected()) value |= 1 << mdsWaveInterface.B_y_max;
+        else value &= ~(1 << mdsWaveInterface.B_y_max);
+        if(this.y_min_b.isSelected()) value |= 1 << mdsWaveInterface.B_y_min;
+        else value &= ~(1 << mdsWaveInterface.B_y_min);
+        if(this.y_label_b.isSelected()) value |= 1 << mdsWaveInterface.B_y_label;
+        else value &= ~(1 << mdsWaveInterface.B_y_label);
+        if(this.upd_event_b.isSelected()) value |= 1 << mdsWaveInterface.B_event;
+        else value &= ~(1 << mdsWaveInterface.B_event);
+        if(this.def_node_b.isSelected()) value |= 1 << mdsWaveInterface.B_default_node;
+        else value &= ~(1 << mdsWaveInterface.B_default_node);
+        if(this.upd_limits_b.isSelected()) value |= 1 << mdsWaveInterface.B_update;
+        else value &= ~(1 << mdsWaveInterface.B_update);
         return(value);
     }
 
     public boolean isChanged(final Data s[]) {
-        final MdsWaveInterface wave_wi = (MdsWaveInterface)this.wave.wi;
+        final mdsWaveInterface wave_wi = (mdsWaveInterface)this.wave.wi;
         if(wave_wi == null) return true;
         if(wave_wi.getModified()) return true;
         if(s.length != wave_wi.num_waves) return true;
@@ -1221,7 +1222,7 @@ final class SetupDataDialog extends JDialog implements ActionListener, ItemListe
         this.wave.removeWaveformListener(this);
         switch(e.getID()){
             case WaveformEvent.END_UPDATE:
-                final String full_error = ((MdsWaveInterface)w.wi).getErrorString();// main_scope.wave_panel.GetBriefError());
+                final String full_error = ((mdsWaveInterface)w.wi).getErrorString();// main_scope.wave_panel.GetBriefError());
                 if(full_error != null){
                     JOptionPane.showMessageDialog(this, full_error, "alert", JOptionPane.ERROR_MESSAGE);
                 }
@@ -1232,32 +1233,32 @@ final class SetupDataDialog extends JDialog implements ActionListener, ItemListe
 
     public void PutDefaultValues() {
         boolean def_flag;
-        SetupDataDialog.defaultButtonOperation(this.title, def_flag = this.title_b.isSelected(), this.wi.GetDefaultValue(MdsWaveInterface.B_title, def_flag));
+        SetupDataDialog.defaultButtonOperation(this.title, def_flag = this.title_b.isSelected(), this.wi.GetDefaultValue(mdsWaveInterface.B_title, def_flag));
         this.putShotValue(this.shot_b.isSelected());
-        SetupDataDialog.defaultButtonOperation(this.experiment, def_flag = this.experiment_b.isSelected(), this.wi.GetDefaultValue(MdsWaveInterface.B_exp, def_flag));
+        SetupDataDialog.defaultButtonOperation(this.experiment, def_flag = this.experiment_b.isSelected(), this.wi.GetDefaultValue(mdsWaveInterface.B_exp, def_flag));
         if(this.image_b.isSelected()){
-            SetupDataDialog.defaultButtonOperation(this.time_max, def_flag = this.time_max_b.isSelected(), this.wi.GetDefaultValue(MdsWaveInterface.B_x_max, def_flag));
+            SetupDataDialog.defaultButtonOperation(this.time_max, def_flag = this.time_max_b.isSelected(), this.wi.GetDefaultValue(mdsWaveInterface.B_x_max, def_flag));
             if(!def_flag) this.time_max.setText(this.wi.cin_timemax);
-            SetupDataDialog.defaultButtonOperation(this.time_min, def_flag = this.time_min_b.isSelected(), this.wi.GetDefaultValue(MdsWaveInterface.B_x_min, def_flag));
+            SetupDataDialog.defaultButtonOperation(this.time_min, def_flag = this.time_min_b.isSelected(), this.wi.GetDefaultValue(mdsWaveInterface.B_x_min, def_flag));
             if(!def_flag) this.time_min.setText(this.wi.cin_timemin);
             this.x_min.setText(this.wi.cin_xmin);
             this.x_max.setText(this.wi.cin_xmax);
         }else{
-            SetupDataDialog.defaultButtonOperation(this.x_max, def_flag = this.x_max_b.isSelected(), this.wi.GetDefaultValue(MdsWaveInterface.B_x_max, def_flag));
-            SetupDataDialog.defaultButtonOperation(this.x_min, def_flag = this.x_min_b.isSelected(), this.wi.GetDefaultValue(MdsWaveInterface.B_x_min, def_flag));
+            SetupDataDialog.defaultButtonOperation(this.x_max, def_flag = this.x_max_b.isSelected(), this.wi.GetDefaultValue(mdsWaveInterface.B_x_max, def_flag));
+            SetupDataDialog.defaultButtonOperation(this.x_min, def_flag = this.x_min_b.isSelected(), this.wi.GetDefaultValue(mdsWaveInterface.B_x_min, def_flag));
         }
-        SetupDataDialog.defaultButtonOperation(this.x_label, def_flag = this.x_label_b.isSelected(), this.wi.GetDefaultValue(MdsWaveInterface.B_x_label, def_flag));
-        SetupDataDialog.defaultButtonOperation(this.y_max, def_flag = this.y_max_b.isSelected(), this.wi.GetDefaultValue(MdsWaveInterface.B_y_max, def_flag));
-        SetupDataDialog.defaultButtonOperation(this.y_min, def_flag = this.y_min_b.isSelected(), this.wi.GetDefaultValue(MdsWaveInterface.B_y_min, def_flag));
-        SetupDataDialog.defaultButtonOperation(this.y_label, def_flag = this.y_label_b.isSelected(), this.wi.GetDefaultValue(MdsWaveInterface.B_y_label, def_flag));
-        SetupDataDialog.defaultButtonOperation(this.upd_event, def_flag = this.upd_event_b.isSelected(), this.wi.GetDefaultValue(MdsWaveInterface.B_event, def_flag));
-        SetupDataDialog.defaultButtonOperation(this.def_node, def_flag = this.def_node_b.isSelected(), this.wi.GetDefaultValue(MdsWaveInterface.B_default_node, def_flag));
-        SetupDataDialog.defaultButtonOperation(this.upd_limits, def_flag = this.upd_limits_b.isSelected(), this.wi.GetDefaultValue(MdsWaveInterface.B_update, def_flag));
+        SetupDataDialog.defaultButtonOperation(this.x_label, def_flag = this.x_label_b.isSelected(), this.wi.GetDefaultValue(mdsWaveInterface.B_x_label, def_flag));
+        SetupDataDialog.defaultButtonOperation(this.y_max, def_flag = this.y_max_b.isSelected(), this.wi.GetDefaultValue(mdsWaveInterface.B_y_max, def_flag));
+        SetupDataDialog.defaultButtonOperation(this.y_min, def_flag = this.y_min_b.isSelected(), this.wi.GetDefaultValue(mdsWaveInterface.B_y_min, def_flag));
+        SetupDataDialog.defaultButtonOperation(this.y_label, def_flag = this.y_label_b.isSelected(), this.wi.GetDefaultValue(mdsWaveInterface.B_y_label, def_flag));
+        SetupDataDialog.defaultButtonOperation(this.upd_event, def_flag = this.upd_event_b.isSelected(), this.wi.GetDefaultValue(mdsWaveInterface.B_event, def_flag));
+        SetupDataDialog.defaultButtonOperation(this.def_node, def_flag = this.def_node_b.isSelected(), this.wi.GetDefaultValue(mdsWaveInterface.B_default_node, def_flag));
+        SetupDataDialog.defaultButtonOperation(this.upd_limits, def_flag = this.upd_limits_b.isSelected(), this.wi.GetDefaultValue(mdsWaveInterface.B_update, def_flag));
     }
 
     private void putShotValue(final boolean def_flag) {
-        if(def_flag) this.wi.defaults |= (1 << MdsWaveInterface.B_shot);
-        else this.wi.defaults &= ~(1 << MdsWaveInterface.B_shot);
+        if(def_flag) this.wi.defaults |= (1 << mdsWaveInterface.B_shot);
+        else this.wi.defaults &= ~(1 << mdsWaveInterface.B_shot);
         switch(this.wi.GetShotIdx()){
             case 0:
                 this.shot.setForeground(Color.black);
@@ -1275,12 +1276,12 @@ final class SetupDataDialog extends JDialog implements ActionListener, ItemListe
         this.shot.setText(this.wi.GetUsedShot());
     }
 
-    public void putWindowSetup(final MdsWaveInterface wi) {
+    public void putWindowSetup(final mdsWaveInterface wi) {
         if(wi == null){
             this.eraseForm();
             return;
         }
-        if(wi.is_image) wi.defaults = wi.defaults & ~((1 << MdsWaveInterface.B_y_max) + (1 << MdsWaveInterface.B_y_min));
+        if(wi.is_image) wi.defaults = wi.defaults & ~((1 << mdsWaveInterface.B_y_max) + (1 << mdsWaveInterface.B_y_min));
         this.setImageDialog(wi.is_image);
         // this.wi.evaluated_shot = wi.evaluated_shot;
         this.wi.colorMap = wi.colorMap;
@@ -1338,7 +1339,7 @@ final class SetupDataDialog extends JDialog implements ActionListener, ItemListe
     private void resetDefaultFlags() {
         final boolean state = true;
         this.wi.defaults = 0xffffffff;
-        if(this.wi.is_image) this.wi.defaults = this.wi.defaults & ~((1 << MdsWaveInterface.B_y_max) + (1 << MdsWaveInterface.B_y_min));
+        if(this.wi.is_image) this.wi.defaults = this.wi.defaults & ~((1 << mdsWaveInterface.B_y_max) + (1 << mdsWaveInterface.B_y_min));
         this.title_b.setSelected(state);
         this.title.setEditable(!state);
         this.shot_b.setSelected(state);
@@ -1390,42 +1391,42 @@ final class SetupDataDialog extends JDialog implements ActionListener, ItemListe
     private void setDefaultFlags(final int flags) {
         for(int i = 0; i < 32; i++){
             switch(i){
-                case MdsWaveInterface.B_title:
+                case mdsWaveInterface.B_title:
                     this.title_b.setSelected(((flags & (1 << i)) == 1 << i) ? true : false);
                     break;
-                case MdsWaveInterface.B_shot:
+                case mdsWaveInterface.B_shot:
                     this.shot_b.setSelected(((flags & (1 << i)) == 1 << i) ? true : false);
                     break;
-                case MdsWaveInterface.B_exp:
+                case mdsWaveInterface.B_exp:
                     this.experiment_b.setSelected(((flags & (1 << i)) == 1 << i) ? true : false);
                     break;
-                case MdsWaveInterface.B_x_max:
+                case mdsWaveInterface.B_x_max:
                     if(this.image_b.isSelected()) this.time_max_b.setSelected(((flags & (1 << i)) == 1 << i) ? true : false);
                     else this.x_max_b.setSelected(((flags & (1 << i)) == 1 << i) ? true : false);
                     break;
-                case MdsWaveInterface.B_x_min:
+                case mdsWaveInterface.B_x_min:
                     if(this.image_b.isSelected()) this.time_min_b.setSelected(((flags & (1 << i)) == 1 << i) ? true : false);
                     else this.x_min_b.setSelected(((flags & (1 << i)) == 1 << i) ? true : false);
                     break;
-                case MdsWaveInterface.B_x_label:
+                case mdsWaveInterface.B_x_label:
                     this.x_label_b.setSelected(((flags & (1 << i)) == 1 << i) ? true : false);
                     break;
-                case MdsWaveInterface.B_y_max:
+                case mdsWaveInterface.B_y_max:
                     this.y_max_b.setSelected(((flags & (1 << i)) == 1 << i) ? true : false);
                     break;
-                case MdsWaveInterface.B_y_min:
+                case mdsWaveInterface.B_y_min:
                     this.y_min_b.setSelected(((flags & (1 << i)) == 1 << i) ? true : false);
                     break;
-                case MdsWaveInterface.B_y_label:
+                case mdsWaveInterface.B_y_label:
                     this.y_label_b.setSelected(((flags & (1 << i)) == 1 << i) ? true : false);
                     break;
-                case MdsWaveInterface.B_event:
+                case mdsWaveInterface.B_event:
                     this.upd_event_b.setSelected(((flags & (1 << i)) == 1 << i) ? true : false);
                     break;
-                case MdsWaveInterface.B_default_node:
+                case mdsWaveInterface.B_default_node:
                     this.def_node_b.setSelected(((flags & (1 << i)) == 1 << i) ? true : false);
                     break;
-                case MdsWaveInterface.B_update:
+                case mdsWaveInterface.B_update:
                     this.upd_limits_b.setSelected(((flags & (1 << i)) == 1 << i) ? true : false);
             }
         }
@@ -1509,10 +1510,10 @@ final class SetupDataDialog extends JDialog implements ActionListener, ItemListe
         // wave_coord = new Point(row, col);
         this.wave = (jScopeMultiWave)w;
         // wave.addWaveformListener(this);
-        this.wi = (MdsWaveInterface)this.wave.wi;
-        this.wi = new MdsWaveInterface(this.wave, ((MdsWaveInterface)this.wave.wi).dp, ((MdsWaveInterface)this.wave.wi).def_vals, this.wave.wi.cache_enabled);
-        this.wi.defaults = ((MdsWaveInterface)this.wave.wi).defaults;
-        this.putWindowSetup((MdsWaveInterface)this.wave.wi);
+        this.wi = (mdsWaveInterface)this.wave.wi;
+        this.wi = new mdsWaveInterface(this.wave, ((mdsWaveInterface)this.wave.wi).dp, ((mdsWaveInterface)this.wave.wi).def_vals, this.wave.wi.cache_enabled);
+        this.wi.defaults = ((mdsWaveInterface)this.wave.wi).defaults;
+        this.putWindowSetup((mdsWaveInterface)this.wave.wi);
         this.updateDataSetup();
         this.setLocationRelativeTo(w.getParent());
         this.signalList.signalSelect(this.wave.GetSelectedSignal());

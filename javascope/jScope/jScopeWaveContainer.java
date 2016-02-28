@@ -35,8 +35,9 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.ProgressMonitor;
 import javax.swing.SwingUtilities;
+import mds.mdsWaveInterface;
 
-final class jScopeWaveContainer extends WaveformContainer{
+public final class jScopeWaveContainer extends WaveformContainer{
     class UpdW extends Thread{
         boolean pending = false;
 
@@ -135,7 +136,7 @@ final class jScopeWaveContainer extends WaveformContainer{
             final InetAddress localaddr = InetAddress.getLocalHost();
             final String localIpAdddress = localaddr.getHostAddress();
             final String f_name = System.getProperty("user.home") + File.separator + "jScope" + File.separator + "jScope_servers.conf";
-            if(dataServerIn != null && !dataServerIn.class_name.equals("MdsDataProvider")) return null;
+            if(dataServerIn != null && !dataServerIn.class_name.equals("mdsDataProvider")) return null;
             if(dataServerIn != null){
                 final InetAddress dsiInet = InetAddress.getByName(dataServerIn.argument);
                 final String disIpAdddress = dsiInet.getHostAddress();
@@ -281,25 +282,25 @@ final class jScopeWaveContainer extends WaveformContainer{
     // with_error == true => Signals is added also if an error occurs
     // during its evaluations
     public void AddSignals(final String tree, final String shot, final String x_expr[], final String y_expr[], final boolean with_error, final boolean is_image) {
-        MdsWaveInterface new_wi = null;
+        mdsWaveInterface new_wi = null;
         final jScopeMultiWave sel_wave = (jScopeMultiWave)this.GetSelectPanel();
         if(sel_wave.wi == null || is_image){
-            sel_wave.wi = new MdsWaveInterface(sel_wave, this.dp, this.def_vals, this.IsCacheEnabled());
+            sel_wave.wi = new mdsWaveInterface(sel_wave, this.dp, this.def_vals, this.IsCacheEnabled());
             sel_wave.wi.SetAsImage(is_image);
-            if(!with_error) ((MdsWaveInterface)sel_wave.wi).prev_wi = new MdsWaveInterface(sel_wave, this.dp, this.def_vals, this.IsCacheEnabled());
+            if(!with_error) ((mdsWaveInterface)sel_wave.wi).prev_wi = new mdsWaveInterface(sel_wave, this.dp, this.def_vals, this.IsCacheEnabled());
         }else{
-            new_wi = new MdsWaveInterface((MdsWaveInterface)sel_wave.wi);
+            new_wi = new mdsWaveInterface((mdsWaveInterface)sel_wave.wi);
             new_wi.wave = sel_wave;
-            if(!with_error) new_wi.prev_wi = (MdsWaveInterface)sel_wave.wi;
+            if(!with_error) new_wi.prev_wi = (mdsWaveInterface)sel_wave.wi;
             sel_wave.wi = new_wi;
         }
-        if(tree != null && (((MdsWaveInterface)sel_wave.wi).cexperiment == null || ((MdsWaveInterface)sel_wave.wi).cexperiment.trim().length() == 0)){
-            ((MdsWaveInterface)sel_wave.wi).cexperiment = new String(tree);
-            ((MdsWaveInterface)sel_wave.wi).defaults &= ~(1 << MdsWaveInterface.B_exp);
+        if(tree != null && (((mdsWaveInterface)sel_wave.wi).cexperiment == null || ((mdsWaveInterface)sel_wave.wi).cexperiment.trim().length() == 0)){
+            ((mdsWaveInterface)sel_wave.wi).cexperiment = new String(tree);
+            ((mdsWaveInterface)sel_wave.wi).defaults &= ~(1 << mdsWaveInterface.B_exp);
         }
-        if(shot != null && (((MdsWaveInterface)sel_wave.wi).cin_shot == null || ((MdsWaveInterface)sel_wave.wi).cin_shot.trim().length() == 0)){
-            ((MdsWaveInterface)sel_wave.wi).cin_shot = new String(shot);
-            ((MdsWaveInterface)sel_wave.wi).defaults &= ~(1 << MdsWaveInterface.B_shot);
+        if(shot != null && (((mdsWaveInterface)sel_wave.wi).cin_shot == null || ((mdsWaveInterface)sel_wave.wi).cin_shot.trim().length() == 0)){
+            ((mdsWaveInterface)sel_wave.wi).cin_shot = new String(shot);
+            ((mdsWaveInterface)sel_wave.wi).defaults &= ~(1 << mdsWaveInterface.B_shot);
         }
         if(sel_wave.wi.AddSignals(x_expr, y_expr)){
             this.add_sig = true;
@@ -450,8 +451,8 @@ final class jScopeWaveContainer extends WaveformContainer{
         for(int c = 0, k = 0; c < 4; c++){
             for(int r = 0; r < read_rows[c]; r++){
                 w = (jScopeMultiWave)this.getGridComponent(k);
-                ((MdsWaveInterface)w.wi).FromFile(pr, "Scope.plot_" + (r + 1) + "_" + (c + 1), cmd);
-                ((MdsWaveInterface)w.wi).mapColorIndex(colorMapping);
+                ((mdsWaveInterface)w.wi).FromFile(pr, "Scope.plot_" + (r + 1) + "_" + (c + 1), cmd);
+                ((mdsWaveInterface)w.wi).mapColorIndex(colorMapping);
                 this.SetWaveParams(w);
                 k++;
             }
@@ -573,7 +574,7 @@ final class jScopeWaveContainer extends WaveformContainer{
         for(int i = 0, k = 0; i < this.rows.length; i++)
             for(int j = 0; j < this.rows[i]; j++, k++){
                 w = (jScopeMultiWave)this.getGridComponent(k);
-                if(w != null) ((MdsWaveInterface)w.wi).default_is_update = false;
+                if(w != null) ((mdsWaveInterface)w.wi).default_is_update = false;
             }
     }
 
@@ -590,7 +591,7 @@ final class jScopeWaveContainer extends WaveformContainer{
     @Override
     public void NotifyChange(final Waveform dest, final Waveform source) {
         final jScopeMultiWave w = ((jScopeMultiWave)source);
-        final MdsWaveInterface mwi = new MdsWaveInterface(((MdsWaveInterface)w.wi));
+        final mdsWaveInterface mwi = new mdsWaveInterface(((mdsWaveInterface)w.wi));
         mwi.setDefaultsValues(this.def_vals);
         ((jScopeMultiWave)dest).wi = mwi;
         ((jScopeMultiWave)dest).wi.SetDataProvider(this.dp);
@@ -672,7 +673,7 @@ final class jScopeWaveContainer extends WaveformContainer{
                     String er;
                     if(!w.wi.IsSignalAdded()) this.prev_add_signal = null;
                     if(w.wi.error != null) er = w.wi.error;
-                    else er = ((MdsWaveInterface)w.wi).getErrorString(); // this.brief_error);
+                    else er = ((mdsWaveInterface)w.wi).getErrorString(); // this.brief_error);
                     if(er != null) JOptionPane.showMessageDialog(this, er, "alert processWaveformEvent", JOptionPane.ERROR_MESSAGE);
                     w.wi.setAddSignal(false);
                 }
@@ -756,7 +757,7 @@ final class jScopeWaveContainer extends WaveformContainer{
 
     public void SaveAsText(final jScopeMultiWave w, final boolean all) {
         final Vector<jScopeMultiWave> panel = new Vector<jScopeMultiWave>();
-        MdsWaveInterface wi;
+        mdsWaveInterface wi;
         jScopeMultiWave wave;
         if(!all && (w == null || w.wi == null || w.wi.signals == null || w.wi.signals.length == 0)) return;
         String title = "Save";
@@ -797,7 +798,7 @@ final class jScopeWaveContainer extends WaveformContainer{
                         s = "%";
                         for(int k = 0; k < panel.size(); k++){
                             wave = panel.elementAt(k);
-                            wi = (MdsWaveInterface)wave.wi;
+                            wi = (mdsWaveInterface)wave.wi;
                             if(wi == null || wi.signals == null) continue;
                             for(int i = 0; i < wi.signals.length; i++){
                                 switch(l){
@@ -826,7 +827,7 @@ final class jScopeWaveContainer extends WaveformContainer{
                     for(int k = 0; k < panel.size(); k++){
                         more_point[k] = true;
                         wave = panel.elementAt(k);
-                        wi = (MdsWaveInterface)wave.wi;
+                        wi = (mdsWaveInterface)wave.wi;
                         if(wi == null || wi.signals == null) continue;
                         if(wi.signals.length > n_max_sig) n_max_sig = wi.signals.length;
                     }
@@ -836,7 +837,7 @@ final class jScopeWaveContainer extends WaveformContainer{
                         g_more_point = false;
                         for(int k = 0; k < panel.size(); k++){
                             wave = panel.elementAt(k);
-                            wi = (MdsWaveInterface)wave.wi;
+                            wi = (mdsWaveInterface)wave.wi;
                             if(wi == null || wi.signals == null) continue;
                             if(!more_point[k]){
                                 for(@SuppressWarnings("unused")
@@ -1055,7 +1056,7 @@ final class jScopeWaveContainer extends WaveformContainer{
 
     public void ToFile(final PrintWriter out, final String prompt) throws IOException {
         jScopeMultiWave w;
-        MdsWaveInterface wi;
+        mdsWaveInterface wi;
         WaveInterface.WriteLine(out, prompt + "title: ", this.title);
         if(this.server_item != null){
             WaveInterface.WriteLine(out, prompt + "data_server_name: ", this.server_item.name);
@@ -1094,7 +1095,7 @@ final class jScopeWaveContainer extends WaveformContainer{
             WaveInterface.WriteLine(out, prompt + "rows_in_column_" + c + ": ", "" + this.getComponentsInColumn(i));
             for(int j = 0, r = 1; j < this.getComponentsInColumn(i); j++, r++){
                 w = (jScopeMultiWave)this.getGridComponent(k);
-                wi = (MdsWaveInterface)w.wi;
+                wi = (mdsWaveInterface)w.wi;
                 out.println("\n");
                 // WaveInterface.WriteLine(out, prompt + "plot_" + r + "_" + c + ".height: " , ""+w.getSize().height );
                 WaveInterface.WriteLine(out, prompt + "plot_" + r + "_" + c + ".height: ", "" + (int)(dim.height * normHeight[k]));
@@ -1106,7 +1107,7 @@ final class jScopeWaveContainer extends WaveformContainer{
         out.println();
         for(int i = 1, pos = 0; i < this.getColumns(); i++){ // , k = 0
             // w = (jScopeMultiWave)getGridComponent(k);
-            // wi = (MdsWaveInterface)w.wi;
+            // wi = (mdsWaveInterface)w.wi;
             // pos += (int)(((float)w.getSize().width/ getSize().width) * 1000.);
             pos += (int)(normWidth[i - 1] * 1000.);
             WaveInterface.WriteLine(out, prompt + "vpane_" + i + ": ", "" + pos);
@@ -1136,7 +1137,7 @@ final class jScopeWaveContainer extends WaveformContainer{
             }
             for(int i = 0, k = 0; i < 4 && !this.abort; i++){
                 for(int j = 0; j < this.rows[i]; j++, k++){
-                    if(this.wave_all[k].wi != null && this.wave_all[k].isWaveformVisible()) ((MdsWaveInterface)this.wave_all[k].wi).Update();
+                    if(this.wave_all[k].wi != null && this.wave_all[k].isWaveformVisible()) ((mdsWaveInterface)this.wave_all[k].wi).Update();
                 }
             }
             // Initialize wave evaluation
@@ -1146,7 +1147,7 @@ final class jScopeWaveContainer extends WaveformContainer{
                         wce = new WaveContainerEvent(this, WaveContainerEvent.START_UPDATE, "Start Evaluate column " + (i + 1) + " row " + (j + 1));
                         try{
                             this.dispatchWaveContainerEvent(wce);
-                            ((MdsWaveInterface)this.wave_all[k].wi).StartEvaluate();
+                            ((mdsWaveInterface)this.wave_all[k].wi).StartEvaluate();
                         }catch(final Exception exc){
                             exc.printStackTrace();
                         }
@@ -1158,11 +1159,11 @@ final class jScopeWaveContainer extends WaveformContainer{
                     for(int l = 0; l < this.main_shots.length && !this.abort; l++){
                         for(int i = 0, k = 0; i < 4 && !this.abort; i++){
                             for(int j = 0; j < this.rows[i] && !this.abort; j++, k++){
-                                if(this.wave_all[k].wi != null && this.wave_all[k].wi.error == null && this.wave_all[k].isWaveformVisible() && this.wave_all[k].wi.num_waves != 0 && ((MdsWaveInterface)this.wave_all[k].wi).UseDefaultShot()){
+                                if(this.wave_all[k].wi != null && this.wave_all[k].wi.error == null && this.wave_all[k].isWaveformVisible() && this.wave_all[k].wi.num_waves != 0 && ((mdsWaveInterface)this.wave_all[k].wi).UseDefaultShot()){
                                     wce = new WaveContainerEvent(this, WaveContainerEvent.START_UPDATE, "Update signal column " + (i + 1) + " row " + (j + 1) + " main shot " + this.main_shots[l]);
                                     this.dispatchWaveContainerEvent(wce);
-                                    ((MdsWaveInterface)this.wave_all[k].wi).EvaluateShot(this.main_shots[l]);
-                                    if(((MdsWaveInterface)this.wave_all[k].wi).allEvaluated()){
+                                    ((mdsWaveInterface)this.wave_all[k].wi).EvaluateShot(this.main_shots[l]);
+                                    if(((mdsWaveInterface)this.wave_all[k].wi).allEvaluated()){
                                         if(this.wave_all[k].wi != null) this.wave_all[k].Update(this.wave_all[k].wi);
                                     }
                                 }
@@ -1176,10 +1177,10 @@ final class jScopeWaveContainer extends WaveformContainer{
                 for(int j = 0; j < this.rows[i]; j++, k++){
                     if(this.wave_all != null && this.wave_all[k] != null){
                         if(this.wave_all[k].wi != null && this.wave_all[k].wi.error == null && this.wave_all[k].isWaveformVisible() && this.wave_all[k].wi.num_waves != 0 && !this.abort){
-                            if(((MdsWaveInterface)this.wave_all[k].wi).allEvaluated()) continue;
+                            if(((mdsWaveInterface)this.wave_all[k].wi).allEvaluated()) continue;
                             wce = new WaveContainerEvent(this, WaveContainerEvent.START_UPDATE, "Evaluate wave column " + (i + 1) + " row " + (j + 1));
                             this.dispatchWaveContainerEvent(wce);
-                            ((MdsWaveInterface)this.wave_all[k].wi).EvaluateOthers();
+                            ((mdsWaveInterface)this.wave_all[k].wi).EvaluateOthers();
                         }
                         if(this.wave_all[k].wi != null && this.wave_all[k].isWaveformVisible()) this.wave_all[k].Update(this.wave_all[k].wi);
                     }
@@ -1188,7 +1189,7 @@ final class jScopeWaveContainer extends WaveformContainer{
             for(int i = 0, k = 0; i < 4; i++){
                 for(int j = 0; j < this.rows[i]; j++, k++){
                     if(this.wave_all != null && this.wave_all[k] != null && this.wave_all[k].wi != null){
-                        ((MdsWaveInterface)this.wave_all[k].wi).allEvaluated();
+                        ((mdsWaveInterface)this.wave_all[k].wi).allEvaluated();
                     }
                 }
             }

@@ -99,6 +99,7 @@ import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
 import javax.swing.plaf.FontUIResource;
 import javax.swing.plaf.basic.BasicArrowButton;
+import mds.mdsWaveInterface;
 
 final public class jScopeFacade extends JFrame implements ActionListener, ItemListener, WindowListener, WaveContainerListener, UpdateEventListener, ConnectionListener, Printable{
     class FileFilter implements FilenameFilter{
@@ -382,7 +383,7 @@ final public class jScopeFacade extends JFrame implements ActionListener, ItemLi
         return jScopeFacade.instance.executing_update;
     }
 
-    static long convertFromSpecificTime(final long inTime) {
+    public static long convertFromSpecificTime(final long inTime) {
         if(jScopeFacade.timeMode == jScopeFacade.VMS_TIME) return (inTime - jScopeFacade.VMS_BASE) / 10000L;
         else if(jScopeFacade.timeMode == jScopeFacade.EPICS_TIME){
             final long currTime = inTime / 1000000L + jScopeFacade.EPICS_BASE;
@@ -390,7 +391,7 @@ final public class jScopeFacade extends JFrame implements ActionListener, ItemLi
         }else return inTime;
     }
 
-    static long convertToSpecificTime(final long inTime) {
+    public static final long convertToSpecificTime(final long inTime) {
         if(jScopeFacade.timeMode == jScopeFacade.VMS_TIME) return(inTime * 10000L + jScopeFacade.VMS_BASE);
         else if(jScopeFacade.timeMode == jScopeFacade.EPICS_TIME) return (inTime - jScopeFacade.EPICS_BASE) * 1000000L;
         else return inTime;
@@ -1839,7 +1840,7 @@ final public class jScopeFacade extends JFrame implements ActionListener, ItemLi
             case WaveContainerEvent.WAVEFORM_EVENT:
                 final WaveformEvent we = (WaveformEvent)e.we;
                 final jScopeMultiWave w = (jScopeMultiWave)we.getSource();
-                final MdsWaveInterface wi = (MdsWaveInterface)w.wi;
+                final mdsWaveInterface wi = (mdsWaveInterface)w.wi;
                 final int we_id = we.getID();
                 switch(we_id){
                     case WaveformEvent.EVENT_UPDATE:
@@ -2436,10 +2437,10 @@ class ServerDialog extends JDialog implements ActionListener{
         23-05-2005
         Ovverride configuration file server definitions
         with property server definition with the same name
-        
+
         else
         {
-        
+
             if (found_dsi != null)
             {
                 dsi.user = found_dsi.user;

@@ -130,6 +130,15 @@ public interface DataProvider{
     public FrameData GetFrameData(String in_frame, String in_times, float start_time, float end_time) throws IOException;
 
     /**
+     * Format of the Legend entry.
+     *
+     * @param l
+     *            The previously registered ConnectionListener.
+     * @see ConnectionListener
+     */
+    public String GetLegendString(String s);
+
+    /**
      * Evaluate the passed string to provide am array of shot numbers.
      * For MDSplus data provider it will carry out the execution of the corresponding expression
      */
@@ -198,8 +207,8 @@ public interface DataProvider{
      * -DataProvider.LOGIN_ERROR if the DataProvided did not succeed in validation <br>
      * -DataProvider.LOGIN_CANCEL if the login proess has been aborted by user (usually pressing <br>
      * a canel button) <br>
-     * Only in the first case jScope will proceede with the usega of the DataProvider implementation. In the
-     * secon case a warning dialog is shown, and in the third case the DataProvider is simply discarded.
+     * Only in the first case jScope will proceed with the usage of the DataProvider implementation. In the
+     * second case a warning dialog is shown, and in the third case the DataProvider is simply discarded.
      *
      * @param f
      *            The container Frame.

@@ -167,27 +167,27 @@ public final class Signal implements WaveDataListener{
             this.lowResRegions.clear();
         }
     } // End inner class ResolutionManager
-    protected static final int      AT_CREATION           = 1;
-    protected static final int      CIRCLE                = 2;
-    protected static final int      CROSS                 = 3;
-    private static final int        DEFAULT_CONTOUR_LEVEL = 20;
-    private static final int        DEFAULT_INC_SIZE      = 10000;
-    protected static final int      DO_NOT_UPDATE         = 4;
-    protected static final int      FIXED_LIMIT           = 2;
+    public static final int         AT_CREATION           = 1;
+    public static final int         CIRCLE                = 2;
+    public static final int         CROSS                 = 3;
+    public static final int         DEFAULT_CONTOUR_LEVEL = 20;
+    public static final int         DEFAULT_INC_SIZE      = 10000;
+    public static final int         DO_NOT_UPDATE         = 4;
+    public static final int         FIXED_LIMIT           = 2;
     protected static final int      FUSO                  = 0;
     protected static final String[] markerList            = new String[]{"None", "Square", "Circle", "Cross", "Triangle", "Point"};
     protected static final int[]    markerStepList        = new int[]{1, 5, 10, 20, 50, 100};
-    protected static final int      MODE_CONTOUR          = 2;
-    protected static final int      MODE_IMAGE            = 3;
-    protected static final int      MODE_LINE             = 0;
-    protected static final int      MODE_NOLINE           = 2;
-    protected static final int      MODE_ONDINE           = 4;
-    protected static final int      MODE_PROFILE          = 5;
-    protected static final int      MODE_STEP             = 3;
-    protected static final int      MODE_XZ               = 0;
-    protected static final int      MODE_YZ               = 1;
-    protected static final int      NONE                  = 0;
-    protected static final int      NOT_FREEZED           = 0, FREEZED_BLOCK = 1, FREEZED_SCROLL = 2;
+    public static final int         MODE_CONTOUR          = 2;
+    public static final int         MODE_IMAGE            = 3;
+    public static final int         MODE_LINE             = 0;
+    public static final int         MODE_NOLINE           = 2;
+    public static final int         MODE_ONDINE           = 4;
+    public static final int         MODE_PROFILE          = 5;
+    public static final int         MODE_STEP             = 3;
+    public static final int         MODE_XZ               = 0;
+    public static final int         MODE_YZ               = 1;
+    public static final int         NONE                  = 0;
+    public static final int         NOT_FREEZED           = 0, FREEZED_BLOCK = 1, FREEZED_SCROLL = 2;
     private static final int        NUM_POINTS            = 2000;
     protected static final int      POINT                 = 5;
     protected static final int      SIMPLE                = 0;
@@ -449,7 +449,7 @@ public final class Signal implements WaveDataListener{
     private Signal(final WaveData data, final double xmin, final double xmax){
         this(data, null, xmin, xmax);
     }
-    */
+     */
     /**
      * Constructs a zero Signal with 2 points.
      */
@@ -481,7 +481,7 @@ public final class Signal implements WaveDataListener{
      * @param _y
      *            an array of y coordinates
      */
-    protected Signal(final float _x[], final float _y[]){
+    public Signal(final float _x[], final float _y[]){
         this.error = this.asym_error = false;
         this.data = new XYWaveData(_x, _y, (_x.length < _y.length) ? _x.length : _y.length);
         this.setAxis();
@@ -759,8 +759,8 @@ public final class Signal implements WaveDataListener{
             this.data = new XYWaveData(newX, newY);
             try{
                 final XYData xyData = this.data.getData(Signal.NUM_POINTS);
-                this.x = xyData.x;
-                this.y = xyData.y;
+                this.x = xyData.getX();
+                this.y = xyData.getY();
                 this.adjustArraySizes();
                 this.xmax = this.x[this.x.length - 1];
             }catch(final Exception exc){}
@@ -864,27 +864,27 @@ public final class Signal implements WaveDataListener{
                 if(!this.error) xyData = this.data.getData(xMin, xMax, Signal.NUM_POINTS);
                 else xyData = this.data.getData(xMin, xMax, Integer.MAX_VALUE);
                 if(xyData == null) return; // empty signal
-                this.x = xyData.x;
-                this.y = xyData.y;
+                this.x = xyData.getX();
+                this.y = xyData.getY();
                 this.adjustArraySizes();
                 this.increasing_x = xyData.increasingX;
-                if(xMin == Double.NEGATIVE_INFINITY) this.xmin = this.curr_xmin = xyData.xMin;
+                if(xMin == Double.NEGATIVE_INFINITY) this.xmin = this.curr_xmin = xyData.getXMin();
                 else this.xmin = this.curr_xmin = xMin;
-                if(xMax == Double.POSITIVE_INFINITY) this.xmax = this.curr_xmax = xyData.xMax;
+                if(xMax == Double.POSITIVE_INFINITY) this.xmax = this.curr_xmax = xyData.getXMax();
                 else this.xmax = this.curr_xmax = xMax;
                 this.AutoscaleY1D(this.x, this.y, xMin, xMax);
-                if(this.data.isXLong()) this.xLong = xyData.xLong;
+                if(this.data.isXLong()) this.xLong = xyData.getXLong();
                 this.resolutionManager.addRegion(new RegionDescriptor(xMin, xMax, xyData.resolution));
             }
             if(this.up_errorData != null && this.upError == null){
                 // XYData xyData = up_errorData.getData(xMin, xMax, NUM_POINTS);
                 final XYData xyData = this.up_errorData.getData(xMin, xMax, Integer.MAX_VALUE);
-                this.upError = xyData.y;
+                this.upError = xyData.getY();
             }
             if(this.low_errorData != null && this.lowError == null){
                 // XYData xyData = low_errorData.getData(xMin, xMax, NUM_POINTS);
                 final XYData xyData = this.low_errorData.getData(xMin, xMax, Integer.MAX_VALUE);
-                this.lowError = xyData.y;
+                this.lowError = xyData.getY();
             }
             if(this.saved_ymin == Double.NEGATIVE_INFINITY) this.saved_ymin = this.ymin;
             if(this.saved_ymax == Double.POSITIVE_INFINITY) this.saved_ymax = this.ymax;
@@ -1538,7 +1538,7 @@ public final class Signal implements WaveDataListener{
     private final boolean isFullLoad() {
         return this.full_load;
     }
-    */
+     */
     protected final boolean isIncreasingX() {
         return this.increasing_x;
     }
@@ -1638,14 +1638,14 @@ public final class Signal implements WaveDataListener{
             // resolutionManager.resetRegions();
             final XYData xyData = this.data.getData(Signal.NUM_POINTS);
             if(xyData == null) return false;
-            this.x = xyData.x;
-            this.y = xyData.y;
+            this.x = xyData.getX();
+            this.y = xyData.getY();
             this.adjustArraySizes();
             this.increasing_x = xyData.increasingX;
             if(this.increasing_x) this.resolutionManager.addRegion(new RegionDescriptor(Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, this.x.length / (this.x[this.x.length - 1] - this.x[0])));
-            if(this.data.isXLong()) this.xLong = xyData.xLong;
-            this.curr_xmin = this.xmin = xyData.xMin;
-            this.curr_xmax = this.xmax = xyData.xMax;
+            if(this.data.isXLong()) this.xLong = xyData.getXLong();
+            this.curr_xmin = this.xmin = xyData.getXMin();
+            this.curr_xmax = this.xmax = xyData.getXMax();
             this.ymax = this.ymin = this.y[0];
             for(i = 0; i < this.x.length; i++){
                 if(Float.isNaN(this.y[i]) && this.n_nans < 100) this.nans[this.n_nans++] = i;
@@ -1705,7 +1705,7 @@ public final class Signal implements WaveDataListener{
     public final void setFullLoad(final boolean full_load) {
         this.full_load = full_load;
     }
-    */
+     */
     protected final void setInterpolate(final boolean value) {
         this.interpolate = value;
     }
@@ -1815,7 +1815,7 @@ public final class Signal implements WaveDataListener{
         this.mode2D = mode;
     }
 
-    protected final void setName(final String value) {
+    public final void setName(final String value) {
         if(value != null && value.length() != 0) this.name = new String(value);
     }
 
@@ -2028,9 +2028,9 @@ public final class Signal implements WaveDataListener{
             this.zlabel = this.data.GetZLabel();
         }catch(final Exception e){}
         try{
-            this.x = xydata.x;
-            this.xLong = xydata.xLong;
-            this.y = xydata.y;
+            this.x = xydata.getX();
+            this.xLong = xydata.getXLong();
+            this.y = xydata.getY();
             this.Autoscale();
             this.saved_xmin = this.curr_xmin = this.xmin;
             this.saved_xmax = this.curr_xmax = this.xmax;
@@ -2172,8 +2172,8 @@ public final class Signal implements WaveDataListener{
         this.xmin = this.freezedXMin;
         this.xmax = this.freezedXMax;
         for(int i = 0; i < this.pendingUpdatesV.size(); i++)
-            if(this.pendingUpdatesV.elementAt(i).xLong != null) this.dataRegionUpdated(this.pendingUpdatesV.elementAt(i).xLong, this.pendingUpdatesV.elementAt(i).y, this.pendingUpdatesV.elementAt(i).resolution);
-            else this.dataRegionUpdated(this.pendingUpdatesV.elementAt(i).x, this.pendingUpdatesV.elementAt(i).y, this.pendingUpdatesV.elementAt(i).resolution);
+            if(this.pendingUpdatesV.elementAt(i).getXLong() != null) this.dataRegionUpdated(this.pendingUpdatesV.elementAt(i).getXLong(), this.pendingUpdatesV.elementAt(i).getY(), this.pendingUpdatesV.elementAt(i).resolution);
+            else this.dataRegionUpdated(this.pendingUpdatesV.elementAt(i).getX(), this.pendingUpdatesV.elementAt(i).getY(), this.pendingUpdatesV.elementAt(i).resolution);
         this.pendingUpdatesV.clear();
     }
 

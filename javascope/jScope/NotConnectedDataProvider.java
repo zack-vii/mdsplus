@@ -69,6 +69,11 @@ final class NotConnectedDataProvider implements DataProvider{
     }
 
     @Override
+    public final String GetLegendString(final String s) {
+        return s;
+    }
+
+    @Override
     public long[] GetShots(final String in) {
         return new long[]{0L};
     }
