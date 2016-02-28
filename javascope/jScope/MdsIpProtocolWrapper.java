@@ -91,11 +91,11 @@ final public class MdsIpProtocolWrapper{
 
     public native void flush(int connectionId);
 
-    InputStream getInputStream() {
+    public InputStream getInputStream() {
         return new mdsIpInputStream();
     }
 
-    OutputStream getOutputStream() {
+    public OutputStream getOutputStream() {
         return new mdsIpOutputStream();
     }
 

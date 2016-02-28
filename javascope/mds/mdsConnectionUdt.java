@@ -7,6 +7,7 @@ package mds;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
+import jScope.MdsIpProtocolWrapper;
 
 /**
  * @author manduchi
@@ -18,7 +19,7 @@ public class mdsConnectionUdt extends mdsConnection{
             this.host = this.getProviderHost();
             this.port = this.getProviderPort();
             this.user = this.getProviderUser();
-            final mdsIpProtocolWrapper mipw = new mdsIpProtocolWrapper("udt://" + this.host + ":" + this.port);
+            final MdsIpProtocolWrapper mipw = new MdsIpProtocolWrapper("udt://" + this.host + ":" + this.port);
             this.dis = mipw.getInputStream();
             this.dos = new DataOutputStream(mipw.getOutputStream());
         }
