@@ -599,7 +599,7 @@ JNIEXPORT void JNICALL Java_local_localDataProvider_NativeSetEnvironmentSpecific
  * Method:    isSegmentedNode
  * Signature: (Ljava/lang/String;)Z
  */
-JNIEXPORT jboolean JNICALL Java_local_localDataProvider_NativeisSegmentedNode
+JNIEXPORT jboolean JNICALL Java_local_localDataProvider_NativeIsSegmentedNode
     (JNIEnv * env, jclass cls, jstring jNodeName) {
   int status, nid, numSegments;
   const char *nodeName = (*env)->GetStringUTFChars(env, jNodeName, 0);
@@ -625,7 +625,7 @@ static int needSwap()
  * Method:    getSegment
  * Signature: (Ljava/lang/String;II)[B
  */
-JNIEXPORT jbyteArray JNICALL Java_local_localDataProvider_NativegetSegment
+JNIEXPORT jbyteArray JNICALL Java_local_localDataProvider_NativeGetSegment
     (JNIEnv * env, jclass cls, jstring jNodeName, jint segmentIdx, jint segmentOffset) {
   int status, nid, i, nSamples;
   //int numSegments;
@@ -703,7 +703,7 @@ JNIEXPORT jbyteArray JNICALL Java_local_localDataProvider_NativegetSegment
  * Method:    getAllFrames
  * Signature: (Ljava/lang/String;II)[B
  */
-JNIEXPORT jbyteArray JNICALL Java_local_localDataProvider_NativegetAllFrames
+JNIEXPORT jbyteArray JNICALL Java_local_localDataProvider_NativeGetAllFrames
     (JNIEnv * env, jclass cls, jstring jNodeName, jint startIdx, jint endIdx) {
   EMPTYXD(xd);
   ARRAY_COEFF(char *, 3)*arrPtr;
@@ -777,7 +777,7 @@ JNIEXPORT jbyteArray JNICALL Java_local_localDataProvider_NativegetAllFrames
  * Method:    getInfo
  * Signature: (Ljava/lang/String;)[I
  */
-JNIEXPORT jobject JNICALL Java_local_localDataProvider_NativegetInfo
+JNIEXPORT jobject JNICALL Java_local_localDataProvider_NativeGetInfo
     (JNIEnv * env, jclass cls, jstring jNodeName, jboolean isSegmented) {
   const char *nodeName = (*env)->GetStringUTFChars(env, jNodeName, 0);
   EMPTYXD(xd);
@@ -797,7 +797,7 @@ JNIEXPORT jobject JNICALL Java_local_localDataProvider_NativegetInfo
   jvalue args[3];
 
   struct descriptor nodeNameD = { strlen(nodeName), DTYPE_T, CLASS_S, (char *)nodeName };
-//Returned array: [width, height, bytesPerPixel]        
+//Returned array: [width, height, bytesPerPixel]
   if (isSegmented) {
     status = TreeFindNode((char *)nodeName, &nid);
     (*env)->ReleaseStringUTFChars(env, jNodeName, nodeName);
@@ -855,78 +855,6 @@ JNIEXPORT jobject JNICALL Java_local_localDataProvider_NativegetInfo
   retObj = (*env)->NewObjectA(env, clazz,  mid, args);
   (*env)->ReleaseIntArrayElements(env, jarr, retDims, JNI_COMMIT);
   return retObj;
-}
-/*
- * Class:     local_localDataProvider
- * Method:    getInfo
- * Signature: (Ljava/lang/String;)[I
- */
-JNIEXPORT jintArray JNICALL Java_local_localDataProvider_NativegetInfoXXX
-    (JNIEnv * env, jclass cls, jstring jNodeName, jboolean isSegmented) {
-  const char *nodeName = (*env)->GetStringUTFChars(env, jNodeName, 0);
-  EMPTYXD(xd);
-  ARRAY_COEFF(char *, 3) * arrPtr;
-  int status, nid;
-  int retInfo[3];
-  jintArray jarr;
-  char dtype, dimct;
-  int dims[64];
-  int nextRow;
-  struct descriptor nodeNameD = { strlen(nodeName), DTYPE_T, CLASS_S, (char *)nodeName };
-//Returned array: [width, height, bytesPerPixel]        
-  if (isSegmented) {
-    status = TreeFindNode((char *)nodeName, &nid);
-    (*env)->ReleaseStringUTFChars(env, jNodeName, nodeName);
-    if (!(status & 1)) {
-      strncpy(error_message, MdsGetMsg(status), 512);
-      return NULL;
-    }
-    status = TreeGetSegmentInfo(nid, 0, &dtype, &dimct, dims, &nextRow);
-    if (!(status & 1)) {
-      strncpy(error_message, MdsGetMsg(status), 512);
-      return NULL;
-    }
-    retInfo[0] = dims[0];
-    retInfo[1] = dims[1];
-    switch (dtype) {
-    case DTYPE_B:
-    case DTYPE_BU:
-      retInfo[2] = 1;
-      break;
-    case DTYPE_W:
-    case DTYPE_WU:
-      retInfo[2] = 2;
-      break;
-    case DTYPE_L:
-    case DTYPE_LU:
-    case DTYPE_FLOAT:
-      retInfo[2] = 4;
-      break;
-    case DTYPE_Q:
-    case DTYPE_QU:
-    case DTYPE_DOUBLE:
-      retInfo[2] = 8;
-      break;
-    default:
-      retInfo[2] = 1;
-    }
-  } else {
-    status = TdiCompile(&nodeNameD, &xd MDS_END_ARG);
-    (*env)->ReleaseStringUTFChars(env, jNodeName, nodeName);
-    if (status & 1)
-      status = TdiData(&xd, &xd MDS_END_ARG);
-    if (!(status & 1)) {
-      strncpy(error_message, MdsGetMsg(status), 512);
-      return NULL;
-    }
-    arrPtr = (void *)xd.pointer;
-    retInfo[0] = arrPtr->m[0];
-    retInfo[1] = arrPtr->m[1];
-    retInfo[2] = arrPtr->length;
-    MdsFree1Dx(&xd, 0);
-  }
-  jarr = (*env)->NewIntArray(env, 3);
-  (*env)->SetIntArrayRegion(env, jarr, 0, 3, (const jint *)retInfo);
 }
 
 static int getStartEndIdx(int nid, float startTime, float endTime, int *retStartIdx, int *retEndIdx)
@@ -1012,7 +940,7 @@ static int isSingleFramePerSegment(int nid)
  * Method:    getSegmentTimes
  * Signature: (Ljava/lang/String;Ljava/lang/String;FF)[F
  */
-JNIEXPORT jfloatArray JNICALL Java_local_localDataProvider_NativegetSegmentTimes
+JNIEXPORT jfloatArray JNICALL Java_local_localDataProvider_NativeGetSegmentTimes
     (JNIEnv * env, jclass cls, jstring jNodeName, jstring jTimeName, jfloat startTime,
      jfloat endTime) {
   const char *nodeName = (*env)->GetStringUTFChars(env, jNodeName, 0);
@@ -1105,7 +1033,7 @@ JNIEXPORT jfloatArray JNICALL Java_local_localDataProvider_NativegetSegmentTimes
  * Method:    getAllTimes
  * Signature: (Ljava/lang/String;Ljava/lang/String;)[F
  */
-JNIEXPORT jfloatArray JNICALL Java_local_localDataProvider_NativegetAllTimes
+JNIEXPORT jfloatArray JNICALL Java_local_localDataProvider_NativeGetAllTimes
     (JNIEnv * env, jclass cls, jstring jNodeName, jstring jTimeName) {
   EMPTYXD(xd);
   int status;
@@ -1142,7 +1070,7 @@ JNIEXPORT jfloatArray JNICALL Java_local_localDataProvider_NativegetAllTimes
  * Method:    getSegmentIdxs
  * Signature: (Ljava/lang/String;FF)[I
  */
-JNIEXPORT jintArray JNICALL Java_local_localDataProvider_NativegetSegmentIdxs
+JNIEXPORT jintArray JNICALL Java_local_localDataProvider_NativeGetSegmentIdxs
     (JNIEnv * env, jclass cls, jstring jNodeName, jfloat startTime, jfloat endTime) {
   const char *nodeName = (*env)->GetStringUTFChars(env, jNodeName, 0);
   int status, nid, nSegments, startIdx, endIdx, idx, currIdx;
@@ -1236,7 +1164,7 @@ static void handleEvent(void *nameIdx, int dim, char *buf)
   releaseJNIEnv();
 }
 
-JNIEXPORT jint JNICALL Java_local_localDataProvider_NativeregisterEvent
+JNIEXPORT jint JNICALL Java_local_localDataProvider_NativeRegisterEvent
     (JNIEnv * env, jobject obj, jstring jevent, jint idx)
 {
   int evId, status;
@@ -1258,7 +1186,7 @@ JNIEXPORT jint JNICALL Java_local_localDataProvider_NativeregisterEvent
   return evId;
 }
 
-JNIEXPORT void JNICALL Java_local_localDataProvider_NativeunregisterEvent
+JNIEXPORT void JNICALL Java_local_localDataProvider_NativeUnregisterEvent
     (JNIEnv * env, jobject obj, jint evId) {
 
   MDSEventCan(evId);

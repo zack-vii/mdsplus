@@ -1,5 +1,3 @@
-LIBRARY	localDataProvider
-EXPORTS
 Java_local_localDataProvider_NativeErrorString
 Java_local_localDataProvider_NativeGetAllFrames
 Java_local_localDataProvider_NativeGetAllTimes

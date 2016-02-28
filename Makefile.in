@@ -9,6 +9,7 @@ VPATH=@srcdir@
 
 JAVA_APS = javamds \
 	   javascope \
+	   javascope/local \
            javatraverser \
 	   javadispatcher \
 	   javadevices \
@@ -158,14 +159,15 @@ tcl: mdsshr treeshr tdishr mdstcpip servershr mdsdcl
 dwscope: xmdsshr
 javadevices: javatraverser
 javadispatcher: javascope javatraverser
-javamds: mdstcpip 
+javamds: mdstcpip
+javascope: javamds
 javatraverser: javascope
 math: mdsshr
 mdsdcl: mdsshr
 mdslib: mdstcpip
 mdslibidl: tdishr
 mdsmisc: tdishr
-mdsobjects/cpp: mdstcpip 
+mdsobjects/cpp: mdstcpip
 mdsobjects/java: javascope
 mdstcpip: tdishr
 mitdevices: mdsshr tdishr treeshr xmdsshr

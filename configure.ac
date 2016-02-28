@@ -16,7 +16,7 @@ AM_MAINTAINER_MODE
 
 dnl AS_IS_RELEASE //////////////////////////////////////////////////////////////
 dnl see: http://www.gnu.org/software/autoconf-archive/ax_is_release.html
-dnl 
+dnl
 dnl * git-directory:  ax_is_release will be 'no' if a '.git' directory exists
 dnl * minor-version:  ax_is_release will be 'no' if the minor version number
 dnl                   in $PACKAGE_VERSION is odd; this assumes
@@ -26,23 +26,23 @@ dnl                   in $PACKAGE_VERSION is odd; this assumes
 dnl                   $PACKAGE_VERSION follows the 'major.minor.micro' scheme
 dnl * always:         ax_is_release will always be 'yes'
 dnl * never:          ax_is_release will always be 'no'
-dnl 
+dnl
 AX_IS_RELEASE([always])
 
 
 dnl AX_CHECK_ENABLE_DEBUG //////////////////////////////////////////////////////
 dnl see: www.gnu.org/software/autoconf-archive/ax_check_enable_debug.html
-dnl 
-dnl Check for the presence of an –enable-debug option to configure, with the 
-dnl specified default value used when the option is not present. Return the 
+dnl
+dnl Check for the presence of an –enable-debug option to configure, with the
+dnl specified default value used when the option is not present. Return the
 dnl value in the variable $ax_enable_debug.
-dnl Specifying ’yes’ adds ’-g -O0’ to the compilation flags for all languages. 
-dnl Specifying ’info’ adds ’-g’ to the compilation flags. Specifying ’profile’ 
-dnl adds ’-g -pg’ to the compilation flags and ’-pg’ to the linking flags. 
-dnl Otherwise, nothing is added. 
-dnl 
-dnl AX_CHECK_ENABLE_DEBUG([enable by default=yes/info/profile/no], 
-dnl   [ENABLE DEBUG VARIABLES ...], [DISABLE DEBUG VARIABLES NDEBUG ...], 
+dnl Specifying ’yes’ adds ’-g -O0’ to the compilation flags for all languages.
+dnl Specifying ’info’ adds ’-g’ to the compilation flags. Specifying ’profile’
+dnl adds ’-g -pg’ to the compilation flags and ’-pg’ to the linking flags.
+dnl Otherwise, nothing is added.
+dnl
+dnl AX_CHECK_ENABLE_DEBUG([enable by default=yes/info/profile/no],
+dnl   [ENABLE DEBUG VARIABLES ...], [DISABLE DEBUG VARIABLES NDEBUG ...],
 dnl   [IS-RELEASE],[DEFAULT_RELEASE_FLAGS])
 AX_CHECK_ENABLE_DEBUG([no],,,,[-g -O2])
 
@@ -84,7 +84,7 @@ AC_CHECK_LIB(nsl,inet_addr,NSLLIB="-l nsl",NSLLIB="")
 
 JAVACFLAGS="-encoding UTF-8"
 FOR_LINKSHARED=""
- 
+
 AC_MSG_CHECKING([whether to build shared libraries])
 AC_ARG_ENABLE([shared],
               [AS_HELP_STRING([--disable-shared],
@@ -1284,8 +1284,9 @@ AC_OUTPUT(Makefile.inc
           idlmdswidgets/Makefile
           javaclient/Makefile
           javadispatcher/Makefile
-          javamds/Makefile 
+          javamds/Makefile
           javascope/Makefile
+          javascope/local/Makefile
           javatraverser/Makefile
           javadevices/Makefile
           LabView/Makefile

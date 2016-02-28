@@ -4,7 +4,7 @@ package local;
 import java.awt.Dimension;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
-import java.io.IOException;// import java.io.IOException;
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -79,12 +79,12 @@ public class localDataProvider implements DataProvider{
         void configure(final String _nodeName, String timeName, final float timeMin, final float timeMax) throws IOException {
             if(DEBUG.M) System.out.println("localDataProvider.LocalFrameData.configure(\"" + this.nodeName + "\", \"" + timeName + "\", " + timeMin + ", " + timeMax + ")");
             this.nodeName = _nodeName;
-            this.isSegmented = localDataProvider.isSegmentedNode(this.nodeName);
+            this.isSegmented = localDataProvider.NativeIsSegmentedNode(this.nodeName);
             if(this.isSegmented){
-                this.times = localDataProvider.getSegmentTimes(this.nodeName, timeName, timeMin, timeMax);
+                this.times = localDataProvider.NativeGetSegmentTimes(this.nodeName, timeName, timeMin, timeMax);
                 if(this.times == null) throw new IOException(localDataProvider.this.ErrorString());
                 this.frames = new byte[this.times.length][];
-                this.segIdxs = localDataProvider.getSegmentIdxs(this.nodeName, timeMin, timeMax);
+                this.segIdxs = localDataProvider.NativeGetSegmentIdxs(this.nodeName, timeMin, timeMax);
                 if(this.segIdxs == null) throw new IOException(localDataProvider.this.ErrorString());
             }else{
                 try{
@@ -94,8 +94,8 @@ public class localDataProvider implements DataProvider{
                     System.out.println("# error " + exc);
                 }
             }
-            final localDataProviderInfo info = localDataProvider.getInfo(this.nodeName, this.isSegmented);
-            if(DEBUG.M) System.out.println("localDataProvider.getAllTimes.getInfo() info=" + info);
+            final localDataProviderInfo info = localDataProvider.NativeGetInfo(this.nodeName, this.isSegmented);
+            if(DEBUG.M) System.out.println("localDataProvider.getAllTimes.NativeGetInfo() info=" + info);
             if(info == null) throw new IOException(localDataProvider.this.ErrorString());
             this.width = info.dims[0];
             this.height = info.dims[1];
@@ -104,7 +104,7 @@ public class localDataProvider implements DataProvider{
             if(!this.isSegmented){
                 if(timeName == null || timeName.trim().equals("")) timeName = "DIM_OF(" + this.nodeName + ")";
                 if(DEBUG.D) System.out.println(">> timeName = " + timeName);
-                final double[] allTimes = localDataProvider.this.GetDoubleArrayNative(timeName);
+                final double[] allTimes = localDataProvider.this.NativeGetDoubleArray(timeName);
                 if(allTimes == null) throw new IOException(localDataProvider.this.ErrorString());
                 if(DEBUG.D) System.out.println(">> allTimes.length = " + allTimes.length);
                 for(this.startIdx = 0; this.startIdx < allTimes.length && allTimes[this.startIdx] < timeMin; this.startIdx++);
@@ -113,7 +113,7 @@ public class localDataProvider implements DataProvider{
                 this.times = new double[this.endIdx - this.startIdx];
                 for(int i = 0; i < this.endIdx - this.startIdx; i++)
                     this.times[i] = allTimes[this.startIdx + i];
-                this.allFrames = localDataProvider.getAllFrames(this.nodeName, this.startIdx, this.endIdx);
+                this.allFrames = localDataProvider.NativeGetAllFrames(this.nodeName, this.startIdx, this.endIdx);
                 if(DEBUG.A) DEBUG.printByteArray(this.allFrames, this.pixelSize, this.width, this.height, this.times.length);
             }
         }
@@ -126,7 +126,7 @@ public class localDataProvider implements DataProvider{
                     final int segIdx = this.segIdxs[idx];
                     int segOffset = 0;
                     for(int i = idx - 1; i >= 0 && this.segIdxs[i] == segIdx; i--, segOffset++);
-                    this.frames[idx] = localDataProvider.getSegment(this.nodeName, segIdx, segOffset);
+                    this.frames[idx] = localDataProvider.NativeGetSegment(this.nodeName, segIdx, segOffset);
                 }
                 return this.frames[idx];
             }
@@ -225,7 +225,7 @@ public class localDataProvider implements DataProvider{
                 final Vector<Descriptor> args = new Vector<Descriptor>();
                 args.addElement(new Descriptor(null, this.c.yo()));
                 try{
-                    final byte[] retData = localDataProvider.this.GetByteArrayNative("byte(mdsMisc->IsSegmented($))", args);
+                    final byte[] retData = localDataProvider.this.NativeGetByteArray("byte(mdsMisc->IsSegmented($))", args);
                     if(retData[0] > 0) this.segmentMode = SimpleWaveData.SEGMENTED_YES;
                     else this.segmentMode = SimpleWaveData.SEGMENTED_NO;
                 }catch(final Exception exc){// mdsMisc->IsSegmented failed
@@ -372,8 +372,8 @@ public class localDataProvider implements DataProvider{
             args.addElement(new Descriptor(null, new int[]{numPoints}));
             byte[] retData;
             int nSamples;
-            if(isLong) retData = localDataProvider.this.GetByteArrayNative(setTimeContext + "mdsMisc->GetXYSignalLongTimes:DSC", args);
-            else retData = localDataProvider.this.GetByteArrayNative(setTimeContext + "mdsMisc->GetXYSignal:DSC", args);
+            if(isLong) retData = localDataProvider.this.NativeGetByteArray(setTimeContext + "mdsMisc->GetXYSignalLongTimes:DSC", args);
+            else retData = localDataProvider.this.NativeGetByteArray(setTimeContext + "mdsMisc->GetXYSignal:DSC", args);
             if(DEBUG.D) System.out.println(">> mdsMisc->GetXYSignal*Long*Times:DSC");
             if(DEBUG.A) DEBUG.printByteArray(retData, 1, 8, 8, 1);
             /*Decode data: Format:
@@ -448,7 +448,7 @@ public class localDataProvider implements DataProvider{
         public final float[] getY2D() {
             if(DEBUG.M) System.out.println("SimpleWaveData.getY2D()");
             try{
-                return localDataProvider.this.GetFloatArrayNative("DIM_OF(" + this.c.y() + ", 1)");
+                return localDataProvider.this.NativeGetFloatArray("DIM_OF(" + this.c.y() + ", 1)");
             }catch(final Exception exc){
                 return null;
             }
@@ -496,7 +496,7 @@ public class localDataProvider implements DataProvider{
             if(this.segmentMode == SimpleWaveData.SEGMENTED_UNKNOWN){
                 final String expr = "[GetNumSegments(" + this.c.yo() + ")]";
                 try{// fast using in_y as NumSegments is a node property
-                    final int[] numSegments = localDataProvider.this.GetIntArray(expr);
+                    final int[] numSegments = localDataProvider.this.NativeGetIntArray(expr);
                     if(numSegments == null) this.segmentMode = SimpleWaveData.SEGMENTED_UNKNOWN;
                     else if(numSegments[0] > 0) this.segmentMode = SimpleWaveData.SEGMENTED_YES;
                     else this.segmentMode = SimpleWaveData.SEGMENTED_NO;
@@ -576,7 +576,7 @@ public class localDataProvider implements DataProvider{
                 this.yc = this.var + "y";
                 final String expr = this.yc + " = EVALUATE(" + this.in_y + "); KIND( " + this.yc + " )";
                 try{
-                    this.ykind = localDataProvider.this.GetByteArrayNative(expr, null)[0];
+                    this.ykind = localDataProvider.this.NativeGetByteArray(expr, null)[0];
                     if(DEBUG.D) System.out.println(">> tdicache y ( " + expr + " -> " + this.ykind + " ) )");
                 }catch(final Exception exc){
                     System.err.println("# tdicache error: could not cache y ( " + expr + " -> " + this.ykind + " ) ): " + exc);
@@ -591,8 +591,8 @@ public class localDataProvider implements DataProvider{
             return this.in_y;
         }
     }
-    static final int MAX_PIXELS        = 1000000;
-    static final int RESAMPLE_TRESHOLD = 1000000;
+    static final int MAX_PIXELS        = 2000;
+    static final int RESAMPLE_TRESHOLD = 1000000000;
     static int       var_idx           = 0;
 
     static{
@@ -608,20 +608,6 @@ public class localDataProvider implements DataProvider{
         return false;
     }
 
-    static native byte[] getAllFrames(String nodeName, int startIdx, int endIdx);
-
-    static native double[] getAllTimes(String nodeName, String timeNames);
-
-    static native localDataProviderInfo getInfo(String nodeName, boolean isSegmented); // returned: width, height, bytesPerPixel
-
-    static native byte[] getSegment(String nodeName, int segIdx, int segOffset);
-
-    static native int[] getSegmentIdxs(String nodeName, double timeMin, double timeMax);
-
-    static native double[] getSegmentTimes(String nodeName, String timeNames, double timeMin, double timeMax);
-
-    static native boolean isSegmentedNode(String nodeName);
-
     public static final void main(final String[] args) {
         final localDataProvider dp = new localDataProvider();
         try{
@@ -631,6 +617,20 @@ public class localDataProvider implements DataProvider{
             System.err.println(e);
         }
     }
+
+    private static native byte[] NativeGetAllFrames(String nodeName, int startIdx, int endIdx);
+
+    private static native double[] NativeGetAllTimes(String nodeName, String timeNames);
+
+    private static native localDataProviderInfo NativeGetInfo(String nodeName, boolean isSegmented); // returned: width, height, bytesPerPixel
+
+    private static native byte[] NativeGetSegment(String nodeName, int segIdx, int segOffset);
+
+    private static native int[] NativeGetSegmentIdxs(String nodeName, double timeMin, double timeMax);
+
+    private static native double[] NativeGetSegmentTimes(String nodeName, String timeNames, double timeMin, double timeMax);
+
+    private static native boolean NativeIsSegmentedNode(String nodeName);
 
     public static boolean SupportsCompression() {
         return false;
@@ -668,7 +668,7 @@ public class localDataProvider implements DataProvider{
         }catch(final Exception exc){
             idx = this.eventNames.size();
             this.eventNames.addElement(event);
-            evId = this.registerEvent(event, idx);
+            evId = this.NativeRegisterEvent(event, idx);
         }
         this.listeners.addElement(new EventDescriptor(l, event, evId));
     }
@@ -677,7 +677,9 @@ public class localDataProvider implements DataProvider{
     public void Dispose() {}
 
     @Override
-    native public String ErrorString();
+    public String ErrorString() {
+        return this.NativeErrorString();
+    }
 
     public void fireEvent(final int nameIdx) {
         if(DEBUG.M) System.out.println("localDataProvider.fireEvent(" + nameIdx + ")");
@@ -687,10 +689,6 @@ public class localDataProvider implements DataProvider{
             if(evDescr.getEvent().equals(event)) evDescr.getListener().processUpdateEvent(new UpdateEvent(this, event));
         }
     }
-
-    native public byte[] GetByteArrayNative(final String string, final Vector<Descriptor> args);
-
-    native public double[] GetDoubleArrayNative(String in);
 
     int getEventId(final String event) throws Exception {
         if(DEBUG.M) System.out.println("localDataProvider.getEventId(\"" + event + "\")");
@@ -716,16 +714,12 @@ public class localDataProvider implements DataProvider{
             final long javaTime = cal.getTime().getTime();
             return javaTime;
         }catch(final Exception exc){} // If exception occurs this is not a date
-        return localDataProvider.this.GetFloatNative(in);
+        return localDataProvider.this.NativeGetFloat(in);
     }
 
     public synchronized float[] GetFloatArray(final String in) throws IOException {
-        return localDataProvider.this.GetFloatArrayNative(in);
+        return localDataProvider.this.NativeGetFloatArray(in);
     }
-
-    native public float[] GetFloatArrayNative(String in);
-
-    native public double GetFloatNative(String in);
 
     // public float[] GetFrameTimes(String in_frame) {return null; }
     // public byte[] GetFrameAt(String in_frame, int frame_idx) {return null; }
@@ -737,17 +731,13 @@ public class localDataProvider implements DataProvider{
         return frameData;
     }
 
-    native public int[] GetIntArray(String in);
-
     @Override
     public final String GetLegendString(final String s) {
         return s;
     }
 
-    native public long[] GetLongArrayNative(String in);
-
     public int[] GetNumDimensions(final String expression) {
-        final int[] fullDims = this.GetIntArray("SHAPE( " + expression + " )");
+        final int[] fullDims = this.NativeGetIntArray("SHAPE( " + expression + " )");
         if(fullDims == null) return null;
         if(fullDims.length == 1) return fullDims;
         // count dimensions == 1
@@ -764,16 +754,16 @@ public class localDataProvider implements DataProvider{
     }
 
     public synchronized RealArray GetRealArray(final String in) throws IOException {
-        final long longArray[] = localDataProvider.this.GetLongArrayNative(in);
+        final long longArray[] = localDataProvider.this.NativeGetLongArray(in);
         if(longArray != null) return new RealArray(longArray);
-        return new RealArray(this.GetDoubleArrayNative(in));
+        return new RealArray(this.NativeGetDoubleArray(in));
     }
 
     @Override
     public long[] GetShots(final String in) {
         if(DEBUG.M) System.out.println("localDataProvider.GetShots(\"" + in + "\")");
         try{
-            final int shots[] = localDataProvider.this.GetIntArray(in.trim());
+            final int shots[] = localDataProvider.this.NativeGetIntArray(in.trim());
             final long lshots[] = new long[shots.length];
             for(int i = 0; i < shots.length; i++)
                 lshots[i] = shots[i];
@@ -788,7 +778,9 @@ public class localDataProvider implements DataProvider{
     }
 
     @Override
-    native public String GetString(String in);
+    public String GetString(final String in) throws IOException {
+        return this.NativeGetString(in);
+    }
 
     @Override
     public WaveData GetWaveData(final String in) {
@@ -811,7 +803,27 @@ public class localDataProvider implements DataProvider{
         }catch(final Exception e){}
     }
 
-    native public int registerEvent(String event, int idx);
+    private native String NativeErrorString();
+
+    private native byte[] NativeGetByteArray(final String string, final Vector<Descriptor> args);
+
+    private native double[] NativeGetDoubleArray(String in);
+
+    public native double NativeGetFloat(String in);
+
+    public native float[] NativeGetFloatArray(String in);
+
+    public native int[] NativeGetIntArray(String in);
+
+    public native long[] NativeGetLongArray(String in);
+
+    public native String NativeGetString(String in);
+
+    native public int NativeRegisterEvent(String event, int idx);
+
+    native public void NativeUnregisterEvent(int evId);
+
+    private native void NativeUpdate(String exp, long s);
 
     @Override
     public void RemoveConnectionListener(final ConnectionListener l) {}
@@ -826,7 +838,7 @@ public class localDataProvider implements DataProvider{
             try{
                 this.getEventId(event);
             }catch(final Exception exc){
-                this.unregisterEvent(evId);
+                this.NativeUnregisterEvent(evId);
             }
         }
     }
@@ -853,7 +865,7 @@ public class localDataProvider implements DataProvider{
             final double dt = (max - min) / localDataProvider.MAX_PIXELS;
             limitsExpr = "JavaSetResampleLimits(" + min + "," + max + "," + dt + ")";
         }
-        localDataProvider.this.GetFloatNative(limitsExpr);
+        localDataProvider.this.NativeGetFloat(limitsExpr);
     }
 
     @Override
@@ -861,14 +873,10 @@ public class localDataProvider implements DataProvider{
         return false;
     }
 
-    native public void unregisterEvent(int evId);
-
     @Override
     public void Update(final String exp, final long s) {
         if(DEBUG.M) System.out.println("localDataProvider.Update(\"" + exp + "\", " + s + ")");
         localDataProvider.var_idx = 0;
-        this.UpdateNative(exp, s);
+        this.NativeUpdate(exp, s);
     }
-
-    native public void UpdateNative(String exp, long s);
 }
