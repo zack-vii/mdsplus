@@ -18,16 +18,17 @@ TOPDOCS = jScope.html \
         UpdateEvent.html UpdateEventListener.html \
         WaveData.html WaveDisplay.html
 
-SUBDOCS = jScope.html jScope.jpg popup.jpg \
-        CompositeWaveDisplay.html \
-        ConnectionEvent.html ConnectionListener.html \
-        DataProvider.html \
-        FrameData.html \
-        data_setup.jpg frame_popup.jpg image_setup.jpg \
-        UpdateEvent.html UpdateEventListener.html \
-        WaveData.html
+SUBDOCS = \
+  jScope.html jScope.jpg popup.jpg \
+  CompositeWaveDisplay.html \
+  ConnectionEvent.html ConnectionListener.html \
+  DataProvider.html \
+  FrameData.html \
+  data_setup.jpg frame_popup.jpg image_setup.jpg \
+  UpdateEvent.html UpdateEventListener.html \
+  WaveData.html
 
-JET_SRC=\
+JET_SRC = \
   jet/Ji/JiDataSource.java \
   jet/Ji/JiDim.java \
   jet/Ji/JiNcSource.java \
@@ -46,11 +47,11 @@ JET_SRC=\
   jet/jetDataProvider.java \
   jet/jetMdsDataProvider.java
 
-LOCAL_SRC=\
+LOCAL_SRC = \
   local/localDataProvider.java \
   local/localDataProviderInfo.java
 
-MDS_SRC=\
+MDS_SRC = \
   mds/mdsAccess.java \
   mds/mdsBrowseSignals.java \
   mds/mdsConnection.java \
@@ -63,33 +64,34 @@ MDS_SRC=\
   mds/mdsParser.java \
   mds/mdsWaveInterface.java
 
-MISC_SRC=\
-  ascii/asciiDataProvider.java \
-  asdex/asdexDataProvider.java \
-  ftu/ftuDataProvider.java \
-  textor/textorBrowseSignals.java \
-  ts/tsDataProvider.java \
-  universal/UniversalDataProvider.java
+MISC_SRC = \
+  misc/asciiDataProvider.java \
+  misc/asdexDataProvider.java \
+  misc/ftuDataProvider.java \
+  misc/tsDataProvider.java \
+  misc/universalDataProvider.java
 
-TWU_SRC=\
+TWU_SRC = \
+  twu/textorBrowseSignals.java \
   twu/FakeTWUProperties.java \
   twu/TWUFetchOptions.java \
   twu/TWUProperties.java \
   twu/TWUSignal.java \
   twu/twuAccess.java \
   twu/twuDataProvider.java \
-  twu/twuNameServices.java
+  twu/twuNameServices.java \
   twu/twuSimpleFrameData.java \
   twu/twuSingleSignal.java \
   twu/twuWaveData.java
 
-W7X_SRC=\
+W7X_SRC = \
   w7x/w7xDataProvider.java \
   w7x/w7xSignalBrowser.java
 
 
 COMMON_SRC = \
   jScope/AboutWindow.java \
+  jScope/Array.java \
   jScope/Base64.java \
   jScope/ColorDialog.java \
   jScope/ColorMapDialog.java \
@@ -160,16 +162,15 @@ WAVEDISPLAY_SRC =
 JSCOPE_SRC = \
         jScope.java \
         jScope/CompositeWaveDisplay.java \
-        $JET_SRC \
-        $LOCAL_SRC \
-        $MDS_SRC \
-        $MISC_SRC \
-        $TWU_SRC \
-        $W7X_SRC
+        $(JET_SRC) \
+        $(LOCAL_SRC) \
+        $(MDS_SRC) \
+        $(MISC_SRC) \
+        $(TWU_SRC) \
+        $(W7X_SRC)
 
 EXTRA_CLASS = \
         jScope/FakeTWUProperties.class \
         jScope/FontPanel.class \
         jScope/ServerDialog*.class \
-        jScope/WindowDialog.class \
-        jScope/DEBUG.java
+        jScope/WindowDialog.class
