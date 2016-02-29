@@ -82,9 +82,9 @@ public class jDispatchMonitor extends JFrame implements MdsServerListener, Conne
         }
 
         // The message handler: the expression and arguments are passed as a vector of mdsMessage
+        @Override
         public mdsMessage handleMessage(final mdsMessage[] messages) {
             int nids[] = null;
-            int nid = 0;
             String message = null;
             // method mdsMessage.asString returns the argument as a string
             // in this as messages[0] contains the expression to be evaluated
@@ -93,7 +93,6 @@ public class jDispatchMonitor extends JFrame implements MdsServerListener, Conne
             // if you need to handle other types of arguments
             try{
                 nids = messages[1].asIntArray();
-                nid = nids[0];
                 message = messages[2].asString();
             }catch(final Exception exc){
                 System.out.println("Error receiving error message : " + exc);
@@ -132,10 +131,6 @@ public class jDispatchMonitor extends JFrame implements MdsServerListener, Conne
             if(value == null) return this;
             this.setFont(jDispatchMonitor.done_font);
             final MdsMonitorEvent me = (MdsMonitorEvent)value;
-            if(value == null){
-                int i = 0;
-                i = 1;
-            }
             this.setText(me.getMonitorString());
             if(isSelected){
                 this.setBackground(list.getSelectionBackground());
@@ -287,6 +282,7 @@ public class jDispatchMonitor extends JFrame implements MdsServerListener, Conne
          */
         private static final long serialVersionUID = 5293177113054224034L;
 
+        @SuppressWarnings("unchecked")
         public ToolTipJList(final ListModel lm){
             super(lm);
             this.addMouseListener(new MouseAdapter(){
@@ -353,6 +349,7 @@ public class jDispatchMonitor extends JFrame implements MdsServerListener, Conne
             this.me = me;
         }
 
+        @SuppressWarnings("unchecked")
         @Override
         public void run() {
             int status = 1;
@@ -652,6 +649,8 @@ public class jDispatchMonitor extends JFrame implements MdsServerListener, Conne
         p0.add(box);
         this.getContentPane().add(p0, BorderLayout.NORTH);
         this.desktop = new JDesktopPane(){
+            private static final long serialVersionUID = -7338242754728222L;
+
             private void positionWindow() {
                 if(jDispatchMonitor.this.num_window == 0) return;
                 final Dimension dim = jDispatchMonitor.this.desktop.getSize();
