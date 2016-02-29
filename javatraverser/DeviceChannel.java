@@ -52,7 +52,7 @@ public class DeviceChannel extends DeviceComponent{
         final JMenuItem copyI = new JMenuItem("Copy");
         copyI.addActionListener(new ActionListener(){
             @Override
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(final ActionEvent e) {
                 DeviceChannel.this.copy();
             }
         });
@@ -60,7 +60,7 @@ public class DeviceChannel extends DeviceComponent{
         final JMenuItem pasteI = new JMenuItem("Paste");
         pasteI.addActionListener(new ActionListener(){
             @Override
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(final ActionEvent e) {
                 DeviceChannel.this.paste();
             }
         });
@@ -68,7 +68,7 @@ public class DeviceChannel extends DeviceComponent{
         final JMenuItem propagateI = new JMenuItem("Propagate");
         propagateI.addActionListener(new ActionListener(){
             @Override
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(final ActionEvent e) {
                 DeviceChannel.this.propagate();
             }
         });
@@ -158,12 +158,11 @@ public class DeviceChannel extends DeviceComponent{
         return this.columns;
     }
 
-    /*
-    private Container getContainer() {
+    public Container getContainer() {
         // JOptionPane.showMessageDialog(null, "GET CONTAINER", "", JOptionPane.INFORMATION_MESSAGE);
         return this.componentsPanel;
     }
-    */
+
     @Override
     protected Data getData() {
         return null;
@@ -205,7 +204,7 @@ public class DeviceChannel extends DeviceComponent{
             this.checkB.setSelected(is_on);
             this.checkB.addChangeListener(new ChangeListener(){
                 @Override
-                public void stateChanged(ChangeEvent e) {
+                public void stateChanged(final ChangeEvent e) {
                     DeviceChannel.this.reportingChange = true;
                     DeviceChannel.this.reportStateChanged(DeviceChannel.this.checkB.isSelected());
                     DeviceChannel.this.reportingChange = false;
