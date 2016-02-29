@@ -1,4 +1,4 @@
-package textor;
+package twu;
 
 /* $Id$ */
 import java.io.BufferedReader;

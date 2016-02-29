@@ -1,11 +1,9 @@
-package universal;
+package misc;
 
 /* $Id$ */
 import java.io.IOException;
 import java.util.StringTokenizer;
 import javax.swing.JFrame;
-import asdex.asdexDataProvider;
-import ftu.ftuDataProvider;
 import jScope.ConnectionListener;
 import jScope.DataProvider;
 import jScope.DataServerItem;
@@ -15,10 +13,9 @@ import jScope.WaveData;
 import jet.jetDataProvider;
 import jet.jetMdsDataProvider;
 import mds.mdsDataProvider;
-import ts.tsDataProvider;
 import twu.twuDataProvider;
 
-public final class UniversalDataProvider implements DataProvider{
+public final class universalDataProvider implements DataProvider{
     public static boolean DataPending() {
         return false;
     }
@@ -69,7 +66,7 @@ public final class UniversalDataProvider implements DataProvider{
     tsDataProvider     ts;
     twuDataProvider    twu;
 
-    public UniversalDataProvider() throws IOException{
+    public universalDataProvider() throws IOException{
         this.rfx = new mdsDataProvider();
         try{
             this.rfx.SetArgument("150.178.3.80");
@@ -182,7 +179,7 @@ public final class UniversalDataProvider implements DataProvider{
     @Override
     public WaveData GetWaveData(final String in) {
         try{
-            return this.SelectProvider(in).GetWaveData(UniversalDataProvider.RemoveExp(in));
+            return this.SelectProvider(in).GetWaveData(universalDataProvider.RemoveExp(in));
         }catch(final Exception exc){
             return null;
         }
@@ -191,7 +188,7 @@ public final class UniversalDataProvider implements DataProvider{
     @Override
     public WaveData GetWaveData(final String in_y, final String in_x) {
         try{
-            return this.SelectProvider(in_y).GetWaveData(UniversalDataProvider.RemoveExp(in_y), in_x);
+            return this.SelectProvider(in_y).GetWaveData(universalDataProvider.RemoveExp(in_y), in_x);
         }catch(final Exception exc){
             return null;
         }

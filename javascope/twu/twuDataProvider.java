@@ -22,6 +22,7 @@ import java.util.Vector;
 import javax.swing.JFrame;
 import jScope.ConnectionEvent;
 import jScope.ConnectionListener;
+import jScope.DataAccessURL;
 import jScope.DataProvider;
 import jScope.DataServerItem;
 import jScope.FrameData;
@@ -60,6 +61,7 @@ public final class twuDataProvider implements DataProvider{
     }
 
     public twuDataProvider(final String user_agent){
+        DataAccessURL.addProtocol(new twuAccess());
         // Could be used in the constructor for TWUProperties and in similar get URL actions.
         // A site could used this as a possible (internal) software distribution management
         // tool. In the log of a web-server you can, by checking the user_agent, see which

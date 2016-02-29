@@ -365,10 +365,6 @@ final public class CompositeWaveDisplay extends JApplet implements WaveContainer
         return value;
     }
 
-    private static void setDataAccess() {
-        DataAccessURL.addAccess();
-    }
-
     /**
      * Set Window dialog title.
      *
@@ -412,7 +408,6 @@ final public class CompositeWaveDisplay extends JApplet implements WaveContainer
         MultiWaveform w = null;
         WaveInterface wi = null;
         DataAccess da = null;
-        if(DataAccessURL.getNumProtocols() == 0) CompositeWaveDisplay.setDataAccess();
         c = this.wave_container.getGridComponent(row, column);
         try{
             da = DataAccessURL.getDataAccess(url);
@@ -588,7 +583,6 @@ final public class CompositeWaveDisplay extends JApplet implements WaveContainer
         WaveInterface wi = null;
         DataAccess da = null;
         Signal s;
-        if(DataAccessURL.getNumProtocols() == 0) CompositeWaveDisplay.setDataAccess();
         c = this.wave_container.getGridComponent(row, column);
         try{
             da = DataAccessURL.getDataAccess(url);
@@ -791,10 +785,7 @@ final public class CompositeWaveDisplay extends JApplet implements WaveContainer
 
     @Override
     public void init() {
-        if(this.isApplet){
-            Waveform.zoom_on_mb1 = false;
-            CompositeWaveDisplay.setDataAccess();
-        }
+        if(this.isApplet) Waveform.zoom_on_mb1 = false;
         this.setBackground(Color.lightGray);
         this.wave_container = new WaveformContainer();
         this.wave_container.addWaveContainerListener(this);

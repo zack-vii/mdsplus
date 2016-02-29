@@ -1,4 +1,4 @@
-package ts;
+package misc;
 
 /* $Id$ */
 import java.io.IOException;

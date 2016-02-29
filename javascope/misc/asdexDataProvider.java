@@ -1,4 +1,4 @@
-package asdex;
+package misc;
 
 /* $Id$ */
 import java.io.IOException;

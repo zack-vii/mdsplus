@@ -1,4 +1,4 @@
-package ftu;
+package misc;
 
 /* $Id$ */
 import java.io.IOException;

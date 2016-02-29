@@ -22,10 +22,6 @@ import javax.swing.JTextField;
 public class WaveDisplay extends JApplet implements WaveformListener{
     static final long serialVersionUID = 476443678461L;
 
-    public static void addProtocol(final DataAccess dataAccess) {
-        DataAccessURL.addProtocol(dataAccess);
-    }
-
     protected static String getParameterValue(final String context, final String param) {
         String value = null;
         final StringTokenizer st = new StringTokenizer(context);
@@ -52,7 +48,6 @@ public class WaveDisplay extends JApplet implements WaveformListener{
     WavePopup     wave_popup;
 
     public WaveDisplay(){
-        DataAccessURL.addAccess();
         final JPanel panel = new JPanel();
         this.w = new MultiWaveform();
         this.w.setWaveInterface(new WaveInterface(this.w));

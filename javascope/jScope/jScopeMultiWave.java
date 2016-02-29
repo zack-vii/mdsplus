@@ -164,7 +164,7 @@ final public class jScopeMultiWave extends MultiWaveform implements UpdateEventL
         if(this.wi.isAddSignal()){
             // reset to previous configuration if signal/s are not added
             if(((mdsWaveInterface)this.wi).prev_wi != null && ((mdsWaveInterface)this.wi).prev_wi.GetNumEvaluatedSignal() == ((mdsWaveInterface)this.wi).GetNumEvaluatedSignal()){
-                ((mdsWaveInterface)this.wi).prev_wi.error = ((mdsWaveInterface)this.wi).error;
+                ((mdsWaveInterface)this.wi).prev_wi.error = (this.wi).error;
                 ((mdsWaveInterface)this.wi).prev_wi.w_error = ((mdsWaveInterface)this.wi).w_error;
                 ((mdsWaveInterface)this.wi).prev_wi.setAddSignal(this.wi.isAddSignal());
                 this.wi = ((mdsWaveInterface)this.wi).prev_wi;

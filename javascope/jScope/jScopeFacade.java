@@ -99,7 +99,6 @@ import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
 import javax.swing.plaf.FontUIResource;
 import javax.swing.plaf.basic.BasicArrowButton;
-import mds.mdsWaveInterface;
 
 final public class jScopeFacade extends JFrame implements ActionListener, ItemListener, WindowListener, WaveContainerListener, UpdateEventListener, ConnectionListener, Printable{
     class FileFilter implements FilenameFilter{
@@ -1840,7 +1839,7 @@ final public class jScopeFacade extends JFrame implements ActionListener, ItemLi
             case WaveContainerEvent.WAVEFORM_EVENT:
                 final WaveformEvent we = (WaveformEvent)e.we;
                 final jScopeMultiWave w = (jScopeMultiWave)we.getSource();
-                final mdsWaveInterface wi = (mdsWaveInterface)w.wi;
+                final WaveInterface wi = w.wi;
                 final int we_id = we.getID();
                 switch(we_id){
                     case WaveformEvent.EVENT_UPDATE:
@@ -2150,19 +2149,16 @@ final public class jScopeFacade extends JFrame implements ActionListener, ItemLi
 }
 
 class ServerDialog extends JDialog implements ActionListener{
-    private static String                   know_provider[]   = {"W7XDataProvider", "MdsDataProvider",
-                                                              // "MdsDataProviderUdt",
-                                                              // "JetMdsDataProvider",
-                                                              // "TwuDataProvider",
-                                                              // "JetDataProvider",
-                                                              // "FtuDataProvider",
-                                                              // "TSDataProvider",
-                                                              // "AsdexDataProvider",
-                                                              // "ASCIIDataProvider",
-                                                              // "T2DataProvider",
-                                                                        "LocalDataProvider", "MdsAsynchDataProvider"
-                                                                        // "MDSplus.MdsStreamingDataProvider"
-                                                                };
+    private static String                   know_provider[]   = {"w7x.w7xDataProvider", "mds.mdsDataProvider",
+                                                              // "mds.mdsDataProviderUdt",
+                                                              // "jet.jetMdsDataProvider",
+                                                              // "twu.twuDataProvider",
+                                                              // "jet.jetDataProvider",
+                                                              // "ftu.ftuDataProvider",
+                                                              // "ts.tsDataProvider",
+                                                              // "asdex.asdexDataProvider",
+                                                              // "ascii.asciiDataProvider",
+                                                                        "local.localDataProvider", "mds.mdsAsynchDataProvider"};
     static final long                       serialVersionUID  = 4734523460978461L;
     static private JList                    server_list;
     private final JButton                   add_b, remove_b, exit_b, connect_b, modify_b;
@@ -2437,10 +2433,10 @@ class ServerDialog extends JDialog implements ActionListener{
         23-05-2005
         Ovverride configuration file server definitions
         with property server definition with the same name
-
+        
         else
         {
-
+        
             if (found_dsi != null)
             {
                 dsi.user = found_dsi.user;

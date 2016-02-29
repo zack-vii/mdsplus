@@ -81,14 +81,14 @@ SET MDS_SRC=^
   mds\mdsWaveInterface.java
 
 SET MISC_SRC=^
-  ascii\asciiDataProvider.java ^
-  asdex\asdexDataProvider.java ^
-  ftu\ftuDataProvider.java ^
-  textor\textorBrowseSignals.java ^
-  ts\tsDataProvider.java ^
-  universal\UniversalDataProvider.java
+  misc\asciiDataProvider.java ^
+  misc\asdexDataProvider.java ^
+  misc\ftuDataProvider.java ^
+  misc\tsDataProvider.java ^
+  misc\universalDataProvider.java
 
 SET TWU_SRC=^
+  twu\textorBrowseSignals.java ^
   twu\FakeTWUProperties.java ^
   twu\TWUFetchOptions.java ^
   twu\TWUProperties.java ^
@@ -193,7 +193,7 @@ jScope\WindowDialog.class
 SET CLASSPATH=-classpath ".;MindTerm.jar;swingx.jar;w7x\w7xDataProvider.jar"
 SET JAVAC="%JDK_HOME%\bin\javac.exe"
 SET JCFLAGS=-O -g:none||rem-Xlint -deprecation
-SET MANIFEST=%CD%\jScopeManifest.mf
+SET SRCDIR=%CD%
 SET JAR="%JDK_HOME%\bin\jar.exe"
 SET JARDIR=..\java\classes
 
@@ -215,7 +215,13 @@ COPY %CD%\w7x\w7xDataProvider.jar %JARDIR%>NUL
 :packjar
 ECHO creating jar packages
 PUSHD %JARDIR%
-%JAR% -cmf %MANIFEST% "jScope.jar" jScope.class colors1.tbl jScope.properties jScope docs
+%JAR% -cmf %SRCDIR%\jScope\MANIFEST.mf "jScope.jar" jScope.class colors1.tbl jScope.properties jScope docs
+%JAR% -cmf %SRCDIR%\jet\MANIFEST.mf "jetDataProvider.jar" jet
+%JAR% -cmf %SRCDIR%\local\MANIFEST.mf "localDataProvider.jar" local
+%JAR% -cmf %SRCDIR%\mds\MANIFEST.mf "mdsDataProvider.jar" mds
+%JAR% -cmf %SRCDIR%\misc\MANIFEST.mf "miscDataProvider.jar" misc
+%JAR% -cmf %SRCDIR%\twu\MANIFEST.mf "twuDataProvider.jar" twu
+%JAR% -umf %SRCDIR%\w7x\MANIFEST.mf "w7xDataProvider.jar" w7x
 %JAR% -cf "WaveDisplay.jar" %COMMON_SRC:.java=.class%
 POPD
 
@@ -223,8 +229,15 @@ POPD
 ECHO cleaning up
 PUSHD %JARDIR%
 RMDIR /S /Q docs 2>NUL
-DEL colors1.tbl jScope.properties *.class 2>NUL
+DEL colors1.tbl jScope.properties jScope.class 2>NUL
+RMDIR /S /Q jet 2>nul
 RMDIR /S /Q jScope 2>nul
+RMDIR /S /Q local 2>nul
+RMDIR /S /Q mds 2>nul
+RMDIR /S /Q misc 2>nul
+RMDIR /S /Q twu 2>nul
+RMDIR /S /Q w7x 2>nul
+
 POPD
 
 :jscope

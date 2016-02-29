@@ -806,9 +806,7 @@ public class mdsDataProvider implements DataProvider{
 
         @Override
         public final void run() {
-            if(DEBUG.M){
-                System.out.println("run()");
-            }
+            if(DEBUG.M) System.out.println("run()");
             this.setName("UpdateWorker");
             while(true){
                 synchronized(this){
@@ -835,17 +833,15 @@ public class mdsDataProvider implements DataProvider{
                             }
                         }catch(final Exception exc){
                             final Date d = new Date();
-                            if(DEBUG.M){
-                                System.err.println(d + " Error in asynchUpdate: " + exc);
-                            }
+                            if(DEBUG.M) System.err.println(d + " Error in asynchUpdate: " + exc);
                         }
                     }else{
-                        if(nextTime == -1 || nextTime > currUpdate.updateTime) // It will alway be nextTime != -1
+                        if(nextTime == -1 || nextTime > currUpdate.updateTime) // It will always be nextTime != -1
                         nextTime = currUpdate.updateTime;
                         i++;
                     }
                 }
-                if(nextTime != -1) // If a pending request for which time did not expire, schedure a new notification
+                if(nextTime != -1) // If a pending request for which time did not expire, schedule a new notification
                 {
                     currTime = Calendar.getInstance().getTimeInMillis();
                     final java.util.Timer timer = new java.util.Timer();
@@ -991,34 +987,17 @@ public class mdsDataProvider implements DataProvider{
     private boolean        use_compression  = false;
 
     public mdsDataProvider(){
-        if(DEBUG.M) System.out.println("mdsDataProvider()");
-        this.experiment = null;
-        this.shot = 0;
-        this.open = this.connected = false;
-        this.mds = this.getConnection();
-        this.error = null;
-        // updateWorker = new UpdateWorker();
-        // updateWorker.start();
+        this(null);
     }
 
     public mdsDataProvider(final String provider){
         if(DEBUG.M) System.out.println("mdsDataProvider(\"" + provider + "\")");
+        jScope.DataAccessURL.addProtocol(new mdsAccess());
         this.setProvider(provider);
         this.experiment = null;
         this.shot = 0;
         this.open = this.connected = false;
         this.mds = new mdsConnection(this.provider);
-        this.error = null;
-        // updateWorker = new UpdateWorker();
-        // updateWorker.start();
-    }
-
-    public mdsDataProvider(final String exp, final int s){
-        if(DEBUG.M) System.out.println("mdsDataProvider(\"" + exp + "\", " + s + ")");
-        this.experiment = exp;
-        this.shot = 0; // what's about s
-        this.open = this.connected = false;
-        this.mds = new mdsConnection();
         this.error = null;
         // updateWorker = new UpdateWorker();
         // updateWorker.start();
