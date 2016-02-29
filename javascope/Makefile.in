@@ -476,11 +476,17 @@ CLASSPATH_ENV = CLASSPATH="$(MINDTERM):$(W7XDATAPROVIDER):$(SWINGX)"
 dist_docs_DATA = $(DOCS)
 docsdir = $(exec_prefix)/java/classes/jdocs
 dist_java_DATA = jScope.properties MindTerm.jar w7x/w7xDataProvider.jar w7x/swingx.jar
-java_DATA = jScope.jar WaveDisplay.jar
+java_DATA = jScope.jar WaveDisplay.jar jetDataProvider.jar localDataProvider.jar mdsDataProvider.jar miscDataProvider.jar twuDataProvider.jar w7xDataProvider.jar
 javadir = $(exec_prefix)/java/classes
 dist_java_JAVA = $(JSCOPE_SRC) $(WAVEDISPLAY_SRC) $(COMMON_SRC) jScope/DEBUG.java
 COMMON_CLASS = $(COMMON_SRC:.java=*.class)
 JSCOPE_CLASS = $(COMMON_CLASS) $(JSCOPE_SRC:.java=*.class) $(EXTRA_CLASS)
+JET_CLASS = $(JET_SRC:.java=*.class)
+LOCAL_CLASS = $(LOCAL_SRC:.java=*.class)
+MDS_CLASS = $(MDS_SRC:.java=*.class)
+MISC_CLASS = $(MISC_SRC:.java=*.class)
+TWU_CLASS = $(TWU_SRC:.java=*.class)
+W7X_CLASS = $(W7X_SRC:.java=*.class)
 WAVEDISPLAY_CLASS = $(COMMON_CLASS) $(WAVEDISPLAY_SRC:.java=*.class)
 
 include Makefile.common
@@ -817,8 +823,30 @@ $(java_DATA): classjava.stamp
 jScope.jar: colors1.tbl
 	$(MKDIR_P) @builddir@/jdocs
 	cp $(addprefix @srcdir@/,$(SUBDOCS)) @builddir@/jdocs
-	$(JAR) c0mf $(addprefix @srcdir@/,jScopeManifest.mf) $@ $(addprefix @srcdir@/,$(TOPDOCS)) $(JSCOPE_CLASS) @builddir@/jdocs $<
+	$(JAR) c0mf $(addprefix @srcdir@/,jScope/MANIFEST.mf) $@ $(addprefix @srcdir@/,$(TOPDOCS)) $(JSCOPE_CLASS) @builddir@/jdocs $<
 	rm -Rf @builddir@/jdocs
+
+jetDataProvider.jar:
+	$(JAR) c0mf $(addprefix @srcdir@/,jet/MANIFEST.mf) $@ $(JET_CLASS) $<
+
+localDataProvider.jar:
+	$(JAR) c0mf $(addprefix @srcdir@/,local/MANIFEST.mf) $@ $(LOCAL_CLASS) $<
+
+mdsDataProvider.jar:
+	$(JAR) c0mf $(addprefix @srcdir@/,mds/MANIFEST.mf) $@ $(MDS_CLASS) $<
+
+miscDataProvider.jar:
+	$(JAR) c0mf $(addprefix @srcdir@/,misc/MANIFEST.mf) $@ $(MISC_CLASS) $<
+
+twuDataProvider.jar:
+	$(JAR) c0mf $(addprefix @srcdir@/,twu/MANIFEST.mf) $@ $(TWU_CLASS) $<
+
+w7xDataProvider.jar:
+	cp $(W7XDATAPROVIDER) @builddir@
+	$(MKDIR_P) @builddir@/jars
+	cp $(SWINGX) @builddir@/jars
+	$(JAR) u0mf $(addprefix @srcdir@/,w7x/MANIFEST.mf) $@ $(W7X_CLASS) jars/swingx.jar$<
+	rm -Rf @builddir@/jars
 
 WaveDisplay.jar:
 	$(JAR) c0f $@ $(WAVEDISPLAY_CLASS)

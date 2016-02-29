@@ -161,13 +161,7 @@ WAVEDISPLAY_SRC =
 
 JSCOPE_SRC = \
         jScope.java \
-        jScope/CompositeWaveDisplay.java \
-        $(JET_SRC) \
-        $(LOCAL_SRC) \
-        $(MDS_SRC) \
-        $(MISC_SRC) \
-        $(TWU_SRC) \
-        $(W7X_SRC)
+        jScope/CompositeWaveDisplay.java
 
 EXTRA_CLASS = \
         jScope/FakeTWUProperties.class \

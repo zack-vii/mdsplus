@@ -160,7 +160,8 @@ dwscope: xmdsshr
 javadevices: javatraverser
 javadispatcher: javascope javatraverser
 javamds: mdstcpip
-javascope: javamds
+javascope/local: javamds
+javascope: javamds javascope/local
 javatraverser: javascope
 math: mdsshr
 mdsdcl: mdsshr

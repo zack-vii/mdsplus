@@ -2,8 +2,6 @@ package local;
 
 /* $Id$ */
 import java.awt.Dimension;
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.Vector;
 import javax.swing.JFrame;
@@ -221,12 +219,6 @@ public class localDataProvider implements DataProvider{
                 }
             }
             final String setTimeContext = "";
-            if(!this.c.useCache) try{
-                return this.getXYSignal(xmin, xmax, numPoints, isLong, setTimeContext);
-            }catch(final Exception exc){// causes the next mdsvalue to fail raising: %TDI-E-SYNTAX, Bad punctuation or misspelled word or number
-                if(DEBUG.M) System.err.println("# mdsMisc->GetXYSignal() is not available on the server: " + exc);
-                localDataProvider.this.mdsValue("1");
-            }
             final float y[] = localDataProvider.GetFloatArray(setTimeContext + this.c.y());
             if(DEBUG.D) System.out.println(">> y = " + y);
             if(DEBUG.A) DEBUG.printFloatArray(y, y.length, 1, 1);
@@ -340,85 +332,6 @@ public class localDataProvider implements DataProvider{
                 this.xLabel = localDataProvider.this.GetString("Units(" + this.c.x() + ")");
             }
             return this.xLabel;
-        }
-
-        private final XYData getXYSignal(final double xmin, final double xmax, final int numPoints, boolean isLong, final String setTimeContext) throws Exception {
-            if(DEBUG.M) System.out.println("SimpleWaveData.getXYSignal(" + xmin + ", " + xmax + ", " + numPoints + ", " + isLong + ", \"" + setTimeContext + "\")");
-            // If the requested number of mounts is Integer.MAX_VALUE, force the old way of getting data
-            if(numPoints == Integer.MAX_VALUE) throw new Exception("Use Old Method for getting data");
-            XYData res = null;
-            byte[] retData;
-            int nSamples;
-            if(isLong) retData = localDataProvider.NativeGetByteArray(setTimeContext + "mdsMisc->GetXYSignalLongTimes:DSC(" + this.c.yo() + "," + this.c.xo() + ",[" + xmin + "],[" + xmax + "],[" + numPoints + "])");
-            else retData = localDataProvider.NativeGetByteArray(setTimeContext + "mdsMisc->GetXYSignal:DSC(" + this.c.yo() + "," + this.c.xo() + ",[" + xmin + "],[" + xmax + "],[" + numPoints + "])");
-            if(DEBUG.D) System.out.println(">> mdsMisc->GetXYSignal*Long*Times:DSC");
-            if(DEBUG.A) DEBUG.printByteArray(retData, 1, 8, 8, 1);
-            /*Decode data: Format:
-                   -retResolution(float)
-                   -number of samples (minumum between X and Y)
-                   -type of X xamples (byte: long(1), double(2) or float(3))
-                   -y samples
-                   -x Samples
-             */
-            if(DEBUG.D) System.out.println(">> retData " + retData.length + " " + retData);
-            final ByteArrayInputStream bis = new ByteArrayInputStream(retData);
-            final DataInputStream dis = new DataInputStream(bis);
-            float fRes;
-            double dRes;
-            fRes = dis.readFloat();
-            if(fRes >= 1E10) dRes = Double.POSITIVE_INFINITY;
-            else dRes = fRes;
-            nSamples = dis.readInt();
-            if(nSamples <= 0){
-                System.out.println("No Samples returned");
-                return null;
-            }
-            final byte type = dis.readByte();
-            final float y[] = new float[nSamples];
-            for(int i = 0; i < nSamples; i++)
-                y[i] = dis.readFloat();
-            if(type == 1) // Long X (i.e. absolute times
-            {
-                final long[] longX = new long[nSamples];
-                for(int i = 0; i < nSamples; i++)
-                    longX[i] = dis.readLong();
-                this.isXLong = true;
-                res = new XYData(longX, y, dRes);
-            }else if(type == 2) // double X
-            {
-                final double[] x = new double[nSamples];
-                for(int i = 0; i < nSamples; i++)
-                    x[i] = dis.readDouble();
-                res = new XYData(x, y, dRes);
-            }else // float X
-            {
-                final double[] x = new double[nSamples];
-                for(int i = 0; i < nSamples; i++)
-                    x[i] = dis.readFloat();
-                res = new XYData(x, y, dRes);
-            }
-            // Get title, xLabel and yLabel
-            final int titleLen = dis.readInt();
-            if(titleLen > 0){
-                final byte[] titleBuf = new byte[titleLen];
-                dis.readFully(titleBuf);
-                this.title = new String(titleBuf, "UTF-8");
-            }
-            final int xLabelLen = dis.readInt();
-            if(xLabelLen > 0){
-                final byte[] xLabelBuf = new byte[xLabelLen];
-                dis.readFully(xLabelBuf);
-                this.xLabel = new String(xLabelBuf, "UTF-8");
-            }
-            final int yLabelLen = dis.readInt();
-            if(yLabelLen > 0){
-                final byte[] yLabelBuf = new byte[yLabelLen];
-                dis.readFully(yLabelBuf);
-                this.yLabel = new String(yLabelBuf, "UTF-8");
-            }
-            this.titleEvaluated = this.xLabelEvaluated = this.yLabelEvaluated = true;
-            if(type == 1) isLong = true;
-            return res;
         }
 
         @Override
@@ -543,6 +456,7 @@ public class localDataProvider implements DataProvider{
             return this.xc;
         }
 
+        @SuppressWarnings("unused")
         public final String xo() {
             return this.in_x;
         }
@@ -551,9 +465,9 @@ public class localDataProvider implements DataProvider{
             if(!this.useCache) return this.in_y;
             if(this.yc == null){
                 this.yc = this.var + "y";
-                final String expr = this.yc + " = EVALUATE(" + this.in_y + "); [KIND( " + this.yc + " )]";
+                final String expr = this.yc + "=EVALUATE(" + this.in_y + ");[KIND(" + this.yc + ")]";
                 try{
-                    this.ykind = localDataProvider.NativeGetByteArray(expr)[0];
+                    this.ykind = (byte)localDataProvider.NativeGetIntArray(expr)[0];
                     if(DEBUG.D) System.out.println(">> tdicache y ( " + expr + " -> " + this.ykind + " ) )");
                 }catch(final Exception exc){
                     System.err.println("# tdicache error: could not cache y ( " + expr + " -> " + this.ykind + " ) ): " + exc);
