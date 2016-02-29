@@ -196,7 +196,7 @@ public class mdsConnection{
         return eventid;
     }
 
-    public final synchronized boolean ConnectTomds(final boolean use_compression) {
+    public synchronized boolean ConnectToMds(final boolean use_compression) {
         try{
             if(this.provider != null){
                 this.connectToServer();
@@ -234,7 +234,7 @@ public class mdsConnection{
         this.dos = new DataOutputStream(new BufferedOutputStream(this.sock.getOutputStream()));
     }
 
-    public final int DisconnectFrommds() {
+    public final int DisconnectFromMds() {
         try{
             if(this.connection_listener.size() > 0) this.connection_listener.removeAllElements();
             this.dos.close();
@@ -429,7 +429,7 @@ public class mdsConnection{
         return this.mdsValue(expr, args, false);
     }
 
-    public final void QuitFrommds() {
+    public final void QuitFromMds() {
         try{
             if(this.connection_listener.size() > 0) this.connection_listener.removeAllElements();
             this.dos.close();
@@ -466,7 +466,7 @@ public class mdsConnection{
     }
 
     public final void setProvider(final String provider) {
-        if(this.connected) this.DisconnectFrommds();
+        if(this.connected) this.DisconnectFromMds();
         this.provider = provider;
         this.port = mdsConnection.DEFAULT_PORT;
         this.host = null;

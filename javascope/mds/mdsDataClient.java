@@ -43,7 +43,7 @@ final public class mdsDataClient extends mdsConnection{
      */
     public mdsDataClient(final String provider) throws mdsIOException{
         super(provider);
-        if(!this.ConnectTomds(false)) throw new mdsIOException(this.error);
+        if(!this.ConnectToMds(false)) throw new mdsIOException(this.error);
     }
 
     /**
@@ -59,14 +59,14 @@ final public class mdsDataClient extends mdsConnection{
     public mdsDataClient(final String provider, final String user) throws mdsIOException{
         super(provider);
         this.setUser(user);
-        if(!this.ConnectTomds(false)) throw new mdsIOException(this.error);
+        if(!this.ConnectToMds(false)) throw new mdsIOException(this.error);
     }
 
     /**
      * Close currently open experiment
      */
     public void close() {
-        if(this.connected) this.DisconnectFrommds();
+        if(this.connected) this.DisconnectFromMds();
     }
 
     public Object evaluate(final String expr, final Vector<Descriptor> args) throws mdsIOException {

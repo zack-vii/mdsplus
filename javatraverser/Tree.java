@@ -936,25 +936,25 @@ public class Tree extends JScrollPane implements TreeSelectionListener, DataChan
         Tree.curr_node = Tree.getNode(treenode);
     }
     // Temporary, to overcome Java's bugs on inner classes
-    private JDialog                  add_device_dialog;
-    private JTextField               add_device_type, add_device_name;
-    private JTextField               add_node_name, add_node_tag, add_subtree_name;
-    private int                      add_node_usage;
-    private JTextField               curr_tag_selection;
-    private DefaultListModel<String> curr_taglist_model;
-    private final Stack<RemoteTree>  experiments;
-    boolean                          is_angled_style;
-    private String                   lastName;
-    private JDialog                  modify_tags_dialog;
-    private JList<String>            modify_tags_list;
-    JButton                          ok_cb, add_node_ok;
-    private JDialog                  open_dialog, add_node_dialog, add_subtree_dialog;
-    private JTextField               open_exp, open_shot;
-    private JRadioButton             open_readonly, open_edit, open_normal;
-    private String[]                 tags;
-    private DefaultMutableTreeNode   top;
-    private String                   topExperiment;
-    private final Stack<JTree>       trees;
+    private JDialog                 add_device_dialog;
+    private JTextField              add_device_type, add_device_name;
+    private JTextField              add_node_name, add_node_tag, add_subtree_name;
+    private int                     add_node_usage;
+    private JTextField              curr_tag_selection;
+    private DefaultListModel        curr_taglist_model;
+    private final Stack<RemoteTree> experiments;
+    boolean                         is_angled_style;
+    private String                  lastName;
+    private JDialog                 modify_tags_dialog;
+    private JList                   modify_tags_list;
+    JButton                         ok_cb, add_node_ok;
+    private JDialog                 open_dialog, add_node_dialog, add_subtree_dialog;
+    private JTextField              open_exp, open_shot;
+    private JRadioButton            open_readonly, open_edit, open_normal;
+    private String[]                tags;
+    private DefaultMutableTreeNode  top;
+    private String                  topExperiment;
+    private final Stack<JTree>      trees;
 
     public Tree(final JFrame _frame){
         this((jTraverser)_frame);
@@ -1142,7 +1142,7 @@ public class Tree extends JScrollPane implements TreeSelectionListener, DataChan
     public void addTag() {
         final String[] out_tags = new String[this.curr_taglist_model.getSize()];
         for(int i = 0; i < this.curr_taglist_model.getSize(); i++){
-            out_tags[i] = this.curr_taglist_model.getElementAt(i);
+            out_tags[i] = (String)this.curr_taglist_model.getElementAt(i);
         }
         try{
             Tree.getCurrentNode().setTags(out_tags);
@@ -1225,6 +1225,7 @@ public class Tree extends JScrollPane implements TreeSelectionListener, DataChan
         return;
     }
 
+    @SuppressWarnings("unchecked")
     public void modifyTags() {
         final Node currnode = Tree.getCurrentNode();
         if(currnode == null) return;
@@ -1234,7 +1235,7 @@ public class Tree extends JScrollPane implements TreeSelectionListener, DataChan
             jTraverser.stderr("Error getting tags", exc);
             this.tags = new String[0];
         }
-        this.curr_taglist_model = new DefaultListModel<String>();
+        this.curr_taglist_model = new DefaultListModel();
         for(final String tag : this.tags){
             this.curr_taglist_model.addElement(tag);
         }
@@ -1244,12 +1245,12 @@ public class Tree extends JScrollPane implements TreeSelectionListener, DataChan
             jp.setLayout(new BorderLayout());
             final JPanel jp1 = new JPanel();
             jp1.setLayout(new BorderLayout());
-            this.modify_tags_list = new JList<String>();
+            this.modify_tags_list = new JList();
             this.modify_tags_list.addListSelectionListener(new ListSelectionListener(){
                 @Override
                 public void valueChanged(final ListSelectionEvent e) {
                     final int idx = Tree.this.modify_tags_list.getSelectedIndex();
-                    if(idx != -1) Tree.this.curr_tag_selection.setText(Tree.this.curr_taglist_model.getElementAt(idx));
+                    if(idx != -1) Tree.this.curr_tag_selection.setText((String)Tree.this.curr_taglist_model.getElementAt(idx));
                 }
             });
             final JScrollPane scroll_list = new JScrollPane(this.modify_tags_list);
@@ -1302,7 +1303,7 @@ public class Tree extends JScrollPane implements TreeSelectionListener, DataChan
             reset_b.addActionListener(new ActionListener(){
                 @Override
                 public void actionPerformed(final ActionEvent e) {
-                    Tree.this.curr_taglist_model = new DefaultListModel<String>();
+                    Tree.this.curr_taglist_model = new DefaultListModel();
                     for(final String tag : Tree.this.tags)
                         Tree.this.curr_taglist_model.addElement(tag);
                     Tree.this.modify_tags_list.setModel(Tree.this.curr_taglist_model);

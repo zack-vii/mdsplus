@@ -1021,7 +1021,7 @@ public class mdsDataProvider implements DataProvider{
     protected synchronized void CheckConnection() throws IOException {
         if(DEBUG.M) System.out.println("mdsDataProvider.CheckConnection()");
         if(!this.connected){
-            if(!this.mds.ConnectTomds(this.use_compression)){
+            if(!this.mds.ConnectToMds(this.use_compression)){
                 if(this.mds.error != null) throw new IOException(this.mds.error);
                 throw new IOException("Could not get IO for " + this.provider);
             }
@@ -1039,7 +1039,7 @@ public class mdsDataProvider implements DataProvider{
     public synchronized boolean CheckOpen(final String experiment, final long shot) throws IOException {
         if(DEBUG.M) System.out.println("mdsDataProvider.CheckOpen(\"" + experiment + "\", " + shot + ")");
         if(!this.connected){
-            if(!this.mds.ConnectTomds(this.use_compression)){
+            if(!this.mds.ConnectToMds(this.use_compression)){
                 if(this.mds.error != null) throw new IOException("Cannot connect to data server : " + this.mds.error);
                 this.error = "Cannot connect to data server";
                 return false;
@@ -1093,7 +1093,7 @@ public class mdsDataProvider implements DataProvider{
         if(this.is_tunneling && this.ssh_tunneling != null) this.ssh_tunneling.Dispose();
         if(this.connected){
             this.connected = false;
-            this.mds.DisconnectFrommds();
+            this.mds.DisconnectFromMds();
             if(DEBUG.D) System.out.println(">> disconnected");
             final ConnectionEvent ce = new ConnectionEvent(this, ConnectionEvent.LOST_CONNECTION, "Lost connection from : " + this.provider);
             this.mds.dispatchConnectionEvent(ce);
@@ -1116,7 +1116,7 @@ public class mdsDataProvider implements DataProvider{
     protected void finalize() {
         if(DEBUG.M) System.out.println("mdsDataProvider.finalize()");
         if(this.open) this.mds.mdsValue("JavaClose(\"" + this.experiment + "\"," + this.shot + ")");
-        if(this.connected) this.mds.DisconnectFrommds();
+        if(this.connected) this.mds.DisconnectFromMds();
         if(DEBUG.D) System.out.println(">> disconnected");
     }
 

@@ -91,16 +91,16 @@ public final class mdsMessage extends Object{
     protected int                      status;
     private boolean                    swap                = false;
 
-    protected mdsMessage(){
+    public mdsMessage(){
         this((byte)0, (byte)0, (byte)0, null, new byte[1]);
         this.status = 1;
     }
 
-    protected mdsMessage(final byte c){
+    public mdsMessage(final byte c){
         this(c, null);
     }
 
-    protected mdsMessage(final byte descr_idx, final byte dtype, final byte nargs, final int dims[], final byte body[]){
+    public mdsMessage(final byte descr_idx, final byte dtype, final byte nargs, final int dims[], final byte body[]){
         final int body_size = (body != null ? body.length : 0);
         this.msglen = mdsMessage.HEADER_SIZE + body_size;
         this.status = 0;
@@ -127,9 +127,13 @@ public final class mdsMessage extends Object{
         this(s, null);
     }
 
-    protected mdsMessage(final String s, final Vector<ConnectionListener> v){
+    public mdsMessage(final String s, final Vector<ConnectionListener> v){
         this((byte)0, Descriptor.DTYPE_CSTRING, (byte)1, null, s.getBytes());
         this.connection_listener = v;
+    }
+
+    public final byte[] asByteArray() throws IOException {
+        return this.body;
     }
 
     protected final double[] asDoubleArray() throws IOException {
@@ -295,6 +299,10 @@ public final class mdsMessage extends Object{
             this.connection_listener.elementAt(i).processConnectionEvent(e);
     }
 
+    public final byte getNargs() {
+        return this.nargs;
+    }
+
     private final synchronized void readBuf(final byte buf[], final InputStream dis) throws IOException {
         ConnectionEvent e;
         int bytes_to_read = buf.length, read_bytes = 0, curr_offset = 0;
@@ -335,7 +343,7 @@ public final class mdsMessage extends Object{
         return out;
     }
 
-    protected final synchronized void Receive(final InputStream dis) throws IOException {
+    public final synchronized void Receive(final InputStream dis) throws IOException {
         final byte header_b[] = new byte[16 + Descriptor.MAX_DIM * 4];
         int c_type = 0;
         int idx = 0;
@@ -380,11 +388,11 @@ public final class mdsMessage extends Object{
         }else this.body = new byte[0];
     }
 
-    protected final synchronized void Send(final DataOutputStream dos) throws IOException {
+    public final synchronized void Send(final DataOutputStream dos) throws IOException {
         dos.writeInt(this.msglen);
         dos.writeInt(this.status);
         dos.writeShort(this.length);
-        dos.writeByte(this.nargs);
+        dos.writeByte(this.getNargs());
         dos.writeByte(this.descr_idx);
         dos.writeByte(this.message_id);
         dos.writeByte(this.dtype);
@@ -394,11 +402,15 @@ public final class mdsMessage extends Object{
             dos.writeInt(this.dims[i]);
         dos.write(this.body, 0, this.body.length);
         dos.flush();
-        if(this.descr_idx == (this.nargs - 1)) mdsMessage.msgid++;
+        if(this.descr_idx == (this.getNargs() - 1)) mdsMessage.msgid++;
         if(mdsMessage.msgid == 0) mdsMessage.msgid = 1;
     }
 
     protected final void useCompression(final boolean use_cmp) {
         this.status = (use_cmp ? mdsMessage.SUPPORTS_COMPRESSION | 5 : 0);
+    }
+
+    public final void verify() {
+        this.status |= 1;
     }
 }

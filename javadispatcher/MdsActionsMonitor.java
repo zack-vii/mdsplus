@@ -1,181 +1,139 @@
-import java.util.*;
-import java.net.*;
-import java.io.*;
-import jScope.*;
+import java.io.BufferedOutputStream;
+import java.io.OutputStream;
+import java.net.Socket;
+import java.util.Enumeration;
+import java.util.Vector;
+import jScope.Descriptor;
+import mds.mdsMessage;
 
-class MdsActionsMonitor extends MdsIp implements MonitorListener, Runnable
-{
+class MdsActionsMonitor extends MdsIp implements MonitorListener, Runnable{
+    Vector<MdsMonitorEvent>      msg_vect       = new Vector<MdsMonitorEvent>();
     Vector<BufferedOutputStream> outstream_vect = new Vector<BufferedOutputStream>();
-    Vector<MdsMonitorEvent> msg_vect = new Vector<MdsMonitorEvent>();
 
-    public MdsActionsMonitor(int port)
-    {
+    public MdsActionsMonitor(final int port){
         super(port);
-        new Thread(new Runnable()
-        {
-            public void run()
-            {
-                sendMessages();
+        new Thread(new Runnable(){
+            @Override
+            public void run() {
+                MdsActionsMonitor.this.sendMessages();
             }
-         }).start();
+        }).start();
     }
 
-    public MdsMessage handleMessage(MdsMessage [] messages)
-    {
-        if(messages.length < 6 || messages[2].dtype != Descriptor.DTYPE_SHORT
-            || messages[1].dtype != Descriptor.DTYPE_BYTE)
-        {
-            System.err.println("Unexpected message has been received by MdsDoneActionsMonitor");
-        }
-        else
-        {
-            try {
-                short port = (messages[2].ToShortArray())[0];
-                String addr = ""+toShort(messages[1].body[0])+"."+toShort(messages[1].body[1])+"."
-                    +toShort(messages[1].body[2])+"."+toShort(messages[1].body[3]);
-                Socket sock = new Socket(addr, port);
-                outstream_vect.addElement(new BufferedOutputStream(sock.getOutputStream()));
-            }catch (Exception exc) {}
-        }
-        MdsMessage msg =  new MdsMessage((byte)0, Descriptor.DTYPE_LONG, (byte)0, null, Descriptor.dataToByteArray(new Integer(1)));
-        msg.status = 1;
-        return msg;
-    }
+    @Override
+    public synchronized void beginSequence(final MonitorEvent event) {}
 
-    private short toShort(byte b)
-    {
-        return (short)((short)b & (short)0x00ff);
-    }
+    @Override
+    public void build(final MonitorEvent event) {}
 
-    public void sendMessages()
-    {
-        while(true)
-        {
-            while(msg_vect.size() != 0)
-            {
-                MdsMonitorEvent msg = msg_vect.elementAt(0);
-                msg_vect.removeElementAt(0);
-                byte [] bin_msg = msg.toBytes();
-                Enumeration outstream_list = outstream_vect.elements();
-                while(outstream_list.hasMoreElements())
-                {
-                    OutputStream os = (OutputStream)outstream_list.nextElement();
-                    try {
-                        os.write(bin_msg);
-                        os.flush();
-                    }catch(Exception exc){}
-                }
-            }
-            try {
-                synchronized(MdsActionsMonitor.this)
-                {
-                    wait();
-                }
-            }catch(InterruptedException exc) {return; }
-        }
-    }
+    @Override
+    public void buildBegin(final MonitorEvent event) {}
 
-    protected void communicate(MonitorEvent event, int mode)
-    {
-        try {
+    @Override
+    public void buildEnd(final MonitorEvent event) {}
+
+    protected void communicate(final MonitorEvent event, final int mode) {
+        try{
             MdsMonitorEvent mds_event = null;
-            if(event.getAction() == null)
-            {
+            if(event.getAction() == null){
                 int currMode = 0;
-                switch(event.eventId)
-                {
-                    case MonitorEvent.CONNECT_EVENT:    
-                        currMode = MdsMonitorEvent.MonitorServerConnected; 
+                switch(event.eventId){
+                    case MonitorEvent.CONNECT_EVENT:
+                        currMode = MdsMonitorEvent.MonitorServerConnected;
                         mds_event = new MdsMonitorEvent(this, null, 0, 0, 0, null, 1, currMode, null, event.getMessage(), 1);
-                    break;
-                    case MonitorEvent.DISCONNECT_EVENT: 
-                        currMode = MdsMonitorEvent.MonitorServerDisconnected; 
-                        mds_event = new MdsMonitorEvent(this, null, 0, 0, 0, null, 1, currMode, null, event.getMessage(), 1);
-                    break;
-                    case MonitorEvent.START_PHASE_EVENT: 
-                        currMode = MdsMonitorEvent.MonitorStartPhase; 
-                        mds_event = new MdsMonitorEvent(this, event.getTree(), event.getShot(), MdsHelper.toPhaseId(event.getPhase()), 0, null, 1, currMode, null, null, 1);                        
                         break;
-                    case MonitorEvent.END_PHASE_EVENT:    
-                        currMode = MdsMonitorEvent.MonitorEndPhase; 
-                        mds_event = new MdsMonitorEvent(this, event.getTree(), event.getShot(), MdsHelper.toPhaseId(event.getPhase()), 0, null, 1, currMode, null, null, 1);                        
-                        break;                 
+                    case MonitorEvent.DISCONNECT_EVENT:
+                        currMode = MdsMonitorEvent.MonitorServerDisconnected;
+                        mds_event = new MdsMonitorEvent(this, null, 0, 0, 0, null, 1, currMode, null, event.getMessage(), 1);
+                        break;
+                    case MonitorEvent.START_PHASE_EVENT:
+                        currMode = MdsMonitorEvent.MonitorStartPhase;
+                        mds_event = new MdsMonitorEvent(this, event.getTree(), event.getShot(), MdsHelper.toPhaseId(event.getPhase()), 0, null, 1, currMode, null, null, 1);
+                        break;
+                    case MonitorEvent.END_PHASE_EVENT:
+                        currMode = MdsMonitorEvent.MonitorEndPhase;
+                        mds_event = new MdsMonitorEvent(this, event.getTree(), event.getShot(), MdsHelper.toPhaseId(event.getPhase()), 0, null, 1, currMode, null, null, 1);
+                        break;
                     default:
                         mds_event = new MdsMonitorEvent(this, event.getTree(), event.getShot(), 0, 0, null, 1, mode, null, null, 1);
-                }                   
+                }
+            }else{
+                final Action action = event.getAction();
+                mds_event = new MdsMonitorEvent(this, event.getTree(), event.getShot(), MdsHelper.toPhaseId(event.getPhase()), action.getNid(), action.getName(), action.isOn() ? 1 : 0, mode, ((DispatchData)(action.getAction().getDispatch())).getIdent().getString(), action.getServerAddress(), action.getStatus());
             }
-            else
-            {
-                Action action = event.getAction();
-                mds_event = new MdsMonitorEvent(this, event.getTree(), event.getShot(),
-                    MdsHelper.toPhaseId(event.getPhase()), action.getNid(),
-                    action.getName(), action.isOn()?1:0, mode,
-                    ((DispatchData)(action.getAction().getDispatch())).getIdent().getString(),
-                    action.getServerAddress(),
-                    action.getStatus());
+            this.msg_vect.addElement(mds_event);
+            synchronized(this){
+                this.notify();
             }
-            msg_vect.addElement(mds_event);
-            synchronized(MdsActionsMonitor.this)
-            {
-                notify();
-            }
-        }catch(Exception exc)
-        {
+        }catch(final Exception exc){
             System.out.println(exc);
         }
     }
-    
-    public synchronized void beginSequence(MonitorEvent event)
-    {
+
+    @Override
+    public void connect(final MonitorEvent event) {}
+
+    @Override
+    public void disconnect(final MonitorEvent event) {}
+
+    @Override
+    public void dispatched(final MonitorEvent event) {}
+
+    @Override
+    public void doing(final MonitorEvent event) {}
+
+    @Override
+    public synchronized void done(final MonitorEvent event) {
+        this.communicate(event, jDispatcher.MONITOR_DONE);
     }
 
-//    public synchronized void buildBegin(MonitorEvent event)
-    public  void buildBegin(MonitorEvent event)
-    {
+    @Override
+    public void endPhase(final MonitorEvent event) {}
+
+    @Override
+    public synchronized void endSequence(final MonitorEvent event) {}
+
+    public mdsMessage handleMessage(final mdsMessage[] messages) {
+        try{
+            final short port = messages[2].asShortArray()[0];
+            final byte[] ip = messages[1].asByteArray();
+            final String addr = (ip[0] & 0xff) + "." + (ip[1] & 0xff) + "." + (ip[2] & 0xff) + "." + (ip[3] & 0xff);
+            final Socket sock = new Socket(addr, port);
+            this.outstream_vect.addElement(new BufferedOutputStream(sock.getOutputStream()));
+            sock.close();
+        }catch(final Exception exc){
+            System.err.println("Unexpected message has been received by MdsMonitor");
+        }
+        final mdsMessage msg = new mdsMessage((byte)0, Descriptor.DTYPE_LONG, (byte)0, null, Descriptor.dataToByteArray(1));
+        msg.verify();
+        return msg;
     }
 
-    public  void build(MonitorEvent event)
-    {
+    public void sendMessages() {
+        while(true){
+            while(this.msg_vect.size() != 0){
+                final MdsMonitorEvent msg = this.msg_vect.elementAt(0);
+                this.msg_vect.removeElementAt(0);
+                final byte[] bin_msg = msg.toBytes();
+                final Enumeration outstream_list = this.outstream_vect.elements();
+                while(outstream_list.hasMoreElements()){
+                    final OutputStream os = (OutputStream)outstream_list.nextElement();
+                    try{
+                        os.write(bin_msg);
+                        os.flush();
+                    }catch(final Exception exc){}
+                }
+            }
+            try{
+                synchronized(MdsActionsMonitor.this){
+                    this.wait();
+                }
+            }catch(final InterruptedException exc){
+                return;
+            }
+        }
     }
 
-    public  void buildEnd(MonitorEvent event)
-    {
-    }
-    
-//    public synchronized void dispatched(MonitorEvent event)
-    public  void dispatched(MonitorEvent event)
-    {
-    }
-    
-//    public synchronized void doing(MonitorEvent event)
-    public  void doing(MonitorEvent event)
-    {
-    }
-    
-    public synchronized void done(MonitorEvent event)
-    {
-        communicate( event, jDispatcher.MONITOR_DONE );
-    }
-    
-    public  void disconnect(MonitorEvent event)
-    {
-    }
-    
-    public  void connect(MonitorEvent event)
-    {
-    }
-    
-    public synchronized void endSequence(MonitorEvent event)
-    {
-    }
-
-    public  void endPhase(MonitorEvent event)
-    {
-    }
-    
-    public  void startPhase(MonitorEvent event)
-    {
-    }
-
+    @Override
+    public void startPhase(final MonitorEvent event) {}
 }
-
