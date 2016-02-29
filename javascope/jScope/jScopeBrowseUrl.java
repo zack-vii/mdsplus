@@ -162,6 +162,11 @@ public class jScopeBrowseUrl extends JDialog{
         };
     }
 
+    @SuppressWarnings("static-method")
+    public String getDefaultURL() {
+        return null;
+    }
+
     public boolean isConnected() {
         return this.connected;
     }

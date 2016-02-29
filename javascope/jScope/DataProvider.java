@@ -85,6 +85,14 @@ public interface DataProvider{
     public String ErrorString();
 
     /**
+     * retruns the default Browser to be used if none specified in the properties file
+     *
+     * @param
+     * @return the jScopeBrowseSignals class
+     */
+    public Class getDefaultBrowser();
+
+    /**
      * Method GetFloat is called by jScope to evaluate x min, x max, y min, y max when defined
      * in the setup data source pop-up form. The argument is in fact the string typed by the user in
      * the form.

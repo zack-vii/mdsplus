@@ -1213,6 +1213,12 @@ public class mdsDataProvider implements DataProvider{
         return new mdsConnection();
     }
 
+    @Override
+    public Class getDefaultBrowser() {
+        // TODO Add jTraverser plug-in
+        return null;
+    }
+
     public double[] GetDoubleArray(final String in) throws IOException {
         final RealArray realArray = this.GetRealArray(in);
         if(realArray == null) return null;

@@ -481,6 +481,11 @@ public final class w7xDataProvider implements DataProvider{
     }
 
     @Override
+    public Class getDefaultBrowser() {
+        return w7xBrowseSignals.class;
+    }
+
+    @Override
     public synchronized float GetFloat(final String in) throws IOException {
         return this.mds.GetFloat(in);
     }

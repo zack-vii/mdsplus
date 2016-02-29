@@ -59,6 +59,11 @@ final class NotConnectedDataProvider implements DataProvider{
     }
 
     @Override
+    public Class getDefaultBrowser() {
+        return null;
+    }
+
+    @Override
     public float GetFloat(final String in) {
         return Float.parseFloat(in);
     }

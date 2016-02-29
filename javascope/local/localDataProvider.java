@@ -645,6 +645,11 @@ public class localDataProvider implements DataProvider{
         }
     }
 
+    @Override
+    public Class getDefaultBrowser() {
+        return null;
+    }
+
     int getEventId(final String event) throws Exception {
         if(DEBUG.M) System.out.println("localDataProvider.getEventId(\"" + event + "\")");
         for(int idx = 0; idx < this.listeners.size(); idx++){

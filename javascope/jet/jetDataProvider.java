@@ -281,6 +281,12 @@ public final class jetDataProvider implements DataProvider{
     }
 
     @Override
+    public Class getDefaultBrowser() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
     public float GetFloat(final String in) {
         return Float.parseFloat(in);
     }

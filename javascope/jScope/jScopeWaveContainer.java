@@ -913,9 +913,7 @@ public final class jScopeWaveContainer extends WaveformContainer{
         }
         if(server_item.class_name != null){
             try{
-                Class cl;
-                if(server_item.class_name.contains(".")) cl = Class.forName(server_item.class_name);
-                else cl = Class.forName("jScope." + server_item.class_name);
+                final Class cl = Class.forName(server_item.class_name);
                 new_dp = (DataProvider)cl.newInstance();
             }catch(final Exception e){
                 throw(new Exception("Can't load data provider class : " + server_item.class_name + "\n" + e));
@@ -950,24 +948,23 @@ public final class jScopeWaveContainer extends WaveformContainer{
             this.ChangeDataProvider(this.dp);
             this.AddAllEvents(l);
             // create browse panel if defined
-            if(server_item != null && server_item.browse_class != null && server_item.browse_url != null){
-                try{
-                    final Class cl = Class.forName("jScope." + server_item.browse_class);
-                    this.browse_sig = (jScopeBrowseSignals)cl.newInstance();
-                    this.browse_sig.setWaveContainer(this);
-                }catch(final Exception e){
-                    this.browse_sig = null;
-                    JOptionPane.showMessageDialog(this, "Unable to locate the signal server " + server_item.browse_url + " : " + e.getMessage(), "alert", JOptionPane.ERROR_MESSAGE);
-                }
-            }else{
+            final Class cl;
+            if(server_item.browse_class != null) cl = Class.forName(server_item.browse_class);
+            else cl = this.dp.getDefaultBrowser();
+            try{
+                this.browse_sig = (jScopeBrowseSignals)cl.newInstance();
+                if(server_item.browse_url == null) server_item.browse_url = this.browse_sig.getDefaultURL();
+                this.browse_sig.setWaveContainer(this);
+            }catch(final Exception e){
                 this.browse_sig = null;
+                JOptionPane.showMessageDialog(this, "Unable to locate the signal server " + server_item.browse_url + " : " + e.getMessage(), "alert", JOptionPane.ERROR_MESSAGE);
             }
             this.server_item = server_item;
         }catch(final IOException e){
             this.server_item = new DataServerItem("Not Connected", null, null, "NotConnectedDataProvider", null, null, null, false);
             this.dp = new NotConnectedDataProvider();
             this.ChangeDataProvider(this.dp);
-            throw(new Exception(e.getMessage()));
+            throw(e);
         }
     }
 

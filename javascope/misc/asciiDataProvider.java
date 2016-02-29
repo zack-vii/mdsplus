@@ -417,6 +417,12 @@ public final class asciiDataProvider implements DataProvider{
     public void getDataAsync(final double lowerBound, final double upperBound, final double resolution) {}
 
     @Override
+    public Class getDefaultBrowser() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
     public float GetFloat(final String in) {
         this.error = null;
         return Float.parseFloat(in);

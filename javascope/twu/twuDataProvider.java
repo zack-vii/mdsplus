@@ -114,6 +114,11 @@ public final class twuDataProvider implements DataProvider{
         return this.lastWaveData;
     }
 
+    @Override
+    public Class getDefaultBrowser() {
+        return textorBrowseSignals.class;
+    }
+
     protected synchronized String getExperiment() {
         return this.experiment;
     }

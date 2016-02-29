@@ -82,7 +82,7 @@ TWU_SRC = \
 
 W7X_SRC = \
   w7x/w7xDataProvider.java \
-  w7x/w7xSignalBrowser.java
+  w7x/w7xBrowseSignals.java
 
 
 COMMON_SRC = \

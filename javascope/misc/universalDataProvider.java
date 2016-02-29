@@ -137,6 +137,12 @@ public final class universalDataProvider implements DataProvider{
     }
 
     @Override
+    public Class getDefaultBrowser() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
     public float GetFloat(final String in) {
         this.error = null;
         return Float.parseFloat(in);

@@ -49,9 +49,8 @@ import jScope.jScopeFacade;
 import jScope.jScopeWaveContainer;
 import w7x.w7xDataProvider.signalaccess;
 
-public final class w7xSignalBrowser extends jScopeBrowseSignals{
+public final class w7xBrowseSignals extends jScopeBrowseSignals{
     static final class DateTimePicker extends JXDatePicker{
-        // private static final int[] date = new int[]{Calendar.YEAR, Calendar.MONTH, Calendar.DAY_OF_MONTH};
         public static final DateFormat  format           = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
         private static final long       serialVersionUID = 77777773L;
         private static final int[]      time             = new int[]{Calendar.HOUR_OF_DAY, Calendar.MINUTE, Calendar.SECOND, Calendar.MILLISECOND};
@@ -167,18 +166,18 @@ public final class w7xSignalBrowser extends jScopeBrowseSignals{
         }
 
         public void addSignal() {
-            if(w7xSignalBrowser.this.wave_panel == null) return;
+            if(w7xBrowseSignals.this.wave_panel == null) return;
             final TreeNode[] path = this.getPath();
             if(path == null || path.length < 2) return;
             final String sig_path = "/" + ((w7xDataBase)path[1]).name + this.getSignalPath();
-            if(sig_path != null) w7xSignalBrowser.this.wave_panel.AddSignal(null, null, "", sig_path, true, w7xSignalBrowser.this.is_image);
+            if(sig_path != null) w7xBrowseSignals.this.wave_panel.AddSignal(null, null, "", sig_path, true, w7xBrowseSignals.this.is_image);
         }
 
         @SuppressWarnings("unchecked")
         public final List<SignalAddress> getChildren() {
             final TreeNode[] path = this.getPath();
             if(path == null || path.length < 2) return null;
-            final TimeInterval ti = TimeInterval.ALL.withStart(w7xSignalBrowser.this.from.getDate().getTime() * 1000000L).withEnd(w7xSignalBrowser.this.upto.getDate().getTime() * 1000000L);
+            final TimeInterval ti = TimeInterval.ALL.withStart(w7xBrowseSignals.this.from.getDate().getTime() * 1000000L).withEnd(w7xBrowseSignals.this.upto.getDate().getTime() * 1000000L);
             return (List<SignalAddress>)((w7xDataBase)path[1]).sa.stl.listFor(ti, this.getSignalPath());
         }
 
@@ -216,7 +215,7 @@ public final class w7xSignalBrowser extends jScopeBrowseSignals{
             @Override
             public void run() {
                 try{
-                    final w7xSignalBrowser frame = new w7xSignalBrowser();
+                    final w7xBrowseSignals frame = new w7xBrowseSignals();
                     frame.setVisible(true);
                 }catch(final Exception e){
                     e.printStackTrace();
@@ -236,7 +235,7 @@ public final class w7xSignalBrowser extends jScopeBrowseSignals{
     /**
      * Create the frame.
      */
-    public w7xSignalBrowser(){
+    public w7xBrowseSignals(){
         this.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         this.contentPane = new JPanel();
         this.contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -254,7 +253,7 @@ public final class w7xSignalBrowser extends jScopeBrowseSignals{
         but.addActionListener(new ActionListener(){
             @Override
             public void actionPerformed(final ActionEvent e) {
-                w7xDataProvider.setTiming(w7xSignalBrowser.this.from.getDate().getTime(), w7xSignalBrowser.this.upto.getDate().getTime());
+                w7xDataProvider.setTiming(w7xBrowseSignals.this.from.getDate().getTime(), w7xBrowseSignals.this.upto.getDate().getTime());
                 jScopeFacade.instance.UpdateAllWaves();
             }
         });
@@ -269,7 +268,7 @@ public final class w7xSignalBrowser extends jScopeBrowseSignals{
         cb.addActionListener(new ActionListener(){
             @Override
             public void actionPerformed(final ActionEvent e) {
-                w7xSignalBrowser.this.is_image = cb.isSelected();
+                w7xBrowseSignals.this.is_image = cb.isSelected();
             }
         });
         ejp.add(ejp = new JPanel());
@@ -313,6 +312,11 @@ public final class w7xSignalBrowser extends jScopeBrowseSignals{
         });
         tree.expandPath(new TreePath(this.top));
         this.pack();
+    }
+
+    @Override
+    public String getDefaultURL() {
+        return "http://archive-webapi.ipp-hgw.mpg.de";
     }
 
     @Override
