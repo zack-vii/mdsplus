@@ -1,32 +1,28 @@
-DOCS = jScope.html jScope.jpg popup.jpg about_jscope.jpg \
-        CompositeWaveDisplay.html \
-        ConnectionEvent.html ConnectionListener.html \
-        DataProvider.html \
-        FrameData.html \
-        ReadMe.html data_popup.jpg data_setup.jpg frame_popup.jpg image_setup.jpg \
-        twu/TWU_image_message.html \
-        UpdateEvent.html UpdateEventListener.html \
-        WaveData.html WaveDisplay.html
+DOCS = jScope.html jScope.jpg \
+  jScope/popup.jpg jScope/about_jscope.jpg \
+  jScope/CompositeWaveDisplay.html \
+  jScope/ConnectionEvent.html jScope/ConnectionListener.html \
+  jScope/DataProvider.html jScope/FrameData.html \
+  jScope/ReadMe.html jScope/data_popup.jpg jScope/data_setup.jpg \
+  jScope/frame_popup.jpg jScope/image_setup.jpg \
+  jScope/UpdateEvent.html jScope/UpdateEventListener.html \
+  jScope/WaveData.html jScope/WaveDisplay.html
 
 TOPDOCS = jScope.html \
-        CompositeWaveDisplay.html \
-        ConnectionEvent.html ConnectionListener.html \
-        DataProvider.html \
-        FrameData.html \
-        ReadMe.html \
-        twu/TWU_image_message.html \
-        UpdateEvent.html UpdateEventListener.html \
-        WaveData.html WaveDisplay.html
+  jScope/CompositeWaveDisplay.html \
+  jScope/ConnectionEvent.html jScope/ConnectionListener.html \
+  jScope/DataProvider.html jScope/FrameData.html jScope/ReadMe.html \
+  jScope/UpdateEvent.html jScope/UpdateEventListener.html \
+  jScope/WaveData.html jScope/WaveDisplay.html
 
 SUBDOCS = \
-  jScope.html jScope.jpg popup.jpg \
-  CompositeWaveDisplay.html \
-  ConnectionEvent.html ConnectionListener.html \
-  DataProvider.html \
-  FrameData.html \
-  data_setup.jpg frame_popup.jpg image_setup.jpg \
-  UpdateEvent.html UpdateEventListener.html \
-  WaveData.html
+  jScope.html jScope.jpg \
+  jScope/CompositeWaveDisplay.html \
+  jScope/ConnectionEvent.html jScope/ConnectionListener.html \
+  jScope/DataProvider.html jScope/FrameData.html \
+  jScope/data_setup.jpg jScope/frame_popup.jpg jScope/image_setup.jpg \
+  jScope/UpdateEvent.html jScope/UpdateEventListener.html \
+  jScope/WaveData.html jScope/popup.jpg
 
 JET_SRC = \
   jet/Ji/JiDataSource.java \
@@ -160,11 +156,10 @@ COMMON_SRC = \
 WAVEDISPLAY_SRC =
 
 JSCOPE_SRC = \
-        jScope.java \
-        jScope/CompositeWaveDisplay.java
+  jScope.java \
+  jScope/CompositeWaveDisplay.java
 
 EXTRA_CLASS = \
-        jScope/FakeTWUProperties.class \
-        jScope/FontPanel.class \
-        jScope/ServerDialog*.class \
-        jScope/WindowDialog.class
+  jScope/FontPanel.class \
+  jScope/ServerDialog*.class \
+  jScope/WindowDialog.class

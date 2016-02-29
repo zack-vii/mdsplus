@@ -478,7 +478,7 @@ docsdir = $(exec_prefix)/java/classes/jdocs
 dist_java_DATA = jScope.properties MindTerm.jar w7x/w7xDataProvider.jar w7x/swingx.jar
 java_DATA = jScope.jar WaveDisplay.jar jetDataProvider.jar localDataProvider.jar mdsDataProvider.jar miscDataProvider.jar twuDataProvider.jar w7xDataProvider.jar
 javadir = $(exec_prefix)/java/classes
-dist_java_JAVA = $(JSCOPE_SRC) $(WAVEDISPLAY_SRC) $(COMMON_SRC) jScope/DEBUG.java
+dist_java_JAVA = $(JSCOPE_SRC) $(WAVEDISPLAY_SRC) $(COMMON_SRC) $(JET_SRC) $(LOCAL_SRC) $(MDS_SRC) $(MISC_SRC) $(TWU_SRC) $(W7X_SRC) jScope/DEBUG.java
 COMMON_CLASS = $(COMMON_SRC:.java=*.class)
 JSCOPE_CLASS = $(COMMON_CLASS) $(JSCOPE_SRC:.java=*.class) $(EXTRA_CLASS)
 JET_CLASS = $(JET_SRC:.java=*.class)
@@ -845,7 +845,7 @@ w7xDataProvider.jar:
 	cp $(W7XDATAPROVIDER) @builddir@
 	$(MKDIR_P) @builddir@/jars
 	cp $(SWINGX) @builddir@/jars
-	$(JAR) u0mf $(addprefix @srcdir@/,w7x/MANIFEST.mf) $@ $(W7X_CLASS) jars/swingx.jar$<
+	$(JAR) u0mf $(addprefix @srcdir@/,w7x/MANIFEST.mf) $@ $(W7X_CLASS) jars/swingx.jar $<
 	rm -Rf @builddir@/jars
 
 WaveDisplay.jar:
