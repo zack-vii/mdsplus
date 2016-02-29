@@ -50,9 +50,9 @@ final public class XYData{
             this.xMin = Double.POSITIVE_INFINITY;
         }else if(increasingX){
             int i;
-            for(i = 0; !Double.isFinite(this.x[i]); i++);
+            for(i = 0; Double.isNaN(this.x[i]) || Double.isInfinite(this.x[i]); i++);
             this.xMin = this.x[i];
-            for(i = this.nSamples - 1; !Double.isFinite(this.x[i]); i--);
+            for(i = this.nSamples - 1; Double.isNaN(this.x[i]) || Double.isInfinite(this.x[i]); i--);
             this.xMax = this.x[i];
         }else{
             double xmax = Double.NEGATIVE_INFINITY;

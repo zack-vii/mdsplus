@@ -2433,10 +2433,10 @@ class ServerDialog extends JDialog implements ActionListener{
         23-05-2005
         Ovverride configuration file server definitions
         with property server definition with the same name
-        
+
         else
         {
-        
+
             if (found_dsi != null)
             {
                 dsi.user = found_dsi.user;
@@ -2458,10 +2458,9 @@ class ServerDialog extends JDialog implements ActionListener{
 
     private DataServerItem findServer(final DataServerItem dsi) {
         DataServerItem found_dsi = null;
-        @SuppressWarnings("unchecked")
-        final Enumeration<DataServerItem> e = this.list_model.elements();
+        final Enumeration e = this.list_model.elements();
         while(e.hasMoreElements()){
-            found_dsi = e.nextElement();
+            found_dsi = (DataServerItem)e.nextElement();
             if(found_dsi.equals(dsi)){ return found_dsi; }
         }
         return null;
@@ -2493,11 +2492,10 @@ class ServerDialog extends JDialog implements ActionListener{
     }
 
     public DataServerItem[] getServerIpList() {
-        @SuppressWarnings("unchecked")
-        final Enumeration<DataServerItem> e = this.list_model.elements();
+        final Enumeration e = this.list_model.elements();
         final DataServerItem out[] = new DataServerItem[this.list_model.size()];
         for(int i = 0; e.hasMoreElements(); i++)
-            out[i] = e.nextElement();
+            out[i] = (DataServerItem)e.nextElement();
         return out;
     }
 
