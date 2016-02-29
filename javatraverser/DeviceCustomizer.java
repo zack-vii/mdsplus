@@ -1,14 +1,13 @@
 import java.awt.Panel;
 import java.util.StringTokenizer;
 import javax.swing.JOptionPane;
-import jScope.MdsDataProvider;
 
 public class DeviceCustomizer extends Panel{
-    static MdsDataProvider    deviceProvider;
-    static String             lastDeviceProvider = null;
-    static String             lastDeviceType     = null;
-    static String[]           lastFields;
-    private static final long serialVersionUID   = -4104236469102475682L;
+    static mds.mdsDataProvider deviceProvider;
+    static String              lastDeviceProvider = null;
+    static String              lastDeviceType     = null;
+    static String[]            lastFields;
+    private static final long  serialVersionUID   = -4104236469102475682L;
 
     public static String[] getDeviceFields() {
         if(DeviceSetupBeanInfo.beanDeviceType == null){
@@ -25,7 +24,7 @@ public class DeviceCustomizer extends Panel{
         DeviceCustomizer.lastDeviceType = DeviceSetupBeanInfo.beanDeviceType;
         String linFields = "";
         if(DeviceCustomizer.deviceProvider == null || !DeviceCustomizer.deviceProvider.equals(DeviceSetupBeanInfo.beanDeviceProvider)){
-            DeviceCustomizer.deviceProvider = new MdsDataProvider(DeviceSetupBeanInfo.beanDeviceProvider);
+            DeviceCustomizer.deviceProvider = new mds.mdsDataProvider(DeviceSetupBeanInfo.beanDeviceProvider);
         }
         byte[] linBytes = null;
         try{
