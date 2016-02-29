@@ -551,7 +551,7 @@ public class localDataProvider implements DataProvider{
             if(!this.useCache) return this.in_y;
             if(this.yc == null){
                 this.yc = this.var + "y";
-                final String expr = this.yc + " = EVALUATE(" + this.in_y + "); KIND( " + this.yc + " )";
+                final String expr = this.yc + " = EVALUATE(" + this.in_y + "); [KIND( " + this.yc + " )]";
                 try{
                     this.ykind = localDataProvider.NativeGetByteArray(expr)[0];
                     if(DEBUG.D) System.out.println(">> tdicache y ( " + expr + " -> " + this.ykind + " ) )");

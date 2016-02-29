@@ -190,7 +190,7 @@ jScope\FontPanel.class ^
 jScope\ServerDialog*.class ^
 jScope\WindowDialog.class
 
-SET CLASSPATH=-classpath ".;MindTerm.jar;swingx.jar;w7x\w7xDataProvider.jar"
+SET CLASSPATH=-classpath ".;MindTerm.jar;w7x\swingx.jar;w7x\w7xDataProvider.jar"
 SET JAVAC="%JDK_HOME%\bin\javac.exe"
 SET JCFLAGS=-O -g:none||rem-Xlint -deprecation
 SET SRCDIR=%CD%
@@ -207,9 +207,10 @@ ECHO gathering data
 COPY /Y jScope.properties %JARDIR%\>NUL
 COPY /Y colors1.tbl %JARDIR%\>NUL
 MKDIR  %JARDIR%\docs 2>NUL
+MKDIR  %JARDIR%\jars 2>NUL
 FOR %%F IN (%DOCS%) DO COPY /Y %%F /D %JARDIR%\docs>NUL
 COPY %CD%\MindTerm.jar %JARDIR%>NUL
-COPY %CD%\swingx.jar %JARDIR%>NUL
+COPY %CD%\w7x\swingx.jar %JARDIR%\jars>NUL
 COPY %CD%\w7x\w7xDataProvider.jar %JARDIR%>NUL
 
 :packjar
@@ -221,7 +222,7 @@ PUSHD %JARDIR%
 %JAR% -cmf %SRCDIR%\mds\MANIFEST.mf "mdsDataProvider.jar" mds
 %JAR% -cmf %SRCDIR%\misc\MANIFEST.mf "miscDataProvider.jar" misc
 %JAR% -cmf %SRCDIR%\twu\MANIFEST.mf "twuDataProvider.jar" twu
-%JAR% -umf %SRCDIR%\w7x\MANIFEST.mf "w7xDataProvider.jar" w7x
+%JAR% -umf %SRCDIR%\w7x\MANIFEST.mf "w7xDataProvider.jar" w7x jars\swingx.jar
 %JAR% -cf "WaveDisplay.jar" %COMMON_SRC:.java=.class%
 POPD
 
@@ -230,6 +231,7 @@ ECHO cleaning up
 PUSHD %JARDIR%
 RMDIR /S /Q docs 2>NUL
 DEL colors1.tbl jScope.properties jScope.class 2>NUL
+RMDIR /S /Q jars 2>nul
 RMDIR /S /Q jet 2>nul
 RMDIR /S /Q jScope 2>nul
 RMDIR /S /Q local 2>nul
