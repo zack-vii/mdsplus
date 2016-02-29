@@ -18,7 +18,7 @@ TWU_CLASS = $(TWU_SRC:.java=*.class)
 W7X_CLASS = $(W7X_SRC:.java=*.class)
 WAVEDISPLAY_CLASS = $(COMMON_CLASS) $(WAVEDISPLAY_SRC:.java=*.class)
 
-all: $(JARDIR) $(JARDIR)\jScope.properties $(JARDIR)\MindTerm.jar $(JARDIR)\w7x\swingx.jar $(JARDIR)\w7x\w7xDataProvider.jar $(JARDIR)\jScope.jar $(JARDIR)\WaveDisplay.jar
+all: $(JARDIR) $(JARDIR)\jScope.properties $(JARDIR)\MindTerm.jar $(JARDIR)\w7x\w7xDataProvider.jar $(JARDIR)\jScope.jar $(JARDIR)\WaveDisplay.jar
 	rem done
 
 $(JARDIR):
@@ -29,9 +29,6 @@ $(JARDIR)\jScope.properties: jScope.properties
 	copy $** $@
 
 $(JARDIR)\MindTerm.jar: MindTerm.jar
-	copy $** $@
-
-$(JARDIR)\w7x\swingx.jar: w7x\swingx.jar
 	copy $** $@
 
 $(JARDIR)\w7xDataProvider.jar: w7x\w7xDataProvider.jar
@@ -50,28 +47,23 @@ $(JARDIR)\jScope.jar: class.stamp
 	- rmdir docs
 
 $(JARDIR)\jetDataProvider.jar: class.stamp
-	$(JAR) c0mf jet/MANIFEST.mf $@ $(JET_CLASS) $<
+	$(JAR) c0mf jet\MANIFEST.mf $@ $(JET_CLASS) $<
 
 $(JARDIR)\localDataProvider.jar: class.stamp
-	$(JAR) c0mf local/MANIFEST.mf $@ $(LOCAL_CLASS) $<
+	$(JAR) c0mf local\MANIFEST.mf $@ $(LOCAL_CLASS) $<
 
 $(JARDIR)\mdsDataProvider.jar: class.stamp
-	$(JAR) c0mf mds/MANIFEST.mf $@ $(MDS_CLASS) $<
+	$(JAR) c0mf mds\MANIFEST.mf $@ $(MDS_CLASS) $<
 
 $(JARDIR)\miscDataProvider.jar: class.stamp
-	$(JAR) c0mf misc/MANIFEST.mf $@ $(MISC_CLASS) $<
+	$(JAR) c0mf misc\MANIFEST.mf $@ $(MISC_CLASS) $<
 
 $(JARDIR)\twuDataProvider.jar: class.stamp
-	$(JAR) c0mf twu/MANIFEST.mf $@ $(TWU_CLASS) $<
+	$(JAR) c0mf twu\MANIFEST.mf $@ $(TWU_CLASS) $<
 
 $(JARDIR)\w7xDataProvider.jar: class.stamp
 	- copy $(W7XDATAPROVIDER) @builddir@
-	- del/q/f/s jars
-	- mkdir jars
-	- cp $(SWINGX) jars
-	$(JAR) u0mf w7x/MANIFEST.mf $@ $(W7X_CLASS) jars/swingx.jar $<
-	- del/q/f/s jars
-	- rmdir jars
+	$(JAR) u0mf w7x\MANIFEST.mf $@ $(W7X_CLASS) $<
 
 $(JARDIR)\WaveDisplay.jar: class.stamp
 	$(JAR) -cf $@ $(WAVECLASSES)

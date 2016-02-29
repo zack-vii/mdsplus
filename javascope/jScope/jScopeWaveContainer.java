@@ -957,7 +957,7 @@ public final class jScopeWaveContainer extends WaveformContainer{
                 this.browse_sig.setWaveContainer(this);
             }catch(final Exception e){
                 this.browse_sig = null;
-                JOptionPane.showMessageDialog(this, "Unable to locate the signal server " + server_item.browse_url + " : " + e.getMessage(), "alert", JOptionPane.ERROR_MESSAGE);
+                if(server_item.browse_url != null) JOptionPane.showMessageDialog(this, "Unable to locate the signal server " + server_item.browse_url + " : " + e, "alert", JOptionPane.ERROR_MESSAGE);
             }
             this.server_item = server_item;
         }catch(final IOException e){
