@@ -16,72 +16,63 @@ extern "C" {
  * Method:    NativeIsSegmentedNode
  * Signature: (Ljava/lang/String;)Z
  */
-  JNIEXPORT jboolean JNICALL Java_local_localDataProvider_NativeIsSegmentedNode
-      (JNIEnv *, jclass, jstring);
+  JNIEXPORT jboolean JNICALL Java_local_localDataProvider_NativeIsSegmentedNode(JNIEnv *, jclass, jstring);
 
 /*
  * Class:     local_localDataProvider
  * Method:    NativeGetSegment
  * Signature: (Ljava/lang/String;II)[B
  */
-  JNIEXPORT jbyteArray JNICALL Java_local_localDataProvider_NativeGetSegment
-      (JNIEnv *, jclass, jstring, jint, jint);
+  JNIEXPORT jbyteArray JNICALL Java_local_localDataProvider_NativeGetSegment(JNIEnv *, jclass, jstring, jint, jint);
 
 /*
  * Class:     local_localDataProvider
  * Method:    NativeGetAllFrames
  * Signature: (Ljava/lang/String;II)[B
  */
-  JNIEXPORT jbyteArray JNICALL Java_local_localDataProvider_NativeGetAllFrames
-      (JNIEnv *, jclass, jstring, jint, jint);
+  JNIEXPORT jbyteArray JNICALL Java_local_localDataProvider_NativeGetAllFrames(JNIEnv *, jclass, jstring, jint, jint);
 
 /*
  * Class:     local_localDataProvider
  * Method:    NativeGetInfo
  * Signature: (Ljava/lang/String;Z)[I
  */
-  JNIEXPORT jintArray JNICALL Java_local_localDataProvider_NativeGetInfo
-      (JNIEnv *, jclass, jstring, jboolean);
+  JNIEXPORT jintArray JNICALL Java_local_localDataProvider_NativeGetInfo(JNIEnv *, jclass, jstring, jboolean);
 
 /*
  * Class:     local_localDataProvider
  * Method:    NativeGetSegmentTimes
  * Signature: (Ljava/lang/String;Ljava/lang/String;FF)[F
  */
-  JNIEXPORT jfloatArray JNICALL Java_local_localDataProvider_NativeGetSegmentTimes
-      (JNIEnv *, jclass, jstring, jstring, jfloat, jfloat);
+  JNIEXPORT jfloatArray JNICALL Java_local_localDataProvider_NativeGetSegmentTimes(JNIEnv *, jclass, jstring, jstring, jfloat, jfloat);
 
 /*
  * Class:     local_localDataProvider
  * Method:    NativeGetAllTimes
  * Signature: (Ljava/lang/String;Ljava/lang/String;)[F
  */
-  JNIEXPORT jfloatArray JNICALL Java_local_localDataProvider_NativeGetAllTimes
-      (JNIEnv *, jclass, jstring, jstring);
+  JNIEXPORT jfloatArray JNICALL Java_local_localDataProvider_NativeGetAllTimes(JNIEnv *, jclass, jstring, jstring);
 
 /*
  * Class:     local_localDataProvider
  * Method:    NativeGetSegmentIdxs
  * Signature: (Ljava/lang/String;FF)[I
  */
-  JNIEXPORT jintArray JNICALL Java_local_localDataProvider_NativeGetSegmentIdxs
-      (JNIEnv *, jclass, jstring, jfloat, jfloat);
+  JNIEXPORT jintArray JNICALL Java_local_localDataProvider_NativeGetSegmentIdxs(JNIEnv *, jclass, jstring, jfloat, jfloat);
 
 /*
  * Class:     local_localDataProvider
  * Method:    NativeSetEnvironmentSpecific
  * Signature: (Ljava/lang/String;Ljava/lang/String;)V
  */
-  JNIEXPORT void JNICALL Java_local_localDataProvider_NativeSetEnvironmentSpecific
-      (JNIEnv *, jobject, jstring, jstring);
+  JNIEXPORT void JNICALL Java_local_localDataProvider_NativeSetEnvironmentSpecific(JNIEnv *, jobject, jstring, jstring);
 
 /*
  * Class:     local_localDataProvider
  * Method:    NativeUpdate
  * Signature: (Ljava/lang/String;J)V
  */
-  JNIEXPORT void JNICALL Java_local_localDataProvider_NativeUpdate
-      (JNIEnv *, jobject, jstring, jlong);
+  JNIEXPORT void JNICALL Java_local_localDataProvider_NativeUpdate(JNIEnv *, jobject, jstring, jlong);
 
 /*
  * Class:     local_localDataProvider
@@ -93,34 +84,30 @@ extern "C" {
 /*
  * Class:     local_localDataProvider
  * Method:    NativeGetFloat
- * Signature: (Ljava/lang/String;)D
+ * Signature: (Ljava/lang/String;)F
  */
-  JNIEXPORT jdouble JNICALL Java_local_localDataProvider_NativeGetFloat
-      (JNIEnv *, jobject, jstring);
+  JNIEXPORT jfloat JNICALL Java_local_localDataProvider_NativeGetFloat(JNIEnv *, jobject, jstring);
 
 /*
  * Class:     local_localDataProvider
  * Method:    NativeGetLongArray
  * Signature: (Ljava/lang/String;)[J
  */
-  JNIEXPORT jlongArray JNICALL Java_local_localDataProvider_NativeGetLongArray
-      (JNIEnv *, jobject, jstring);
+  JNIEXPORT jlongArray JNICALL Java_local_localDataProvider_NativeGetLongArray(JNIEnv *, jobject, jstring);
 
 /*
  * Class:     local_localDataProvider
  * Method:    NativeGetFloatArray
  * Signature: (Ljava/lang/String;)[F
  */
-  JNIEXPORT jfloatArray JNICALL Java_local_localDataProvider_NativeGetFloatArray
-      (JNIEnv *, jobject, jstring);
+  JNIEXPORT jfloatArray JNICALL Java_local_localDataProvider_NativeGetFloatArray(JNIEnv *, jobject, jstring);
 
 /*
  * Class:     local_localDataProvider
  * Method:    NativeGetDoubleArray
  * Signature: (Ljava/lang/String;)[D
  */
-  JNIEXPORT jdoubleArray JNICALL Java_local_localDataProvider_NativeGetDoubleArray
-      (JNIEnv *, jobject, jstring);
+  JNIEXPORT jdoubleArray JNICALL Java_local_localDataProvider_NativeGetDoubleArray(JNIEnv *, jobject, jstring);
 
 /*
  * Class:     local_localDataProvider
@@ -134,8 +121,7 @@ extern "C" {
  * Method:    NativeGetByteArray
  * Signature: (Ljava/lang/String;)[B
  */
-  JNIEXPORT jbyteArray JNICALL Java_local_localDataProvider_NativeGetByteArray
-      (JNIEnv *, jobject, jstring);
+  JNIEXPORT jbyteArray JNICALL Java_local_localDataProvider_NativeGetByteArray(JNIEnv *, jobject, jstring);
 
 /*
  * Class:     local_localDataProvider
@@ -149,8 +135,7 @@ extern "C" {
  * Method:    NativeRegisterEvent
  * Signature: (Ljava/lang/String;I)I
  */
-  JNIEXPORT jint JNICALL Java_local_localDataProvider_NativeRegisterEvent
-      (JNIEnv *, jobject, jstring, jint);
+  JNIEXPORT jint JNICALL Java_local_localDataProvider_NativeRegisterEvent(JNIEnv *, jobject, jstring, jint);
 
 /*
  * Class:     local_localDataProvider

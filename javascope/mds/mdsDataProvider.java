@@ -46,10 +46,10 @@ public class mdsDataProvider implements DataProvider{
         int       mode;
         int       numSegments;
         int       startSegment, endSegment, actSegments;
-        double    time_max, time_min;
-        double    times[];
+        float     time_max, time_min;
+        float     times[];
 
-        public SegmentedFrameData(final String in_y, final String in_x, final double time_min, final double time_max, final int numSegments) throws IOException{
+        public SegmentedFrameData(final String in_y, final String in_x, final float time_min, final float time_max, final int numSegments) throws IOException{
             if(DEBUG.M) System.out.println("mdsDataProvider.SegmentedFrameData(\"" + in_y + "\", \"" + in_x + "\", " + time_min + ", " + time_max + ", " + numSegments + ")");
             // Find out frames per segment and frame min and max based on time min and time max
             this.in_x = in_x;
@@ -57,7 +57,7 @@ public class mdsDataProvider implements DataProvider{
             this.time_min = time_min;
             this.time_max = time_max;
             this.numSegments = numSegments;
-            final double[] startTimes = this.findSegments();
+            final float[] startTimes = this.findSegments();
             this.actSegments = this.endSegment - this.startSegment;
             // Get Frame Dimension and frames per segment
             mdsDataProvider.this.mds.mdsValue("_jscope_seg=*");
@@ -76,13 +76,13 @@ public class mdsDataProvider implements DataProvider{
             this.mode = data.getFrameType();
             // Get Frame times
             if(this.framesPerSegment == 1){ // We assume in this case that start time is the same of the frame time
-                this.times = new double[this.actSegments];
+                this.times = new float[this.actSegments];
                 for(int i = 0; i < this.actSegments; i++)
                     this.times[i] = startTimes[this.startSegment + i];
             }else{ // Get segment times. We assume that the same number of frames is contained in every segment
-                this.times = new double[this.actSegments * this.framesPerSegment];
+                this.times = new float[this.actSegments * this.framesPerSegment];
                 for(int i = 0; i < this.actSegments; i++){
-                    final double segTimes[] = mdsDataProvider.this.GetDoubleArray("D_Float(Dim_Of(GetSegment(" + in_y + "," + i + ")))");
+                    final float segTimes[] = mdsDataProvider.this.GetFloatArray("Dim_Of(GetSegment(" + in_y + "," + i + "))");
                     if(segTimes.length != this.framesPerSegment) throw new IOException("Inconsistent definition of time in frame + " + i + ": read " + segTimes.length + " times, expected " + this.framesPerSegment);
                     for(int j = 0; j < this.framesPerSegment; j++)
                         this.times[i * this.framesPerSegment + j] = segTimes[j];
@@ -90,15 +90,15 @@ public class mdsDataProvider implements DataProvider{
             }
         }
 
-        private double[] findSegments() throws IOException {
+        private float[] findSegments() throws IOException {
             if(DEBUG.M) System.out.println("mdsDataProvider.SegmentedFrameData.findSegments() @ " + this.in_y);
-            final double[] startTimes = new double[this.numSegments];
+            final float[] startTimes = new float[this.numSegments];
             try{
-                double[] limits;
+                float[] limits;
                 try{ // try using GetLimits
-                    limits = mdsDataProvider.this.GetDoubleArray("GetLimits(" + this.in_y + ")");
+                    limits = mdsDataProvider.this.GetFloatArray("GetLimits(" + this.in_y + ")");
                 }catch(final Exception e){ // readout the limits manually
-                    limits = mdsDataProvider.this.GetDoubleArray("STATEMENT(_N=GETNCI(" + this.in_y + ",'NID_NUMBER'),_L=[],FOR(_I=0,_I<20,_I++,STATEMENT(_S=0,_E=0,_R=TreeShr->TreeGetSegmentLimits(VAL(_N),VAL(_I),XD(_S),XD(_E)),IF(_R&1,_L=[_L,_S,_E],_L=[_L,$ROPRAND,$ROPRAND]))),_L)");
+                    limits = mdsDataProvider.this.GetFloatArray("STATEMENT(_N=GETNCI(" + this.in_y + ",'NID_NUMBER'),_L=[],FOR(_I=0,_I<20,_I++,STATEMENT(_S=0,_E=0,_R=TreeShr->TreeGetSegmentLimits(VAL(_N),VAL(_I),XD(_S),XD(_E)),IF(_R&1,_L=[_L,_S,_E],_L=[_L,$ROPRAND,$ROPRAND]))),_L)");
                 }
                 for(int i = 0; i < this.numSegments; i++)
                     startTimes[i] = limits[i * 2];
@@ -130,7 +130,7 @@ public class mdsDataProvider implements DataProvider{
         }
 
         @Override
-        public double[] GetFrameTimes() {
+        public float[] GetFrameTimes() {
             return this.times;
         }
 
@@ -155,13 +155,13 @@ public class mdsDataProvider implements DataProvider{
         int               pixel_size;
         private int       st_idx          = -1, end_idx = -1;
         double            time_max, time_min;
-        private double    times[]         = null;
+        private float[]   times           = null;
 
         public SimpleFrameData(final String in_y, final String in_x, final double time_min, final double time_max) throws Exception{
             if(DEBUG.M) System.out.println("mdsDataProvider.SimpleFrameData(\"" + in_y + "\", \"" + in_x + "\", " + time_min + ", " + time_max + ")");
             int i;
             double t;
-            double all_times[] = null;
+            float all_times[] = null;
             this.in_y = in_y;
             this.in_x = in_x;
             this.time_min = time_min;
@@ -175,13 +175,13 @@ public class mdsDataProvider implements DataProvider{
                 if(allFrames.times != null) all_times = allFrames.times;
                 else{
                     if(DEBUG.D) System.out.println(">> GetWaveData(in_x), " + in_x);
-                    all_times = mdsDataProvider.this.GetDoubleArray(in_x);
+                    all_times = mdsDataProvider.this.GetFloatArray(in_x);
                     // all_times = mdsDataProvider.this.GetWaveData(in_x).getData(MAX_PIXELS).y;
                 }
             }else{
                 final String mframe_error = mdsDataProvider.this.ErrorString();
                 if(in_x == null || in_x.length() == 0) all_times = mdsDataProvider.this.GetFrameTimes(in_y);
-                else all_times = mdsDataProvider.this.GetDoubleArray(in_x);
+                else all_times = mdsDataProvider.this.GetFloatArray(in_x);
                 // all_times = mdsDataProvider.this.GetWaveData(in_x).getData(MAX_PIXELS).y;
                 if(all_times == null){
                     if(mframe_error != null) this.error = " Pulse file or image file not found\nRead pulse file error\n" + mframe_error + "\nFrame times read error";
@@ -200,7 +200,7 @@ public class mdsDataProvider implements DataProvider{
             this.end_idx = i;
             if(this.st_idx == -1) throw(new IOException("No frames found between " + time_min + " - " + time_max));
             this.n_frames = this.end_idx - this.st_idx;
-            this.times = new double[this.n_frames];
+            this.times = new float[this.n_frames];
             int j = 0;
             for(i = this.st_idx; i < this.end_idx; i++)
                 this.times[j++] = all_times[i];
@@ -240,7 +240,7 @@ public class mdsDataProvider implements DataProvider{
         }
 
         @Override
-        public double[] GetFrameTimes() {
+        public float[] GetFrameTimes() {
             return this.times;
         }
 
@@ -1123,15 +1123,13 @@ public class mdsDataProvider implements DataProvider{
     public synchronized AllFrames GetAllFrames(final String in_frame) throws IOException {
         if(DEBUG.M) System.out.println("mdsDataProvider.GetAllFrames(" + in_frame + ")");
         ByteArray img = null;
-        double time[] = null;
-        int shape[];
-        // int pixel_size = 8;
-        // int num_time = 0;
+        float[] time = null;
+        int[] shape;
         img = this.getByteArray("_jScope_img = IF_ERROR(EVALUATE(" + in_frame + "),*)");
         if(img == null) return null;
         if(DEBUG.D) System.out.println(">> mdsDataProvider.getByteArray: " + img.buf.length);
         shape = this.GetIntArray("SHAPE( _jScope_img )");
-        time = this.GetDoubleArray("D_FLOAT(DIM_OF( _jScope_img ))");
+        time = this.GetFloatArray("DIM_OF( _jScope_img )");
         this.mds.mdsValue("DEALLOCATE('_jScope_img')");
         if(time == null || shape == null) return null;
         if(DEBUG.D) System.out.println(">> mdsDataProvider.GetDoubleArray: " + time.length);
@@ -1231,15 +1229,15 @@ public class mdsDataProvider implements DataProvider{
     }
 
     @Override
-    public synchronized double GetFloat(final String in) throws IOException {
+    public synchronized float GetFloat(final String in) throws IOException {
         if(DEBUG.M) System.out.println("mdsDataProvider.GetFloat(\"" + in + "\")");
         this.error = null;
         // First check Whether this is a date
         try{
-            return mdsDataProvider.GetDate(in);
+            return (float)mdsDataProvider.GetDate(in);
         }catch(final Exception excD){}
         try{
-            return mdsDataProvider.GetNow(in);
+            return (float)mdsDataProvider.GetNow(in);
         }catch(final Exception excN){}
         if(mdsDataProvider.NotYetNumber(in)){
             if(!this.CheckOpen()) return 0;
@@ -1247,7 +1245,7 @@ public class mdsDataProvider implements DataProvider{
             if(desc.error != null) this.error = desc.error;
             switch(desc.dtype){
                 case Descriptor.DTYPE_DOUBLE:
-                    return desc.double_data[0];
+                    return (float)desc.double_data[0];
                 case Descriptor.DTYPE_FLOAT:
                     return desc.float_data[0];
                 case Descriptor.DTYPE_LONG:
@@ -1267,7 +1265,7 @@ public class mdsDataProvider implements DataProvider{
     }
 
     public float[] GetFloatArray(final String in) throws IOException {
-        final RealArray realArray = this.GetRealArray(in);
+        final RealArray realArray = this.GetRealArray("F_FLOAT(" + in + ")");
         if(realArray == null) return null;
         return realArray.getFloatArray();
     }
@@ -1300,22 +1298,22 @@ public class mdsDataProvider implements DataProvider{
         }
     }
 
-    public synchronized double[] GetFrameTimes(final String in_frame) {
+    public synchronized float[] GetFrameTimes(final String in_frame) {
         if(DEBUG.M) System.out.println("mdsDataProvider.GetFrameTimes(\"" + in_frame + "\")");
         final String exp = this.GetExperimentName(in_frame);
         final String in = "JavaGetFrameTimes(\"" + exp + "\",\"" + in_frame + "\"," + this.shot + " )";
         final Descriptor desc = this.mds.mdsValue(in);
-        double out_data[];
+        float[] out_data;
         switch(desc.dtype){
             case Descriptor.DTYPE_FLOAT:
-                out_data = new double[desc.float_data.length];
-                for(int i = 0; i < desc.float_data.length; i++)
-                    out_data[i] = desc.float_data[i];
-                return out_data;
+                return desc.float_data;
             case Descriptor.DTYPE_DOUBLE:
-                return desc.double_data;
+                out_data = new float[desc.double_data.length];
+                for(int i = 0; i < desc.double_data.length; i++)
+                    out_data[i] = (float)desc.double_data[i];
+                return out_data;
             case Descriptor.DTYPE_LONG:
-                out_data = new double[desc.int_data.length];
+                out_data = new float[desc.int_data.length];
                 for(int i = 0; i < desc.int_data.length; i++)
                     out_data[i] = desc.int_data[i];
                 return out_data;

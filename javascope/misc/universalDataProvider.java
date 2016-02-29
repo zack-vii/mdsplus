@@ -137,10 +137,9 @@ public final class universalDataProvider implements DataProvider{
     }
 
     @Override
-    public double GetFloat(final String in) {
+    public float GetFloat(final String in) {
         this.error = null;
-        final Double f = new Double(in);
-        return f.doubleValue();
+        return Float.parseFloat(in);
     }
 
     @Override

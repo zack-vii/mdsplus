@@ -124,7 +124,7 @@ public final class Frames extends Canvas{
             }
             if(fDesc == null) return null;
             if(fDesc.updateCount == this.updateCount) // fDesc.updatedImage is still ok
-                return fDesc.updatedImage;
+            return fDesc.updatedImage;
             // Othewise it is necessary to update it
             Image img;
             if(this.frameType == FrameData.BITMAP_IMAGE_32) img = fDesc.image;
@@ -328,8 +328,8 @@ public final class Frames extends Canvas{
             }
         }
     } // End class FrameCache
-    // protected int[] frame_type;
-    // Frame data cache management class
+      // protected int[] frame_type;
+      // Frame data cache management class
     static class FrameDescriptor{
         byte[] buffer;
         Image  image;
@@ -1025,7 +1025,7 @@ public final class Frames extends Canvas{
         if(DEBUG.M) System.out.println("Frames.SetFrameData(" + fd + ")");
         this.cache.setFrameData(fd);
         this.curr_frame_idx = 0;
-        final double t[] = fd.GetFrameTimes();
+        final float t[] = fd.GetFrameTimes();
         for(final double element : t)
             this.frame_time.addElement(new Float(element));
     }
@@ -1070,7 +1070,7 @@ public final class Frames extends Canvas{
         if(DEBUG.M) System.out.println("Frames.setMeasurePoint(" + idx + ", " + d + ", " + r + ")");
         final int numFrames = this.cache.getNumFrames();
         if(idx > numFrames - 1) // || frame.elementAt(idx) == null )
-            return;
+        return;
         Dimension dim;
         final Dimension fr_dim = this.getFrameSize(idx, d);
         if(this.zoom_rect == null){

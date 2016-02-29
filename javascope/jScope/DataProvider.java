@@ -86,7 +86,7 @@ public interface DataProvider{
 
     /**
      * Method GetFloat is called by jScope to evaluate x min, x max, y min, y max when defined
-     * in the stup data source popup form. The argument is in fact the string typed by the user in
+     * in the setup data source pop-up form. The argument is in fact the string typed by the user in
      * the form.
      * In its simplest implementation, method GetFloat converts the string into a float value and
      * returns it. Other data providers, such as MdsDataProvider, evaluate, possibly remotely, the
@@ -97,7 +97,7 @@ public interface DataProvider{
      * @return The evaluated value.
      * @exception java.io.IOException
      */
-    public double GetFloat(String in) throws IOException;
+    public float GetFloat(String in) throws IOException;
 
     /**
      * GetFrameData is called by jScope to retrieve and display a frame sequence. The frame sequence

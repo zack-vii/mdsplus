@@ -281,8 +281,8 @@ public final class jetDataProvider implements DataProvider{
     }
 
     @Override
-    public double GetFloat(final String in) {
-        return new Double(in).doubleValue();
+    public float GetFloat(final String in) {
+        return Float.parseFloat(in);
     }
 
     public float[] GetFloatArray(final String in, final int type) throws IOException {

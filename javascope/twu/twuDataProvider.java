@@ -119,8 +119,8 @@ public final class twuDataProvider implements DataProvider{
     }
 
     @Override
-    public double GetFloat(final String in) {
-        return new Double(in).doubleValue();
+    public float GetFloat(final String in) {
+        return Float.parseFloat(in);
     }
 
     // ---------------------------------------------------------------------------------------------

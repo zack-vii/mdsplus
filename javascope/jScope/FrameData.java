@@ -45,7 +45,7 @@ public interface FrameData{
      * @return The time array for the frame sequence.
      * @exception java.io.IOException
      */
-    public double[] GetFrameTimes() throws Exception;
+    public float[] GetFrameTimes() throws Exception;
 
     /**
      * Returns the type of the corresponding frames. Returned frames can have either of the following types: <br>

@@ -188,16 +188,16 @@ public final class w7xDataProvider implements DataProvider{
         }
 
         @Override
-        public double[] GetFrameTimes() throws IOException {
+        public float[] GetFrameTimes() throws IOException {
             this.getSignals();
             if(this.in_x == null){
                 final long[] x = w7xDataProvider.signalaccess.getLong(this.sig_x);
-                final double[] xd = new double[x.length];
+                final float[] xd = new float[x.length];
                 for(int i = 0; i < x.length; i++)
-                    xd[i] = (x[i] - this.orig) / 1E9;
+                    xd[i] = (x[i] - this.orig) / 1E9f;
                 return xd;
             }
-            return w7xDataProvider.signalaccess.getDouble(this.sig_x);
+            return w7xDataProvider.signalaccess.getFloat(this.sig_x);
         }
 
         @Override
@@ -481,7 +481,7 @@ public final class w7xDataProvider implements DataProvider{
     }
 
     @Override
-    public synchronized double GetFloat(final String in) throws IOException {
+    public synchronized float GetFloat(final String in) throws IOException {
         return this.mds.GetFloat(in);
     }
 

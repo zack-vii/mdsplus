@@ -5,9 +5,9 @@ import java.awt.Dimension;
 public class Array{
     public static final class AllFrames extends ByteArray{
         public Dimension dim;
-        public double    times[];
+        public float[]   times;
 
-        public AllFrames(final ByteArray byteArray, final int width, final int height, final double times[]){
+        public AllFrames(final ByteArray byteArray, final int width, final int height, final float times[]){
             super(byteArray.buf, byteArray.dtype);
             this.dim = new Dimension(width, height);
             this.times = times;

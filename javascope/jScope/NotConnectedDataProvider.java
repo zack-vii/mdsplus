@@ -59,8 +59,8 @@ final class NotConnectedDataProvider implements DataProvider{
     }
 
     @Override
-    public double GetFloat(final String in) {
-        return new Double(in);
+    public float GetFloat(final String in) {
+        return Float.parseFloat(in);
     }
 
     @Override

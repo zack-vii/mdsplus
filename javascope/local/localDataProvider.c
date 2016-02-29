@@ -418,8 +418,7 @@ static void *MdsGetArray(char *in, int *out_dim, int type)
 }
 
 /* Implementation of the  methods for LocalProvider class in jScope */
-JNIEXPORT void JNICALL Java_local_localDataProvider_NativeUpdate(JNIEnv * env, jobject obj,
-								  jstring exp, jlong shot)
+JNIEXPORT void JNICALL Java_local_localDataProvider_NativeUpdate(JNIEnv * env, jobject obj, jstring exp, jlong shot)
 {
   const char *exp_char;
   error_message[0] = 0;
@@ -452,7 +451,6 @@ JNIEXPORT jstring JNICALL Java_local_localDataProvider_NativeGetString(JNIEnv * 
 JNIEXPORT jfloatArray JNICALL Java_local_localDataProvider_NativeGetFloatArray(JNIEnv * env, jobject obj, jstring in)
 {
   jfloatArray jarr;
-  //float zero = 0.;
   const char *in_char = (*env)->GetStringUTFChars(env, in, 0);
   int dim;
   float *out_ptr;
@@ -471,12 +469,9 @@ JNIEXPORT jfloatArray JNICALL Java_local_localDataProvider_NativeGetFloatArray(J
 JNIEXPORT jdoubleArray JNICALL Java_local_localDataProvider_NativeGetDoubleArray(JNIEnv * env, jobject obj, jstring in)
 {
   jdoubleArray jarr;
-  //float zero = 0.;
   const char *in_char = (*env)->GetStringUTFChars(env, in, 0);
   int dim;
   double *out_ptr;
-
-
 
   out_ptr = MdsGetArray((char *)in_char, &dim, DOUBLE);
   (*env)->ReleaseStringUTFChars(env, in, in_char);
@@ -492,7 +487,6 @@ JNIEXPORT jdoubleArray JNICALL Java_local_localDataProvider_NativeGetDoubleArray
 JNIEXPORT jdoubleArray JNICALL Java_local_localDataProvider_NativeGetLongArray(JNIEnv * env, jobject obj, jstring in)
 {
   jlongArray jarr;
-  //float zero = 0.;
   const char *in_char = (*env)->GetStringUTFChars(env, in, 0);
   int dim;
   int64_t *out_ptr;
@@ -511,7 +505,6 @@ JNIEXPORT jdoubleArray JNICALL Java_local_localDataProvider_NativeGetLongArray(J
 JNIEXPORT jintArray JNICALL Java_local_localDataProvider_NativeGetIntArray(JNIEnv * env, jobject obj, jstring in)
 {
   jintArray jarr;
-  //float zero = 0.;
   const char *in_char;
   int dim;
   int *out_ptr;
@@ -550,11 +543,9 @@ JNIEXPORT jbyteArray JNICALL Java_local_localDataProvider_NativeGetByteArray(JNI
   return jarr;
 }
 
-//JNIEXPORT jfloat JNICALL Java_local_localDataProvider_NativeGetFloat(JNIEnv *env, jobject obj, jstring in)
-JNIEXPORT jdouble JNICALL Java_local_localDataProvider_NativeGetFloat(JNIEnv * env, jobject obj,
-								       jstring in)
+JNIEXPORT jfloat JNICALL Java_local_localDataProvider_NativeGetFloat(JNIEnv * env, jobject obj, jstring in)
 {
-  double ris;
+  float ris;
   const char *in_char = (*env)->GetStringUTFChars(env, in, 0);
 
   ris = MdsGetFloat((char *)in_char);
@@ -562,9 +553,7 @@ JNIEXPORT jdouble JNICALL Java_local_localDataProvider_NativeGetFloat(JNIEnv * e
   return ris;
 }
 
-JNIEXPORT void JNICALL Java_local_localDataProvider_NativeSetEnvironmentSpecific(JNIEnv * env,
-									    jobject obj, jstring in,
-									    jstring jdefNode)
+JNIEXPORT void JNICALL Java_local_localDataProvider_NativeSetEnvironmentSpecific(JNIEnv * env, jobject obj, jstring in, jstring jdefNode)
 {
   int status, nid;
   const char *in_char = (*env)->GetStringUTFChars(env, in, 0);
@@ -833,16 +822,16 @@ JNIEXPORT jobject JNICALL Java_local_localDataProvider_NativeGetInfo
   }
 
 //Build resulting object
-  clazz = (*env)->FindClass(env, "jScope/LocalDataProviderInfo");
+  clazz = (*env)->FindClass(env, "local/localDataProviderInfo");
   if(clazz == NULL)
   {
-    printf("Error finding class jScope.LocalDataProviderInfo\n");
+    printf("Error finding class local.localDataProviderInfo\n");
     return NULL;
   }
   mid  = (*env)->GetMethodID(env, clazz, "<init>", "(II[I)V");
   if(mid == NULL)
   {
-    printf("Error finding constructor for Scope.LocalDataProviderInfo\n");
+    printf("Error finding constructor for local.localDataProviderInfo\n");
     return NULL;
   }
   jarr = (*env)->NewIntArray(env, retNumDims);
@@ -941,8 +930,7 @@ static int isSingleFramePerSegment(int nid)
  * Signature: (Ljava/lang/String;Ljava/lang/String;FF)[F
  */
 JNIEXPORT jfloatArray JNICALL Java_local_localDataProvider_NativeGetSegmentTimes
-    (JNIEnv * env, jclass cls, jstring jNodeName, jstring jTimeName, jfloat startTime,
-     jfloat endTime) {
+    (JNIEnv * env, jclass cls, jstring jNodeName, jstring jTimeName, jfloat startTime, jfloat endTime) {
   const char *nodeName = (*env)->GetStringUTFChars(env, jNodeName, 0);
   EMPTYXD(startXd);
   EMPTYXD(endXd);

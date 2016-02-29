@@ -105,8 +105,8 @@ class twuSimpleFrameData implements FrameData{
     }
 
     @Override
-    public double[] GetFrameTimes() {
-        final double dtimes[] = new double[this.times.length];
+    public float[] GetFrameTimes() {
+        final float dtimes[] = new float[this.times.length];
         for(int i = 0; i < this.times.length; i++)
             dtimes[i] = this.times[i];
         return dtimes;
