@@ -443,12 +443,10 @@ public class localDataProvider implements DataProvider{
                 if(this.xdim) this.y();
                 else{
                     this.xc = this.var + "x";
-                    final String expr = this.xc + " = (" + this.in_x + "); KIND( " + this.xc + " )";
-                    try{
-                        localDataProvider.GetRealArray(expr);
+                    final String expr = "STATEMENT(" + this.xc + "=" + this.in_x + ",[KIND(" + this.xc + ")])";
+                    if(localDataProvider.NativeGetByteArray(expr) == null){
                         if(DEBUG.D) System.out.println(">> tdicache x (" + expr + ")");
-                    }catch(final Exception exc){
-                        System.err.println("# tdicache error: could not cache x (" + expr + ")");
+                        System.err.println(this.in_x + ": " + localDataProvider.NativeErrorString());
                         this.xc = this.in_x;
                     }
                 }
@@ -465,13 +463,13 @@ public class localDataProvider implements DataProvider{
             if(!this.useCache) return this.in_y;
             if(this.yc == null){
                 this.yc = this.var + "y";
-                final String expr = this.yc + "=EVALUATE(" + this.in_y + ");[KIND(" + this.yc + ")]";
+                final String expr = "STATEMENT(" + this.yc + "=" + this.in_y + ",[KIND(" + this.yc + ")])";
                 try{
-                    this.ykind = (byte)localDataProvider.NativeGetIntArray(expr)[0];
+                    this.ykind = localDataProvider.NativeGetByteArray(expr)[0];
                     if(DEBUG.D) System.out.println(">> tdicache y ( " + expr + " -> " + this.ykind + " ) )");
-                }catch(final Exception exc){
-                    System.err.println("# tdicache error: could not cache y ( " + expr + " -> " + this.ykind + " ) ): " + exc);
-                    this.yc = this.in_y;
+                }catch(final NullPointerException e){
+                    System.err.println(this.in_y + ": " + localDataProvider.NativeErrorString());
+                    this.yc = "";
                 }
                 if(this.xdim) this.xc = "DIM_OF(" + this.yc + ")";
             }
@@ -503,8 +501,8 @@ public class localDataProvider implements DataProvider{
         return localDataProvider.NativeGetFloatArray(in);
     }
 
-    public static final int[] GetNumDimensions(final String expression) {
-        final int[] fullDims = localDataProvider.NativeGetIntArray("SHAPE( " + expression + " )");
+    public static final int[] GetNumDimensions(final String expr) {
+        final int[] fullDims = localDataProvider.NativeGetIntArray("SHAPE( " + expr + " )");
         if(fullDims == null) return null;
         if(fullDims.length == 1) return fullDims;
         // count dimensions == 1
