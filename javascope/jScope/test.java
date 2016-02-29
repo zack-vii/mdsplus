@@ -1,18 +1,19 @@
 package jScope;
 
 import java.io.IOException;
+import mds.mdsDataProvider;
 
 public class test{
-    private static final MdsDataProvider mds = new MdsDataProvider();
+    private static final mdsDataProvider mds = new mdsDataProvider();
 
     public static void main(final String[] args) {
         try{
             test.mds.mds.setProvider("mds-data-1");
             test.mds.CheckOpen("W7X", 160223021);
             final String in_y = "QSR.HARDWARE:CYGNET4K_40B:FRAMES";
-            final int numSegments = test.mds.mds.MdsValue("[GetNumSegments(" + in_y + ")]").getInt();
+            final int numSegments = test.mds.mds.mdsValue("[GetNumSegments(" + in_y + ")]").getInt();
             System.out.println("" + numSegments);
-            final int nid = test.mds.mds.MdsValue("getnci(" + in_y + ",'NID_NUMBER')").getInt();
+            final int nid = test.mds.mds.mdsValue("getnci(" + in_y + ",'NID_NUMBER')").getInt();
             System.out.println("" + nid);
             double[] limits = test.mds.GetDoubleArray("GetLimits(" + in_y + ")");
             System.out.println("" + limits.length);

@@ -1,2 +1,0 @@
-Main-Class: jScope
-Class-Path: swingx.jar MindTerm.jar W7XDataProvider.jar

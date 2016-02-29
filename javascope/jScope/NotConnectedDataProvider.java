@@ -59,13 +59,23 @@ final class NotConnectedDataProvider implements DataProvider{
     }
 
     @Override
-    public double GetFloat(final String in) {
-        return new Double(in);
+    public Class getDefaultBrowser() {
+        return null;
+    }
+
+    @Override
+    public float GetFloat(final String in) {
+        return Float.parseFloat(in);
     }
 
     @Override
     public FrameData GetFrameData(final String in_y, final String in_x, final float time_min, final float time_max) throws IOException {
         return null;
+    }
+
+    @Override
+    public final String GetLegendString(final String s) {
+        return s;
     }
 
     @Override

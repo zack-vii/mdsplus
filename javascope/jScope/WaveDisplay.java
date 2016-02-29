@@ -22,10 +22,6 @@ import javax.swing.JTextField;
 public class WaveDisplay extends JApplet implements WaveformListener{
     static final long serialVersionUID = 476443678461L;
 
-    public static void addProtocol(final DataAccess dataAccess) {
-        DataAccessURL.addProtocol(dataAccess);
-    }
-
     protected static String getParameterValue(final String context, final String param) {
         String value = null;
         final StringTokenizer st = new StringTokenizer(context);
@@ -52,8 +48,6 @@ public class WaveDisplay extends JApplet implements WaveformListener{
     WavePopup     wave_popup;
 
     public WaveDisplay(){
-        DataAccessURL.addProtocol(new MdsAccess());
-        DataAccessURL.addProtocol(new TwuAccess());
         final JPanel panel = new JPanel();
         this.w = new MultiWaveform();
         this.w.setWaveInterface(new WaveInterface(this.w));
@@ -74,21 +68,21 @@ public class WaveDisplay extends JApplet implements WaveformListener{
         final JRadioButton point = new JRadioButton("Point", false);
         point.addItemListener(new ItemListener(){
             @Override
-            public void itemStateChanged(ItemEvent e) {
+            public void itemStateChanged(final ItemEvent e) {
                 WaveDisplay.this.w.SetMode(Waveform.MODE_POINT);
             }
         });
         final JRadioButton zoom = new JRadioButton("Zoom", true);
         zoom.addItemListener(new ItemListener(){
             @Override
-            public void itemStateChanged(ItemEvent e) {
+            public void itemStateChanged(final ItemEvent e) {
                 WaveDisplay.this.w.SetMode(Waveform.MODE_ZOOM);
             }
         });
         final JRadioButton pan = new JRadioButton("Pan", false);
         pan.addItemListener(new ItemListener(){
             @Override
-            public void itemStateChanged(ItemEvent e) {
+            public void itemStateChanged(final ItemEvent e) {
                 WaveDisplay.this.w.SetMode(Waveform.MODE_PAN);
             }
         });

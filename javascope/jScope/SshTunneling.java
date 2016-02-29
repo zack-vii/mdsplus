@@ -51,7 +51,7 @@ final public class SshTunneling extends Thread{
     JTextField       user_text;
     String           username;
 
-    SshTunneling(final JFrame f, final DataProvider da, final String ip, final String remotePort, final String user, final String localPort) throws IOException{
+    public SshTunneling(final JFrame f, final DataProvider da, final String ip, final String remotePort, final String user, final String localPort) throws IOException{
         this.da = da;
         this.server = ip;
         this.remotePort = remotePort;
@@ -94,7 +94,7 @@ final public class SshTunneling extends Thread{
         ok_b.setDefaultCapable(true);
         ok_b.addActionListener(new ActionListener(){
             @Override
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(final ActionEvent e) {
                 SshTunneling.this.username = SshTunneling.this.user_text.getText();
                 SshTunneling.this.passwd = new String(SshTunneling.this.passwd_text.getPassword());
                 if(!SshTunneling.this.CheckPasswd(SshTunneling.this.server, SshTunneling.this.username, SshTunneling.this.passwd)){
@@ -110,7 +110,7 @@ final public class SshTunneling extends Thread{
         final JButton clear_b = new JButton("Clear");
         clear_b.addActionListener(new ActionListener(){
             @Override
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(final ActionEvent e) {
                 SshTunneling.this.user_text.setText("");
                 SshTunneling.this.passwd_text.setText("");
             }
@@ -119,7 +119,7 @@ final public class SshTunneling extends Thread{
         final JButton cancel_b = new JButton("Cancel");
         cancel_b.addActionListener(new ActionListener(){
             @Override
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(final ActionEvent e) {
                 SshTunneling.this.login_status = DataProvider.LOGIN_CANCEL;
                 SshTunneling.this.inquiry_dialog.setVisible(false);
             }

@@ -5,10 +5,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 /**
- * MdsProtocolWrapper handles mdstcpip management for protocol plugin
+ * mdsProtocolWrapper handles mdstcpip management for protocol plug in
  */
 final public class MdsIpProtocolWrapper{
-    class MdsIpInputStream extends InputStream{
+    class mdsIpInputStream extends InputStream{
         @Override
         public int read() throws IOException {
             if(MdsIpProtocolWrapper.this.connectionIdx == -1) throw new IOException("Not Connected");
@@ -35,7 +35,7 @@ final public class MdsIpProtocolWrapper{
             return readBuf.length;
         }
     }
-    class MdsIpOutputStream extends OutputStream{
+    class mdsIpOutputStream extends OutputStream{
         /*        public void flush() throws IOException
                 {
         System.out.println("FLUSH..");
@@ -44,30 +44,31 @@ final public class MdsIpProtocolWrapper{
         System.out.println("FLUSH FATTO");
                 }
          */@Override
-         public void close() throws IOException {
-             if(MdsIpProtocolWrapper.this.connectionIdx != -1){
-                 MdsIpProtocolWrapper.this.disconnect(MdsIpProtocolWrapper.this.connectionIdx);
-                 MdsIpProtocolWrapper.this.connectionIdx = -1;
-             }
-         }
+        public void close() throws IOException {
+            if(MdsIpProtocolWrapper.this.connectionIdx != -1){
+                MdsIpProtocolWrapper.this.disconnect(MdsIpProtocolWrapper.this.connectionIdx);
+                MdsIpProtocolWrapper.this.connectionIdx = -1;
+            }
+        }
 
-         @Override
-         public void write(final byte[] b) throws IOException {
-             if(MdsIpProtocolWrapper.this.connectionIdx == -1) throw new IOException("Not Connected");
-             final int numSent = MdsIpProtocolWrapper.this.send(MdsIpProtocolWrapper.this.connectionIdx, b, false);
-             if(numSent == b.length) throw new IOException("Incomplete write");
-         }
+        @Override
+        public void write(final byte[] b) throws IOException {
+            if(MdsIpProtocolWrapper.this.connectionIdx == -1) throw new IOException("Not Connected");
+            final int numSent = MdsIpProtocolWrapper.this.send(MdsIpProtocolWrapper.this.connectionIdx, b, false);
+            if(numSent == b.length) throw new IOException("Incomplete write");
+        }
 
-         @Override
-         public void write(final int b) throws IOException {
-             if(MdsIpProtocolWrapper.this.connectionIdx == -1) throw new IOException("Not Connected");
-             final int numSent = MdsIpProtocolWrapper.this.send(MdsIpProtocolWrapper.this.connectionIdx, new byte[]{(byte)b}, false);
-             if(numSent == -1) throw new IOException("Cannot Write Data");
-         }
+        @Override
+        public void write(final int b) throws IOException {
+            if(MdsIpProtocolWrapper.this.connectionIdx == -1) throw new IOException("Not Connected");
+            final int numSent = MdsIpProtocolWrapper.this.send(MdsIpProtocolWrapper.this.connectionIdx, new byte[]{(byte)b}, false);
+            if(numSent == -1) throw new IOException("Cannot Write Data");
+        }
     }
+
     static{
         try{
-            System.loadLibrary("JavaMds");
+            System.loadLibrary("Javamds");
         }catch(final UnsatisfiedLinkError e){
             javax.swing.JOptionPane.showMessageDialog(null, "Can't load data provider class LocalDataProvider : " + e, "Alert LocalDataProvider", javax.swing.JOptionPane.ERROR_MESSAGE);
         }
@@ -75,27 +76,27 @@ final public class MdsIpProtocolWrapper{
 
     public static void main(final String args[]) {
         final MdsIpProtocolWrapper mpw = new MdsIpProtocolWrapper("tcp");
-        final int idx = mpw.connectToMds("tcp://ra22.igi.cnr.it:8100");
+        final int idx = mpw.connectTomds("tcp://ra22.igi.cnr.it:8100");
         System.out.println("Connected: " + idx);
     }
     int connectionIdx = -1;
 
     public MdsIpProtocolWrapper(final String url){
-        this.connectionIdx = this.connectToMds(url);
+        this.connectionIdx = this.connectTomds(url);
     }
 
-    public native int connectToMds(String url);
+    public native int connectTomds(String url);
 
     public native void disconnect(int connectionId);
 
     public native void flush(int connectionId);
 
-    InputStream getInputStream() {
-        return new MdsIpInputStream();
+    public InputStream getInputStream() {
+        return new mdsIpInputStream();
     }
 
-    OutputStream getOutputStream() {
-        return new MdsIpOutputStream();
+    public OutputStream getOutputStream() {
+        return new mdsIpOutputStream();
     }
 
     public native byte[] recv(int connectionId, int len);

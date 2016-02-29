@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.util.StringTokenizer;
 import javax.swing.SwingUtilities;
 import javax.swing.TransferHandler;
+import mds.mdsWaveInterface;
 
 /**
  * Class MultiWaveform extends the capability of class Waveform to deal with multiple
@@ -61,16 +62,16 @@ final public class jScopeMultiWave extends MultiWaveform implements UpdateEventL
 
     public jScopeMultiWave(final DataProvider dp, final jScopeDefaultValues def_values, final boolean cache_enabled){
         super();
-        this.wi = new MdsWaveInterface(this, dp, def_values, cache_enabled);
+        this.wi = new mdsWaveInterface(this, dp, def_values, cache_enabled);
         this.setTransferHandler(new ToTransferHandler());
     }
 
     public void AddEvent() throws IOException {
-        ((MdsWaveInterface)this.wi).AddEvent(this);
+        ((mdsWaveInterface)this.wi).AddEvent(this);
     }
 
     public void AddEvent(final String event) throws IOException {
-        ((MdsWaveInterface)this.wi).AddEvent(this, event);
+        ((mdsWaveInterface)this.wi).AddEvent(this, event);
     }
 
     @Override
@@ -136,12 +137,7 @@ final public class jScopeMultiWave extends MultiWaveform implements UpdateEventL
                 }
             }
         }
-        // TWU Signal URLs
-        // If the signal is a TWU URL, we would like it to be displayed as a URL.
-        // I hope that this does not clash with other jScope codes. If so, tell me!
-        // J.G.Krom (Textor, Juelich, Germany) <J.Krom@fz-juelich.de>
-        if(TwuNameServices.catersFor(this.wi.dp)) s = TwuNameServices.legendString(this.wi, name, this.wi.shots == null ? 0 : this.wi.shots[i]);
-        return s;
+        return this.wi.dp.GetLegendString(s);
     }
 
     @Override
@@ -167,14 +163,14 @@ final public class jScopeMultiWave extends MultiWaveform implements UpdateEventL
     public synchronized void jScopeWaveUpdate() {
         if(this.wi.isAddSignal()){
             // reset to previous configuration if signal/s are not added
-            if(((MdsWaveInterface)this.wi).prev_wi != null && ((MdsWaveInterface)this.wi).prev_wi.GetNumEvaluatedSignal() == ((MdsWaveInterface)this.wi).GetNumEvaluatedSignal()){
-                ((MdsWaveInterface)this.wi).prev_wi.error = ((MdsWaveInterface)this.wi).error;
-                ((MdsWaveInterface)this.wi).prev_wi.w_error = ((MdsWaveInterface)this.wi).w_error;
-                ((MdsWaveInterface)this.wi).prev_wi.setAddSignal(this.wi.isAddSignal());
-                this.wi = ((MdsWaveInterface)this.wi).prev_wi;
+            if(((mdsWaveInterface)this.wi).prev_wi != null && ((mdsWaveInterface)this.wi).prev_wi.GetNumEvaluatedSignal() == ((mdsWaveInterface)this.wi).GetNumEvaluatedSignal()){
+                ((mdsWaveInterface)this.wi).prev_wi.error = (this.wi).error;
+                ((mdsWaveInterface)this.wi).prev_wi.w_error = ((mdsWaveInterface)this.wi).w_error;
+                ((mdsWaveInterface)this.wi).prev_wi.setAddSignal(this.wi.isAddSignal());
+                this.wi = ((mdsWaveInterface)this.wi).prev_wi;
                 this.wi.SetIsSignalAdded(false);
             }else this.wi.SetIsSignalAdded(true);
-            ((MdsWaveInterface)this.wi).prev_wi = null;
+            ((mdsWaveInterface)this.wi).prev_wi = null;
         }
         this.Update(this.wi);
         final WaveformEvent e = new WaveformEvent(this, WaveformEvent.END_UPDATE);
@@ -187,7 +183,7 @@ final public class jScopeMultiWave extends MultiWaveform implements UpdateEventL
         SwingUtilities.invokeLater(new Runnable(){
             @Override
             public void run() {
-                // System.out.println("Evento su waveform "+e.name);
+                if(DEBUG.E) System.out.println("Event at waveform " + e.name);
                 final WaveformEvent we = new WaveformEvent(jScopeMultiWave.this, WaveformEvent.EVENT_UPDATE, "Update on event " + jScopeMultiWave.this.eventName);
                 jScopeMultiWave.this.dispatchWaveformEvent(we);
             }
@@ -202,7 +198,7 @@ final public class jScopeMultiWave extends MultiWaveform implements UpdateEventL
         final Thread p = new Thread(){
             @Override
             public void run() {
-                final MdsWaveInterface mwi = (MdsWaveInterface)jScopeMultiWave.this.wi;
+                final WaveInterface mwi = jScopeMultiWave.this.wi;
                 try{
                     mwi.refresh();
                 }catch(final Exception e){}
@@ -233,7 +229,7 @@ final public class jScopeMultiWave extends MultiWaveform implements UpdateEventL
              public void run()
              {
          */
-        final MdsWaveInterface mwi = (MdsWaveInterface)this.wi;
+        final mdsWaveInterface mwi = (mdsWaveInterface)this.wi;
         final boolean cache_state = mwi.cache_enabled;
         mwi.cache_enabled = false;
         try{
@@ -256,11 +252,11 @@ final public class jScopeMultiWave extends MultiWaveform implements UpdateEventL
     }
 
     public void RemoveEvent() throws IOException {
-        ((MdsWaveInterface)this.wi).RemoveEvent(this);
+        ((mdsWaveInterface)this.wi).RemoveEvent(this);
     }
 
     public void RemoveEvent(final String event) throws IOException {
-        ((MdsWaveInterface)this.wi).AddEvent(this, event);
+        ((mdsWaveInterface)this.wi).AddEvent(this, event);
     }
 
     @Override

@@ -1,0 +1,2 @@
+Class-Path: MindTerm.jar mdsDataProvider.jar
+Main-Class: jScope

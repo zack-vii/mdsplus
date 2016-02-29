@@ -1,15 +1,16 @@
 package jScope;
 
 /* $Id$ */
-final class jScopeDefaultValues{
-    String          experiment_str, shot_str;
+public final class jScopeDefaultValues{
+    public String   experiment_str;
     private boolean is_evaluated     = false;
     private String  public_variables = null;
-    long            shots[];
-    String          title_str, xlabel, ylabel;
-    String          upd_event_str, def_node_str;
-    boolean         upd_limits       = true;
-    String          xmin, xmax, ymax, ymin;
+    public String   shot_str;
+    public long     shots[];
+    public String   title_str, xlabel, ylabel;
+    public String   upd_event_str, def_node_str;
+    public boolean  upd_limits       = true;
+    public String   xmin, xmax, ymax, ymin;
 
     public boolean getIsEvaluated() {
         return this.is_evaluated || this.public_variables == null || this.public_variables.length() == 0;

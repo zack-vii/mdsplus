@@ -23,10 +23,7 @@ final public class XYWaveData implements WaveData{
 
         @Override
         public void run() {
-            // System.out.println("GET DATA ASYNC "+lowerBound+" "+upperBound+" "+resolution);
-            final XYData newData = XYWaveData.this.getData(this.lowerBound, this.upperBound, 1000);
-            if(XYWaveData.this.isXLong()) XYWaveData.this.fireListeners(newData.xLong, newData.y, newData.resolution);
-            else XYWaveData.this.fireListeners(newData.x, newData.y, newData.resolution);
+            XYWaveData.this.fireListeners(XYWaveData.this.getData(this.lowerBound, this.upperBound, 1000));
         }
     }
     // Inner class LiveUpdater just for test
@@ -158,6 +155,11 @@ final public class XYWaveData implements WaveData{
     void fireListeners(final long[] x, final float[] y, final double resolution) {
         for(int i = 0; i < this.listeners.size(); i++)
             this.listeners.elementAt(i).dataRegionUpdated(x, y, resolution);
+    }
+
+    void fireListeners(final XYData xydata) {
+        if(XYWaveData.this.isXLong()) this.fireListeners(xydata.getXLong(), xydata.getY(), xydata.resolution);
+        else this.fireListeners(xydata.getX(), xydata.getY(), xydata.resolution);
     }
 
     /*

@@ -24,18 +24,18 @@ import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLFrameHyperlinkEvent;
 
 public class jScopeBrowseUrl extends JDialog{
-    static final long   serialVersionUID = 156468466436846L;
-    final static String u_agent          = "jScopeBrowseUrl.java ($Revision$) for " + jScopeFacade.VERSION;
-    JButton             back;
-    boolean             connected        = false;
-    int                 curr_url         = 0;
-    JButton             forward;
-    JButton             home;
-    JEditorPane         html;
-    String              mime_type;
-    JPanel              p;
-    URLConnection       url_con;
-    Vector<URL>         url_list         = new Vector<URL>();
+    static final long     serialVersionUID = 156468466436846L;
+    final static String   u_agent          = "jScopeBrowseUrl.java ($Revision$) for " + jScopeFacade.VERSION;
+    JButton               back;
+    boolean               connected        = false;
+    int                   curr_url         = 0;
+    JButton               forward;
+    JButton               home;
+    protected JEditorPane html;
+    protected String      mime_type;
+    JPanel                p;
+    URLConnection         url_con;
+    Vector<URL>           url_list         = new Vector<URL>();
 
     public jScopeBrowseUrl(final JFrame owner){
         super(owner);
@@ -52,7 +52,7 @@ public class jScopeBrowseUrl extends JDialog{
         this.p.add(this.back);
         this.back.addActionListener(new ActionListener(){
             @Override
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(final ActionEvent e) {
                 if(jScopeBrowseUrl.this.curr_url - 1 >= 0){
                     try{
                         jScopeBrowseUrl.this.curr_url--;
@@ -69,7 +69,7 @@ public class jScopeBrowseUrl extends JDialog{
         this.p.add(this.forward);
         this.forward.addActionListener(new ActionListener(){
             @Override
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(final ActionEvent e) {
                 if(jScopeBrowseUrl.this.curr_url + 1 < jScopeBrowseUrl.this.url_list.size()){
                     try{
                         jScopeBrowseUrl.this.curr_url++;
@@ -85,7 +85,7 @@ public class jScopeBrowseUrl extends JDialog{
         this.p.add(this.home);
         this.home.addActionListener(new ActionListener(){
             @Override
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(final ActionEvent e) {
                 if(jScopeBrowseUrl.this.url_list.size() != 0){
                     try{
                         jScopeBrowseUrl.this.curr_url = 0;
@@ -114,19 +114,17 @@ public class jScopeBrowseUrl extends JDialog{
     }
 
     public void connectToBrowser(final URL url) throws Exception {
-        if(DEBUG.M){
-            System.out.println("connectToBrowser(" + url + ")");
-        }
+        if(DEBUG.M) System.out.println("connectToBrowser(" + url + ")");
         if(url != null){
             this.url_list.addElement(url);
             this.setPage(url);
         }
     }
 
-    public HyperlinkListener createHyperLinkListener() {
+    public final HyperlinkListener createHyperLinkListener() {
         return new HyperlinkListener(){
             @Override
-            public void hyperlinkUpdate(HyperlinkEvent e) {
+            public void hyperlinkUpdate(final HyperlinkEvent e) {
                 if(e.getEventType() == HyperlinkEvent.EventType.ACTIVATED){
                     if(e instanceof HTMLFrameHyperlinkEvent){
                         ((HTMLDocument)jScopeBrowseUrl.this.html.getDocument()).processHTMLFrameHyperlinkEvent((HTMLFrameHyperlinkEvent)e);
@@ -149,7 +147,6 @@ public class jScopeBrowseUrl extends JDialog{
                                 }
                             }
                             // end fix bug JVM 1.1
-                            // html.setPage(u);
                             jScopeBrowseUrl.this.setPage(u);
                             final int sz = jScopeBrowseUrl.this.url_list.size();
                             for(int i2 = jScopeBrowseUrl.this.curr_url + 1; i2 < sz; i2++)
@@ -163,6 +160,11 @@ public class jScopeBrowseUrl extends JDialog{
                 }
             }
         };
+    }
+
+    @SuppressWarnings("static-method")
+    public String getDefaultURL() {
+        return null;
     }
 
     public boolean isConnected() {

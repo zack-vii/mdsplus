@@ -2,16 +2,16 @@ package jScope;
 
 /* $Id$ */
 public class DataServerItem{
-    String  argument;
-    String  browse_class;
-    String  browse_url;
-    String  class_name;
-    boolean enable_cache       = false;
-    boolean enable_compression = false;
-    boolean fast_network_access;
-    String  name;
-    String  tunnel_port;
-    String  user;
+    public String argument;
+    String        browse_class;
+    String        browse_url;
+    String        class_name;
+    boolean       enable_cache       = false;
+    boolean       enable_compression = false;
+    boolean       fast_network_access;
+    String        name;
+    public String tunnel_port;
+    public String user;
 
     public DataServerItem(){
         this(null, null, null, null, null, null, null, false);

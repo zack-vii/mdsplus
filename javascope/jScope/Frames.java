@@ -25,7 +25,7 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
-final class Frames extends Canvas{
+public final class Frames extends Canvas{
     class FrameCache{
         static final int                    MAX_CACHE_MEM = 8000000;
         boolean                             bitClip       = false;
@@ -124,7 +124,7 @@ final class Frames extends Canvas{
             }
             if(fDesc == null) return null;
             if(fDesc.updateCount == this.updateCount) // fDesc.updatedImage is still ok
-                return fDesc.updatedImage;
+            return fDesc.updatedImage;
             // Othewise it is necessary to update it
             Image img;
             if(this.frameType == FrameData.BITMAP_IMAGE_32) img = fDesc.image;
@@ -343,10 +343,10 @@ final class Frames extends Canvas{
             this.updateCount = updateCount;
         }
     }
-    static final int  ROI              = 20;
-    static final long serialVersionUID = 345323264578461L;
+    private static final int  ROI              = 20;
+    private static final long serialVersionUID = 345323264578461L;
 
-    static int DecodeImageType(final byte buf[]) {
+    public static final int DecodeImageType(final byte buf[]) {
         if(DEBUG.M) System.out.println("Frames.DecodeImageType(" + buf + ")");
         final String s = new String(buf, 0, 20);
         if(s.indexOf("GIF") == 0) return FrameData.AWT_IMAGE;
@@ -1025,7 +1025,7 @@ final class Frames extends Canvas{
         if(DEBUG.M) System.out.println("Frames.SetFrameData(" + fd + ")");
         this.cache.setFrameData(fd);
         this.curr_frame_idx = 0;
-        final double t[] = fd.GetFrameTimes();
+        final float t[] = fd.GetFrameTimes();
         for(final double element : t)
             this.frame_time.addElement(new Float(element));
     }
@@ -1070,7 +1070,7 @@ final class Frames extends Canvas{
         if(DEBUG.M) System.out.println("Frames.setMeasurePoint(" + idx + ", " + d + ", " + r + ")");
         final int numFrames = this.cache.getNumFrames();
         if(idx > numFrames - 1) // || frame.elementAt(idx) == null )
-            return;
+        return;
         Dimension dim;
         final Dimension fr_dim = this.getFrameSize(idx, d);
         if(this.zoom_rect == null){

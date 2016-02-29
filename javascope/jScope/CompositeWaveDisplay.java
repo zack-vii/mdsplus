@@ -36,6 +36,7 @@ import javax.swing.JRadioButton;
 import javax.swing.JRootPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import mds.mdsAccess;
 
 final public class CompositeWaveDisplay extends JApplet implements WaveContainerListener{
     public class AppendThread extends Thread{
@@ -344,7 +345,7 @@ final public class CompositeWaveDisplay extends JApplet implements WaveContainer
         }
         if(infoFlag){ return str9; }
         final Object localObject = DataAccessURL.getDataAccess(str8);
-        return str9 + "\n Value : " + ((MdsAccess)localObject).getExpression(str8);
+        return str9 + "\n Value : " + ((mdsAccess)localObject).getExpression(str8);
     }
 
     private static String getParameterValue(final String context, final String param) {
@@ -362,11 +363,6 @@ final public class CompositeWaveDisplay extends JApplet implements WaveContainer
             value = null;
         }
         return value;
-    }
-
-    private static void setDataAccess() {
-        DataAccessURL.addProtocol(new MdsAccess());
-        DataAccessURL.addProtocol(new TwuAccess());
     }
 
     /**
@@ -412,7 +408,6 @@ final public class CompositeWaveDisplay extends JApplet implements WaveContainer
         MultiWaveform w = null;
         WaveInterface wi = null;
         DataAccess da = null;
-        if(DataAccessURL.getNumProtocols() == 0) CompositeWaveDisplay.setDataAccess();
         c = this.wave_container.getGridComponent(row, column);
         try{
             da = DataAccessURL.getDataAccess(url);
@@ -588,7 +583,6 @@ final public class CompositeWaveDisplay extends JApplet implements WaveContainer
         WaveInterface wi = null;
         DataAccess da = null;
         Signal s;
-        if(DataAccessURL.getNumProtocols() == 0) CompositeWaveDisplay.setDataAccess();
         c = this.wave_container.getGridComponent(row, column);
         try{
             da = DataAccessURL.getDataAccess(url);
@@ -791,10 +785,7 @@ final public class CompositeWaveDisplay extends JApplet implements WaveContainer
 
     @Override
     public void init() {
-        if(this.isApplet){
-            Waveform.zoom_on_mb1 = false;
-            CompositeWaveDisplay.setDataAccess();
-        }
+        if(this.isApplet) Waveform.zoom_on_mb1 = false;
         this.setBackground(Color.lightGray);
         this.wave_container = new WaveformContainer();
         this.wave_container.addWaveContainerListener(this);

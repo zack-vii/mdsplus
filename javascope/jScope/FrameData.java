@@ -11,7 +11,7 @@ import java.io.IOException;
  *
  * @see DataProvider
  */
-interface FrameData{
+public interface FrameData{
     static final int AWT_IMAGE          = 5;
     static final int BITMAP_IMAGE_16    = 2;
     static final int BITMAP_IMAGE_32    = 4;
@@ -45,7 +45,7 @@ interface FrameData{
      * @return The time array for the frame sequence.
      * @exception java.io.IOException
      */
-    public double[] GetFrameTimes() throws Exception;
+    public float[] GetFrameTimes() throws Exception;
 
     /**
      * Returns the type of the corresponding frames. Returned frames can have either of the following types: <br>

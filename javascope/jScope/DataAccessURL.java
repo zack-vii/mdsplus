@@ -4,7 +4,7 @@ package jScope;
 import java.io.IOException;
 import java.util.Vector;
 
-class DataAccessURL{
+public final class DataAccessURL{
     static Vector<DataAccess> dataAccessVector = new Vector<DataAccess>();
 
     static public void addProtocol(final DataAccess dataAccess) {

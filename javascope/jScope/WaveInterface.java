@@ -5,12 +5,12 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 public class WaveInterface{
-    static public boolean auto_color_on_expr = false;
-    static boolean        brief_error        = true;
-    static final int      MAX_NUM_SHOT       = 30;
-    static SignalBox      sig_box            = new SignalBox();
+    static public boolean    auto_color_on_expr = false;
+    protected static boolean brief_error        = true;
+    static final int         MAX_NUM_SHOT       = 30;
+    static SignalBox         sig_box            = new SignalBox();
 
-    static String AddNewLineCode(final String s) {
+    protected static String AddNewLineCode(final String s) {
         if(DEBUG.M) System.out.println("WaveInterface.AddNewLineCode(\"" + s + "\")");
         String s_new = new String();
         int new_pos = 0, old_pos = 0;
@@ -75,7 +75,7 @@ public class WaveInterface{
         return outStr;
     }
 
-    static String RemoveNewLineCode(final String s) {
+    protected static String RemoveNewLineCode(final String s) {
         if(DEBUG.M) System.out.println("WaveInterface.RemoveNewLineCode(\"" + s + "\")");
         String y_new = new String();
         int new_pos = 0, old_pos = 0;
@@ -100,60 +100,61 @@ public class WaveInterface{
         return s_new;
     }
 
-    static void WriteLine(final PrintWriter out, final String prompt, final String value) {
+    protected static void WriteLine(final PrintWriter out, final String prompt, final String value) {
         if(DEBUG.M) System.out.println("WaveInterface.WriteLine(" + out + ", \"" + prompt + "\", \"" + value + "\")");
         if(value != null && value.length() != 0){
             out.println(prompt + value);
         }
     }
     // True when a signal is added
-    protected boolean      add_signal         = false;
-    boolean                cache_enabled      = false;
-    ColorMap               colorMap           = new ColorMap();
-    public int             colors_idx[];
-    private String         curr_error;
-    protected DataProvider dp;
-    public String          error;
+    protected boolean   add_signal         = false;
+    public boolean      cache_enabled      = false;
+    public ColorMap     colorMap           = new ColorMap();
+    public int          colors_idx[];
+    private String      curr_error;
+    public DataProvider dp;
+    public String       error;
     /*
      * // Used for asynchronous Update public boolean asynch_update = true; Signal wave_signals[]; double wave_xmin, wave_xmax; int wave_timestamp; boolean request_pending; double orig_xmin, orig_xmax; protected boolean is_async_update = false;
      */
-    protected boolean      evaluated[];
-    public String          experiment;
-    private Frames         frames;
-    public int             height;
-    boolean                horizontal_flip    = false;
-    public String          in_def_node;
-    public int             in_grid_mode;
-    public String          in_label[], in_x[], in_y[], in_up_err[], in_low_err[];
-    public String          in_shot;
-    public String          in_title, in_xlabel, in_ylabel;
-    public boolean         in_upd_limits      = true;
-    public String          in_xmin, in_xmax, in_ymax, in_ymin, in_timemax, in_timemin;
-    public boolean         interpolates[];
-    protected boolean      is_image           = false;
-    protected boolean      is_signal_added    = false;
-    public boolean         isContinuousUpdate = false;
-    boolean                keep_ratio         = true;
-    double                 legend_x, legend_y;
-    public int             markers[];
-    public int             markers_step[];
-    public int             mode1D[];
-    public int             mode2D[];
-    private boolean        modified           = true;
-    public int             num_shot           = 1;
-    public int             num_waves;
-    public String          provider;
-    boolean                reversed           = false;
-    public long            shots[];
-    boolean                show_legend        = false;
-    int                    signal_select      = -1;
-    public Signal          signals[];
-    public String          title, xlabel, ylabel, zlabel;
-    boolean                vertical_flip      = false;
-    public String          w_error[];
-    public Waveform        wave;
-    public boolean         x_log, y_log;
-    public double          xmax, xmin, ymax, ymin, timemax, timemin;
+    protected boolean   evaluated[];
+    public String       experiment;
+    private Frames      frames;
+    public int          height;
+    protected boolean   horizontal_flip    = false;
+    public String       in_def_node;
+    public int          in_grid_mode;
+    public String       in_label[], in_x[], in_y[], in_up_err[], in_low_err[];
+    public String       in_shot;
+    public String       in_title, in_xlabel, in_ylabel;
+    public boolean      in_upd_limits      = true;
+    public String       in_xmin, in_xmax, in_ymax, in_ymin, in_timemax, in_timemin;
+    public boolean      interpolates[];
+    protected boolean   is_image           = false;
+    protected boolean   is_signal_added    = false;
+    public boolean      isContinuousUpdate = false;
+    protected boolean   keep_ratio         = true;
+    protected double    legend_x;
+    public double       legend_y;
+    public int          markers[];
+    public int          markers_step[];
+    public int          mode1D[];
+    public int          mode2D[];
+    private boolean     modified           = true;
+    public int          num_shot           = 1;
+    public int          num_waves;
+    public String       provider;
+    protected boolean   reversed           = false;
+    public long         shots[];
+    protected boolean   show_legend        = false;
+    int                 signal_select      = -1;
+    public Signal       signals[];
+    public String       title, xlabel, ylabel, zlabel;
+    protected boolean   vertical_flip      = false;
+    public String       w_error[];
+    public Waveform     wave;
+    public boolean      x_log, y_log;
+    public double       xmax, xmin, ymax, ymin, timemax, timemin;
 
     public WaveInterface(){
         this.CreateWaveInterface(null, null);
@@ -701,6 +702,8 @@ public class WaveInterface{
     public boolean IsSignalAdded() {
         return this.is_signal_added;
     }
+
+    public void refresh() throws Exception {}
 
     public void setAddSignal(final boolean add_signal) {
         this.add_signal = add_signal;

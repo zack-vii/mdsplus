@@ -58,7 +58,7 @@ public class Waveform extends JComponent implements SignalListener{
     private static boolean       bug_image         = true;
     public static final String[] COLOR_NAME        = {"Black", "Blue", "Cyan", "DarkGray", "Gray", "Green", "LightGray", "Magenta", "Orange", "Pink", "Red", "Yellow"};
     public static final Color[]  COLOR_SET         = {Color.black, Color.blue, Color.cyan, Color.darkGray, Color.gray, Color.green, Color.lightGray, Color.magenta, Color.orange, Color.pink, Color.red, Color.yellow};
-    protected static Color[]     colors;
+    public static Color[]        colors;
     protected static boolean     colors_changed    = true;
     protected static String[]    colors_name;
     protected static Font        font              = null;
@@ -1525,7 +1525,7 @@ public class Waveform extends JComponent implements SignalListener{
         this.marker_width = marker_width;
     }
 
-    protected void SetMode(final int mode) {
+    public void SetMode(final int mode) {
         if(DEBUG.M) System.out.println("Waveform.SetMode(" + mode + ")");
         if(this.def_cursor == null) this.def_cursor = this.getCursor();
         switch(mode){

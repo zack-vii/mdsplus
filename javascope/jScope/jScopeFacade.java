@@ -382,7 +382,7 @@ final public class jScopeFacade extends JFrame implements ActionListener, ItemLi
         return jScopeFacade.instance.executing_update;
     }
 
-    static long convertFromSpecificTime(final long inTime) {
+    public static long convertFromSpecificTime(final long inTime) {
         if(jScopeFacade.timeMode == jScopeFacade.VMS_TIME) return (inTime - jScopeFacade.VMS_BASE) / 10000L;
         else if(jScopeFacade.timeMode == jScopeFacade.EPICS_TIME){
             final long currTime = inTime / 1000000L + jScopeFacade.EPICS_BASE;
@@ -390,7 +390,7 @@ final public class jScopeFacade extends JFrame implements ActionListener, ItemLi
         }else return inTime;
     }
 
-    static long convertToSpecificTime(final long inTime) {
+    public static final long convertToSpecificTime(final long inTime) {
         if(jScopeFacade.timeMode == jScopeFacade.VMS_TIME) return(inTime * 10000L + jScopeFacade.VMS_BASE);
         else if(jScopeFacade.timeMode == jScopeFacade.EPICS_TIME) return (inTime - jScopeFacade.EPICS_BASE) * 1000000L;
         else return inTime;
@@ -1839,7 +1839,7 @@ final public class jScopeFacade extends JFrame implements ActionListener, ItemLi
             case WaveContainerEvent.WAVEFORM_EVENT:
                 final WaveformEvent we = (WaveformEvent)e.we;
                 final jScopeMultiWave w = (jScopeMultiWave)we.getSource();
-                final MdsWaveInterface wi = (MdsWaveInterface)w.wi;
+                final WaveInterface wi = w.wi;
                 final int we_id = we.getID();
                 switch(we_id){
                     case WaveformEvent.EVENT_UPDATE:
@@ -2149,19 +2149,16 @@ final public class jScopeFacade extends JFrame implements ActionListener, ItemLi
 }
 
 class ServerDialog extends JDialog implements ActionListener{
-    private static String                   know_provider[]   = {"W7XDataProvider", "MdsDataProvider",
-                                                              // "MdsDataProviderUdt",
-                                                              // "JetMdsDataProvider",
-                                                              // "TwuDataProvider",
-                                                              // "JetDataProvider",
-                                                              // "FtuDataProvider",
-                                                              // "TSDataProvider",
-                                                              // "AsdexDataProvider",
-                                                              // "ASCIIDataProvider",
-                                                              // "T2DataProvider",
-                                                                        "LocalDataProvider", "MdsAsynchDataProvider"
-                                                                        // "MDSplus.MdsStreamingDataProvider"
-                                                                };
+    private static String                   know_provider[]   = {"w7x.w7xDataProvider", "mds.mdsDataProvider",
+                                                              // "mds.mdsDataProviderUdt",
+                                                              // "jet.jetMdsDataProvider",
+                                                              // "twu.twuDataProvider",
+                                                              // "jet.jetDataProvider",
+                                                              // "ftu.ftuDataProvider",
+                                                              // "ts.tsDataProvider",
+                                                              // "asdex.asdexDataProvider",
+                                                              // "ascii.asciiDataProvider",
+                                                                        "local.localDataProvider", "mds.mdsAsynchDataProvider"};
     static final long                       serialVersionUID  = 4734523460978461L;
     static private JList                    server_list;
     private final JButton                   add_b, remove_b, exit_b, connect_b, modify_b;
@@ -2436,10 +2433,10 @@ class ServerDialog extends JDialog implements ActionListener{
         23-05-2005
         Ovverride configuration file server definitions
         with property server definition with the same name
-        
+
         else
         {
-        
+
             if (found_dsi != null)
             {
                 dsi.user = found_dsi.user;
@@ -2461,10 +2458,9 @@ class ServerDialog extends JDialog implements ActionListener{
 
     private DataServerItem findServer(final DataServerItem dsi) {
         DataServerItem found_dsi = null;
-        @SuppressWarnings("unchecked")
-        final Enumeration<DataServerItem> e = this.list_model.elements();
+        final Enumeration e = this.list_model.elements();
         while(e.hasMoreElements()){
-            found_dsi = e.nextElement();
+            found_dsi = (DataServerItem)e.nextElement();
             if(found_dsi.equals(dsi)){ return found_dsi; }
         }
         return null;
@@ -2496,11 +2492,10 @@ class ServerDialog extends JDialog implements ActionListener{
     }
 
     public DataServerItem[] getServerIpList() {
-        @SuppressWarnings("unchecked")
-        final Enumeration<DataServerItem> e = this.list_model.elements();
+        final Enumeration e = this.list_model.elements();
         final DataServerItem out[] = new DataServerItem[this.list_model.size()];
         for(int i = 0; e.hasMoreElements(); i++)
-            out[i] = e.nextElement();
+            out[i] = (DataServerItem)e.nextElement();
         return out;
     }
 

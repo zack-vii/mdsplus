@@ -85,8 +85,16 @@ public interface DataProvider{
     public String ErrorString();
 
     /**
+     * retruns the default Browser to be used if none specified in the properties file
+     *
+     * @param
+     * @return the jScopeBrowseSignals class
+     */
+    public Class getDefaultBrowser();
+
+    /**
      * Method GetFloat is called by jScope to evaluate x min, x max, y min, y max when defined
-     * in the stup data source popup form. The argument is in fact the string typed by the user in
+     * in the setup data source pop-up form. The argument is in fact the string typed by the user in
      * the form.
      * In its simplest implementation, method GetFloat converts the string into a float value and
      * returns it. Other data providers, such as MdsDataProvider, evaluate, possibly remotely, the
@@ -97,7 +105,7 @@ public interface DataProvider{
      * @return The evaluated value.
      * @exception java.io.IOException
      */
-    public double GetFloat(String in) throws IOException;
+    public float GetFloat(String in) throws IOException;
 
     /**
      * GetFrameData is called by jScope to retrieve and display a frame sequence. The frame sequence
@@ -128,6 +136,15 @@ public interface DataProvider{
      * @see FrameData
      */
     public FrameData GetFrameData(String in_frame, String in_times, float start_time, float end_time) throws IOException;
+
+    /**
+     * Format of the Legend entry.
+     *
+     * @param l
+     *            The previously registered ConnectionListener.
+     * @see ConnectionListener
+     */
+    public String GetLegendString(String s);
 
     /**
      * Evaluate the passed string to provide am array of shot numbers.
@@ -198,8 +215,8 @@ public interface DataProvider{
      * -DataProvider.LOGIN_ERROR if the DataProvided did not succeed in validation <br>
      * -DataProvider.LOGIN_CANCEL if the login proess has been aborted by user (usually pressing <br>
      * a canel button) <br>
-     * Only in the first case jScope will proceede with the usega of the DataProvider implementation. In the
-     * secon case a warning dialog is shown, and in the third case the DataProvider is simply discarded.
+     * Only in the first case jScope will proceed with the usage of the DataProvider implementation. In the
+     * second case a warning dialog is shown, and in the third case the DataProvider is simply discarded.
      *
      * @param f
      *            The container Frame.
