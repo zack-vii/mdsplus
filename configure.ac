@@ -1288,6 +1288,7 @@ AC_OUTPUT(Makefile.inc
           javascope/Makefile
           javascope/local/Makefile
           javatraverser/Makefile
+          javatraverser/jTraverser/Makefile
           javadevices/Makefile
           LabView/Makefile
           manpages/Makefile

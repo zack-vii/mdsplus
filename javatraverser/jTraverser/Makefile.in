@@ -1,0 +1,28 @@
+include @top_builddir@/Makefile.inc
+
+srcdir=@srcdir@
+builddir=@builddir@
+VPATH = @srcdir@
+@MINGW_TRUE@ DEF=${srcdir}/jTraverser_Database.def
+
+CFLAGS += -I /media/sf_FedoraShared/include/ -I /media/sf_FedoraShared/include/win32 $(THREAD) @JDK_CFLAGS@
+
+SOURCES = jTraverser_Database.c
+OBJECTS = $(SOURCES:.c=.o)
+EXPORTS = jTraverser_Database.export
+
+all: 	@MAKELIBDIR@ @MAKELIBDIR@@LIBPRE@jTraverser_Database@SHARETYPEJNI@
+
+depend:
+	@makedepend -- $(CFLAGS) -- $(SOURCES)
+
+clean:
+	@ $(RM) $(OBJECTS)
+	@ $(RM) @MAKELIBDIR@@LIBPRE@JavaMds@SHARETYPEJNI@
+
+install: $(libdir)
+	$(INSTALL) -m 755  @MAKELIBDIR@@LIBPRE@jTraverser_Database@SHARETYPEJNI@ @libdir@
+
+@MAKELIBDIR@@LIBPRE@jTraverser_Database@SHARETYPEJNI@ : $(OBJECTS) $(DEF)
+	$(LINK.c) $(OUTPUT_OPTION) @LINKJNI@ $(THREAD) $^ -L@MAKELIBDIR@ -lMdsShr -lMdsIpShr -lTreeShr -lTdiShr -lJavaMds $(LIBS)
+

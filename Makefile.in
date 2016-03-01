@@ -161,6 +161,7 @@ javadevices: javatraverser
 javadispatcher: javascope javatraverser
 javamds: mdstcpip
 javascope/local: javamds
+javatraverser/jTraverser: javamds
 javascope: javamds javascope/local
 javatraverser: javascope
 math: mdsshr

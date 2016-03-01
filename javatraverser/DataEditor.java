@@ -80,7 +80,6 @@ public class DataEditor extends JPanel implements ActionListener, Editor{
             case 0:
                 return;
             case 1:
-                // final boolean default_to_string = (this.data != null && this.data.dtype == Data.DTYPE_T);
                 this.panel.add(this.expr_edit = new LabeledExprEditor(this.data));
                 break;
             case 2:

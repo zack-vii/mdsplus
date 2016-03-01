@@ -1,9 +1,9 @@
 JAVAROOT = $(builddir)
 CLASSES = $(JAVAROOT)/*.class
 
-JSCOPEJAR = $(top_builddir)/javascope/jScope.jar
+MDSDPJAR = $(top_builddir)/javascope/mdsDataProvider.jar
 JTRAVERSERJAR = $(top_builddir)/javatraverser/jTraverser.jar
-CLASSPATH_ENV = CLASSPATH=$(JSCOPEJAR):$(JTRAVERSERJAR)
+CLASSPATH_ENV = CLASSPATH=$(MDSDPJAR):$(JTRAVERSERJAR)
 
 javadir = $(exec_prefix)/java/classes
 java_JAVA = Action.java
