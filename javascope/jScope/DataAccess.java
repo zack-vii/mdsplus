@@ -51,6 +51,8 @@ public interface DataAccess{
      */
     String getExperiment();
 
+    String getExpression(String paramString) throws IOException;
+
     /**
      * Retrieves the sequence of frames (specified by an instance of FrameData)
      * specified by the passed URL. See the specification of FrameData

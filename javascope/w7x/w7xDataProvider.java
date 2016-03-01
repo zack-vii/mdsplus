@@ -443,17 +443,18 @@ public final class w7xDataProvider implements DataProvider{
     public static boolean SupportsFastNetwork() {
         return mdsDataProvider.SupportsFastNetwork();
     }
-    String          error;
-    mdsDataProvider mds;
+    private String               error;
+    public final mdsDataProvider mds;
 
-    public w7xDataProvider(){
+    public w7xDataProvider() throws IOException{
         w7xDataProvider.instance = this;
-        this.mds = new mdsDataProvider();
-    }
-
-    public w7xDataProvider(final String provider) throws IOException{
-        w7xDataProvider.instance = this;
-        this.mds = new mdsDataProvider(provider);
+        mdsDataProvider mds = null;
+        try{
+            mds = new mdsDataProvider();
+        }catch(final Exception e){
+            System.err.println("Error loading mds.mdsDataProvider: " + e);
+        }
+        this.mds = mds;
     }
 
     @Override

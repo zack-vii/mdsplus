@@ -36,7 +36,6 @@ import javax.swing.JRadioButton;
 import javax.swing.JRootPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import mds.mdsAccess;
 
 final public class CompositeWaveDisplay extends JApplet implements WaveContainerListener{
     public class AppendThread extends Thread{
@@ -79,7 +78,7 @@ final public class CompositeWaveDisplay extends JApplet implements WaveContainer
             for(int i = 0; i < usds.length; i++);
             return null;
         }
-
+        
         private UpdSignalData mergeMessage(UpdSignalData upd1, UpdSignalData upd2)
         {
             if(upd1.name != upd2.name || upd1.type != upd2.type) return null;
@@ -88,14 +87,14 @@ final public class CompositeWaveDisplay extends JApplet implements WaveContainer
             {
                if(upd1.operation == CompositeWaveDisplay.CMND_CLEAR) return upd1 ;
                if(upd2.operation == CompositeWaveDisplay.CMND_CLEAR) return upd2 ;
-
+        
                 int numSignal1 = upd1.x.length / upd1.numPointsPerSignal;
                 int numSignal2 = upd2.x.length / upd2.numPointsPerSignal;
-
+        
                 if(numSignal1 != numSignal2) return null;
-
+        
                 float y[] = float[upd1.length]
-
+        
             }
         }
          */
@@ -331,7 +330,7 @@ final public class CompositeWaveDisplay extends JApplet implements WaveContainer
         final String str6 = st.nextToken();
         final String str7 = st.nextToken();
         String str8 = str1 + "/" + ipAddress + "/" + expAndRegion + "/" + str6 + "/";
-        String str9 = "Experimet : " + experiment + " Source : " + region + " Shot = " + str6;
+        String str9 = "Experiment : " + experiment + " Source : " + region + " Shot = " + str6;
         if(str7.startsWith("vexpr")){
             Object localObject = null;
             String str10 = null;
@@ -345,7 +344,7 @@ final public class CompositeWaveDisplay extends JApplet implements WaveContainer
         }
         if(infoFlag){ return str9; }
         final Object localObject = DataAccessURL.getDataAccess(str8);
-        return str9 + "\n Value : " + ((mdsAccess)localObject).getExpression(str8);
+        return str9 + "\n Value : " + ((DataAccess)localObject).getExpression(str8);
     }
 
     private static String getParameterValue(final String context, final String param) {
@@ -720,7 +719,7 @@ final public class CompositeWaveDisplay extends JApplet implements WaveContainer
         global_autentication = this.getParameter("AUTENTICATION");
         /*
         param = getParameter("PRINT_SCALING");
-
+        
         if(param != null){
             try{
                 print_scaling = Integer.parseInt(param);

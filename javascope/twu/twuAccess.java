@@ -46,6 +46,11 @@ final public class twuAccess implements DataAccess{
     }
 
     @Override
+    public String getExpression(final String paramString) {
+        return paramString;
+    }
+
+    @Override
     public FrameData getFrameData(final String url) {
         return null;
     }

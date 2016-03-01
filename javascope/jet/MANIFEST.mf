@@ -1,2 +1,2 @@
-Class-Path: jScope.jar
+Class-Path: jScope.jar mdsDataProvider.jar
 Main-Class: jScope

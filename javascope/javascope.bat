@@ -77,8 +77,7 @@ SET MDS_SRC=^
   mds\mdsDataProviderUdt.java ^
   mds\mdsIOException.java ^
   mds\mdsMessage.java ^
-  mds\mdsParser.java ^
-  mds\mdsWaveInterface.java
+  mds\mdsParser.java
 
 SET MISC_SRC=^
   misc\asciiDataProvider.java ^
@@ -133,6 +132,7 @@ SET COMMON_SRC=^
   jScope\jScopeMultiWave.java ^
   jScope\jScopeProperties.java ^
   jScope\jScopeWaveContainer.java ^
+  jScope\jScopeWaveInterface.java ^
   jScope\jScopeWavePopup.java ^
   jScope\MdsIpProtocolWrapper.java ^
   jScope\MultiWaveform.java ^

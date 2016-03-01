@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.util.StringTokenizer;
 import javax.swing.SwingUtilities;
 import javax.swing.TransferHandler;
-import mds.mdsWaveInterface;
 
 /**
  * Class MultiWaveform extends the capability of class Waveform to deal with multiple
@@ -62,16 +61,16 @@ final public class jScopeMultiWave extends MultiWaveform implements UpdateEventL
 
     public jScopeMultiWave(final DataProvider dp, final jScopeDefaultValues def_values, final boolean cache_enabled){
         super();
-        this.wi = new mdsWaveInterface(this, dp, def_values, cache_enabled);
+        this.wi = new jScopeWaveInterface(this, dp, def_values, cache_enabled);
         this.setTransferHandler(new ToTransferHandler());
     }
 
     public void AddEvent() throws IOException {
-        ((mdsWaveInterface)this.wi).AddEvent(this);
+        ((jScopeWaveInterface)this.wi).AddEvent(this);
     }
 
     public void AddEvent(final String event) throws IOException {
-        ((mdsWaveInterface)this.wi).AddEvent(this, event);
+        ((jScopeWaveInterface)this.wi).AddEvent(this, event);
     }
 
     @Override
@@ -163,14 +162,14 @@ final public class jScopeMultiWave extends MultiWaveform implements UpdateEventL
     public synchronized void jScopeWaveUpdate() {
         if(this.wi.isAddSignal()){
             // reset to previous configuration if signal/s are not added
-            if(((mdsWaveInterface)this.wi).prev_wi != null && ((mdsWaveInterface)this.wi).prev_wi.GetNumEvaluatedSignal() == ((mdsWaveInterface)this.wi).GetNumEvaluatedSignal()){
-                ((mdsWaveInterface)this.wi).prev_wi.error = (this.wi).error;
-                ((mdsWaveInterface)this.wi).prev_wi.w_error = ((mdsWaveInterface)this.wi).w_error;
-                ((mdsWaveInterface)this.wi).prev_wi.setAddSignal(this.wi.isAddSignal());
-                this.wi = ((mdsWaveInterface)this.wi).prev_wi;
+            if(((jScopeWaveInterface)this.wi).prev_wi != null && ((jScopeWaveInterface)this.wi).prev_wi.GetNumEvaluatedSignal() == ((jScopeWaveInterface)this.wi).GetNumEvaluatedSignal()){
+                ((jScopeWaveInterface)this.wi).prev_wi.error = (this.wi).error;
+                ((jScopeWaveInterface)this.wi).prev_wi.w_error = ((jScopeWaveInterface)this.wi).w_error;
+                ((jScopeWaveInterface)this.wi).prev_wi.setAddSignal(this.wi.isAddSignal());
+                this.wi = ((jScopeWaveInterface)this.wi).prev_wi;
                 this.wi.SetIsSignalAdded(false);
             }else this.wi.SetIsSignalAdded(true);
-            ((mdsWaveInterface)this.wi).prev_wi = null;
+            ((jScopeWaveInterface)this.wi).prev_wi = null;
         }
         this.Update(this.wi);
         final WaveformEvent e = new WaveformEvent(this, WaveformEvent.END_UPDATE);
@@ -229,7 +228,7 @@ final public class jScopeMultiWave extends MultiWaveform implements UpdateEventL
              public void run()
              {
          */
-        final mdsWaveInterface mwi = (mdsWaveInterface)this.wi;
+        final jScopeWaveInterface mwi = (jScopeWaveInterface)this.wi;
         final boolean cache_state = mwi.cache_enabled;
         mwi.cache_enabled = false;
         try{
@@ -244,19 +243,14 @@ final public class jScopeMultiWave extends MultiWaveform implements UpdateEventL
                 jScopeMultiWave.this.jScopeWaveUpdate();
             }
         });
-        /*
-            }
-        };
-        p.start();
-         */
     }
 
     public void RemoveEvent() throws IOException {
-        ((mdsWaveInterface)this.wi).RemoveEvent(this);
+        ((jScopeWaveInterface)this.wi).RemoveEvent(this);
     }
 
     public void RemoveEvent(final String event) throws IOException {
-        ((mdsWaveInterface)this.wi).AddEvent(this, event);
+        ((jScopeWaveInterface)this.wi).AddEvent(this, event);
     }
 
     @Override
