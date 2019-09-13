@@ -103,3 +103,9 @@ testing/*Devices/
 
 # file created by release build trigger.sh script
 trigger.opts
+
+# eclipse
+**/.gitignore
+.project
+.classpath
+.settings
