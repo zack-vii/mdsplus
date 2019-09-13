@@ -128,7 +128,7 @@
 						</execution>
 					</executions>
 				</plugin>
-				<plugin>
+				<!-- plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-gpg-plugin</artifactId>
 					<version>1.6</version>
@@ -141,7 +141,7 @@
 							</goals>
 						</execution>
 					</executions>
-				</plugin>
+				</plugin -->
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-release-plugin</artifactId>
@@ -210,5 +210,7 @@
 	<modules>
 		<module>mdsplus-api</module>
 		<module>jtraverser2</module>
+		<module>jscope2</module>
+		<module>mds-dataprovider</module>
 	</modules>
 </project>
