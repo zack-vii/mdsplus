@@ -42,7 +42,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.mdsplus</groupId>
-			<artifactId>jscope</artifactId>
+			<artifactId>jscope2</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 	</dependencies>

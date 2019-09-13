@@ -821,7 +821,7 @@ public final class jScopeWaveContainer extends WaveformContainer{
 		if(server_item.class_name != null) try{
 			final Class cl = Class.forName(server_item.class_name);
 			new_dp = (DataProvider)cl.newInstance();
-		}catch(final NoClassDefFoundError e){
+		}catch(final NoClassDefFoundError | ClassNotFoundException e){
 			throw(new Exception("Can't load data provider class : " + server_item.class_name + "\n" + e));
 		}
 		else throw(new Exception("Undefined data provider class for " + server_item.name));

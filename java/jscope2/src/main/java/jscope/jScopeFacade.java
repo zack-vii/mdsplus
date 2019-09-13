@@ -2061,7 +2061,6 @@ class ServerDialog extends JDialog implements ActionListener{
 	jScopeFacade									dw;
 	private final DefaultListModel<DataServerItem>	list_model			= new DefaultListModel<DataServerItem>();
 	JTextField										server_n, server_s, server_u;
-	JLabel											server_label, user_label;
 	JPanel											property_panel;
 	Vector<LabeledProperty>							properties;
 
@@ -2080,14 +2079,16 @@ class ServerDialog extends JDialog implements ActionListener{
 		c.gridheight = 10;
 		ServerDialog.server_list = new JList<DataServerItem>(this.list_model);
 		final JScrollPane scrollServerList = new JScrollPane(ServerDialog.server_list);
+		scrollServerList.setMinimumSize(new Dimension(-1,128));
 		ServerDialog.server_list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		ServerDialog.server_list.addListSelectionListener(new ListSelectionListener(){
 			@Override
 			public void valueChanged(final ListSelectionEvent e) {
 				final int idx = ServerDialog.server_list.getSelectedIndex();
-				if(idx != -1){
+				if(idx >= 0){
 					ServerDialog.this.remove_b.setEnabled(true);
 					ServerDialog.this.modify_b.setEnabled(true);
+					ServerDialog.this.connect_b.setEnabled(true);
 					ServerDialog.this.server_n.setText(jScopeFacade.server_ip_list[idx].name);
 					ServerDialog.this.server_s.setText(jScopeFacade.server_ip_list[idx].server);
 					ServerDialog.this.server_u.setText(jScopeFacade.server_ip_list[idx].user);
@@ -2098,6 +2099,7 @@ class ServerDialog extends JDialog implements ActionListener{
 				}else{
 					ServerDialog.this.remove_b.setEnabled(false);
 					ServerDialog.this.modify_b.setEnabled(false);
+					ServerDialog.this.connect_b.setEnabled(false);
 				}
 			}
 		});
@@ -2106,18 +2108,18 @@ class ServerDialog extends JDialog implements ActionListener{
 		c.fill = GridBagConstraints.NONE;
 		c.gridheight = 1;
 		c.gridwidth = 1;
-		this.server_label = new JLabel("Server label ");
-		gridbag.setConstraints(this.server_label, c);
-		this.getContentPane().add(this.server_label);
+		JLabel label = new JLabel("Server label ");
+		gridbag.setConstraints(label, c);
+		this.getContentPane().add(label);
 		c.gridwidth = GridBagConstraints.REMAINDER;
 		c.fill = GridBagConstraints.BOTH;
 		this.server_n = new JTextField(20);
 		gridbag.setConstraints(this.server_n, c);
 		this.getContentPane().add(this.server_n);
 		c.gridwidth = 1;
-		this.server_label = new JLabel("Server argument ");
-		gridbag.setConstraints(this.server_label, c);
-		this.getContentPane().add(this.server_label);
+		label = new JLabel("Server argument ");
+		gridbag.setConstraints(label, c);
+		this.getContentPane().add(label);
 		c.gridwidth = GridBagConstraints.REMAINDER;
 		c.fill = GridBagConstraints.BOTH;
 		this.server_s = new JTextField(20);
@@ -2143,9 +2145,9 @@ class ServerDialog extends JDialog implements ActionListener{
 		gridbag.setConstraints(this.automatic, c);
 		this.getContentPane().add(this.automatic);
 		c.gridwidth = 1;
-		this.server_label = new JLabel("User name ");
-		gridbag.setConstraints(this.server_label, c);
-		this.getContentPane().add(this.server_label);
+		label = new JLabel("User name ");
+		gridbag.setConstraints(label, c);
+		this.getContentPane().add(label);
 		c.gridwidth = GridBagConstraints.REMAINDER;
 		c.fill = GridBagConstraints.BOTH;
 		this.server_u = new JTextField(20);
@@ -2159,6 +2161,7 @@ class ServerDialog extends JDialog implements ActionListener{
 		c.gridwidth = GridBagConstraints.REMAINDER;
 		c.fill = GridBagConstraints.BOTH;
 		this.data_provider_list = new JComboBox<String>();
+		this.data_provider_list.setEditable(true);
 		gridbag.setConstraints(this.data_provider_list, c);
 		this.getContentPane().add(this.data_provider_list);
 		c.gridwidth = GridBagConstraints.REMAINDER;
@@ -2200,6 +2203,7 @@ class ServerDialog extends JDialog implements ActionListener{
 		p.add(this.remove_b);
 		this.connect_b = new JButton("Connect");
 		this.connect_b.addActionListener(this);
+		this.connect_b.setEnabled(false);
 		p.add(this.connect_b);
 		this.exit_b = new JButton("Close");
 		this.exit_b.addActionListener(this);
@@ -2208,7 +2212,6 @@ class ServerDialog extends JDialog implements ActionListener{
 		c.fill = GridBagConstraints.BOTH;
 		gridbag.setConstraints(p, c);
 		this.getContentPane().add(p);
-		this.addKnowProvider();
 		if(jScopeFacade.server_ip_list == null) this.getPropertiesValue();
 		else this.addServerIpList(jScopeFacade.server_ip_list);
 	}
@@ -2216,26 +2219,25 @@ class ServerDialog extends JDialog implements ActionListener{
 	@Override
 	public void actionPerformed(final ActionEvent event) {
 		final Object ob = event.getSource();
-		if(ob == this.exit_b) this.setVisible(false);
-		if(ob == this.add_b){
+		if(ob == this.exit_b) {
+			this.setVisible(false);
+		} else if(ob == this.add_b){
 			final String srv = this.server_n.getText().trim();
 			if(srv != null && srv.length() != 0){
 				final Map<String, String> map = ServerDialog.getPropertiesMap(this.properties);
-				this.addServer(new DataServerItem(srv, this.server_s.getText().trim(), this.server_u.getText().trim(), (String)this.data_provider_list.getSelectedItem(), null, map));
+				DataServerItem dsi = new DataServerItem(srv, this.server_s.getText().trim(), this.server_u.getText().trim(), (String)this.data_provider_list.getSelectedItem(), null, map);
+				ServerDialog.server_list.setSelectedValue(this.addServer(dsi), true);
 			}
-		}
-		if(ob == this.remove_b){
+		} else if(ob == this.remove_b){
 			final int idx = ServerDialog.server_list.getSelectedIndex();
 			if(idx >= 0){
 				this.list_model.removeElementAt(idx);
 				this.dw.servers_m.remove(idx);
 			}
-		}
-		if(ob == this.connect_b){
+		} else if(ob == this.connect_b){
 			final int idx = ServerDialog.server_list.getSelectedIndex();
 			if(idx >= 0) this.dw.setDataServer(jScopeFacade.server_ip_list[idx]);
-		}
-		if(ob == this.modify_b){
+		} else if(ob == this.modify_b){
 			final int idx = ServerDialog.server_list.getSelectedIndex();
 			if(idx >= 0){
 				final String srv = this.server_n.getText().trim();
@@ -2314,15 +2316,6 @@ class ServerDialog extends JDialog implements ActionListener{
 		this.setVisible(true);
 	}
 
-	private void addKnowProvider() {
-	/* TODO: load userdefined list from file?
-		for(final String element : ServerDialog.know_providers){
-			this.data_server_class.put(element, element);
-			this.data_provider_list.addItem(element);
-		}
-	 */
-	}
-
 	private DataServerItem findServer(final DataServerItem dsi) {
 		DataServerItem found_dsi = null;
 		final Enumeration<DataServerItem> e = this.list_model.elements();
@@ -2368,7 +2361,7 @@ class ServerDialog extends JDialog implements ActionListener{
 		this.server_n.setText("");
 		this.server_s.setText("");
 		this.server_u.setText("");
-		this.data_provider_list.setSelectedIndex(0);
+		this.data_provider_list.setSelectedIndex(this.data_provider_list.getItemCount() == 0 ? -1 : 0);
 	}
 }
 
