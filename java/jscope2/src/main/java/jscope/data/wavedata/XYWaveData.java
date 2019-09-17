@@ -4,8 +4,6 @@
 package jscope.data.wavedata;
 
 import java.util.Vector;
-import jscope.data.signal.Signal;
-import jscope.data.signal.Signal.Type;
 
 /**
  * @author manduchi Basic version of WaveData which keeps arrays for X and Y (old style)
@@ -31,7 +29,6 @@ final public class XYWaveData implements WaveData{
 	boolean									increasingX	= true;
 	private final int						len;
 	private final Vector<WaveDataListener>	listeners	= new Vector<WaveDataListener>();
-	private final Type						type;
 	private double[]						x;
 	private long[]							xLong;
 	private float[]							y;
@@ -45,7 +42,6 @@ final public class XYWaveData implements WaveData{
 	public XYWaveData(final double x[], final float y[], final float z[]){
 		if(z.length != x.length * y.length) System.out.println("INTERNAL ERROR: WRONG DIMENSIONS FOR 2D SIGNAL");
 		this.len = x.length;
-		this.type = Type.IMAGE;
 		this.xLong = null;
 		this.x = x;
 		this.y = y;
@@ -57,7 +53,6 @@ final public class XYWaveData implements WaveData{
 		if(x.length < new_len) new_len = x.length;
 		if(y.length < new_len) new_len = y.length;
 		this.len = new_len;
-		this.type = Type.VECTOR;
 		this.xLong = null;
 		this.x = x;// new double[len];System.arraycopy(x, 0, this.x, 0, len);
 		this.y = y;// new float[len];System.arraycopy(y, 0, this.y, 0, len);
@@ -70,7 +65,6 @@ final public class XYWaveData implements WaveData{
 		if(x.length < new_len) new_len = x.length;
 		if(y.length < new_len) new_len = y.length;
 		this.len = new_len;
-		this.type = Type.VECTOR;
 		this.x = new double[this.len];
 		this.y = y;// new float[len]; System.arraycopy(y, 0, this.y, 0, len);
 		this.xLong = null;
@@ -82,7 +76,6 @@ final public class XYWaveData implements WaveData{
 
 	public XYWaveData(final String error){
 		this.error = error;
-		this.type = Type.VECTOR;
 		this.len = 0;
 		this.z = this.y = null;
 		this.x = null;
@@ -95,7 +88,6 @@ final public class XYWaveData implements WaveData{
 	XYWaveData(final float x[], final float y[], final float z[]){
 		if(z.length != x.length * y.length) System.err.println("INTERNAL ERROR: WRONG DIMENSIONS FOR 2D SIGNAL");
 		this.len = x.length;
-		this.type = Type.IMAGE;
 		this.xLong = null;
 		this.x = new double[this.len];
 		this.y = y;
@@ -105,7 +97,6 @@ final public class XYWaveData implements WaveData{
 	}
 
 	XYWaveData(final long xLong[], final float y[]){
-		this.type = Type.VECTOR;
 		int new_len = xLong.length;
 		if(y.length < new_len) new_len = y.length;
 		this.len = new_len;
@@ -122,7 +113,6 @@ final public class XYWaveData implements WaveData{
 		if(z.length != xLong.length * y.length) this.error = "INTERNAL ERROR: WRONG DIMENSIONS FOR 2D SIGNAL";
 		this.len = xLong.length;
 		this.x = null;
-		this.type = Type.IMAGE;
 		this.xLong = xLong;
 		this.y = y;
 		this.z = z;
@@ -235,10 +225,6 @@ final public class XYWaveData implements WaveData{
 
 	@Override
 	public XYData getData(final int numPoints) {
-		if(this.type != Signal.Type.VECTOR){
-			System.out.println("INTERNAL ERROR getData called for non 1 D signal");
-			return null;
-		}
 		if(numPoints >= this.len) return new XYData(this.x, this.y, Double.POSITIVE_INFINITY, true);
 		return this.getData(Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, numPoints);
 	}
@@ -260,16 +246,12 @@ final public class XYWaveData implements WaveData{
 
 	@Override
 	public double[] getX2D() {
-		if(this.type == Signal.Type.IMAGE) return this.x;
-		System.out.println("INTERNAL ERROR SimpleWave.getZ for 1D signal");
-		return null;
+		return this.x;
 	}
 
 	@Override
 	public long[] getX2DLong() {
-		if(this.type == Signal.Type.IMAGE) return this.xLong;
-		System.out.println("INTERNAL ERROR SimpleWave.getZ2dLong for 1D signal");
-		return null;
+		return this.xLong;
 	}
 
 	/**
@@ -300,9 +282,7 @@ final public class XYWaveData implements WaveData{
 
 	@Override
 	public float[] getY2D() {
-		if(this.type == Signal.Type.IMAGE) return this.y;
-		System.out.println("INTERNAL ERROR SimpleWave.getZ for 1D signal");
-		return null;
+		return this.y;
 	}
 
 	/**
@@ -318,9 +298,7 @@ final public class XYWaveData implements WaveData{
 
 	@Override
 	public float[] getZ() {
-		if(this.type == Signal.Type.IMAGE) return this.z;
-		System.out.println("INTERNAL ERROR SimpleWave.getZ for 1D signal");
-		return null;
+		return this.z;
 	}
 
 	/**

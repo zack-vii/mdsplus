@@ -290,7 +290,7 @@ public class WaveInterface{
 				else new_colors_idx[k] = j % Waveform.colors.length;
 				new_interpolates[k] = true;
 				new_evaluated[k] = false;
-				new_mode2D[k] = Signal.Mode2D.XZ;
+				new_mode2D[k] = Signal.Mode2D.ZX;
 				new_mode1D[k] = Signal.Mode1D.LINE;
 				if(new_shots != null && this.shots.length > 0 && this.num_shot > 0) new_shots[k] = this.shots[j];
 			}
@@ -894,9 +894,7 @@ public class WaveInterface{
 				if(this.in_low_err != null && this.in_low_err[curr_wave] != null && (this.in_low_err[curr_wave].trim()).length() != 0)//
 				    low_err = this.dp.getWaveData(this.in_low_err[curr_wave]);
 			}
-			out_signal = new Signal(wd, xwd, xmin_in, xmax_in, low_err, up_err, this.num_points);
-			if(yDimension > 1) out_signal.setMode2D(this.mode2D[curr_wave]);
-			else out_signal.setMode1D(this.mode1D[curr_wave]);
+			out_signal = new Signal(wd, xwd, xmin_in, xmax_in, low_err, up_err, this.num_points,this.mode1D[curr_wave],this.mode2D[curr_wave]);
 			if(up_err != null && low_err != null) out_signal.AddAsymError(up_err, low_err);
 			else if(up_err != null) out_signal.AddError(up_err);
 			out_signal.setLabels(new_title, new_xlabel, new_ylabel, new_zlabel);

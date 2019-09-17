@@ -6,7 +6,6 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
-import java.awt.Image;
 import java.awt.Point;
 import java.awt.Polygon;
 import java.util.Vector;
@@ -17,7 +16,6 @@ import jscope.data.signal.Signal.FreezeMode;
 import jscope.data.signal.Signal.Marker;
 import jscope.data.signal.Signal.Mode1D;
 import jscope.data.signal.Signal.Mode2D;
-import jscope.data.signal.Signal.Type;
 import jscope.data.signal.SignalListener;
 
 /**
@@ -302,16 +300,6 @@ public class MultiWaveform extends Waveform{
 		return !(!s.getInterpolate() && s.getMarker() == Signal.Marker.NONE);
 	}
 
-	@Override
-	public Type getSignalType() {
-		return this.getSignalType(this.curr_point_sig_idx);
-	}
-
-	public Type getSignalType(final int idx) {
-		if((idx >= 0 && idx < this.signals.size()) && (this.signals.elementAt(idx) != null)) return this.signals.elementAt(idx).getType();
-		return Type.DEFAULT;
-	}
-
 	public WaveInterface getWaveInterface() {
 		return this.wi;
 	}
@@ -437,13 +425,14 @@ public class MultiWaveform extends Waveform{
 	public void setSignalMode2D(final int idx, final Mode2D mode) {
 		if(idx >= 0 && idx < this.signals.size()){
 			final Signal s = this.signals.elementAt(idx);
-			if(s != null) if(s.getType() == Signal.Type.VECTOR) return;
-			else if(s.getType() == Signal.Type.IMAGE){
+			if(s != null)
 				switch(mode){
-					case XZ:
+					case YX:
+						break;
+					case ZX:
 						s.setMode2D(mode, (float)this.wave_point_y);
 						break;
-					case YZ:
+					case ZY:
 						s.setMode2D(mode, (float)this.wave_point_x);
 						break;
 					case IMAGE:
@@ -464,7 +453,6 @@ public class MultiWaveform extends Waveform{
 				 * wave_point_x);
 				 */
 			}
-		}
 		this.not_drawn = true;
 		this.repaint();
 	}
@@ -611,7 +599,7 @@ public class MultiWaveform extends Waveform{
 			for(int i = 0; i < this.signals.size(); i++){
 				s = this.signals.elementAt(i);
 				if(s == null) continue;
-				if(s.getType() == Signal.Type.IMAGE && s.getMode2D() == Signal.Mode2D.YZ){
+				if(s.getMode2D() == Signal.Mode2D.ZY){
 					s.showYZ(curr_x);
 					this.not_drawn = true;
 				}
@@ -749,7 +737,7 @@ public class MultiWaveform extends Waveform{
 			curr_signal = this.signals.elementAt(i);
 			if(curr_signal == null || !this.getSignalState(i)) continue;
 			curr_idx = curr_signal.FindClosestIdx(curr_x, curr_y);
-			if(curr_signal.getType() == Signal.Type.IMAGE && (curr_signal.getMode2D() == Signal.Mode2D.IMAGE || curr_signal.getMode2D() == Signal.Mode2D.CONTOUR)){
+			if(curr_signal.getMode2D() == Signal.Mode2D.IMAGE || curr_signal.getMode2D() == Signal.Mode2D.CONTOUR){
 				final double x2D[] = curr_signal.getX2D();
 				int inc = (int)(x2D.length / 10.) + 1;
 				inc = (curr_idx + inc > x2D.length) ? x2D.length - curr_idx - 1 : inc;
@@ -830,11 +818,11 @@ public class MultiWaveform extends Waveform{
 	protected String getSignalInfo(final int i) {
 		final Signal sign = this.signals.elementAt(i);
 		String lab = sign.getName();
-		if(sign.getType() == Signal.Type.IMAGE) switch(sign.getMode2D()){
-			case XZ:
+		switch(sign.getMode2D()){
+			case ZX:
 				lab = lab + " [X-Z Y = " + Waveform.convertToString(sign.getYinXZplot(), false) + " ]";
 				break;
-			case YZ:
+			case ZY:
 				lab = lab + " [Y-Z X = " + sign.getStringOfXinYZplot() +
 				// Waveform.ConvertToString(sign.getTime(), false) +
 				        " ]";

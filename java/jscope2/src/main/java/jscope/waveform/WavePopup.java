@@ -135,7 +135,7 @@ class WavePopup extends JPopupMenu implements ItemListener{
 			@Override
 			public void itemStateChanged(final ItemEvent e) {
 				if(WavePopup.this.setmenu) return;
-				if(e.getStateChange() == ItemEvent.SELECTED) WavePopup.this.setMode2D(Mode2D.XZ);
+				if(e.getStateChange() == ItemEvent.SELECTED) WavePopup.this.setMode2D(Mode2D.ZX);
 			}
 		});
 		this.mode_2d.add(this.plot_x_y = new JRadioButtonMenuItem("Plot yz(x)"));
@@ -144,7 +144,7 @@ class WavePopup extends JPopupMenu implements ItemListener{
 			@Override
 			public void itemStateChanged(final ItemEvent e) {
 				if(WavePopup.this.setmenu) return;
-				if(e.getStateChange() == ItemEvent.SELECTED) WavePopup.this.setMode2D(Mode2D.YZ);
+				if(e.getStateChange() == ItemEvent.SELECTED) WavePopup.this.setMode2D(Mode2D.ZY);
 			}
 		});
 		this.mode_2d.add(this.plot_contour = new JRadioButtonMenuItem("Plot Contour"));
@@ -459,7 +459,7 @@ class WavePopup extends JPopupMenu implements ItemListener{
 			this.add(this.markerStep);
 			this.add(this.colorList);
 			if(this.wave.mode == Waveform.MODE_POINT || this.wave.getShowSignalCount() == 1){
-				if(this.wave.getSignalType() == Signal.Type.VECTOR || (this.wave.getSignalType() == Signal.Type.IMAGE && (this.wave.getSignalMode2D() == Mode2D.XZ || this.wave.getSignalMode2D() == Mode2D.YZ))){
+				if(this.wave.getSignalMode2D() == Mode2D.YX || this.wave.getSignalMode2D() == Mode2D.ZX || this.wave.getSignalMode2D() == Mode2D.ZY){
 					this.add(this.mode_1d);
 					switch(this.wave.getSignalMode1D()){
 						case LINE:
@@ -472,16 +472,15 @@ class WavePopup extends JPopupMenu implements ItemListener{
 							this.mode_1d_bg.setSelected(this.plot_step.getModel(), true);
 							break;
 					}
-				}
-				if(this.wave.getSignalType() == Signal.Type.IMAGE){
+				} else {
 					this.add(this.colorMap);
 					this.add(this.mode_2d);
 					this.mode_2d.setEnabled(this.wave.getSignalMode2D() != Mode2D.PROFILE);
 					switch(this.wave.getSignalMode2D()){
-						case XZ:
+						case ZX:
 							this.mode_2d_bg.setSelected(this.plot_y_time.getModel(), true);
 							break;
-						case YZ:
+						case ZY:
 							this.mode_2d_bg.setSelected(this.plot_x_y.getModel(), true);
 							break;
 						case CONTOUR:

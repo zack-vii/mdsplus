@@ -38,6 +38,7 @@ import mds.data.TREE;
 import mds.data.descriptor.Descriptor;
 import mds.data.descriptor.Descriptor_A;
 import mds.data.descriptor.Descriptor_S;
+import mds.data.descriptor_a.Float32Array;
 import mds.data.descriptor_a.Int64Array;
 import mds.data.descriptor_a.Int8Array;
 import mds.data.descriptor_a.NUMBERArray;
@@ -45,6 +46,7 @@ import mds.data.descriptor_a.Uint32Array;
 import mds.data.descriptor_a.Uint64Array;
 import mds.data.descriptor_a.Uint8Array;
 import mds.data.descriptor_apd.List;
+import mds.data.descriptor_r.Range;
 import mds.data.descriptor_r.function.X_OF;
 import mds.data.descriptor_s.Float64;
 import mds.data.descriptor_s.Int64;
@@ -214,7 +216,7 @@ public class MdsDataProvider implements DataProvider{
 			this.time_min = time_min;
 			this.time_max = time_max;
 			if((sig.dat == null)) throw new IOException(sig.help_of_dat);
-			this.buf = sig.dat.asByteArray();
+			this.buf = sig.getData().asByteArray();
 			this.mode = sig.frameType;
 			this.pixel_size = sig.dat.length() * 8;
 			this.dim = new Dimension(sig.shape[0], sig.shape[1]);
@@ -361,20 +363,14 @@ public class MdsDataProvider implements DataProvider{
 		@Override
 		public final double[] getX2D() {
 			if(DEBUG.M) System.out.println("MdsDataProvider.SimpleWaveData.getX2D()");
-			if(this.signal.dim == null) return null;
-			try{
-				final Descriptor_A<?> dim = this.signal.dim.getDataA();
-				if(dim instanceof Uint64Array || dim instanceof Int64Array){
-					this.isXLong = true;
-					this.x2DLong = dim.toLongArray();
-					return null;
-				}
-				this.x2DLong = null;
-				return dim.toDoubleArray();
-			}catch(final MdsException exc){
-				System.err.println("getX2D");
+			final Descriptor_A<?> dim = this.signal.getDim();
+			if(dim instanceof Uint64Array || dim instanceof Int64Array){
+				this.isXLong = true;
+				this.x2DLong = dim.toLongArray();
+				return null;
 			}
-			return null;
+			this.x2DLong = null;
+			return dim.toDoubleArray();
 		}
 
 		@Override
@@ -404,7 +400,7 @@ public class MdsDataProvider implements DataProvider{
 		@Override
 		public float[] getZ() {
 			if(DEBUG.M) System.out.println("MdsDataProvider.SimpleWaveData.getZ()");
-			return this.signal.dat.toFloatArray();
+			return this.signal.getData().toFloatArray();
 		}
 
 		@Override
@@ -561,18 +557,19 @@ public class MdsDataProvider implements DataProvider{
 				return new Uint32Array(ib.array(), new int[]{shape_in[0], shape_in[1], shape_in[3]});
 			}
 		}
-		public final Descriptor_A<?>	dat;
-		public final Descriptor_A<?>	dim;
+		public Descriptor<?>			dat;
+		public Descriptor<?>			dim;
 		public final int				frameType;
 		public String					help_of_dat		= null;
 		private final boolean			isframe;
 		public int						numSegments		= 0;
 		public final double[]			seglimits;
 		public final Segment			segs[];
-		public final int[]				shape;
+		public int[]					shape;
 		public String					units_of_dat	= null;
 		public String					units_of_dim	= null;
-		public final Descriptor<?>		y, x;
+		public final Descriptor<?>		y;
+		public final Descriptor<?>		x;
 		private final TREE				tree;
 
 		public Signal(final String in_y, final String in_x, final boolean isframe, final TREE tree){
@@ -625,8 +622,8 @@ public class MdsDataProvider implements DataProvider{
 				}
 				this.segs = null;
 				this.seglimits = null;
-				this.dat = (Descriptor_A<?>)_dat;
-				this.dim = (Descriptor_A<?>)_dim;
+				this.dat = _dat;
+				this.dim = _dim;
 				if(this.dat == null){
 					this.shape = new int[0];
 					this.frameType = FrameData.UNKNOWN;
@@ -641,6 +638,40 @@ public class MdsDataProvider implements DataProvider{
 			this.segs = null;
 			this.shape = null;
 			this.seglimits = null;
+		}
+
+		public Descriptor_A<?> getDim() {
+			try {
+				if (this.dim == null) {
+					if (this.x!=null)
+						this.dim = this.x.getDataA();
+					else {
+						this.dim = this.y.getDimension();
+					}
+					if (this.dim == null) {
+						this.getData();
+						this.dim = new Range(1,this.shape[0]);
+					}
+				}
+				return this.dim.getDataA();
+			} catch (MdsException e) {
+					MdsDataProvider.this.error = e.toString();
+					this.dim = Missing.NEW;
+					return new Float32Array();
+			}
+		}
+
+		public Descriptor_A<?> getData() {
+			try {
+				if (this.dat == null)
+					this.dat = this.y.getDataA();
+				this.shape = this.dat.getShape();
+				return this.dat.getDataA();
+			} catch (MdsException e) {
+					MdsDataProvider.this.error = e.toString();
+					this.dat = Missing.NEW;
+					return new Float32Array();
+			}
 		}
 
 		public final Segment getSegment(final int idx) {

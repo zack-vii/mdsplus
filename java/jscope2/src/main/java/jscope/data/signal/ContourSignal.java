@@ -53,14 +53,12 @@ public class ContourSignal{
 
 	// private boolean edge = false;
 	ContourSignal(final Signal s){
-		if(s.getType() == Signal.Type.IMAGE){
-			this.setMinMaxX(s.getX2Dmin(), s.getX2Dmax());
-			this.setMinMaxY(s.getY2Dmin(), s.getY2Dmax());
-			this.setMinMaxZ(s.getZ2Dmin(), s.getZ2Dmax());
-			this.x = s.getX2D();
-			this.y = s.getY2D();
-			this.z = s.getZ2D();
-		}
+		this.setMinMaxX(s.getX2Dmin(), s.getX2Dmax());
+		this.setMinMaxY(s.getY2Dmin(), s.getY2Dmax());
+		this.setMinMaxZ(s.getZ2Dmin(), s.getZ2Dmax());
+		this.x = s.getX2D();
+		this.y = s.getY2D();
+		this.z = s.getZ2D();
 	}
 
 	public Vector<Vector<Point2D.Double>> contour(final double level) {
@@ -152,6 +150,8 @@ public class ContourSignal{
 								z1 = this.z[rri][rrj];
 								final int rrii = ri + xNear[l + 1];
 								final int rrjj = rj + yNear[l + 1];
+								if (rrii<0 || rrii>=this.x.length) break;
+								if (rrjj<0 || rrjj>=this.y.length) break;
 								x2 = this.x[rrii];
 								y2 = this.y[rrjj];
 								z2 = this.z[rrii][rrjj];

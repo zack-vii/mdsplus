@@ -40,7 +40,6 @@ import jscope.data.signal.Signal;
 import jscope.data.signal.Signal.Marker;
 import jscope.data.signal.Signal.Mode1D;
 import jscope.data.signal.Signal.Mode2D;
-import jscope.data.signal.Signal.Type;
 import jscope.data.signal.SignalListener;
 import jscope.dialog.ColorMap;
 import jscope.dialog.ColorMap.ColorProfile;
@@ -538,11 +537,6 @@ public class Waveform extends JComponent implements SignalListener{
 		if(DEBUG.M) System.out.println("Waveform.getSignalName()");
 		if(this.is_image && this.frames != null) return this.frames.getName();
 		return(this.waveform_signal != null ? this.waveform_signal.getName() : "");
-	}
-
-	public Type getSignalType() {
-		if(this.waveform_signal == null) return Type.DEFAULT;
-		return this.waveform_signal.getType();
 	}
 
 	public final String getTitle() {
@@ -1057,7 +1051,7 @@ public class Waveform extends JComponent implements SignalListener{
 		if(DEBUG.M) System.out.println("Waveform.setSignalMode2D(" + mode + ")");
 		if(this.waveform_signal != null){
 			this.waveform_signal.setMode2D(mode);
-			if(this.waveform_signal.getType() == Signal.Type.IMAGE){
+			if(this.waveform_signal.getMode2D() != Mode2D.YX){
 				this.autoscale();
 				this.sendUpdateEvent();
 			}
@@ -1216,7 +1210,7 @@ public class Waveform extends JComponent implements SignalListener{
 		this.curr_point_y = curr_y;
 		if(!this.is_image){
 			if(this.mode != Waveform.MODE_POINT || this.waveform_signal == null) return;
-			if(this.waveform_signal.getType() == Signal.Type.IMAGE && this.waveform_signal.getMode2D() == Signal.Mode2D.YZ){
+			if(this.waveform_signal.getMode2D() == Signal.Mode2D.ZY){
 				this.waveform_signal.showYZ((float)curr_x);
 				this.not_drawn = true;
 			}
@@ -1396,49 +1390,49 @@ public class Waveform extends JComponent implements SignalListener{
 			else g.setColor(Waveform.colors[s.getColorIdx() % Waveform.colors.length]);
 		} else g.setColor(Color.black);
 		final boolean DRAGGING = this.mode == Waveform.MODE_PAN && this.dragging;
-		if(DRAGGING && s.getNumPoints() > Waveform.MAX_DRAG_POINT) {
-			int drag_point = Waveform.MAX_DRAG_POINT;
-			int x[] = new int[s.getNumPoints()];
-			int y[] = new int[s.getNumPoints()];
-			Point curr_points[] = new Point[s.getNumPoints()];
-			float step = (float)s.getNumPoints() / drag_point;
-			int num_steps = drag_point;
-			for(int j = 0; j < num_steps; j++){
-				x[j] = this.wm.toXPixel(s.getX((int)(step * j)), d);
-				y[j] = this.wm.toYPixel(s.getY((int)(step * j)), d);
-				curr_points[j] = new Point(x[j], y[j]);
-			}
-			for(int jj = 0; jj < num_steps - 1; jj++)
-				if(!Double.isNaN(s.getY((int)(step * jj))) && !Double.isNaN(s.getY((int)(step * (jj + 1))))) g.drawLine(x[jj], y[jj], x[jj + 1], y[jj + 1]);
-		} else if(s.getType() == Signal.Type.IMAGE && (s.getMode2D() == Signal.Mode2D.IMAGE || s.getMode2D() == Signal.Mode2D.CONTOUR)){
-			if(!DRAGGING) {
-				switch(s.getMode2D()){
-					case IMAGE:
-						final Image img = this.createImage(d.width, d.height);
-						this.wm.toImage(s, img, d, this.colorProfile.colorMap);
-						g.drawImage(img, 0, 0, d.width, d.height, this);
-						break;
-					case CONTOUR:
-						this.drawSignalContour(s, g, d);
-						break;
-					default:
-						break;
-				}
-			}
-		}else{
-			if (DRAGGING || s.getInterpolate()) {
-				final Vector<Polygon> segments = this.wm.toPolygons(s, d, this.appendDrawMode);
-				if(segments != null) {
-					for (final Polygon seg : segments) {
-						g.drawPolyline(seg.xpoints, seg.ypoints, seg.npoints);
+		switch(s.getMode2D()){
+			case YX:
+			case ZX:
+			case ZY:
+				if(DRAGGING && s.getNumPoints() > Waveform.MAX_DRAG_POINT) {
+					int drag_point = Waveform.MAX_DRAG_POINT;
+					int x[] = new int[s.getNumPoints()];
+					int y[] = new int[s.getNumPoints()];
+					Point curr_points[] = new Point[s.getNumPoints()];
+					float step = (float)s.getNumPoints() / drag_point;
+					int num_steps = drag_point;
+					for(int j = 0; j < num_steps; j++){
+						x[j] = this.wm.toXPixel(s.getX((int)(step * j)), d);
+						y[j] = this.wm.toYPixel(s.getY((int)(step * j)), d);
+						curr_points[j] = new Point(x[j], y[j]);
+					}
+					for(int jj = 0; jj < num_steps - 1; jj++)
+						if(!Double.isNaN(s.getY((int)(step * jj))) && !Double.isNaN(s.getY((int)(step * (jj + 1))))) g.drawLine(x[jj], y[jj], x[jj + 1], y[jj + 1]);
+				} else if (DRAGGING || s.getInterpolate()) {
+					final Vector<Polygon> segments = this.wm.toPolygons(s, d, this.appendDrawMode);
+					if(segments != null) {
+						for (final Polygon seg : segments) {
+							g.drawPolyline(seg.xpoints, seg.ypoints, seg.npoints);
+						}
 					}
 				}
-			}
+				if(!DRAGGING) {
+					this.drawWave(s, g, d);
+					this.drawMarkers(s, g, d);
+					this.drawError(s, g, d);					
+				}
+				break;
+			case IMAGE:
+				final Image img = this.createImage(d.width, d.height);
+				this.wm.toImage(s, img, d, this.colorProfile.colorMap);
+				g.drawImage(img, 0, 0, d.width, d.height, this);
+				break;
+			case CONTOUR:
+				this.drawSignalContour(s, g, d);
+				break;
+			default:
+				break;
 		}
-		if(DRAGGING) return;
-		this.drawWave(s, g, d);
-		this.drawMarkers(s, g, d);
-		this.drawError(s, g, d);
 	}
 
 	protected final void drawSignalContour(final Signal s, final Graphics g, final Dimension d) {
@@ -1471,7 +1465,7 @@ public class Waveform extends JComponent implements SignalListener{
 
 	protected Point findPoint(final double curr_x, final double curr_y, Dimension d, final boolean is_first) {
 		if(!this.findPoint(this.waveform_signal, curr_x, curr_y)) return null;
-		if(this.waveform_signal.getType() == Type.IMAGE && !(this.waveform_signal.getMode2D() == Mode2D.PROFILE)) d = this.getWaveSize();
+		if(this.waveform_signal.getMode2D() != Mode2D.YX && this.waveform_signal.getMode2D() != Mode2D.PROFILE) d = this.getWaveSize();
 		return new Point(this.wm.toXPixel(this.wave_point_x, d), this.wm.toYPixel(this.wave_point_y, d));
 	}
 
@@ -1479,7 +1473,7 @@ public class Waveform extends JComponent implements SignalListener{
 		if(DEBUG.M) System.out.println("Waveform.FindPoint(" + s + ", " + curr_x + ", " + curr_y + ")");
 		this.wave_point_x = this.wave_point_y = Double.NaN;
 		if(s == null) return false;
-		if(s.getType() == Type.IMAGE) switch(s.getMode2D()){
+		switch(s.getMode2D()){
 			case IMAGE:
 				this.wave_point_x = s.getClosestX(curr_x);
 				this.wave_point_y = s.getClosestY(curr_y);
@@ -1530,7 +1524,7 @@ public class Waveform extends JComponent implements SignalListener{
 
 	protected final Point findPoint(final Signal signal, final double curr_x, final double curr_y, Dimension d) {
 		if(!this.findPoint(signal, curr_x, curr_y)) return null;
-		if(signal.getType() == Signal.Type.IMAGE && !(signal.getMode2D() == Mode2D.PROFILE)) d = this.getWaveSize();
+		if(this.waveform_signal.getMode2D() != Mode2D.YX && this.waveform_signal.getMode2D() != Mode2D.PROFILE) d = this.getWaveSize();
 		return new Point(this.wm.toXPixel(this.wave_point_x, d), this.wm.toYPixel(this.wave_point_y, d));
 	}
 
@@ -1623,22 +1617,22 @@ public class Waveform extends JComponent implements SignalListener{
 			final double yrange = this.ymax - this.ymin;
 			this.ymax += yrange * Waveform.vertical_offset / 200.;
 			this.ymin -= yrange * Waveform.vertical_offset / 200.;
-			if(this.waveform_signal.getType() == Signal.Type.IMAGE){
-				switch(this.waveform_signal.getMode2D()){
-					case IMAGE:
-					case XZ:
-						orizLabel = (this.x_label == null) ? this.waveform_signal.getXlabel() : this.x_label;
-						break;
-					case YZ:
-						orizLabel = (this.y_label == null) ? this.waveform_signal.getYlabel() : this.y_label;
-						break;
-					default:
-						break;
-				}
-				vertLabel = this.waveform_signal.getZlabel();
-			}else{
-				orizLabel = (this.x_label == null) ? this.waveform_signal.getXlabel() : this.x_label;
-				vertLabel = (this.y_label == null) ? this.waveform_signal.getYlabel() : this.y_label;
+			switch(this.waveform_signal.getMode2D()){
+				case IMAGE:
+				case ZX:
+					vertLabel = this.waveform_signal.getZlabel();
+					orizLabel = (this.x_label == null) ? this.waveform_signal.getXlabel() : this.x_label;
+					break;
+				case ZY:
+					vertLabel = this.waveform_signal.getZlabel();
+					orizLabel = (this.y_label == null) ? this.waveform_signal.getYlabel() : this.y_label;
+					break;
+				case YX:
+					orizLabel = (this.x_label == null) ? this.waveform_signal.getXlabel() : this.x_label;
+					vertLabel = (this.y_label == null) ? this.waveform_signal.getYlabel() : this.y_label;						
+				default:
+					vertLabel = this.waveform_signal.getZlabel();
+					break;
 			}
 			sigTitle = (this.title == null || this.title.length() == 0) ? this.waveform_signal.getTitlelabel() : this.title;
 		}
@@ -1726,7 +1720,7 @@ public class Waveform extends JComponent implements SignalListener{
 							}
 						}else{
 							final Signal s = Waveform.this.getSignal();
-							if(s.getType() == Signal.Type.IMAGE){
+							if(s.getMode2D() != Mode2D.YX){
 								s.decShow();
 								Waveform.this.not_drawn = true;
 							}
@@ -1738,7 +1732,7 @@ public class Waveform extends JComponent implements SignalListener{
 						}
 					}else{
 						final Signal s = Waveform.this.getSignal();
-						if(s.getType() == Signal.Type.IMAGE){
+						if(s.getMode2D() != Mode2D.YX){
 							s.incShow();
 							Waveform.this.not_drawn = true;
 						}
@@ -1796,7 +1790,7 @@ public class Waveform extends JComponent implements SignalListener{
 					if(Waveform.this.frames != null && Waveform.this.frames.getFrameIdx() > 0) Waveform.this.frame = Waveform.this.frames.getLastFrameIdx();
 				}else{
 					final Signal s = Waveform.this.getSignal();
-					if(s.getType() == Signal.Type.IMAGE){
+					if(s.getMode2D() != Mode2D.YX){
 						s.decShow();
 						Waveform.this.not_drawn = true;
 						Waveform.this.repaint();
@@ -1806,7 +1800,7 @@ public class Waveform extends JComponent implements SignalListener{
 					if(Waveform.this.frames != null) Waveform.this.frame = Waveform.this.frames.getNextFrameIdx();
 				}else{
 					final Signal s = Waveform.this.getSignal();
-					if(s.getType() == Signal.Type.IMAGE){
+					if(s.getMode2D() != Mode2D.YX){
 						s.incShow();
 						Waveform.this.not_drawn = true;
 						Waveform.this.repaint();
@@ -1820,7 +1814,7 @@ public class Waveform extends JComponent implements SignalListener{
 						Waveform.this.repaint();
 					}else{
 						final Signal s = Waveform.this.getSignal();
-						if(Waveform.this.is_mb2 && s.getType() == Signal.Type.IMAGE && s.getMode2D() == Signal.Mode2D.CONTOUR){
+						if(Waveform.this.is_mb2 && s.getMode2D() == Signal.Mode2D.CONTOUR){
 							s.addContourLevel(s.getZValue());
 							Waveform.this.not_drawn = true;
 							Waveform.this.repaint();

@@ -62,8 +62,8 @@ public final class Signal implements WaveDataListener{
 		}
 	}
 	static public enum Mode2D {
-		XZ("xz(y)"), YZ("yz(x)"), CONTOUR("Contour"), IMAGE("Image"), PROFILE("Profile");
-		public static final Mode2D DEFAULT = XZ;
+		YX("y(x)"), ZX("z(x)"), ZY("z(y)"), CONTOUR("Contour"), IMAGE("Image"), PROFILE("Profile");
+		public static final Mode2D DEFAULT = YX;
 
 		public static Mode2D fromString(final String name) {
 			if(name == null) return DEFAULT;
@@ -254,10 +254,6 @@ public final class Signal implements WaveDataListener{
 			this.lowResRegions.clear();
 		}
 	} // End inner class ResolutionManager
-	static public enum Type {
-		VECTOR, IMAGE;
-		public static final Type DEFAULT = VECTOR;
-	}
 	public static final int		AT_CREATION				= 1;
 	public static final int		DEFAULT_CONTOUR_LEVEL	= 20;
 	public static final int		DEFAULT_INC_SIZE		= 10000;
@@ -406,7 +402,6 @@ public final class Signal implements WaveDataListener{
 	private double									t_ymax;
 	private double									t_ymin;
 	private String									title;
-	private Type									type				= Signal.Type.VECTOR;
 	private WaveData								up_errorData;
 	private int										updSignalSizeInc;
 	private float									upError[];
@@ -572,7 +567,6 @@ public final class Signal implements WaveDataListener{
 		this.color = s.color;
 		this.interpolate = s.interpolate;
 		this.name = s.name;
-		this.type = s.type;
 		this.mode1D = s.mode1D;
 		this.mode2D = s.mode2D;
 		this.xlabel = s.xlabel;
@@ -614,7 +608,7 @@ public final class Signal implements WaveDataListener{
 		this.freezeMode = s.freezeMode;
 	}
 
-	public Signal(final WaveData data, final WaveData x_data, final double xminVal, final double xmaxVal, final WaveData lowErrData, final WaveData upErrData, final int num_points){
+	public Signal(final WaveData data, final WaveData x_data, final double xminVal, final double xmaxVal, final WaveData lowErrData, final WaveData upErrData, final int num_points, Mode1D mode1d, Mode2D mode2d){
 		if(DEBUG.M) System.out.println("Signal(" + data + ", " + x_data + ", " + xminVal + ", " + xmaxVal + ", " + lowErrData + ", " + upErrData + ")");
 		this.error = (lowErrData != null || upErrData != null);
 		this.asym_error = (lowErrData != null && upErrData != null);
@@ -629,12 +623,11 @@ public final class Signal implements WaveDataListener{
 		this.data = data;
 		this.x_data = x_data;
 		this.data.addWaveDataListener(this);
-		try{
-			this.checkData(this.saved_xmin, this.saved_xmax);
-		}catch(final Exception exc){
-			this.title = exc.getMessage();
-			System.err.println(">>> Signal exception: " + exc.getMessage());
-			exc.printStackTrace();
+		try {
+			this.checkData(xminVal, xmaxVal, mode2d);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 
@@ -680,7 +673,7 @@ public final class Signal implements WaveDataListener{
 	}
 
 	public void appendValues(final double x_in[], final float y_in[], final int numPoints[], final float time[]) {
-		if(this.type != Signal.Type.IMAGE || x_in.length != this.y.length || time == null || numPoints == null) return;
+		if(this.mode2D == Mode2D.YX || x_in.length != this.y.length || time == null || numPoints == null) return;
 		int numProfile = 0;
 		int xIdx, zIdx, yIdx;
 		double x2D[] = this.data.getX2D();
@@ -715,7 +708,7 @@ public final class Signal implements WaveDataListener{
 	// NOTE this is called only by CompositeWaveDisplay and not by jScope
 	public void appendValues(final float inX[], final float inY[]) {
 		if(this.x == null || this.y == null) return;
-		if(this.type == Signal.Type.VECTOR){
+		if(this.mode2D == Mode2D.YX){
 			final int len = (inX.length < inY.length) ? inX.length : inY.length;
 			final double newX[] = new double[this.x.length + len];
 			final float newY[] = new float[this.x.length + len];
@@ -755,14 +748,19 @@ public final class Signal implements WaveDataListener{
 		this.xmin = Double.POSITIVE_INFINITY;
 		this.xmax = Double.NEGATIVE_INFINITY;
 		this.unfreeze();
-		if(this.type == Signal.Type.IMAGE && (this.mode2D == Signal.Mode2D.IMAGE || this.mode2D == Signal.Mode2D.CONTOUR)){
-			if(DEBUG.D) System.out.println("Signal.AutoscaleX:x2D!");
-			this.xmax = this.x2D_max;
-			this.xmin = this.x2D_min;
-			return;
+		switch (this.mode2D) {
+			case IMAGE:
+			case CONTOUR:
+				this.xmax = this.x2D_max;
+				this.xmin = this.x2D_min;
+				break;
+			case ZX:
+			case ZY:
+				this.AutoscaleX1D(this.sliceX);
+				break;
+			default:
+				this.AutoscaleX1D(this.x);
 		}
-		if(this.type == Signal.Type.IMAGE && (this.mode2D == Signal.Mode2D.XZ || this.mode2D == Signal.Mode2D.YZ)) this.AutoscaleX1D(this.sliceX);
-		else this.AutoscaleX1D(this.x);
 	}
 
 	/**
@@ -776,14 +774,19 @@ public final class Signal implements WaveDataListener{
 		if(DEBUG.M) System.out.println("Signal.AutoscaleY(" + min + ", " + max + ")");
 		this.ymin = Double.POSITIVE_INFINITY;
 		this.ymax = Double.NEGATIVE_INFINITY;
-		if(this.type == Signal.Type.IMAGE && (this.mode2D == Signal.Mode2D.IMAGE || this.mode2D == Signal.Mode2D.CONTOUR)){
-			if(DEBUG.D) System.out.println("Signal.AutoscaleY:y2D!");
-			this.ymin = this.y2D_min;
-			this.ymax = this.y2D_max;
-			return;
+		switch (this.mode2D) {
+			case IMAGE:
+			case CONTOUR:
+				this.ymin = this.y2D_min;
+				this.ymax = this.y2D_max;
+				break;
+			case ZX:
+			case ZY:
+				this.AutoscaleY1D(this.sliceX, this.sliceY, min, max);
+				break;
+			default:
+				this.AutoscaleY1D(this.x, this.y, min, max);
 		}
-		if(this.type == Signal.Type.IMAGE && (this.mode2D == Signal.Mode2D.XZ || this.mode2D == Signal.Mode2D.YZ)) this.AutoscaleY1D(this.sliceX, this.sliceY, min, max);
-		else this.AutoscaleY1D(this.x, this.y, min, max);
 	}
 
 	@Override
@@ -858,12 +861,12 @@ public final class Signal implements WaveDataListener{
 	}
 
 	public final void decShow() {
-		if(this.type == Signal.Type.IMAGE) switch(this.mode2D){
-			case XZ:
-				this.decShowXZ();
+		switch(this.mode2D){
+			case ZX:
+				this.decShowZX();
 				break;
-			case YZ:
-				this.decShowYZ();
+			case ZY:
+				this.decShowZY();
 				break;
 			case PROFILE:
 				// decShowProfile();
@@ -889,22 +892,22 @@ public final class Signal implements WaveDataListener{
 			double min_dist, curr_dist;
 			int min_idx;
 			int i = 0;
-			if(this.type == Signal.Type.IMAGE && (this.mode2D == Signal.Mode2D.IMAGE || this.mode2D == Signal.Mode2D.CONTOUR)){
+			if(this.mode2D == Signal.Mode2D.IMAGE || this.mode2D == Signal.Mode2D.CONTOUR){
 				this.img_xprev = Signal.findIndex(this.x, curr_x, this.img_xprev);
 				this.img_yprev = Signal.findIndex(this.y, curr_y, this.img_yprev);
 				if(this.img_xprev > this.y.length) return this.img_xprev - 6;
 				return this.img_xprev;
 			}
 			double currX[];
-			if(this.type == Signal.Type.VECTOR) currX = this.x;
-			else if(this.mode2D == Signal.Mode2D.XZ || this.mode2D == Signal.Mode2D.YZ) currX = this.sliceX;
+			if (this.mode2D == Signal.Mode2D.YX) currX = this.x;
+			else if(this.mode2D == Signal.Mode2D.ZX || this.mode2D == Signal.Mode2D.ZY) currX = this.sliceX;
 			else{
 				final double xf[] = this.x;
 				currX = new double[xf.length];
 				for(int idx = 0; idx < xf.length; idx++)
 					currX[idx] = xf[idx];
 			}
-			if(this.increasing_x || this.type == Signal.Type.IMAGE){
+			if(this.increasing_x || this.mode2D != Signal.Mode2D.YX){
 				if(currX == null) return -1;
 				if(this.prev_idx >= currX.length) this.prev_idx = currX.length - 1;
 				if(curr_x > currX[this.prev_idx]){
@@ -978,7 +981,7 @@ public final class Signal implements WaveDataListener{
 	}
 
 	public final float getClosestX(final double x_in) {
-		if(this.type == Signal.Type.IMAGE && (this.mode2D == Signal.Mode2D.IMAGE || this.mode2D == Signal.Mode2D.CONTOUR)){
+		if(this.mode2D == Signal.Mode2D.IMAGE || this.mode2D == Signal.Mode2D.CONTOUR){
 			this.img_xprev = Signal.findIndex(this.x, x_in, this.img_xprev);
 			return (float)this.x[this.img_xprev];
 		}
@@ -986,7 +989,7 @@ public final class Signal implements WaveDataListener{
 	}
 
 	public final float getClosestY(final double y_in) {
-		if(this.type == Signal.Type.IMAGE && (this.mode2D == Signal.Mode2D.IMAGE || this.mode2D == Signal.Mode2D.CONTOUR)){
+		if(this.mode2D == Signal.Mode2D.IMAGE || this.mode2D == Signal.Mode2D.CONTOUR){
 			this.img_yprev = Signal.findIndex(this.y, y_in, this.img_yprev);
 			return this.y[this.img_yprev];
 		}
@@ -1067,7 +1070,7 @@ public final class Signal implements WaveDataListener{
 
 	public final int getNumPoints() {
 		try{
-			if(this.type == Signal.Type.IMAGE && (this.mode2D == Signal.Mode2D.YZ || this.mode2D == Signal.Mode2D.XZ)) return (this.sliceX == null) ? 0 : this.sliceX.length;
+			if(this.mode2D == Signal.Mode2D.ZY || this.mode2D == Signal.Mode2D.ZX) return (this.sliceX == null) ? 0 : this.sliceX.length;
 			if(this.x != null && this.y != null) return (this.x.length < this.y.length) ? this.x.length : this.y.length;
 		}catch(final Exception exc){
 			System.err.println("getNumPoints(): " + exc);
@@ -1097,10 +1100,6 @@ public final class Signal implements WaveDataListener{
 		return this.title;
 	}
 
-	public final Type getType() {
-		return this.type;
-	}
-
 	public final int getUpdSignalSizeInc() {
 		return this.updSignalSizeInc;
 	}
@@ -1109,19 +1108,15 @@ public final class Signal implements WaveDataListener{
 		return this.upError;
 	}
 
-	public final double[] getX() throws Exception {
-		if(this.type == Signal.Type.IMAGE && (this.mode2D == Signal.Mode2D.XZ || this.mode2D == Signal.Mode2D.YZ)) return this.sliceX;
+	public final double[] getX() {
+		if(this.mode2D == Signal.Mode2D.ZX || this.mode2D == Signal.Mode2D.ZY) return this.sliceX;
 		return this.x;
 	}
 
 	public final double getX(final int idx) {
-		try{
-			if(this.type == Signal.Type.IMAGE && (this.mode2D == Signal.Mode2D.YZ || this.mode2D == Signal.Mode2D.XZ)) return this.sliceX[idx];
-			return this.x[idx];
-		}catch(final Exception e){
-			if(DEBUG.E) System.err.println("getX(" + idx + "): " + e);
-			return Double.NaN;
-		}
+		final double x[] = this.getX();  
+		if (idx<0 || idx>=x.length) return Double.NaN;
+		return x[idx];
 	}
 
 	public final double[] getX2D() {
@@ -1153,19 +1148,15 @@ public final class Signal implements WaveDataListener{
 		return this.xmin;
 	}
 
-	public final float[] getY() throws Exception {
-		if(this.type == Signal.Type.IMAGE && (this.mode2D == Signal.Mode2D.XZ || this.mode2D == Signal.Mode2D.YZ)) return this.sliceY;
+	public final float[] getY() {
+		if(this.mode2D == Signal.Mode2D.ZX || this.mode2D == Signal.Mode2D.ZY) return this.sliceY;
 		return this.y;
 	}
 
 	public final float getY(final int idx) {
-		try{
-			if(this.type == Signal.Type.IMAGE && (this.mode2D == Signal.Mode2D.YZ || this.mode2D == Signal.Mode2D.XZ)) return (this.sliceY == null) ? Float.NaN : this.sliceY[idx];
-			return (this.y == null) ? Float.NaN : this.y[idx];
-		}catch(final Exception e){
-			if(DEBUG.E) System.err.println("getY(" + idx + "): " + e);
-			return Float.NaN;
-		}
+		final float y[] = this.getY();
+		if (y == null || idx<0 || idx>=y.length) return Float.NaN;
+		return y[idx];
 	}
 
 	public final float[] getY2D() {
@@ -1231,7 +1222,7 @@ public final class Signal implements WaveDataListener{
 	}
 
 	public final double getZValue() {
-		if(this.type == Signal.Type.IMAGE) if(this.mode2D == Signal.Mode2D.IMAGE){
+		if(this.mode2D == Signal.Mode2D.IMAGE){
 			final int idx = this.img_xprev * this.y.length + this.img_yprev;
 			if(this.z != null && idx < this.z.length) return this.z[idx];
 		}else if(this.mode2D == Signal.Mode2D.CONTOUR) return this.z_value;
@@ -1258,11 +1249,11 @@ public final class Signal implements WaveDataListener{
 	}
 
 	public final void incShow() {
-		if(this.type == Signal.Type.IMAGE) switch(this.mode2D){
-			case XZ:
+		switch(this.mode2D){
+			case ZX:
 				this.incShowXZ();
 				break;
-			case YZ:
+			case ZY:
 				this.incShowYZ();
 				break;
 			case PROFILE:
@@ -1283,11 +1274,11 @@ public final class Signal implements WaveDataListener{
 	}
 
 	public final boolean isLongX() {
-		return((this.type == Signal.Type.VECTOR || this.type == Signal.Type.IMAGE && (this.mode2D == Signal.Mode2D.XZ || this.mode2D == Signal.Mode2D.IMAGE)) && this.xLong != null);
+		return ((this.mode2D == Signal.Mode2D.YX || this.mode2D == Signal.Mode2D.ZX || this.mode2D == Signal.Mode2D.IMAGE) && this.xLong != null);
 	}
 
 	public final boolean isLongXForLabel() {
-		return (this.type == Signal.Type.VECTOR || this.type == Signal.Type.IMAGE && (this.mode2D == Signal.Mode2D.XZ || this.mode2D == Signal.Mode2D.YZ || this.mode2D == Signal.Mode2D.IMAGE)) && this.data.isXLong();
+		return this.data.isXLong();
 	}
 
 	@Override
@@ -1365,7 +1356,7 @@ public final class Signal implements WaveDataListener{
 			int i;
 			// If the signal dimension is 2 or the x axis are not increasing, the signal is assumed to be completely in memory
 			// and no further readout from data is performed
-			if(this.type != Signal.Type.VECTOR || !this.increasing_x) return true;
+			if(this.mode2D != Mode2D.YX || !this.increasing_x) return true;
 			// Check if the signal is fully available (i.e. has already been read without X limits)
 			if(!this.resolutionManager.isEmpty()){
 				final double minMax[] = this.resolutionManager.getMinMaxX();
@@ -1501,15 +1492,16 @@ public final class Signal implements WaveDataListener{
 	}
 
 	public final void setMode2D(final Mode2D mode) {
-		if(this.type == Signal.Type.VECTOR) return;
 		switch(mode){
+			case YX:
+				break;
 			case IMAGE:
 				this.setMode2D(mode, 0);
 				break;
-			case XZ:
+			case ZX:
 				this.setMode2D(mode, this.y[0]);
 				break;
-			case YZ:
+			case ZY:
 				double v = this.x[0];
 				if(!Double.isNaN(this.curr_x_yz_plot)) v = this.curr_x_yz_plot;
 				this.setMode2D(mode, v);
@@ -1526,12 +1518,10 @@ public final class Signal implements WaveDataListener{
 	}
 
 	public final void setMode2D(final Mode2D mode, final double value) {
-		if(this.type == Signal.Type.VECTOR) return;
-		this.curr_x_yz_plot = Float.NaN;
-		this.curr_y_xz_plot = Float.NaN;
-		this.curr_x_yz_idx = -1;
-		this.curr_y_xz_idx = -1;
+		this.mode2D = mode;
 		switch(mode){
+			case YX:
+				return;
 			case IMAGE:
 				if(this.saved_ymin == Double.NEGATIVE_INFINITY) this.saved_ymin = this.ymin = this.y2D_min;
 				else this.ymin = this.saved_ymin;
@@ -1542,10 +1532,10 @@ public final class Signal implements WaveDataListener{
 				if(this.saved_xmax == Double.POSITIVE_INFINITY) this.saved_xmax = this.xmax = this.x2D_max;
 				else this.xmax = this.saved_xmax;
 				break;
-			case XZ:
+			case ZX:
 				this.showXZ((float)value);
 				break;
-			case YZ:
+			case ZY:
 				this.prev_idx = 0;
 				this.showYZ((float)value);
 				break;
@@ -1553,12 +1543,13 @@ public final class Signal implements WaveDataListener{
 				this.initContour();
 				break;
 			case PROFILE:
-				/*
-				 * prev_idx = 0; showProfile(mode, value);
-				 */
+				// prev_idx = 0; showProfile(mode, value);
 				break;
 		}
-		this.mode2D = mode;
+		this.curr_x_yz_plot = Float.NaN;
+		this.curr_y_xz_plot = Float.NaN;
+		this.curr_x_yz_idx = -1;
+		this.curr_y_xz_idx = -1;
 	}
 
 	public final void setName(final String value) {
@@ -1571,10 +1562,6 @@ public final class Signal implements WaveDataListener{
 
 	public final void setStartIndexToUpdate() {
 		if(this.x != null) this.startIndexToUpdate = this.x.length;
-	}
-
-	public final void setType(final Type type) {
-		this.type = type;
 	}
 
 	public final void setUpdSignalSizeInc(int updSignalSizeInc) {
@@ -1669,7 +1656,7 @@ public final class Signal implements WaveDataListener{
 		final float[] y2d = this.y;
 		double[] x2d = this.x;
 		// if ( (idx >= x2d.length || idx == curr_y_xz_idx) &&
-		if((idx >= y2d.length || idx == this.curr_y_xz_idx) && this.mode2D == Signal.Mode2D.XZ) return;
+		if((idx >= y2d.length || idx == this.curr_y_xz_idx) && this.mode2D == Signal.Mode2D.ZX) return;
 		this.prev_idx = 0;
 		this.curr_y_xz_plot = y2d[idx];
 		this.curr_y_xz_idx = idx;
@@ -1686,21 +1673,25 @@ public final class Signal implements WaveDataListener{
 		}
 		this.sliceX = new double[x2d.length];
 		this.sliceY = new float[x2d.length];
-		final int zLen = this.z.length;
 		float sliceMin, sliceMax;
-		// sliceMin = sliceMax = z[ y2d.length * idx];
-		sliceMin = sliceMax = this.z[x2d.length * idx];
-		for(int j = 0; j < x2d.length; j++){
-			this.sliceX[j] = x2d[j];
-			// int k = y2d.length * idx + j;
-			final int k = x2d.length * idx + j;
-			if(k >= zLen) break;
-			this.sliceY[j] = this.z[k];
-			if(sliceMin > this.z[k]) sliceMin = this.z[k];
-			if(sliceMax < this.z[k]) sliceMax = this.z[k];
+		if (this.z == null) {
+			sliceMin = sliceMax = 0;
+		} else {
+			final int zLen = this.z == null ? 0 : this.z.length;
+			// sliceMin = sliceMax = z[ y2d.length * idx];
+			sliceMin = sliceMax = this.z == null ? 0 : this.z[x2d.length * idx];
+			for(int j = 0; j < x2d.length; j++){
+				this.sliceX[j] = x2d[j];
+				// int k = y2d.length * idx + j;
+				final int k = x2d.length * idx + j;
+				if(k >= zLen) break;
+				this.sliceY[j] = this.z[k];
+				if(sliceMin > this.z[k]) sliceMin = this.z[k];
+				if(sliceMax < this.z[k]) sliceMax = this.z[k];
+			}
 		}
 		this.error = this.asym_error = false;
-		this.mode2D = Signal.Mode2D.XZ;
+		this.mode2D = Signal.Mode2D.ZX;
 		if(!this.fix_xmin) this.saved_xmin = this.curr_xmin = this.xmin = this.x2D_min;
 		// saved_xmin = curr_xmin;
 		if(!this.fix_xmax) this.saved_xmax = this.curr_xmax = this.xmax = this.x2D_max;
@@ -1712,7 +1703,7 @@ public final class Signal implements WaveDataListener{
 	}
 
 	public final void showYZ(final double t) {
-		if(this.curr_x_yz_plot == t && this.mode2D == Signal.Mode2D.YZ) return;
+		if(this.curr_x_yz_plot == t && this.mode2D == Signal.Mode2D.ZY) return;
 		final int i = Signal.getArrayIndex(this.x, t);
 		this.showYZ(i);
 	}
@@ -1720,7 +1711,7 @@ public final class Signal implements WaveDataListener{
 	public final void showYZ(final int idx) {
 		final float[] y2d = this.y;
 		final double[] x2d = this.x;
-		if((idx >= x2d.length || idx == this.curr_x_yz_idx) && this.mode2D == Signal.Mode2D.YZ) return;
+		if((idx >= x2d.length || idx == this.curr_x_yz_idx) && this.mode2D == Signal.Mode2D.ZY) return;
 		this.prev_idx = 0;
 		this.curr_x_yz_plot = x2d[idx];
 		this.curr_x_yz_idx = idx;
@@ -1749,7 +1740,7 @@ public final class Signal implements WaveDataListener{
 			if(sliceMax < this.z[k]) sliceMax = this.z[k];
 		}
 		this.error = this.asym_error = false;
-		this.mode2D = Signal.Mode2D.YZ;
+		this.mode2D = Signal.Mode2D.ZY;
 		if(!this.fix_xmin) this.saved_xmin = this.curr_xmin = this.xmin = this.y2D_min;
 		// saved_xmin = curr_xmin = ymin;
 		if(!this.fix_xmax) this.saved_xmax = this.curr_xmax = this.xmax = this.y2D_max;
@@ -1779,7 +1770,7 @@ public final class Signal implements WaveDataListener{
 		}catch(final IOException e){
 			this.ylabel = e.getMessage();
 		}
-		if(this.zlabel == null && this.type == Signal.Type.IMAGE) try{
+		if(this.zlabel == null && this.mode2D != Mode2D.YX) try{
 			this.zlabel = this.data.getZLabel();
 		}catch(final IOException e){
 			this.zlabel = e.getMessage();
@@ -1808,7 +1799,7 @@ public final class Signal implements WaveDataListener{
 
 	public final double surfaceValue(final double x0, final double y0) {
 		try{
-			if(this.type == Signal.Type.IMAGE && (this.mode2D == Signal.Mode2D.IMAGE || this.mode2D == Signal.Mode2D.CONTOUR)){
+			if(this.mode2D == Signal.Mode2D.IMAGE || this.mode2D == Signal.Mode2D.CONTOUR){
 				this.img_yprev = Signal.findIndex(this.y, y0, this.img_yprev);
 				this.img_xprev = Signal.findIndex(this.x, x0, this.img_xprev);
 				System.out.println(this.y.length + "," + this.img_yprev + "," + this.x.length + "," + this.img_xprev);
@@ -1934,11 +1925,10 @@ public final class Signal implements WaveDataListener{
 		this.ymin = this.ymin - 1E-3f;
 	}
 
-	private final void checkData(final double xMin, final double xMax) throws Exception {
+	private final void checkData(final double xMin, final double xMax, Mode2D mode2d) throws Exception {
 		if(DEBUG.M) System.out.println("Signal.checkData(" + xMin + ", " + xMax + ")");
-		final int numDimensions = this.data.getNumDimension();
-		if(numDimensions == 1){
-			this.type = Signal.Type.VECTOR;
+		if(mode2d == Mode2D.YX){
+			this.mode2D = Mode2D.YX;
 			this.data.getDataAsync(xMin, xMax, this.num_points);
 			if(this.up_errorData != null && this.upError == null){
 				// XYData xyData = up_errorData.getData(xMin, xMax, NUM_POINTS);
@@ -1952,8 +1942,8 @@ public final class Signal implements WaveDataListener{
 			}
 			if(this.saved_ymin == Double.NEGATIVE_INFINITY) this.saved_ymin = this.ymin;
 			if(this.saved_ymax == Double.POSITIVE_INFINITY) this.saved_ymax = this.ymax;
-		}else if(numDimensions == 2){
-			this.type = Signal.Type.IMAGE;
+		} else {
+			this.mode2D = mode2d;
 			this.x = this.data.getX2D();
 			if(this.x == null && this.data.isXLong()){
 				this.xLong = this.data.getX2DLong();
@@ -2014,16 +2004,16 @@ public final class Signal implements WaveDataListener{
 		this.increasing_x = true;
 	}
 
-	private final void decShowXZ() {
-		if(this.type == Signal.Type.IMAGE && this.mode2D == Signal.Mode2D.XZ){
+	private final void decShowZX() {
+		if(this.mode2D == Signal.Mode2D.ZX){
 			int idx = this.curr_y_xz_idx - 1;
 			if(idx < 0) idx = this.y.length - 1;
 			this.showXZ(idx);
 		}
 	}
 
-	private final void decShowYZ() {
-		if(this.type == Signal.Type.IMAGE && this.mode2D == Signal.Mode2D.YZ){
+	private final void decShowZY() {
+		if(this.mode2D == Signal.Mode2D.ZY){
 			int idx = this.curr_x_yz_idx - 1;
 			if(idx < 0) idx = this.x.length - 1;
 			this.showYZ(idx);
@@ -2031,7 +2021,7 @@ public final class Signal implements WaveDataListener{
 	}
 
 	private final void incShowXZ() {
-		if(this.type == Signal.Type.IMAGE && this.mode2D == Signal.Mode2D.XZ){
+		if(this.mode2D == Signal.Mode2D.ZX){
 			int idx = this.curr_y_xz_idx;
 			idx = (idx + 1) % this.y.length;
 			this.showXZ(idx);
@@ -2039,7 +2029,7 @@ public final class Signal implements WaveDataListener{
 	}
 
 	private final void incShowYZ() {
-		if(this.type == Signal.Type.IMAGE && this.mode2D == Signal.Mode2D.YZ){
+		if(this.mode2D == Signal.Mode2D.ZY){
 			int idx = this.curr_x_yz_idx;
 			idx = (idx + 1) % this.x.length;
 			this.showYZ(idx);

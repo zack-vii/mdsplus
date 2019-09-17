@@ -316,11 +316,11 @@ final public class jScopeMultiWave extends MultiWaveform implements UpdateEventL
 		if(this.signals.size() > i){
 			final Signal sign = this.signals.elementAt(i);
 			// s += sign.getName(); #1034
-			if(sign.getType() == Signal.Type.IMAGE) switch(sign.getMode2D()){
-				case XZ:
+			switch(sign.getMode2D()){
+				case ZX:
 					s = s + " [X-Z Y = " + Waveform.convertToString(sign.getYinXZplot(), false) + " ]";
 					break;
-				case YZ:
+				case ZY:
 					s = s + " [Y-Z X = " + sign.getStringOfXinYZplot() +
 					// Waveform.ConvertToString(sign.getTime(), false) +
 					        " ]";
