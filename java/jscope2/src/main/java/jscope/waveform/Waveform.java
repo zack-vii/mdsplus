@@ -69,6 +69,7 @@ public class Waveform extends JComponent implements SignalListener{
 	public static double			mark_point_x, mark_point_y;
 	public static final int			MARKER_WIDTH		= 8;
 	public static final int			MAX_POINTS			= 5000;
+	public static final int			MAX_DRAG_POINT		= 200;
 	public static final int			MODE_COPY			= 4;
 	public static final int			MODE_PAN			= 3;
 	public static final int			MODE_POINT			= 2;
@@ -76,6 +77,7 @@ public class Waveform extends JComponent implements SignalListener{
 	public static final int			MODE_ZOOM			= 1;
 	public static final int			NO_PRINT			= 0;
 	public static final int			PRINT				= 2;
+	public static final int			PRINT_BW			= 4;
 	public static boolean			zoom_on_mb1			= true;
 	protected static boolean		colors_changed		= true;
 	protected static String[]		colors_name;
@@ -296,13 +298,13 @@ public class Waveform extends JComponent implements SignalListener{
 
 	public final synchronized void appendPaint(final Graphics g, final Dimension d) {
 		if(DEBUG.M) System.out.println("Waveform.appendPaint(" + g + ", " + d + ")");
-		Waveform.getFont(g);
+//		Waveform.getFont(g);
 		g.setColor(Color.black);
 		if(!this.is_image){
 			if(this.wm != null){
 				this.appendDrawMode = true;
 				this.appendPaintFlag = true;
-				this.drawSignal(g, d, Waveform.NO_PRINT);
+				//this.drawSignal(g, d, Waveform.NO_PRINT);
 				this.appendDrawMode = false;
 			}else this.paintSignal(g, d, Waveform.NO_PRINT);
 		}else this.paintImage(g, d, Waveform.NO_PRINT);
@@ -417,34 +419,7 @@ public class Waveform extends JComponent implements SignalListener{
 		}
 	}
 
-	public final void drawWave(final Dimension d) {
-		if(DEBUG.M) System.out.println("Waveform.drawWave(" + d + ")");
-		int i;
-		final Mode1D curr_mode = this.waveform_signal.getMode1D();
-		if(curr_mode == Mode1D.STEP) this.num_points = this.waveform_signal.getNumPoints() * 2 - 1;
-		else this.num_points = this.waveform_signal.getNumPoints();
-		final int x[] = new int[this.waveform_signal.getNumPoints()];
-		final int y[] = new int[this.waveform_signal.getNumPoints()];
-		this.points = new Point[this.waveform_signal.getNumPoints()];
-		if(curr_mode == Mode1D.STEP) for(i = 1; i < this.waveform_signal.getNumPoints() - 1; i += 2){
-			x[i - 1] = this.wm.toXPixel(this.waveform_signal.getX(i), d);
-			y[i - 1] = this.wm.toYPixel(this.waveform_signal.getY(i), d);
-			x[i] = x[i - 1];
-			y[i] = y[i + 1];
-			this.points[i] = new Point(x[i - 1], y[i + 1]);
-		}
-		else for(i = 0; i < this.waveform_signal.getNumPoints(); i++){
-			x[i] = this.wm.toXPixel(this.waveform_signal.getX(i), d);
-			y[i] = this.wm.toYPixel(this.waveform_signal.getY(i), d);
-			this.points[i] = new Point(x[i], y[i]);
-		}
-		// num_points = waveform_signal.n_points;
-		this.polygon = new Polygon(x, y, i);
-		this.end_x = x[0];
-		this.end_y = y[0];
-	}
-
-	public final void drawWave(final Signal s, final Graphics g, final Dimension d) {
+	private final void drawWave(final Signal s, final Graphics g, final Dimension d) {
 		if(DEBUG.M) System.out.println("Waveform.drawWave(" + s + ", " + g + ", " + d + ")");
 		final Vector<Polygon> segments = this.wm.toPolygons(s, d, this.appendDrawMode);
 		Polygon curr_polygon;
@@ -1411,25 +1386,56 @@ public class Waveform extends JComponent implements SignalListener{
 	}
 
 	protected void drawSignal(final Graphics g, final Dimension d, final int print_mode) {
-		this.drawSignal(this.waveform_signal, g, d);
+		this.drawSignal(this.waveform_signal, g, d, print_mode);
 	}
 
-	protected final void drawSignal(final Signal s, final Graphics g, final Dimension d) {
+	protected void drawSignal(final Signal s, final Graphics g, final Dimension d, final int print_mode) {
 		if(DEBUG.M) System.out.println("Waveform.drawSignal(" + s + ", " + g + ", " + d + ")");
-		if(s.getType() == Signal.Type.IMAGE) switch(s.getMode2D()){
-			case IMAGE:
-				if(!(this.mode == Waveform.MODE_PAN && this.dragging)){
-					final Image img = this.createImage(d.width, d.height);
-					this.wm.toImage(s, img, d, this.colorProfile.colorMap);
-					g.drawImage(img, 0, 0, d.width, d.height, this);
+		if((print_mode & Waveform.PRINT_BW) != Waveform.PRINT_BW){
+			if(s.getColor() != null) g.setColor(s.getColor());
+			else g.setColor(Waveform.colors[s.getColorIdx() % Waveform.colors.length]);
+		} else g.setColor(Color.black);
+		final boolean DRAGGING = this.mode == Waveform.MODE_PAN && this.dragging;
+		if(DRAGGING && s.getNumPoints() > Waveform.MAX_DRAG_POINT) {
+			int drag_point = Waveform.MAX_DRAG_POINT;
+			int x[] = new int[s.getNumPoints()];
+			int y[] = new int[s.getNumPoints()];
+			Point curr_points[] = new Point[s.getNumPoints()];
+			float step = (float)s.getNumPoints() / drag_point;
+			int num_steps = drag_point;
+			for(int j = 0; j < num_steps; j++){
+				x[j] = this.wm.toXPixel(s.getX((int)(step * j)), d);
+				y[j] = this.wm.toYPixel(s.getY((int)(step * j)), d);
+				curr_points[j] = new Point(x[j], y[j]);
+			}
+			for(int jj = 0; jj < num_steps - 1; jj++)
+				if(!Double.isNaN(s.getY((int)(step * jj))) && !Double.isNaN(s.getY((int)(step * (jj + 1))))) g.drawLine(x[jj], y[jj], x[jj + 1], y[jj + 1]);
+		} else if(s.getType() == Signal.Type.IMAGE && (s.getMode2D() == Signal.Mode2D.IMAGE || s.getMode2D() == Signal.Mode2D.CONTOUR)){
+			if(!DRAGGING) {
+				switch(s.getMode2D()){
+					case IMAGE:
+						final Image img = this.createImage(d.width, d.height);
+						this.wm.toImage(s, img, d, this.colorProfile.colorMap);
+						g.drawImage(img, 0, 0, d.width, d.height, this);
+						break;
+					case CONTOUR:
+						this.drawSignalContour(s, g, d);
+						break;
+					default:
+						break;
 				}
-				return;
-			case CONTOUR:
-				if(!(this.mode == Waveform.MODE_PAN && this.dragging)) this.drawSignalContour(s, g, d);
-				return;
-			default:
-				break;
+			}
+		}else{
+			if (DRAGGING || s.getInterpolate()) {
+				final Vector<Polygon> segments = this.wm.toPolygons(s, d, this.appendDrawMode);
+				if(segments != null) {
+					for (final Polygon seg : segments) {
+						g.drawPolyline(seg.xpoints, seg.ypoints, seg.npoints);
+					}
+				}
+			}
 		}
+		if(DRAGGING) return;
 		this.drawWave(s, g, d);
 		this.drawMarkers(s, g, d);
 		this.drawError(s, g, d);
@@ -1590,7 +1596,6 @@ public class Waveform extends JComponent implements SignalListener{
 		return this.waveform_signal.getYmin();
 	}
 
-	@SuppressWarnings("static-method")
 	protected void notifyZoom(final double start_xs, final double end_xs, final double start_ys, final double end_ys, final int timestamp) {
 		if(DEBUG.M) System.out.println("Waveform.NotifyZoom(" + start_xs + ", " + end_xs + ", " + start_ys + ", " + end_ys + ", " + timestamp + ")");
 	}

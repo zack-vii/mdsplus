@@ -186,7 +186,7 @@ public final class WaveformMetrics implements Serializable{
 		final double dxmin = this.x_log ? WaveformMetrics.pow10(this.xmin) : this.xmin;
 		final double dxmax = this.x_log ? WaveformMetrics.pow10(this.xmax) : this.xmax;
 		int first, next, length = sig.getNumPoints();
-		for(next = 1; next < length && x[next] < dxmin; next++){/*NOP*/}
+		for(next = 1; next < length && (x[next] < dxmin || Double.isNaN(y[next-1])) ; next++) ;
 		first = next - 1;
 		float last_y, first_y, max_y, min_y;
 		Polygon curr_polygon = null;

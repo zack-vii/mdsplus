@@ -29,9 +29,7 @@ public class MultiWaveform extends Waveform{
 	public static final int		LEGEND_BOTTOM		= 1;
 	public static final int		LEGEND_IN_GRAPHICS	= 0;
 	public static final int		LEGEND_RIGHT		= 2;
-	public static final int		MAX_DRAG_POINT		= 200;
-	public static final int		PRINT_BW			= 8;
-	public static final int		PRINT_LEGEND		= 4;
+	public static final int		PRINT_LEGEND		= 8;
 	public static final int		VERTICAL			= 1;
 	private int					bottom_size			= 0;
 	protected int				curr_point_sig_idx	= -1;
@@ -719,79 +717,19 @@ public class MultiWaveform extends Waveform{
 	protected void drawSignal(final Graphics g, final Dimension d, final int print_mode) {
 		if(this.wm == null) return;
 		final int num_marker = Marker.values().length - 1;
-		int i, j, x[], y[];
-		Point curr_points[];
-		Vector<Polygon> segments = null;
-		float step;
-		int num_steps, marker_step = 1;
-		Signal s;
-		g.setColor(Color.black);
-		for(i = 0; i < this.signals.size(); i++){
-			s = this.signals.elementAt(i);
-			if(s == null) continue;
-			if((print_mode & MultiWaveform.PRINT_BW) != MultiWaveform.PRINT_BW){
-				marker_step = (s.getMarkerStep() > 0) ? s.getMarkerStep() : 1;
-				if(s.getColor() != null) g.setColor(s.getColor());
-				else g.setColor(Waveform.colors[s.getColorIdx() % Waveform.colors.length]);
-			}else if(s.getMarker() != Signal.Marker.NONE) marker_step = (int)(((s.getNumPoints() > 1000) ? 100 : s.getNumPoints() / 10.) + 0.5);
-			if(this.mode == Waveform.MODE_PAN && this.dragging && s.getNumPoints() > MultiWaveform.MAX_DRAG_POINT) // dragging
-			                                                                                                       // large
-			                                                                                                       // signals
-			{
-				int drag_point = MultiWaveform.MAX_DRAG_POINT;
-				if(this.signals.size() == 1) drag_point = (s.getNumPoints() > MultiWaveform.MAX_DRAG_POINT * 3) ? MultiWaveform.MAX_DRAG_POINT * 3 : s.getNumPoints();
-				x = new int[s.getNumPoints()];
-				y = new int[s.getNumPoints()];
-				curr_points = new Point[s.getNumPoints()];
-				step = (float)s.getNumPoints() / drag_point;
-				num_steps = drag_point;
-				for(j = 0; j < num_steps; j++){
-					x[j] = this.wm.toXPixel(s.getX((int)(step * j)), d);
-					y[j] = this.wm.toYPixel(s.getY((int)(step * j)), d);
-					curr_points[j] = new Point(x[j], y[j]);
-				}
-				// if(s.getInterpolate())
-				for(int jj = 0; jj < num_steps - 1; jj++)
-					if(!Double.isNaN(s.getY((int)(step * jj))) && !Double.isNaN(s.getY((int)(step * (jj + 1))))) g.drawLine(x[jj], y[jj], x[jj + 1], y[jj + 1]);
-			}else if(s.getType() == Signal.Type.IMAGE && (s.getMode2D() == Signal.Mode2D.IMAGE || s.getMode2D() == Signal.Mode2D.CONTOUR)){
-				if(!(this.mode == Waveform.MODE_PAN && this.dragging)) switch(s.getMode2D()){
-					case IMAGE:
-						final Image img = this.createImage(d.width, d.height);
-						this.wm.toImage(s, img, d, this.colorProfile.colorMap);
-						g.drawImage(img, 0, 0, d.width, d.height, this);
-						break;
-					case CONTOUR:
-						this.drawSignalContour(s, g, d);
-						break;
-					default:
-						break;
-				}
-			}else{
-				segments = this.wm.toPolygons(s, d, this.appendDrawMode);
-				Polygon curr_polygon;
-				if(segments != null && (s.getInterpolate() || this.mode == Waveform.MODE_PAN && this.dragging)) for(int k = 0; k < segments.size(); k++){
-					curr_polygon = segments.elementAt(k);
-					g.drawPolyline(curr_polygon.xpoints, curr_polygon.ypoints, curr_polygon.npoints);
-				}
-			}
-			if(this.dragging && this.mode == Waveform.MODE_PAN) continue;
-			if(s.getMarker() != Signal.Marker.NONE && s.getMode2D() != Signal.Mode2D.IMAGE)
-			    // DrawMarkers(g, segments, s.getMarker(), marker_step);
-			    this.drawMarkers(g, segments, s);
-			if(s.hasError()) this.drawError(s, g, d);
-		}
 		if((print_mode & MultiWaveform.PRINT_BW) == MultiWaveform.PRINT_BW){
 			int curr_marker = 0;
-			for(i = 0; i < this.signals.size(); i++){
-				s = this.signals.elementAt(i);
+			for(final Signal s : this.signals){
 				if(s == null) continue;
-				segments = this.wm.toPolygons(s, d, this.appendDrawMode);
-				marker_step = (int)(((s.getNumPoints() > 1000) ? 100 : s.getNumPoints() / 10.) + 0.5);
+				final Vector<Polygon> segments = this.wm.toPolygons(s, d, this.appendDrawMode);
+				int marker_step = (int)(((s.getNumPoints() > 1000) ? 100 : s.getNumPoints() / 10.) + 0.5);
 				this.drawMarkers(g, segments, Marker.values()[curr_marker + 1], marker_step, s.getMode1D());
 				curr_marker = (curr_marker + 1) % num_marker;
 			}
+		} else for(final Signal s : this.signals){
+			if(s == null) continue;
+			this.drawSignal(s,g,d,print_mode);
 		}
-		segments = null;
 	}
 
 	@Override
