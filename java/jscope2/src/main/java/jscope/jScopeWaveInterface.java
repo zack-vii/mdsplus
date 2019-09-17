@@ -461,12 +461,17 @@ public final class jScopeWaveInterface extends WaveInterface{
 					prop = pr.getProperty(prompt + ".color_" + idx + "_" + s);
 					this.colors_idx[expr_idx + s] = jScopeWaveInterface.getInteger(prop, 0);
 					prop = pr.getProperty(prompt + ".marker_" + idx + "_" + s);
-					this.markers[expr_idx + s] = Marker.valueOf(jScopeWaveInterface.getInteger(prop, 0));
+					try {
+					    this.markers[expr_idx + s] = prop == null ? Marker.NONE : Marker.valueOf(prop);
+					} catch (IllegalArgumentException e) {
+						this.markers[expr_idx + s] = Marker.valueOf(jScopeWaveInterface.getInteger(prop, 0));
+					}
 					prop = pr.getProperty(prompt + ".step_marker_" + idx + "_" + s);
 					this.markers_step[expr_idx + s] = jScopeWaveInterface.getInteger(prop, 0);
 				}
 			}
 		}catch(final Exception e){
+			e.printStackTrace();
 			throw(new IOException(e + " \n when parsing " + prop));
 		}
 	}
