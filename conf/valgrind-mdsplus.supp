@@ -53,6 +53,21 @@
 }
 
 {
+   leak in threadsafe posix gethostbyname2_r (found in javamds)
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:__libc_alloc_buffer_allocate
+   fun:__resolv_conf_allocate
+   fun:__resolv_conf_load
+   fun:__resolv_conf_get_current
+   fun:__res_vinit
+   fun:maybe_init
+   fun:__resolv_context_get
+   fun:gethostbyname2_r@@GLIBC_2.2.5
+}
+
+{
    race conditions on fc26
    Helgrind:Race
    ...

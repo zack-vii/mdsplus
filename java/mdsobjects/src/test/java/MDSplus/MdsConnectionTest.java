@@ -55,7 +55,8 @@ public class MdsConnectionTest{
 	@Before
 	public void setUp() throws Exception 
 	{
-	    freePort= 8888;
+	    freePort= 8889; // there could be some issues here as it seems that if the port is
+						// not actually available the test hangs.
 	    int count = 0;
             while(count < 100)
 	    {

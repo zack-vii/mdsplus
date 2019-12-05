@@ -15,7 +15,6 @@ public class MdsTreeNodeTest{
 	private static MDSplus.Data data;
 
 
-
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception 
 	{
@@ -66,6 +65,7 @@ public class MdsTreeNodeTest{
 		Assert.assertEquals(node.getTree().getName(), tree2.getName());
 		Assert.assertEquals(node.getTree().getShot(), tree2.getShot());
 		node.setTree(tree);
+		tree2.close();
 
 	// getPath()
 		Assert.assertEquals("\\JAVA_TEST1::TOP:TEST_NODE" , node.getPath());
@@ -225,7 +225,6 @@ public class MdsTreeNodeTest{
 		Assert.assertEquals(2, test_structure.getDepth());
 		Assert.assertEquals(3, parent.getDepth());
  
-
 		tree.edit();
 		node = tree.addNode("test_flags","ANY");
 		Assert.assertEquals( false, node.isWriteOnce());
@@ -256,7 +255,6 @@ public class MdsTreeNodeTest{
 		Assert.assertEquals(true, node.isCompressOnPut() );
 
 	// NO WRITE ////////////////////////////////////////////////////////////
-
 		tree = new MDSplus.Tree("java_test1",-1);
 		tree.createPulse(1);
 
@@ -312,7 +310,8 @@ public class MdsTreeNodeTest{
 		node = shot.addNode("onlypulse","ANY");
 		node.setIncludedInPulse(true);
 		Assert.assertEquals(true, node.isIncludedInPulse() );
-
+		shot.write();
+		shot.close();
 
 		tree.edit();
 		tree.addNode("test_seg","STRUCTURE");
@@ -587,9 +586,12 @@ public class MdsTreeNodeTest{
 		}catch(Exception exc){}
 		n1.addDevice("device","DIO2");
 
+		tree.quit();
+
 	    }catch(Exception exc)
 	    {
-		Assert.fail(exc.toString());
+			exc.printStackTrace();
+			Assert.fail(exc.toString());
 	    }
       }
 }

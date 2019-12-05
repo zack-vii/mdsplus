@@ -1844,6 +1844,7 @@ JNIEXPORT void JNICALL Java_MDSplus_Tree_closeTree
   ctx = getCtx(ctx1, ctx2);
   status = _TreeClose(&ctx, (char *)name, shot);
   (*env)->ReleaseStringUTFChars(env, jname, name);
+  TreeFreeDbid(ctx);
   if STATUS_NOT_OK {
     throwMdsException(env, status);
   }
