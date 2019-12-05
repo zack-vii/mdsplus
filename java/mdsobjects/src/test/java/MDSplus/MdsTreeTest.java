@@ -44,12 +44,14 @@ public class MdsTreeTest{
 		tree = new MDSplus.Tree("java_test0",-1,"READONLY");
 		Assert.assertEquals(true, tree.isReadOnly() );
 		tree.close();
+		tree.close();
+		tree.edit();
+		tree.close();
 		tree = new MDSplus.Tree("java_test0",-1,"EDIT");
 		Assert.assertEquals(true, tree.isOpenForEdit() );
 		tree.close();
     // write to parse file node usages //
-		tree = new MDSplus.Tree("java_test0",-1,"NORMAL");
-		tree.edit();
+		tree = new MDSplus.Tree("java_test0",-1,"EDIT");
 		MDSplus.TreeNode node = tree.addNode("test_usage","STRUCTURE");
 
 	// fill all kinds of nodes into the test_usage structure //
@@ -66,7 +68,7 @@ public class MdsTreeTest{
 		node = tree.addNode("\\java_test0::top.test_usage:TEXT","TEXT");
 		node = tree.addNode("\\java_test0::top.test_usage:WINDOW","WINDOW");
 		tree.write();
-
+		tree.close();
 		tree = new MDSplus.Tree("java_test0",-1,"READONLY");
 		node = tree.getNode("\\java_test0::top.test_usage:ANY");
 		Assert.assertEquals("ANY", node.getNodeName());
@@ -134,7 +136,7 @@ public class MdsTreeTest{
 		Assert.assertEquals(1, array.size());
 		Assert.assertEquals("WINDOW", array.getElementAt(0).getNodeName());
 
- 
+		tree.close();
 		tree = new MDSplus.Tree("java_test0",-1,"NORMAL");
 
 		try {
@@ -154,17 +156,18 @@ public class MdsTreeTest{
 		tree.write();
 		Assert.assertEquals(false, tree.isModified() );
 
-		tree.addNode("save_me_not","ANY");
 	// it does not writes here //
-
 	// tests that the node has not been written
+		tree.write();
+		tree.close();
 		tree = new MDSplus.Tree("java_test0",-1,"NORMAL");
 		try {
-		    tree.getNode("save_me_not");
+			tree.addNode("save_me_not","ANY");
 		    Assert.fail("Node added in tree open in non edit mode");
 		}catch(Exception exc){}
 
      // add device
+		tree.close();
 		tree = new MDSplus.Tree("java_test0",-1,"EDIT");
 		tree.addDevice("device","DIO2");
 		tree.write();
@@ -180,17 +183,22 @@ public class MdsTreeTest{
 		}catch(Exception exc){}
 
        // create and delete
+	    tree.close();
 		tree = new MDSplus.Tree("java_test0",-1);
 		tree.createPulse(1);
+		tree.close();
 		tree = new MDSplus.Tree("java_test0",1);
 		node = tree.getNode("test_usage:ANY");
 		Assert.assertEquals("ANY", node.getNodeName());
+		tree.close();
 		tree = new MDSplus.Tree("java_test0",-1);
 		tree.createPulse(2);
+		tree.close();
 		tree = new MDSplus.Tree("java_test0",2);
 		tree.deletePulse(2);
 
 	// create a pulse without copying from model structure //
+		tree.close();
 		tree = new MDSplus.Tree("java_test0",2,"NEW");
 		  
 	// test that the new pulse has not the model nodes //
@@ -248,9 +256,13 @@ public class MdsTreeTest{
 		  Assert.fail("Tag test_tag found even if removed");
 		}catch(Exception exc){}
 
+		tree.write();
+		tree.close();
+
 	    }catch(Exception exc)
 	    {
-		Assert.fail(exc.toString());
+			exc.printStackTrace();
+			Assert.fail(exc.toString());
 	    }
       }
 }

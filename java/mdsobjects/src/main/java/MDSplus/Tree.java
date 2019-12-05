@@ -92,12 +92,12 @@ static public final int  TreeUSAGE_ANY  = 0,
 	    if(upMode.equals("EDIT"))
 	        editTree(name, shot, false);
 	    open = true;
-
 	}
 
 	public void close() throws MdsException
 	{
-	    closeTree(ctx1, ctx2, name, shot);
+	    if (this.isOpen())
+			closeTree(ctx1, ctx2, name, shot);
 	    open = false;
 	}
 
@@ -367,7 +367,11 @@ static public final int  TreeUSAGE_ANY  = 0,
 	 */
 	public void edit() throws MdsException
 	{
-	    editTree(name, shot, false);
+		if (this.mode.equals("EDIT") || this.mode.equals("NEW")) return;
+		if (this.isOpen()) this.close();		
+		editTree(name, shot, false);
+		this.open = true;
+		this.mode = "EDIT";
 	}
 
 	/**
