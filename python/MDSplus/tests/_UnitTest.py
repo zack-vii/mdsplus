@@ -201,11 +201,12 @@ class MdsIp(object):
         if to <= 0:
             return svr.poll()
         if sys.version_info < (3, 3):
-            for i in range(int(10*to)):
-                rtn = svr.poll()
+            rtn = svr.poll()
+            for _ in range(int(10*to)):
                 if rtn is not None:
                     break
                 time.sleep(.1)
+                rtn = svr.poll()
             return rtn
         try:
             svr.wait(to)
