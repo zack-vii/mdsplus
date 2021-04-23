@@ -6,3 +6,8 @@
    ...
    fun:xmlInitParser_supp
 }
+{
+   pthread_once fasle positive
+   Helgrind:Race
+   fun:MDSplusThreadStatic
+}
