@@ -45,11 +45,6 @@ segment_dimless_test.py \
 segment_compress_test.py \
 segment_compress_ts_test.py \
 task_do_test.py \
-thread_data_test.py \
-thread_dcl_test.py \
-thread_segment_test.py \
-thread_task_test.py \
-thread_tree_test.py \
 tree_attr_test.py \
 tree_open_test.py \
 tree_node_test.py \

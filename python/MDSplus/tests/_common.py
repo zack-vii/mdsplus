@@ -24,6 +24,7 @@
 
 from unittest import TestCase, TestSuite, TextTestRunner
 from MDSplus import Tree, getenv, setenv, tcl, TreeWRITEFIRST, TreeNOT_OPEN
+from MDSplus import Connection
 import traceback
 import threading
 import re
@@ -317,16 +318,13 @@ class MdsIp(object):
                 raise
             time.sleep(.3)
             self._waitIdle(server, 10)  # allow mdsip to launch
-            for envpair in self.envx.items():
-                self._testDispatchCommandNoWait(server, 'env %s=%s' % envpair)
-            self._testDispatchCommand(server, 'set verify')
-            return mdsip, log
-        if server:
-            self._checkIdle(server)
-            for envpair in self.envx.items():
-                self._testDispatchCommandNoWait(server, 'env %s=%s' % envpair)
-            self._testDispatchCommand(server, 'set verify')
-        return None, None
+        else:
+            mdsip, log = None, None
+        c = Connection(server)
+        for envpair in self.envx.items():
+            c.get('setenv($//"="//$)', *envpair)
+        c.get('tcl($)', 'set verify')
+        return mdsip, log
 
 
 class TreeTests(Tests):
