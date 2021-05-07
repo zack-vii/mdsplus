@@ -36,6 +36,13 @@ typedef struct _client
   struct _client *next;
   Connection *connection;
   pthread_t *thread;
+#ifdef _WIN32
+  struct
+  {
+    HANDLE r;
+    HANDLE w;
+  } cancel;
+#endif
   uint32_t addr;
   SOCKET sock;
   char *username;
@@ -463,14 +470,30 @@ static ssize_t io_recv_to(Connection *c, void *bptr, size_t num, int to_msec)
   }
   return recved;
 }
+static inline void Client_cancel(Client *c)
+{
+#ifdef _WIN32
+  intptr_t set = -2;
+  write(c->cancel.w, &set, sizeof(set));
+#else
+  pthread_cancel(*c->thread);
+#endif
+}
 
+static inline void Client_free_thread(Client *c)
+{
+#ifdef _WIN32
+  CloseHandle(c->cancel.w);
+#endif
+  free(c->thread);
+}
 ////////////////////////////////////////////////////////////////////////////////
 //  DISCONNECT  ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 static void destroyClient(Client *c)
 {
   MDSDBG("destroyClient");
-  Connection* con = c->connection;
+  Connection *con = c->connection;
   if (con)
   {
     con->io = NULL;
@@ -480,13 +503,14 @@ static void destroyClient(Client *c)
   {
     if (!pthread_equal(*c->thread, pthread_self()))
     {
+      Client_cancel(c);
       pthread_join(*c->thread, NULL);
     }
     else
     {
       pthread_detach(*c->thread);
     }
-    free(c->thread);
+    Client_free_thread(c);
   }
   else
     destroyConnection(con);
@@ -504,7 +528,9 @@ static inline void destroyClientList()
   for (; ClientList; ClientList = ClientList->next)
   {
     if (ClientList->thread)
-      pthread_cancel(*ClientList->thread);
+    {
+      Client_cancel(ClientList);
+    }
   }
   pthread_mutex_unlock(&ClientListLock);
   while (cl)
@@ -590,8 +616,24 @@ static void *client_thread(void *args)
   MdsSetClientAddr(client->addr);
   pthread_cleanup_push((void *)destroyConnection, (void *)connection);
   int status;
+#ifdef _WIN32
+  fd_set readfds, writefds;
+  FD_ZERO(&readfds);
+  FD_SET(client->sock, &readfds);
+  FD_SET(client->cancel->r, &readfds);
+#endif
   do
   {
+#ifdef _WIN32
+    MSG_NOSIGNAL_ALT_PUSH();
+    const int res = select(sock + 1, &readfds, NULL, NULL, NULL));
+    MSG_NOSIGNAL_ALT_POP();
+    if (res != 1 || !FD_ISSET(client->sock, &readfds))
+    {
+      break;
+    }
+    FD_CLR(client->sock, &readfds)
+#endif
     status = ConnectionDoMessage(connection);
   } while (STATUS_OK);
   pthread_cleanup_pop(1);
@@ -601,7 +643,16 @@ static void *client_thread(void *args)
 static inline int dispatch_client(Client *client)
 {
   client->thread = (pthread_t *)malloc(sizeof(pthread_t));
-  const int err = pthread_create(client->thread, NULL, client_thread, (void *)client);
+  int err;
+#ifdef _WIN32
+  SECURITY_ATTRIBUTES saAttr;
+  saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
+  saAttr.bInheritHandle = TRUE;
+  saAttr.lpSecurityDescriptor = NULL;
+  err = !CreatePipe(&client->cancel.r, &client->cancel.w, &saAttr, 0);
+  if (!err)
+#endif
+  err = pthread_create(client->thread, NULL, client_thread, (void *)client);
   if (err)
   {
     errno = err;
@@ -609,6 +660,10 @@ static inline int dispatch_client(Client *client)
     free(client->thread);
     client->thread = NULL;
     client->connection->id = INVALID_CONNECTION_ID;
+#ifdef _WIN32
+    CloseHandle(client->cancel.r);
+    CloseHandle(client->cancel.w);
+#endif
     destroyClient(client);
   }
   else
