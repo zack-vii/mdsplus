@@ -1,5 +1,5 @@
-mdsconnect("local://1")
-# 0 dims ; TODO: locks up next mdsvalue: CONNECTIONLIST_LOCK
+mdsconnect("thread://1")>=0
+# 0 dims
 #mdsvalue("$",[])
 # 1 dim
 mdsvalue("$",[1,2,3])
