@@ -763,29 +763,28 @@ int PutRecordRemote(PINO_DATABASE *dblist, int nid_in, struct descriptor *dsc,
                     int utility_update)
 {
   int status;
-  EMPTYXD(ans);
+  EMPTYXD(xd);
   char exp[80];
   if (dsc)
   {
     sprintf(exp, "TreeShr->TreePutRecord(val(%d),xd($),val(%d))", nid_in,
             utility_update);
-    status = MdsValueDsc(dblist->tree_info->channel, exp, dsc, &ans, NULL);
+    status = MdsValueDsc(dblist->tree_info->channel, exp, dsc, &xd, NULL);
   }
   else
   {
     sprintf(exp, "TreeShr->TreePutRecord(val(%d),val(0),val(%d))", nid_in,
             utility_update);
-    status = MdsValueDsc(dblist->tree_info->channel, exp, &ans, NULL);
+    status = MdsValueDsc(dblist->tree_info->channel, exp, &xd, NULL);
   }
-  if (ans.pointer)
+  if (xd.pointer)
   {
-    if (ans.pointer->dtype == DTYPE_L)
-      status = *(int *)ans.pointer->pointer;
+    if (xd.pointer->dtype == DTYPE_L)
+      status = *(int *)xd.pointer->pointer;
     else if (STATUS_OK)
       status = 0;
-    MdsFree1Dx(&ans, NULL);
   }
-  MdsIpFreeDsc(&ans);
+  MdsIpFreeDsc(&xd);
   return status;
 }
 
@@ -1801,15 +1800,15 @@ inline static int io_open_one_remote(char *host, char *filepath,
                                      int *enhanced)
 {
   int status;
-  static int (*GetConnectionVersion)(int) = NULL;
-  status = LibFindImageSymbol_C("MdsIpShr", "GetConnectionVersion",
-                                &GetConnectionVersion);
+  static int (*MdsIpGetConnectionVersion)(int) = NULL;
+  status = LibFindImageSymbol_C("MdsIpShr", "MdsIpGetConnectionVersion",
+                                &MdsIpGetConnectionVersion);
   do
   {
     *conid = remote_connect(host, 1);
     if (*conid != -1)
     {
-      if (GetConnectionVersion(*conid) < MDSIP_VERSION_OPEN_ONE)
+      if (MdsIpGetConnectionVersion(*conid) < MDSIP_VERSION_OPEN_ONE)
       {
         if (*filepath && !strstr(filepath, "::"))
         {
