@@ -1,6 +1,6 @@
 setenv("MDSIP_MAX_VERSION=0")
 65545
-mdsconnect("thread://1")>=0
+mdsconnect("local://1")>=0
 1BU
 mdsvalue("$",[1,2,3])
 [1,2,3]
@@ -12,7 +12,7 @@ mdsvalue("$",[[[[[[[[1]]]]]]]])
 [[[[[[[[1]]]]]]]]
 mdsvalue("$",[[[[[[[[1,2]]]]]]],[[[[[[[3,4]]]]]]]])
 [[[[[[[[1,2]]]]]]], [[[[[[[3,4]]]]]]]]
-setenv("test_path=thread://1::.")
+setenv("test_path=local://1::.")
 65545
 treeopennew('TEST', 1)
 265389633

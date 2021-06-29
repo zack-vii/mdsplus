@@ -1,5 +1,5 @@
 setenv("MDSIP_MAX_VERSION=0")
-mdsconnect("thread://1")>=0
+mdsconnect("local://1")>=0
 # 0 dims
 #mdsvalue("$",[])
 # 1 dim
@@ -12,7 +12,7 @@ mdsvalue("$",[[[[[[[1]]]]]]])
 mdsvalue("$",[[[[[[[[1]]]]]]]])
 # 8 dims dim[i] != 1 for first and last
 mdsvalue("$",[[[[[[[[1,2]]]]]]],[[[[[[[3,4]]]]]]]])
-setenv("test_path=thread://1::.")
+setenv("test_path=local://1::.")
 treeopennew('TEST', 1)
 treeaddnode('A', _, 0)
 treewrite()
